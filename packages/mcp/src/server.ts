@@ -148,7 +148,7 @@ server.registerTool(
   },
 );
 
-server.registerTool("get_evidence", { description: "Permitted original evidence by id; returns an explicit redacted/expired/unavailable status instead of invented content.", inputSchema: { evidence_id: z.string().uuid() } }, async ({ evidence_id }) => {
+server.registerTool("get_evidence", { description: "Permitted original evidence by id; returns an explicit restricted/redacted/expired/unavailable status instead of invented content.", inputSchema: { evidence_id: z.string().uuid() } }, async ({ evidence_id }) => {
   try {
     return ok(await api("GET", `/api/evidence/${encodeURIComponent(evidence_id)}`));
   } catch (e) {

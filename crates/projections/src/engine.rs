@@ -281,7 +281,17 @@ pub async fn tenant_loop(
 
         let applied = slot.applied.load(Ordering::Acquire);
         let batch = match store.read_tail(tenant, applied, cfg.batch_size).await {
-            Ok(b) => b,
+            Ok(b) => {
+                // A transient database error must not stay sticky: once the tail reads again the
+                // tenant is no longer degraded (the container healthcheck reads this flag).
+                let mut last = slot.last_error.lock().unwrap();
+                if last.is_some() {
+                    info!(event_name = "engine.tail_recovered", tenant_id = %tenant, message = "tail read recovered after a transient error");
+                    *last = None;
+                }
+                drop(last);
+                b
+            }
             Err(e) => {
                 *slot.last_error.lock().unwrap() = Some(e.to_string());
                 warn!(event_name = "engine.tail_read_failed", tenant_id = %tenant, error_code = "db", retryable = true, message = %e);

@@ -258,6 +258,105 @@ describe("PILOT-04 review workflow", () => {
   });
 });
 
+describe("PILOT-08 evidence restriction", () => {
+  it("owner restriction appends a ledger row + audit event, removes live content and answers an explicit status on every content path; agents cannot restrict", async () => {
+    const src = (await c.get("/api/journal?track=source&limit=5")).json as { entries: Array<{ entry_id: string; evidence_refs: string[] }> };
+    const entry = src.entries.find((e) => e.evidence_refs.length > 0)!;
+    const evidenceId = entry.evidence_refs[0]!;
+    const before = (await c.get(`/api/evidence/${evidenceId}`)).json as { status: string; content: unknown };
+    expect(before.status).toBe("available");
+    expect(before.content).toBeTruthy();
+    // read-only agent: cannot restrict (owner session required), can still read the status afterwards
+    const agent = new ApiClient(app.baseUrl);
+    agent.bearer = ((await c.post("/api/agents", { name: "evidence-reader" })).json as { key: string }).key;
+    expect((await agent.post(`/api/evidence/${evidenceId}/restrict`, { reason: "agent tries" })).status).toBe(403);
+    expect((await c.post(`/api/evidence/${evidenceId}/restrict`, { reason: "no" })).status).toBe(400);
+    expect((await c.post(`/api/evidence/00000000-0000-4000-8000-000000000000/restrict`, { reason: "unknown object" })).status).toBe(404);
+    const r = await c.post(`/api/evidence/${evidenceId}/restrict`, { reason: "Customer requested removal of the raw payload (GDPR art. 17)" });
+    expect(r.status).toBe(201);
+    expect(r.json).toMatchObject({ status: "restricted", evidence_id: evidenceId, already_restricted: false, content_removed: true, audited: true });
+    // every content path answers the explicit status; nothing is invented
+    const after = (await c.get(`/api/evidence/${evidenceId}`)).json as { status: string; reason: string; restricted_at: string; content?: unknown; evidence: { evidence_id: string } };
+    expect(after.status).toBe("restricted");
+    expect(after.reason).toContain("GDPR");
+    expect(after.restricted_at).toBeTruthy();
+    expect(after.content).toBeUndefined();
+    expect(after.evidence.evidence_id).toBe(evidenceId);
+    expect((await c.get(`/api/evidence/${evidenceId}/content`)).status).toBe(410);
+    const viaAgent = (await agent.get(`/api/evidence/${evidenceId}`)).json as { status: string };
+    expect(viaAgent.status).toBe("restricted");
+    // typed journal history is untouched: the entry still exists and still references the evidence id
+    const still = (await c.get(`/api/journal/${entry.entry_id}`)).json as { entry: { evidence_refs: string[] } };
+    expect(still.entry.evidence_refs).toContain(evidenceId);
+    // idempotent second call: no second ledger row, no second audit event
+    const again = await c.post(`/api/evidence/${evidenceId}/restrict`, { reason: "repeat click" });
+    expect(again.status).toBe(200);
+    expect(again.json).toMatchObject({ already_restricted: true, audited: false });
+    const ledger = await withTenant(app.pool, owner.tenant_id, (cl) => cl.query<{ action: string; policy_ref: string; actor_id: string | null }>("SELECT action, policy_ref, actor_id FROM evidence_redactions WHERE evidence_id = $1", [evidenceId]));
+    expect(ledger.rows).toHaveLength(1);
+    expect(ledger.rows[0]).toMatchObject({ action: "restricted", policy_ref: "owner_restriction" });
+    expect(ledger.rows[0]!.actor_id).toBeTruthy();
+    const security = (await c.get("/api/settings/security")).json as { counts: Record<string, number> };
+    expect(security.counts["evidence.restricted"]).toBe(1);
+    // the ledger is append-only at the database boundary
+    await expect(withTenant(app.pool, owner.tenant_id, (cl) => cl.query("DELETE FROM evidence_redactions WHERE evidence_id = $1", [evidenceId]))).rejects.toBeTruthy();
+  });
+});
+
+describe("PILOT-07 data-key rotation", () => {
+  it("re-seals every connection/producer secret to the next generation in one verified transaction; mixed generations and wrong versions are refused", async () => {
+    const { loadDataKey, loadCandidateKey, decryptSecret } = await import("@blackbox/auth");
+    const { rotateDataKey, verifyDataKey, RotationError, CONNECTION_SECRET_PURPOSE, PRODUCER_SECRET_PURPOSE } = await import("@blackbox/application");
+    const { randomBytes } = await import("node:crypto");
+    const { writeFileSync } = await import("node:fs");
+    const path = await import("node:path");
+    // one connection with a sealed provider secret + one signed producer (HMAC secret sealed)
+    const shop = (await c.post("/api/sources/connections", { provider: "shopify", display_name: "rotation shop", config: { shop_domain: "rotation.myshopify.com" }, secret: { admin_api_token: "shpat_rotation_secret" } })).json as { connection: { connection_id: string } };
+    const prod = (await c.post("/api/sources/connections", { provider: "generic", display_name: "rotation producer", config: { producer_name: "rotation" } })).json as { connection: { connection_id: string }; producer?: { producer_id: string } };
+    expect(shop.connection.connection_id).toBeTruthy();
+    const live = loadDataKey(app.install.secretsDir);
+    expect(live.version).toBe(1);
+    const candidateFile = path.join(app.install.secretsDir, "data.key.next");
+    writeFileSync(candidateFile, randomBytes(32), { mode: 0o600 });
+    const next = loadCandidateKey(candidateFile, 2, live.anchorRoot);
+    const tenants = [owner.tenant_id];
+    const before = await verifyDataKey(app.pool, live, tenants);
+    expect(before.verified).toBeGreaterThanOrEqual(1);
+    // wrong sequence / same key refused before touching anything
+    await expect(rotateDataKey(app.pool, live, loadCandidateKey(candidateFile, 3, live.anchorRoot), tenants)).rejects.toMatchObject({ code: "version_sequence" });
+    await expect(rotateDataKey(app.pool, live, { ...live, version: 2 }, tenants)).rejects.toMatchObject({ code: "same_key" });
+    const r = await rotateDataKey(app.pool, live, next, tenants);
+    expect(r).toMatchObject({ from_version: 1, to_version: 2, tenants: 1 });
+    expect(r.connections).toBeGreaterThanOrEqual(1);
+    expect(r.verified).toBe(r.connections + r.producers);
+    // every stored blob now carries generation 2 and opens with the candidate only
+    const rows = await withTenant(app.pool, owner.tenant_id, (cl) => cl.query<{ secret_ciphertext: Buffer; secret_key_version: number }>("SELECT secret_ciphertext, secret_key_version FROM connections WHERE connection_id = $1", [shop.connection.connection_id]));
+    expect(rows.rows[0]!.secret_key_version).toBe(2);
+    expect(JSON.parse(decryptSecret(next, rows.rows[0]!.secret_ciphertext, { tenantId: owner.tenant_id, purpose: CONNECTION_SECRET_PURPOSE }).toString("utf8"))).toMatchObject({ admin_api_token: "shpat_rotation_secret" });
+    expect(() => decryptSecret(live, rows.rows[0]!.secret_ciphertext, { tenantId: owner.tenant_id, purpose: CONNECTION_SECRET_PURPOSE })).toThrow(/key version 2/);
+    if (prod.producer) {
+      const p = await withTenant(app.pool, owner.tenant_id, (cl) => cl.query<{ secret_ciphertext: Buffer; secret_key_version: number }>("SELECT secret_ciphertext, secret_key_version FROM producer_credentials WHERE producer_id = $1", [prod.producer!.producer_id]));
+      expect(p.rows[0]!.secret_key_version).toBe(2);
+      decryptSecret(next, p.rows[0]!.secret_ciphertext, { tenantId: owner.tenant_id, purpose: PRODUCER_SECRET_PURPOSE });
+    }
+    // the retiring key can no longer verify; a second rotation from the retired generation is refused (mixed generations)
+    await expect(verifyDataKey(app.pool, live, tenants)).rejects.toMatchObject({ code: "verify_version" });
+    await expect(rotateDataKey(app.pool, live, next, tenants)).rejects.toBeInstanceOf(RotationError);
+    expect((await verifyDataKey(app.pool, next, tenants)).verified).toBe(r.verified);
+    // audited per tenant, append-only
+    const security = (await c.get("/api/settings/security")).json as { counts: Record<string, number> };
+    expect(security.counts["data_key.rotated"]).toBe(1);
+    // the API process still holds generation 1 in memory: creating another sealed connection must not silently mix generations
+    // (the wrapper swaps the files and recreates the containers before releasing the fence) — here we simulate the host swap
+    writeFileSync(path.join(app.install.secretsDir, "data.key"), next.key, { mode: 0o600 });
+    writeFileSync(path.join(app.install.secretsDir, "data.key.version"), "2\n", { mode: 0o600 });
+    const reloaded = loadDataKey(app.install.secretsDir);
+    expect(reloaded.version).toBe(2);
+    expect(reloaded.anchorRoot.equals(live.anchorRoot)).toBe(true);
+    expect((await verifyDataKey(app.pool, reloaded, tenants)).verified).toBe(r.verified);
+  });
+});
+
 describe("QUERY-01/02 question boundary (engine stub)", () => {
   it("validates parameters for all 24 intents, attaches readiness, and never fabricates a result without the engine", async () => {
     const templates = (await c.get("/api/questions")).json as { questions: Array<{ intent: string; params_schema: { required: string[]; properties: Record<string, unknown> }; readiness: { status: string } | null; supported: boolean }> };

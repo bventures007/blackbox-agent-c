@@ -3,3 +3,5 @@
 resuming upgrade 0.1.0-rc6 → 0.1.0-rc6b from phase 'images'
   [images-load]
   loading api.tar
+request returned Bad Gateway for API route and version http://%2FUsers%2Fbenediktsauter%2F.docker%2Frun%2Fdocker.sock/v1.47/images/load?quiet=1, check if the server supports the requested API version
+# exit: 1 finished 2026-11-01T16:49:37Z

@@ -35,7 +35,8 @@ Common envelopes: question/state responses follow `specs/question-data-contracts
 - GET /api/entities/:type/:id/state?mode=latest_committed|at_least_cursor&cursor=&as_of_recorded=&as_of_effective= → state envelope (engine /v1/state).
 - GET /api/entities/:type/:id/history?cursor=&limit= → entries.
 - GET /api/search?q=&track=&from=&to=&cursor=&limit= → literal search over record ids/event types/entity refs.
-- GET /api/evidence/:evidence_id → metadata + content when permitted; {status:"redacted"|"expired"|"unavailable", reason} otherwise. GET /api/evidence/:id/content → bytes.
+- GET /api/evidence/:evidence_id → metadata + content when permitted; {status:"restricted"|"redacted"|"expired"|"unavailable", reason, restricted_at?} otherwise. GET /api/evidence/:id/content → bytes.
+- POST /api/evidence/:evidence_id/restrict {reason} (owner session + CSRF, PILOT-08) → 201 {status:"restricted", evidence_id, redaction_id, already_restricted:false, content_removed, audited:true}; appends an immutable `evidence_redactions` row (action `restricted`, policy_ref `owner_restriction`) and a `security_audit` event `evidence.restricted` in one transaction, then removes the live content. Idempotent: a second call answers 200 with already_restricted:true and no new row. Journal entries and their evidence_refs are untouched; every content path (GET /api/evidence, /content → 410 evidence_restricted, MCP get_evidence) answers the explicit status. A restore that predates the restriction keeps raw access blocked (evidence-access.json, status "restricted"/reason restore_policy_unreconciled) until the owner reconciles.
 - GET /api/schema → describe_business_schema.
 
 ## Questions (A)

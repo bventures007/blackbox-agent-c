@@ -10,7 +10,8 @@ import { mkdtempSync, rmSync, writeFileSync, chmodSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { anchorKeyFor, buildAllowedOrigins, decryptSecret, encryptSecret, ensureDataKey, generateAgentKey, generateOwnerKey, hashKey, hostAllowed, loadDataKey, originAllowed, parseKey, piiAnchor, verifyKey, DataKeyError } from "@blackbox/auth";
+import { randomBytes } from "node:crypto";
+import { anchorKeyFor, buildAllowedOrigins, decryptSecret, encryptSecret, ensureDataKey, generateAgentKey, generateOwnerKey, hashKey, hostAllowed, loadCandidateKey, loadDataKey, originAllowed, parseKey, piiAnchor, reencryptSecret, verifyKey, DataKeyError } from "@blackbox/auth";
 import { bankRowIdentity, localToUtc, parseBankCsv, parseProducerTimestamp, resolveImportPlan, signProducerBody, buildIntents } from "@blackbox/application";
 
 describe("keys (LOCAL-01, LOCAL-04)", () => {
@@ -90,6 +91,56 @@ describe("installation data key (PILOT-07)", () => {
       writeFileSync(path.join(dir, "data.key"), Buffer.alloc(32), { mode: 0o600 });
       chmodSync(path.join(dir, "data.key"), 0o644);
       expect(() => loadDataKey(dir)).toThrow(/0600/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("installation data key rotation layout (PILOT-07)", () => {
+  it("reads the generation and anchor root beside data.key, keeps anchors stable across rotation and re-seals with the next generation only", () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), "bb-secrets-"));
+    try {
+      const v1 = ensureDataKey(dir).dataKey;
+      expect(v1.version).toBe(1);
+      expect(v1.anchorRoot.equals(v1.key)).toBe(true); // legacy layout: anchors derive from the generation-1 key
+      const anchorBefore = piiAnchor(anchorKeyFor(v1, "T"), "email", "anna@example.com");
+      const sealed = encryptSecret(v1, "shpat_secret", { tenantId: "T", purpose: "connection_secret" });
+      // wrapper freezes the generation-1 material as the anchor root, then generates the candidate
+      writeFileSync(path.join(dir, "anchor.key"), v1.key, { mode: 0o600 });
+      const candidateFile = path.join(dir, "data.key.next");
+      writeFileSync(candidateFile, randomBytes(32), { mode: 0o600 });
+      const v2 = loadCandidateKey(candidateFile, v1.version + 1, v1.anchorRoot);
+      expect(v2.version).toBe(2);
+      expect(() => loadCandidateKey(candidateFile, 300, v1.anchorRoot)).toThrow(/1\.\.255/);
+      const resealed = reencryptSecret(v1, v2, sealed, { tenantId: "T", purpose: "connection_secret" });
+      expect(resealed[1]).toBe(2); // key_version byte in the header
+      expect(decryptSecret(v2, resealed, { tenantId: "T", purpose: "connection_secret" }).toString()).toBe("shpat_secret");
+      expect(() => decryptSecret(v1, resealed, { tenantId: "T", purpose: "connection_secret" })).toThrow(/key version 2/);
+      expect(() => decryptSecret(v2, sealed, { tenantId: "T", purpose: "connection_secret" })).toThrow(/key version 1/);
+      // host swap: data.key := candidate, data.key.version := 2 → the loader sees generation 2 and the frozen anchor root
+      writeFileSync(path.join(dir, "data.key"), v2.key, { mode: 0o600 });
+      writeFileSync(path.join(dir, "data.key.version"), "2\n", { mode: 0o600 });
+      const live = loadDataKey(dir);
+      expect(live.version).toBe(2);
+      expect(live.key.equals(v2.key)).toBe(true);
+      expect(live.anchorRoot.equals(v1.key)).toBe(true);
+      expect(piiAnchor(anchorKeyFor(live, "T"), "email", "anna@example.com")).toBe(anchorBefore);
+      expect(decryptSecret(live, resealed, { tenantId: "T", purpose: "connection_secret" }).toString()).toBe("shpat_secret");
+      // a corrupt generation file is an actionable error, never a silent fallback to generation 1
+      writeFileSync(path.join(dir, "data.key.version"), "two\n", { mode: 0o600 });
+      expect(() => loadDataKey(dir)).toThrow(/integer 1\.\.255/);
+      // a fresh install has an independent anchor root
+      const fresh = mkdtempSync(path.join(os.tmpdir(), "bb-secrets-fresh-"));
+      try {
+        const k = ensureDataKey(fresh).dataKey;
+        writeFileSync(path.join(fresh, "anchor.key"), randomBytes(32), { mode: 0o600 });
+        const kk = loadDataKey(fresh);
+        expect(kk.anchorRoot.equals(k.key)).toBe(false);
+        expect(piiAnchor(anchorKeyFor(kk, "T"), "email", "anna@example.com")).not.toBe(piiAnchor(anchorKeyFor(k, "T"), "email", "anna@example.com"));
+      } finally {
+        rmSync(fresh, { recursive: true, force: true });
+      }
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

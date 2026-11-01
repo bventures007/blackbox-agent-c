@@ -25,7 +25,9 @@ export interface EvidenceMeta {
   evidence_class: string;
 }
 
-export type EvidenceAccess = { status: "available"; meta: EvidenceMeta; content: Buffer } | { status: "redacted" | "expired" | "unavailable"; meta: EvidenceMeta | null; reason: string };
+export type EvidenceAccess =
+  | { status: "available"; meta: EvidenceMeta; content: Buffer }
+  | { status: "redacted" | "restricted" | "expired" | "unavailable"; meta: EvidenceMeta | null; reason: string; restricted_at?: string };
 
 /**
  * Raw observation storage on the evidence volume (EVIDENCE_DIR/<tenant>/<yyyymm>/<id>.<ext>).
@@ -100,11 +102,11 @@ export class EvidenceStore {
       received_at: row.received_at.toISOString(),
       evidence_class: row.evidence_class,
     };
-    const red = await client.query<{ action: "redacted" | "expired" | "restricted"; reason: string }>("SELECT action, reason FROM evidence_redactions WHERE evidence_id = $1 AND tenant_id = $2 ORDER BY created_at DESC LIMIT 1", [evidenceId, tenantId]);
+    const red = await client.query<{ action: "redacted" | "expired" | "restricted"; reason: string; created_at: Date }>("SELECT action, reason, created_at FROM evidence_redactions WHERE evidence_id = $1 AND tenant_id = $2 ORDER BY created_at DESC LIMIT 1", [evidenceId, tenantId]);
     const latest = red.rows[0];
     if (latest) {
-      const status = latest.action === "expired" ? "expired" : "redacted";
-      return { status, meta, reason: latest.reason };
+      // The ledger action is the explicit status: restricted (owner action), redacted (policy) or expired.
+      return { status: latest.action, meta, reason: latest.reason, restricted_at: latest.created_at.toISOString() };
     }
     // Retention policy by evidence class (default 90 days from local receipt).
     const pol = await client.query<{ days: number }>("SELECT days FROM retention_policies WHERE tenant_id = $1 AND evidence_class = $2", [tenantId, row.evidence_class]);
@@ -118,6 +120,36 @@ export class EvidenceStore {
     const hash = createHash("sha256").update(content).digest("hex");
     if (hash !== row.content_hash) return { status: "unavailable", meta, reason: "evidence_integrity_mismatch" };
     return { status: "available", meta, content };
+  }
+
+  /**
+   * Owner-authorized restriction (PILOT-08): appends the ledger row inside the caller's transaction and
+   * returns the storage_ref so the caller removes the live content after COMMIT (never before: a rolled
+   * back ledger row must not leave an unexplained missing file). Idempotent: an already restricted or
+   * redacted object returns `already: true` without a second ledger row.
+   */
+  async restrict(client: TenantClient, input: { tenantId: string; evidenceId: string; reason: string; actorId: string | null; auditEntryId?: string | null }): Promise<{ found: boolean; already: boolean; storageRef: string | null; redactionId: string | null }> {
+    const r = await client.query<{ storage_ref: string }>("SELECT storage_ref FROM journal_evidence WHERE evidence_id = $1 AND tenant_id = $2", [input.evidenceId, input.tenantId]);
+    const row = r.rows[0];
+    if (!row) return { found: false, already: false, storageRef: null, redactionId: null };
+    const existing = await client.query<{ redaction_id: string; action: string }>("SELECT redaction_id, action FROM evidence_redactions WHERE evidence_id = $1 AND tenant_id = $2 AND action IN ('restricted','redacted') ORDER BY created_at DESC LIMIT 1", [input.evidenceId, input.tenantId]);
+    if (existing.rows[0]) return { found: true, already: true, storageRef: row.storage_ref, redactionId: existing.rows[0].redaction_id };
+    const ins = await client.query<{ redaction_id: string }>("INSERT INTO evidence_redactions (tenant_id, evidence_id, action, reason, actor_id, policy_ref, audit_entry_id) VALUES ($1,$2,'restricted',$3,$4,'owner_restriction',$5) RETURNING redaction_id", [input.tenantId, input.evidenceId, input.reason, input.actorId, input.auditEntryId ?? null]);
+    return { found: true, already: false, storageRef: row.storage_ref, redactionId: ins.rows[0]!.redaction_id };
+  }
+
+  /** Removes live content for a ledgered object (idempotent; the ledger blocks access regardless). */
+  removeContent(tenantId: string, storageRef: string): boolean {
+    const full = this.pathFor(tenantId, storageRef);
+    try {
+      if (existsSync(full)) {
+        unlinkSync(full);
+        return true;
+      }
+    } catch {
+      /* best effort */
+    }
+    return false;
   }
 
   /** Audited redaction: appends to the ledger and removes live content (journal rows untouched). */

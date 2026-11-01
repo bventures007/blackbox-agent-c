@@ -69,6 +69,8 @@ Closing the browser does not stop anything. Quitting Docker Desktop, sleep or sh
 
 Until a destination is enrolled the app and `doctor` say **unprotected**. Enroll one outside the installation (ideally an external disk): `./blackbox backup-config /Volumes/Disk/blackbox` prints the **backup recovery key** once — save it separately from the owner key. `./blackbox backup` creates an encrypted generation; afterwards one per 24 h while running (7 daily + 4 weekly kept). Restore into a fresh folder: `./blackbox restore <file.tar.age>` (asks for the recovery key; new owner key shown once; sources stay paused until `./blackbox resume-sources`). Details and the in-place `--replace` variant: `INSTALL.en.md` §7, `docs/operations.md`.
 
+Key hygiene (optional): `./blackbox rotate-data-key` replaces the installation key that encrypts your source tokens — all stored source secrets are re-encrypted and verified before the old key is retired; the app is briefly paused for writes. Your owner key and agent keys are unaffected (they are separate). Create a new backup afterwards.
+
 ## 8. Diagnostics export (explicit, sanitized)
 
 Nothing is sent automatically — ever. When you report a problem, attach a bundle you created yourself:
@@ -163,6 +165,8 @@ Das Schließen des Browsers stoppt nichts. Docker Desktop beenden, Ruhezustand o
 ## 7. Sicherung und Wiederherstellung (Verweise)
 
 Bis ein Ziel eingerichtet ist, zeigen App und `doctor` **ungeschützt**. Richte ein Ziel außerhalb der Installation ein (ideal: externe Platte): `./blackbox backup-config /Volumes/Disk/blackbox` zeigt den **Wiederherstellungsschlüssel** einmal — getrennt vom Inhaberschlüssel aufbewahren. `./blackbox backup` erzeugt eine verschlüsselte Generation; danach eine pro 24 h, solange Blackbox läuft (7 tägliche + 4 wöchentliche). Wiederherstellen in einen neuen Ordner: `./blackbox restore <datei.tar.age>` (fragt nach dem Wiederherstellungsschlüssel; neuer Inhaberschlüssel einmal angezeigt; Quellen bleiben pausiert bis `./blackbox resume-sources`). Details und `--replace`: `INSTALL.de.md` §7, `docs/operations.md`.
+
+Schlüsselhygiene (optional): `./blackbox rotate-data-key` ersetzt den Installationsschlüssel, der deine Quellen-Tokens verschlüsselt — alle gespeicherten Quellen-Geheimnisse werden neu verschlüsselt und geprüft, bevor der alte Schlüssel stillgelegt wird; Schreibzugriffe sind kurz pausiert. Inhaber- und Agentenschlüssel sind davon unabhängig. Danach eine neue Sicherung anlegen.
 
 ## 8. Diagnose exportieren (explizit, bereinigt)
 

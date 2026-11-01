@@ -9,7 +9,7 @@
 #   database.pgc.age        pg_dump -Fc of the whole database, age-encrypted (ciphertext at rest in staging)
 #   evidence.tar.age        raw evidence directory
 #   snapshots.tar.age       engine snapshots (optional acceleration only)
-#   keys.tar.age            installation data key, engine token, runtime role passwords
+#   keys.tar.age            installation data key (+ generation file and PII-anchor root), engine token, runtime role passwords
 #   redaction-ledger.json.age  when the table exists
 # Members are individually encrypted so the staging directory never holds plaintext; the outer
 # stream is encrypted again so one file carries everything and has one checksum.
@@ -80,7 +80,7 @@ if [ -d "$BACKUP_SOURCE_SNAPSHOTS" ]; then
 fi
 log "archiving installation key material"
 KEYS=()
-for f in data.key engine_token pg_migrate_password pg_api_password pg_worker_password pg_engine_password backup_recipient.pub; do
+for f in data.key data.key.version anchor.key engine_token pg_migrate_password pg_api_password pg_worker_password pg_engine_password backup_recipient.pub; do
   [ -r "$BACKUP_SOURCE_SECRETS/$f" ] && KEYS+=("$f")
 done
 [ "${#KEYS[@]}" -gt 0 ] || die "no installation key material readable under $BACKUP_SOURCE_SECRETS"

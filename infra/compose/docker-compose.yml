@@ -133,6 +133,8 @@ services:
       - pg_migrate_password
       - engine_token
       - data.key
+      - data.key.version
+      - anchor.key
     # Local provider-shaped fixtures/producers on the host (synthetic tests only; never a public callback).
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -185,6 +187,8 @@ services:
       - pg_worker_password
       - engine_token
       - data.key
+      - data.key.version
+      - anchor.key
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -299,6 +303,11 @@ secrets:
     file: ${BLACKBOX_SECRETS_DIR}/engine_token
   data.key:
     file: ${BLACKBOX_SECRETS_DIR}/data.key
+  # generation of data.key and the PII-anchor root; created by the wrapper (setup / first up after upgrade / rotate-data-key)
+  data.key.version:
+    file: ${BLACKBOX_SECRETS_DIR}/data.key.version
+  anchor.key:
+    file: ${BLACKBOX_SECRETS_DIR}/anchor.key
 
 volumes:
   pgdata:

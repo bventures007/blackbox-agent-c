@@ -94,7 +94,21 @@ require_docker() {
   docker info >/dev/null 2>&1 || fail "Docker daemon not reachable. Start Docker Desktop and retry."
   docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 plugin missing (docker compose)."
 }
-compose() { require_env; check_bind; docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" "$@"; }
+# Versioned key layout (PILOT-07): data.key.version (generation, default 1) and anchor.key (HKDF root of the PII
+# anchors) sit beside data.key. Installations created before rotation existed get version 1 and an anchor root equal
+# to the generation-1 key material (that is how their anchors were derived); fresh setups get an independent root.
+ensure_key_files() {
+  [ -s "$SECRETS_DIR/data.key" ] || return 0
+  local umask_prev; umask_prev="$(umask)"; umask 077
+  [ -s "$SECRETS_DIR/data.key.version" ] || printf '1\n' > "$SECRETS_DIR/data.key.version"
+  if [ ! -s "$SECRETS_DIR/anchor.key" ]; then
+    [ "$(tr -d '[:space:]' < "$SECRETS_DIR/data.key.version")" = "1" ] || { umask "$umask_prev"; fail "secrets/anchor.key is missing although the data key was rotated; restore the secrets directory from backup recovery material"; }
+    cp "$SECRETS_DIR/data.key" "$SECRETS_DIR/anchor.key"
+  fi
+  chmod 0600 "$SECRETS_DIR/data.key.version" "$SECRETS_DIR/anchor.key" 2>/dev/null || true
+  umask "$umask_prev"
+}
+compose() { require_env; check_bind; ensure_key_files; docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" "$@"; }
 project_name() { local p; p="$(env_get COMPOSE_PROJECT_NAME)"; echo "${p:-$DEFAULT_PROJECT}"; }
 port() { local p; p="${BLACKBOX_PORT:-$(env_get BLACKBOX_PORT)}"; echo "${p:-$DEFAULT_PORT}"; }
 version_installed() { [ -f "$STATE_DIR/installed-release.json" ] && json_get "$STATE_DIR/installed-release.json" version || echo ""; }
@@ -297,7 +311,7 @@ setup() {
   phase setup secrets-generate
   secret_gen "$SECRETS_DIR/pg_superuser_password" pw; secret_gen "$SECRETS_DIR/pg_migrate_password" pw
   secret_gen "$SECRETS_DIR/pg_api_password" pw; secret_gen "$SECRETS_DIR/pg_worker_password" pw; secret_gen "$SECRETS_DIR/pg_engine_password" pw
-  secret_gen "$SECRETS_DIR/engine_token" hex; secret_gen "$SECRETS_DIR/data.key" raw
+  secret_gen "$SECRETS_DIR/engine_token" hex; secret_gen "$SECRETS_DIR/data.key" raw; secret_gen "$SECRETS_DIR/anchor.key" raw; printf '1\n' > "$SECRETS_DIR/data.key.version"
   printf '{"install_id":"%s","created_at":"%s"}\n' "$(openssl rand -hex 16)" "$(ts)" > "$STATE_DIR/install.json"
   phase setup env-write
   [ "$MODE" = "source" ] && { mkdir -p "$ROOT/.local"; [ -f "$RELEASE_JSON" ] || printf '{\n  "version": "dev",\n  "backup_format_version": 1,\n  "postgres_major": 16\n}\n' > "$RELEASE_JSON"; }
@@ -407,6 +421,72 @@ reset_access() { require_env; host_only; require_docker; api_has_cli || fail "re
   phase reset-access start; say "Rotating the owner key, revoking all sessions and agent keys (business data preserved)."
   api_cli reset-access "$@" && phase reset-access done || { phase reset-access failed; exit 1; }; }
 rotate_key() { require_env; host_only; require_docker; api_has_cli || fail "rotate-key requires the api CLI (TODO integration)" 1; api_cli rotate-key "$@"; }
+rotate_data_key() { # rotate-data-key [--resume]   host-authorized installation data-key rotation (PILOT-07)
+  require_env; host_only; require_docker; api_has_cli || fail "rotate-data-key requires the api CLI image" 1
+  local resume=0; while [ $# -gt 0 ]; do case "$1" in --resume) resume=1; shift;; *) fail "rotate-data-key: unknown option $1";; esac; done
+  [ -f "$STATE_DIR/upgrade.json" ] && fail "an upgrade is in progress/interrupted; finish it first (./blackbox upgrade --resume)" 1
+  local state="$STATE_DIR/key-rotation.json" phase_now="prepare" from to
+  if [ -f "$state" ]; then
+    [ $resume = 1 ] || fail "a data-key rotation was interrupted (phase $(json_get "$state" phase)); run ./blackbox rotate-data-key --resume" 1
+    phase_now="$(json_get "$state" phase)"; from="$(json_get "$state" from)"; to="$(json_get "$state" to)"
+  else
+    [ $resume = 0 ] || fail "nothing to resume (no interrupted rotation recorded)" 1
+    [ ! -f "$FENCE_FILE" ] || fail "writers are already fenced ($(tr -d '\n' < "$FENCE_FILE")); finish that operation first" 1
+  fi
+  [ "$(service_state postgres | awk '{print $1}')" = "running" ] || fail "PostgreSQL is not running; start the stack first (./blackbox up)" 1
+  ensure_key_files
+  local tdir; tdir="$(mktemp -d "$DATA_DIR/restore/rotate.XXXXXX")"; chmod 0700 "$tdir"
+  psql_super -Atc "SELECT tenant_id FROM tenants ORDER BY tenant_id" > "$tdir/tenants" 2>/dev/null || { rm -rf "$tdir"; fail "could not enumerate workspaces (postgres not reachable?)"; }
+  [ -s "$tdir/tenants" ] || { rm -rf "$tdir"; fail "no workspace found; run setup first" 1; }
+  rot_state() { printf '{"phase":"%s","from":%s,"to":%s,"started":"%s"}\n' "$1" "$from" "$to" "${started:-$(ts)}" > "$state.tmp" && mv -f "$state.tmp" "$state"; }
+  rot_abort() { rm -f "$SECRETS_DIR/data.key.next" "$state"; fence_clear; unpause_worker; rm -rf "$tdir"; }
+  local started; started="$(json_get "$state" started 2>/dev/null || true)"; [ -n "$started" ] || started="$(ts)"
+  if [ "$phase_now" = "prepare" ]; then
+    from="$(tr -d '[:space:]' < "$SECRETS_DIR/data.key.version")"; to=$((from + 1)); [ "$to" -le 255 ] || fail "key generation limit reached (255)"
+    phase rotate-data-key prepare "from=$from"; fence_set "key_rotation"; pause_worker
+    umask 077; [ -s "$SECRETS_DIR/data.key.next" ] || secret_gen "$SECRETS_DIR/data.key.next" raw
+    rot_state reencrypt; phase_now="reencrypt"
+    say "Rotating the installation data key: generation $from -> $to (writers fenced, sources paused)."
+  fi
+  if [ "$phase_now" = "reencrypt" ]; then
+    phase rotate-data-key reencrypt
+    # A resumed run may find the database already re-sealed (commit happened, swap did not): verify with the candidate first.
+    if compose run --rm --no-deps -T -v "$SECRETS_DIR/data.key.next:/run/secrets/data.key.next:ro" api node /app/apps/api/dist/cli.js rotate-data-key --verify-only --new-key-file /run/secrets/data.key.next < "$tdir/tenants" >/dev/null 2>&1; then
+      say "  database already re-sealed with generation $to (resumed)"
+    elif ! compose run --rm --no-deps -T -v "$SECRETS_DIR/data.key.next:/run/secrets/data.key.next:ro" api node /app/apps/api/dist/cli.js rotate-data-key --new-key-file /run/secrets/data.key.next < "$tdir/tenants"; then
+      phase rotate-data-key failed "reencrypt"; rot_abort; fail "re-sealing failed; nothing was changed (transaction rolled back), live key kept, fence released"
+    fi
+    rot_state swap; phase_now="swap"
+  fi
+  if [ "$phase_now" = "swap" ]; then
+    phase rotate-data-key swap
+    umask 077
+    [ -s "$SECRETS_DIR/data.key.next" ] || fail "candidate key file missing after re-sealing; restore secrets/ from backup recovery material (the database holds generation $to)" 2
+    mv -f "$SECRETS_DIR/data.key" "$SECRETS_DIR/data.key.retired.$from"
+    mv -f "$SECRETS_DIR/data.key.next" "$SECRETS_DIR/data.key"
+    printf '%s\n' "$to" > "$SECRETS_DIR/data.key.version"; chmod 0600 "$SECRETS_DIR/data.key" "$SECRETS_DIR/data.key.version"
+    rm -f "$SECRETS_DIR/data.key.retired.$from"
+    rot_state restart; phase_now="restart"
+  fi
+  if [ "$phase_now" = "restart" ]; then
+    phase rotate-data-key restart
+    unpause_worker
+    # Compose file secrets are bind mounts of the host file: containers keep the old inode until recreated.
+    compose up -d --no-deps --force-recreate api worker >/dev/null 2>&1 || fail "could not recreate api/worker with the new key; run ./blackbox rotate-data-key --resume" 1
+    wait_for 120 "api" api_health || warn "api not healthy yet"
+    rot_state verify; phase_now="verify"
+  fi
+  if [ "$phase_now" = "verify" ]; then
+    phase rotate-data-key verify
+    api_cli -T rotate-data-key --verify-only < "$tdir/tenants" || fail "verification with the live key failed; fence kept. Run ./blackbox rotate-data-key --resume after investigating ./blackbox logs --since 15m" 1
+    rm -f "$state"; fence_clear; unpause_worker; compose up -d worker >/dev/null 2>&1 || true
+    phase rotate-data-key done "to=$to"
+    say "Data key rotated to generation $to; generation $from retired and removed from this installation."
+    say "Backups created before this rotation stay restorable with their own recovery key (they carry their own key material)."
+    say "Create a new backup now so the newest generation is protected: ./blackbox backup"
+  fi
+  rm -rf "$tdir"
+}
 create_agent_key() { require_env; host_only; require_docker; api_has_cli || fail "create-agent-key requires the api CLI (TODO integration)" 1; api_cli create-agent-key "$@"; }
 
 # ----- backups ------------------------------------------------------------------------------------------------
@@ -441,10 +521,16 @@ backup_config() { # backup-config <destination-dir> [--label text]
   fi
   printf '{"install_id":"%s","label":"%s","same_device":%s,"enrolled_at":"%s"}\n' "$install_id" "$label" "$same" "$(ts)" > "$dest/.blackbox-backup-destination"
   env_set BLACKBOX_BACKUP_DESTINATION "$dest"
+  # A scheduler started before enrollment still mounts the placeholder destination and would keep
+  # rewriting status.json to not_configured; recreate it with the enrolled destination first.
+  if [ -n "$(compose ps -q backup-scheduler 2>/dev/null)" ]; then
+    phase backup-config scheduler-recreate
+    compose up -d --no-deps --force-recreate backup-scheduler >/dev/null 2>&1 || warn "could not recreate the backup scheduler; run ./blackbox up"
+  fi
   printf '{"status":"scheduled","configured":true,"destination_label":"%s","same_device":%s,"last_completed_at":null,"next_due_at":"%s","retention":{"daily":7,"weekly":4}}\n' "$label" "$same" "$(ts)" > "$DATA_DIR/backups/status.json"
   phase backup-config done
   say "Destination enrolled. The scheduler creates one encrypted generation per 24 h while the backend runs."
-  say "Create the first one now: ./blackbox backup   (restart the stack with ./blackbox up so the scheduler sees the destination)"
+  say "Create the first one now: ./blackbox backup"
 }
 backup() { # backup [--kind manual|pre-upgrade]
   require_env; require_docker; local kind="manual"; [ "${1:-}" = "--kind" ] && kind="$2"
@@ -700,6 +786,7 @@ blackbox — local commerce flight recorder (loopback-only local pilot)
   upgrade <release> [--use-backup <gen>] [--resume]   fenced, resumable upgrade with preflight + pre-upgrade backup
   diagnostics export --since 1h --output <file>       sanitized local export (no upload)
   reset-access | rotate-key | create-agent-key        host-only owner access operations (api CLI with terminal attached)
+  rotate-data-key [--resume]  host-only: re-seal stored source secrets with the next installation data-key generation (fenced, verified, resumable)
   help
 
 Environment: BLACKBOX_INSTALL_DIR (default: release dir, or <repo>/.local for a checkout), BLACKBOX_BIND (127.0.0.1 only),
@@ -716,7 +803,7 @@ case "$cmd" in
   demo) demo "$@";; verify) verify;;
   backup-config) backup_config "$@";; backup) backup "$@";; restore) restore "$@";; restore-internal) restore_internal "$@";; resume-sources) resume_sources;;
   upgrade) upgrade "$@";;
-  reset-access) reset_access "$@";; rotate-key) rotate_key "$@";; create-agent-key) create_agent_key "$@";;
+  reset-access) reset_access "$@";; rotate-key) rotate_key "$@";; create-agent-key) create_agent_key "$@";; rotate-data-key) rotate_data_key "$@";;
   help|--help|-h) help;;
   version|--version) say "blackbox wrapper $BLACKBOX_WRAPPER_VERSION, release $(version_release), mode $MODE";;
   *) warn "unknown command: $cmd"; help; exit 2;;

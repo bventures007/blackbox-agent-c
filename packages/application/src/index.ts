@@ -12,3 +12,4 @@ export * from "./review.js";
 export * from "./questions.js";
 export * from "./connections.js";
 export * from "./demo.js";
+export * from "./datakey-rotation.js";

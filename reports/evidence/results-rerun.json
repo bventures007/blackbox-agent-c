@@ -1,0 +1,1161 @@
+[
+  {
+    "id": "INSTALL-01",
+    "status": "implemented_unverified",
+    "command": "not run (planned: curl download -> /Users/benediktsauter/blackbox-pilot-dist, ./blackbox doctor, scripts/release/setup-with-key-capture.py, ./blackbox up/status, docker compose -p blackbox-agent-c ps)",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "No fresh install was performed: the 0.1.0 archive does not exist yet (build stuck) and the time-box ended. The existing rc6 install (~/blackbox-pilot-int) is running.",
+    "evidence_paths": [
+      "reports/evidence/DIST-03/build-0.1.0-partial.log",
+      "scripts/release/setup-with-key-capture.py"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). no 0.1.0 artifact",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "INSTALL-02",
+    "status": "implemented_unverified",
+    "command": "not run (planned: scripts/release/answer-snapshot.sh before/after ./blackbox down && ./blackbox up)",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Restart persistence was not exercised in this slot.",
+    "evidence_paths": [
+      "scripts/release/answer-snapshot.sh"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). no fresh install",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "TENANT-01",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (tests/backend/integration/journal.test.ts TENANT-01..04) + pnpm test:worker (pipeline.test.ts two tenants with colliding ids under bb_worker)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "backend integration 49/49 passed (same external ids in two tenants never cross through list/detail/history/search; runtime roles without tenant context read nothing and cannot write; pooled connections carry no tenant context after success/failure/cancellation; cross-tenant foreign references and cursors denied without content); worker 32/32 passed; SLICE-01 step 6 on the installed stack: second synthetic tenant, 404 for the foreign entry id, owner state unchanged",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "TENANT-02",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (tests/backend/integration/journal.test.ts TENANT-01..04) + pnpm test:worker (pipeline.test.ts two tenants with colliding ids under bb_worker)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "backend integration 49/49 passed (same external ids in two tenants never cross through list/detail/history/search; runtime roles without tenant context read nothing and cannot write; pooled connections carry no tenant context after success/failure/cancellation; cross-tenant foreign references and cursors denied without content); worker 32/32 passed; SLICE-01 step 6 on the installed stack: second synthetic tenant, 404 for the foreign entry id, owner state unchanged",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "TENANT-03",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (tests/backend/integration/journal.test.ts TENANT-01..04) + pnpm test:worker (pipeline.test.ts two tenants with colliding ids under bb_worker)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "backend integration 49/49 passed (same external ids in two tenants never cross through list/detail/history/search; runtime roles without tenant context read nothing and cannot write; pooled connections carry no tenant context after success/failure/cancellation; cross-tenant foreign references and cursors denied without content); worker 32/32 passed; SLICE-01 step 6 on the installed stack: second synthetic tenant, 404 for the foreign entry id, owner state unchanged",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "TENANT-04",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (tests/backend/integration/journal.test.ts TENANT-01..04) + pnpm test:worker (pipeline.test.ts two tenants with colliding ids under bb_worker)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "backend integration 49/49 passed (same external ids in two tenants never cross through list/detail/history/search; runtime roles without tenant context read nothing and cannot write; pooled connections carry no tenant context after success/failure/cancellation; cross-tenant foreign references and cursors denied without content); worker 32/32 passed; SLICE-01 step 6 on the installed stack: second synthetic tenant, 404 for the foreign entry id, owner state unchanged",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "AUTH-02",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (tests/backend/integration/auth.test.ts LOCAL-01/AUTH-02 bootstrap, LOCAL-02 sessions, LOCAL-03 host-only reset)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "no default admin, nothing authenticates before setup, no HTTP route creates the owner; concurrent setup runs once; wrong keys rejected without partial-match disclosure and throttled after 5 failures; HttpOnly SameSite=Lax cookies; Origin/Host/CSRF enforced; sessions expire by idle/absolute deadlines; rotation invalidates the old key and all owner sessions; reset impossible over HTTP",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "INGEST-01",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (journal.test.ts INGEST-01/02/04/05/06, sources.test.ts signed generic input) + pnpm test:worker (pipeline.test.ts INGEST-02/03/04/05: backfill once + rerun duplicates, interrupted run resumes from checkpoint without double effects, poison dead letters, reordered pages; adapter.contract.test.ts 429/503/expired cursor)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: payload tenant_id/connection_id cannot redirect ingestion; concurrent duplicate deliveries produce one business effect; late events keep their effective time; run counters advance durably; reconciliation re-delivery recovers nothing twice; interrupted runs resume from the per-page checkpoint; unsupported inputs become visible dead letters (SLICE-01: 5 pending SALE transactions rejected as unsupported_event, never cash)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "INGEST-02",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (journal.test.ts INGEST-01/02/04/05/06, sources.test.ts signed generic input) + pnpm test:worker (pipeline.test.ts INGEST-02/03/04/05: backfill once + rerun duplicates, interrupted run resumes from checkpoint without double effects, poison dead letters, reordered pages; adapter.contract.test.ts 429/503/expired cursor)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: payload tenant_id/connection_id cannot redirect ingestion; concurrent duplicate deliveries produce one business effect; late events keep their effective time; run counters advance durably; reconciliation re-delivery recovers nothing twice; interrupted runs resume from the per-page checkpoint; unsupported inputs become visible dead letters (SLICE-01: 5 pending SALE transactions rejected as unsupported_event, never cash)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "INGEST-03",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (journal.test.ts INGEST-01/02/04/05/06, sources.test.ts signed generic input) + pnpm test:worker (pipeline.test.ts INGEST-02/03/04/05: backfill once + rerun duplicates, interrupted run resumes from checkpoint without double effects, poison dead letters, reordered pages; adapter.contract.test.ts 429/503/expired cursor)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: payload tenant_id/connection_id cannot redirect ingestion; concurrent duplicate deliveries produce one business effect; late events keep their effective time; run counters advance durably; reconciliation re-delivery recovers nothing twice; interrupted runs resume from the per-page checkpoint; unsupported inputs become visible dead letters (SLICE-01: 5 pending SALE transactions rejected as unsupported_event, never cash)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "INGEST-04",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (journal.test.ts INGEST-01/02/04/05/06, sources.test.ts signed generic input) + pnpm test:worker (pipeline.test.ts INGEST-02/03/04/05: backfill once + rerun duplicates, interrupted run resumes from checkpoint without double effects, poison dead letters, reordered pages; adapter.contract.test.ts 429/503/expired cursor)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: payload tenant_id/connection_id cannot redirect ingestion; concurrent duplicate deliveries produce one business effect; late events keep their effective time; run counters advance durably; reconciliation re-delivery recovers nothing twice; interrupted runs resume from the per-page checkpoint; unsupported inputs become visible dead letters (SLICE-01: 5 pending SALE transactions rejected as unsupported_event, never cash)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "INGEST-05",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (journal.test.ts INGEST-01/02/04/05/06, sources.test.ts signed generic input) + pnpm test:worker (pipeline.test.ts INGEST-02/03/04/05: backfill once + rerun duplicates, interrupted run resumes from checkpoint without double effects, poison dead letters, reordered pages; adapter.contract.test.ts 429/503/expired cursor)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: payload tenant_id/connection_id cannot redirect ingestion; concurrent duplicate deliveries produce one business effect; late events keep their effective time; run counters advance durably; reconciliation re-delivery recovers nothing twice; interrupted runs resume from the per-page checkpoint; unsupported inputs become visible dead letters (SLICE-01: 5 pending SALE transactions rejected as unsupported_event, never cash)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "INGEST-06",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (journal.test.ts INGEST-01/02/04/05/06, sources.test.ts signed generic input) + pnpm test:worker (pipeline.test.ts INGEST-02/03/04/05: backfill once + rerun duplicates, interrupted run resumes from checkpoint without double effects, poison dead letters, reordered pages; adapter.contract.test.ts 429/503/expired cursor)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: payload tenant_id/connection_id cannot redirect ingestion; concurrent duplicate deliveries produce one business effect; late events keep their effective time; run counters advance durably; reconciliation re-delivery recovers nothing twice; interrupted runs resume from the per-page checkpoint; unsupported inputs become visible dead letters (SLICE-01: 5 pending SALE transactions rejected as unsupported_event, never cash)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DOMAIN-01",
+    "status": "passed",
+    "command": "ENGINE_BINARY=target/release/blackbox-engine cargo test --workspace --release -- --test-threads=2 (crates/domain/tests/golden.rs 14 tests incl. proptests and adversarial variants; apps/engine/tests/golden_http.rs 4 tests: both entry shapes, tenant isolation, adversarial variants, late correction with as_of and history pages, mutated scenario with another currency)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: golden checkpoints hold for source-only and source+derived shapes; duplicates/reorders/late failed attempts/snapshot regressions never double count; authorizations are not captures, invoice markers not cash, credit notes not refunds, payouts not revenue, returns not restock; integer minor money with currency and decimal quantities, currency mismatch recorded as a conflict; corrections via supersedes_entry_id keep the prior known state under as_of; ./blackbox verify on the installed ops stack: golden order #1001 physical/available 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170",
+    "evidence_paths": [
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DOMAIN-02",
+    "status": "passed",
+    "command": "ENGINE_BINARY=target/release/blackbox-engine cargo test --workspace --release -- --test-threads=2 (crates/domain/tests/golden.rs 14 tests incl. proptests and adversarial variants; apps/engine/tests/golden_http.rs 4 tests: both entry shapes, tenant isolation, adversarial variants, late correction with as_of and history pages, mutated scenario with another currency)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: golden checkpoints hold for source-only and source+derived shapes; duplicates/reorders/late failed attempts/snapshot regressions never double count; authorizations are not captures, invoice markers not cash, credit notes not refunds, payouts not revenue, returns not restock; integer minor money with currency and decimal quantities, currency mismatch recorded as a conflict; corrections via supersedes_entry_id keep the prior known state under as_of; ./blackbox verify on the installed ops stack: golden order #1001 physical/available 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170",
+    "evidence_paths": [
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DOMAIN-03",
+    "status": "passed",
+    "command": "ENGINE_BINARY=target/release/blackbox-engine cargo test --workspace --release -- --test-threads=2 (crates/domain/tests/golden.rs 14 tests incl. proptests and adversarial variants; apps/engine/tests/golden_http.rs 4 tests: both entry shapes, tenant isolation, adversarial variants, late correction with as_of and history pages, mutated scenario with another currency)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: golden checkpoints hold for source-only and source+derived shapes; duplicates/reorders/late failed attempts/snapshot regressions never double count; authorizations are not captures, invoice markers not cash, credit notes not refunds, payouts not revenue, returns not restock; integer minor money with currency and decimal quantities, currency mismatch recorded as a conflict; corrections via supersedes_entry_id keep the prior known state under as_of; ./blackbox verify on the installed ops stack: golden order #1001 physical/available 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170",
+    "evidence_paths": [
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DOMAIN-04",
+    "status": "passed",
+    "command": "ENGINE_BINARY=target/release/blackbox-engine cargo test --workspace --release -- --test-threads=2 (crates/domain/tests/golden.rs 14 tests incl. proptests and adversarial variants; apps/engine/tests/golden_http.rs 4 tests: both entry shapes, tenant isolation, adversarial variants, late correction with as_of and history pages, mutated scenario with another currency)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: golden checkpoints hold for source-only and source+derived shapes; duplicates/reorders/late failed attempts/snapshot regressions never double count; authorizations are not captures, invoice markers not cash, credit notes not refunds, payouts not revenue, returns not restock; integer minor money with currency and decimal quantities, currency mismatch recorded as a conflict; corrections via supersedes_entry_id keep the prior known state under as_of; ./blackbox verify on the installed ops stack: golden order #1001 physical/available 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170",
+    "evidence_paths": [
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DOMAIN-05",
+    "status": "passed",
+    "command": "ENGINE_BINARY=target/release/blackbox-engine cargo test --workspace --release -- --test-threads=2 (crates/domain/tests/golden.rs 14 tests incl. proptests and adversarial variants; apps/engine/tests/golden_http.rs 4 tests: both entry shapes, tenant isolation, adversarial variants, late correction with as_of and history pages, mutated scenario with another currency)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: golden checkpoints hold for source-only and source+derived shapes; duplicates/reorders/late failed attempts/snapshot regressions never double count; authorizations are not captures, invoice markers not cash, credit notes not refunds, payouts not revenue, returns not restock; integer minor money with currency and decimal quantities, currency mismatch recorded as a conflict; corrections via supersedes_entry_id keep the prior known state under as_of; ./blackbox verify on the installed ops stack: golden order #1001 physical/available 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170",
+    "evidence_paths": [
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DOMAIN-06",
+    "status": "passed",
+    "command": "ENGINE_BINARY=target/release/blackbox-engine cargo test --workspace --release -- --test-threads=2 (crates/domain/tests/golden.rs 14 tests incl. proptests and adversarial variants; apps/engine/tests/golden_http.rs 4 tests: both entry shapes, tenant isolation, adversarial variants, late correction with as_of and history pages, mutated scenario with another currency)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: golden checkpoints hold for source-only and source+derived shapes; duplicates/reorders/late failed attempts/snapshot regressions never double count; authorizations are not captures, invoice markers not cash, credit notes not refunds, payouts not revenue, returns not restock; integer minor money with currency and decimal quantities, currency mismatch recorded as a conflict; corrections via supersedes_entry_id keep the prior known state under as_of; ./blackbox verify on the installed ops stack: golden order #1001 physical/available 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170",
+    "evidence_paths": [
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DOMAIN-07",
+    "status": "passed",
+    "command": "ENGINE_BINARY=target/release/blackbox-engine cargo test --workspace --release -- --test-threads=2 (crates/domain/tests/golden.rs 14 tests incl. proptests and adversarial variants; apps/engine/tests/golden_http.rs 4 tests: both entry shapes, tenant isolation, adversarial variants, late correction with as_of and history pages, mutated scenario with another currency)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all passed: golden checkpoints hold for source-only and source+derived shapes; duplicates/reorders/late failed attempts/snapshot regressions never double count; authorizations are not captures, invoice markers not cash, credit notes not refunds, payouts not revenue, returns not restock; integer minor money with currency and decimal quantities, currency mismatch recorded as a conflict; corrections via supersedes_entry_id keep the prior known state under as_of; ./blackbox verify on the installed ops stack: golden order #1001 physical/available 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170",
+    "evidence_paths": [
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "QUERY-01",
+    "status": "implemented_unverified",
+    "command": "cargo test --workspace --release (intents_http.rs: 24/24 intents positive + missing data) + pnpm test:backend:integration (sources.test.ts question boundary) + SLICE-01 (API/MCP parity for order state); installed-stack per-intent API/MCP run NOT executed (tests/questions/coverage.mjs prepared)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "All 24 intents return typed results with calculation/evidence/cutoffs/coverage at the engine boundary and reject unknown parameters at the API boundary; per-intent evidence through the installed API and MCP, parity and the as_of re-check after restart are not recorded (reports/question-coverage.json says so per question).",
+    "evidence_paths": [
+      "reports/question-coverage.json",
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "QUERY-02",
+    "status": "implemented_unverified",
+    "command": "as QUERY-01 (missing-data cases of intents_http.rs: stock.basis, policy.priority_method, allocations, tracking.coverage, promises, fulfillments, communications, invoices chain/links, payments.status, payment_allocations, cases.coverage, provider ledger membership, bank, holds, entitlements)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Unknown/partial answers name the exact missing capabilities and never fabricate zeros at the engine boundary (24/24); not re-run through the installed API/MCP.",
+    "evidence_paths": [
+      "reports/question-coverage.json",
+      "reports/evidence/CI-01/cargo-test-release.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "MCP-01",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (tests/backend/integration/mcp.test.ts with the official @modelcontextprotocol/sdk client over stdio)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "nine tools listed with input schemas; owner keys and argv keys refused; key read from a file returns the same scoped state as the API; schema discovery and traversal of all five tracks/histories/links/evidence including a record outside the 24 questions; snapshot pagination without omissions/duplicates under concurrent commits with continuation exposed and foreign cursors denied; revoked key stops serving within 5 s; SLICE-01 step 4/5 on the installed stack: API and MCP answers identical",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "MCP-03",
+    "status": "implemented_unverified",
+    "command": "npx --yes @modelcontextprotocol/inspector --cli -e BLACKBOX_API_URL=http://127.0.0.1:19180 -e BLACKBOX_AGENT_KEY_FILE=<0600 file> node packages/mcp/dist/server.js --method tools/list | --method tools/call --tool-name get_business_state ...",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "tools/list PASSED (10 tools) with Inspector 2.13.0, SDK 1.32.2, node v25.9.0, stdio, API-created (not UI-created) agent key, revoked afterwards. tools/call get_business_state returned bridge_error timeout (10 s bridge limit under load). Claude Desktop not launched; config snippet in docs/tester-guide.md.",
+    "evidence_paths": [
+      "reports/evidence/MCP-03/README.md",
+      "reports/evidence/MCP-03/inspector-version.txt"
+    ],
+    "blocker": "tools/call not completed under host load; UI-created key not used",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "UI-01",
+    "status": "failed",
+    "command": "E2E_NO_MOCK=1 BASE_URL=http://127.0.0.1:19180 LANDING_URL=http://127.0.0.1:19181/ BLACKBOX_E2E_KEY=$(cat ~/blackbox-pilot-int/owner.key) pnpm --filter e2e test (8 runs against the rc6 stack; no fresh-install run)",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Baseline run exposed that every view crashed against the real API (built against the mock shapes). Fixed: types/adapters/all views, demo confirmation_required flow, landing download_url resolution, serve-landing manifest placement, record-id overflow, poll overlap. Re-runs on the saturated host never completed: best run (run3) 4/4 sign-in tests passed, demo/question tests failed on API latency (demo >5 min), later runs failed on login timeouts/500s and ERR_NETWORK_CHANGED. No complete pass for desktop+mobile EN+DE. A headless probe after the fixes showed all nine views render without page errors. Browser screen comparison not completed (comparison.md holds the deviations list and the fix log, the per-capture table and keyboard rows are PENDING).",
+    "evidence_paths": [
+      "reports/evidence/E2E/playwright-int-stack-baseline.txt",
+      "reports/evidence/E2E/playwright-int-stack-run3.txt",
+      "reports/evidence/E2E/playwright-int-stack-run8.txt",
+      "reports/evidence/UI-01/screens/en",
+      "reports/evidence/UI-01/screens/de",
+      "reports/evidence/UI-01/comparison.md",
+      "reports/evidence/E2E/playwright-int-stack-run2.txt",
+      "reports/evidence/E2E/playwright-int-stack-run6.txt"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). full suite never finished; 0.1.0 archive not built",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "SOURCE-01",
+    "status": "blocked_external",
+    "command": "live verification not possible; synthetic pipeline evidence: pnpm test:worker + tests/slice/slice-01.sh; register events test-20261101-ops-verifier-p1-shopify.*-{contract,pipeline,recovery,tenant_isolation} (passed) and blocked-...-live",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "no authorized Shopify store/custom-app token or Shopify Payments account exists; backfill/incremental/reconciliation mappings proven only against the provider-shaped fixture (14 mapping artifacts valid, worker 32/32, SLICE-01 52/52); duplicate financial representation prevented (shared economic_effect_id for shop/ledger refunds; fees as ledger breakdown)",
+    "evidence_paths": [
+      "reports/integrations/20261101-ops-verifier-p1/shopify.orders.pipeline.json",
+      "INTEGRATIONS.md",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": "owner-authorized Shopify store with read-only custom app token (or Dev Dashboard client credentials) and an active Shopify Payments account",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "SOURCE-04",
+    "status": "passed",
+    "command": "pnpm test:backend (bank csv parsing) + pnpm test:backend:integration (sources.test.ts \"previews rows with match detection, commits credits with payout links, dedupes re-imports and opens ambiguous-match cases\")",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "POST /api/ingest/bank-csv?preview=1 returns rows/parsed/ambiguous/errors without committing; commit appends bank.credit_booked with payout links as separate bank.match_recorded observations; a re-import is all duplicates; ambiguous matches open ambiguous_bank_match review cases; file content treated as untrusted data (no formulas/HTML)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "OPS-01",
+    "status": "implemented_unverified",
+    "command": "./blackbox backup-config ~/blackbox-pilot-ops-backups --label ...; ./blackbox upgrade ... (pre-upgrade generation blackbox-backup-20261101T134732Z); restore NOT executed",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Backup half proven on the populated install: destination outside data/secrets enrolled (same-device labeled, marker with install id, recipient stored, recovery identity shown once and captured only to a protected scratch file), fenced generation with the worker paused, pg_dump + evidence + snapshots + key material sealed, written to .partial, finalized atomically with a sidecar meta (128,656,232 bytes, sha256 8a9117f3...), retention bookkeeping; the fence was released. The dump took 40 minutes on the saturated host. Recovery (isolated restore with the recovery key, original data key removed, golden answer via API, machine time) was not executed in the time available; tests/ops/backup-roundtrip.sh covers it only in ops-only mode per docs/operations.md and was not re-run.",
+    "evidence_paths": [
+      "reports/evidence/PILOT-01/backup-config.txt",
+      "reports/evidence/OPS-02/upgrade-run1.txt"
+    ],
+    "blocker": "restore rehearsal pending (host saturation; see PILOT-02)",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "OPS-02",
+    "status": "implemented_unverified",
+    "command": "./blackbox upgrade <same rc6 archive>; ./blackbox upgrade /nonexistent; ./blackbox upgrade <dir with postgres_major 17>; ./blackbox upgrade <dir without journal_schema_version>; ./blackbox upgrade release/dist-rc6b/blackbox-0.1.0-rc6b-mac-arm64.tar.gz (interrupted in phase images); ./blackbox doctor; ./blackbox up; ./blackbox upgrade --resume (still loading images at wrap-up)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Refusals: same version exit 1, missing source exit 2, PostgreSQL major 17 refused with an actionable message exit 2; a release.json without journal_schema_version was refused but silently (exit 1, no message) because json_get aborted under set -eo pipefail — fixed in scripts/blackbox (|| true) and in the re-packed rc6b archive; refused preflights leave data/state/upgrade-stage behind (untidy, harmless). Populated upgrade (386k entries): preflight, lease, pre-upgrade backup (40 min), writers fenced + worker/api stopped, previous release files preserved, new wrapper exec'd; killed in phase images; doctor reports DOC-UPGRADE interrupted (exit 1), ./blackbox up refuses (exit 1); --resume continued from the recorded phase but docker load of the 234 MB api image had not finished after 35 minutes on the saturated host when the run was wrapped up, so migrate/start/verify/release and the rc6b wrapper refusal message are unverified.",
+    "evidence_paths": [
+      "reports/evidence/OPS-02/refusals.txt",
+      "reports/evidence/OPS-02/upgrade-run1.txt",
+      "reports/evidence/OPS-02/upgrade-interrupted.txt",
+      "reports/evidence/OPS-02/upgrade-run2-resume.txt",
+      "reports/evidence/OPS-02/build-rc6b.txt"
+    ],
+    "blocker": "resume completion pending (host saturation)",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "OPS-05",
+    "status": "implemented_unverified",
+    "command": "as PILOT-09",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Hardware, commands, dataset distribution and the PostgreSQL reference path are recorded; p95 latency/lag/invariant checks under load were not measured; no capacity claim is made.",
+    "evidence_paths": [
+      "reports/performance.json",
+      "reports/evidence/PERF-01/postgres-explain.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "SEC-01",
+    "status": "passed",
+    "command": "git grep -nE <key/token/private-key/connection-string patterns> HEAD; grep of install logs/state/secrets/.env for credential patterns, the actual owner key value and the actual recovery key value; docker inspect env of the containers (gitleaks not available; not installed as a global prerequisite)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "0 matches in the committed tree (pnpm-lock excluded); 0 credential-looking strings in the install's retained logs after setup/demo/verify/backup-config/backup; the owner key value and the recovery key value appear nowhere in data/, logs/, secrets/, .env or the backup destination; container env dumps contain no secrets (passwords via files). Agent-key creation through the API could not be exercised (API unreachable on rc6, LOCAL-05).",
+    "evidence_paths": [
+      "reports/evidence/SEC-01/git-secret-scan.txt",
+      "reports/evidence/SEC-01/log-canary-scan.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "SEC-02",
+    "status": "implemented_unverified",
+    "command": "apps/api/src/routes/auth.ts GET/PATCH /api/settings/retention (owner-only, bounded days, audit retention.updated) and backups retention; not exercised on the install",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Retention settings and their audit entry exist in code with validated bounds; tenant boundaries hold (TENANT suites); no run against the install (API unreachable on rc6) and no job enforces evidence expiry (see PILOT-08).",
+    "evidence_paths": [
+      "docs/api-contract.md",
+      "reports/evidence/CI-01/test-backend-integration.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "SEC-03",
+    "status": "not_applicable",
+    "command": "pnpm test:backend:integration (journal.test.ts describe(\"SEC-03\")) + reports/evidence/SEC-03/not-applicable.md",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "not applicable: no AI/e-mail extraction feature exists; free text never becomes a business fact (questions are typed intents, MCP tools read-only); the conditional gate stays applicable if such a feature is ever added",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/SEC-03/not-applicable.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "EXTEND-01",
+    "status": "passed",
+    "command": "WORKER_TEST_SUPERUSER_URL=postgres://postgres:workerpg@127.0.0.1:19191/postgres pnpm --filter @blackbox/tests-worker exec vitest run --config vitest.config.ts extend (tests/worker/extend.test.ts, new)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "a fixture-backed supplier-portal adapter for the existing register row generic.supply, injected through the worker adapter factory, runs the unchanged worker/ingestion path: 3 observations -> source+fact entries (no movement/reservation; the shared DERIVED_TRACKS table derives fact only for supply), evidence/outbox/capability_health from the declaration, rerun = 3 duplicates; PROVIDERS/registry, mapping table and reducers untouched (no TypeScript reducer exists; the Rust reducer reports incoming supply separately, intents test incoming_counted_as_stock=false). Finding: events.json allows a commitment track for supply but the TypeScript mapping derives none (the Rust side records the commitment from the source entry)",
+    "evidence_paths": [
+      "reports/evidence/EXTEND-01/test-worker-extend.txt",
+      "tests/worker/extend.test.ts"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "CI-01",
+    "status": "passed",
+    "command": "see reports/evidence/CI-01/README.md: pnpm test:backend; pnpm test:backend:integration; pnpm test:worker; cargo test --workspace --release; bash tests/ops/wrapper-unit.sh; python3 scripts/validate-question-catalogue.py; python3 scripts/integration-register.py check; python3 scripts/validate-delivery-profile.py; python3 -m unittest discover -s scripts/tests; python3 integrations/mappings/validate-mappings.py",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "all suites passed on the committed tree (backend unit 138, backend integration 49, worker 32, Rust 25 test functions incl. proptests, wrapper unit 51, tooling 45, 14 mapping artifacts valid); outputs with command/exit/timestamps saved per suite; suite-to-acceptance-id map in the README",
+    "evidence_paths": [
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/CI-01/bash_tests_ops_wrapper-unit.sh.txt",
+      "reports/evidence/CI-01/python3_scripts_validate-question-catalogue.py.txt",
+      "reports/evidence/CI-01/python3_scripts_integration-register.py_check.txt",
+      "reports/evidence/CI-01/python3_scripts_validate-delivery-profile.py.txt",
+      "reports/evidence/CI-01/python3_-m_unittest_discover_-s_scripts_tests_-p_test_.py.txt",
+      "reports/evidence/CI-01/python3_integrations_mappings_validate-mappings.py.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "JOURNAL-01",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (journal.test.ts JOURNAL-01 append-only enforcement, JOURNAL-02 corrections/duplicates/conflicts/replay) + pnpm test:worker (append-only and unscoped-append refusals, conflict preserved with review case, late correction)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "runtime roles are not owners/superusers/BYPASSRLS and have no UPDATE/DELETE/TRUNCATE; mutations rejected directly and through a function while appends work; duplicate delivery no effect, same identity different content opens a conflict keeping the original; corrections append a superseding entry with both versions readable; replay yields a stable journal",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "JOURNAL-02",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (journal.test.ts JOURNAL-01 append-only enforcement, JOURNAL-02 corrections/duplicates/conflicts/replay) + pnpm test:worker (append-only and unscoped-append refusals, conflict preserved with review case, late correction)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "runtime roles are not owners/superusers/BYPASSRLS and have no UPDATE/DELETE/TRUNCATE; mutations rejected directly and through a function while appends work; duplicate delivery no effect, same identity different content opens a conflict keeping the original; corrections append a superseding entry with both versions readable; replay yields a stable journal",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "MCP-04",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (tests/backend/integration/mcp.test.ts with the official @modelcontextprotocol/sdk client over stdio)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "nine tools listed with input schemas; owner keys and argv keys refused; key read from a file returns the same scoped state as the API; schema discovery and traversal of all five tracks/histories/links/evidence including a record outside the 24 questions; snapshot pagination without omissions/duplicates under concurrent commits with continuation exposed and foreign cursors denied; revoked key stops serving within 5 s; SLICE-01 step 4/5 on the installed stack: API and MCP answers identical",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "MCP-05",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (tests/backend/integration/mcp.test.ts with the official @modelcontextprotocol/sdk client over stdio)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "nine tools listed with input schemas; owner keys and argv keys refused; key read from a file returns the same scoped state as the API; schema discovery and traversal of all five tracks/histories/links/evidence including a record outside the 24 questions; snapshot pagination without omissions/duplicates under concurrent commits with continuation exposed and foreign cursors denied; revoked key stops serving within 5 s; SLICE-01 step 4/5 on the installed stack: API and MCP answers identical",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "PERF-01",
+    "status": "implemented_unverified",
+    "command": "cargo test --workspace --release (single Rust reducer implementation, ADR-0004; no TypeScript reducer); SLICE-01 step 4/5 (API and MCP agree); docker exec psql EXPLAIN (ANALYZE, BUFFERS) on the 370k-entry install plus an indexed SQL reference path",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "One reducer implementation; API/MCP answers agree; hot lookups use the tenant-sequence index (1.9 ms), the high-water point read (0.16 ms) and the entity_refs GIN index (1.85 ms; indexed SQL reference aggregate 0.81 ms) versus 42.3 s for a forced sequential scan; full request latency through API/MCP and the engine's measured benefit/overhead were not measured on the install (only the engine-only sample in docs/engine.md exists).",
+    "evidence_paths": [
+      "reports/evidence/PERF-01/postgres-explain.txt",
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "IMPORT-01",
+    "status": "passed",
+    "command": "pnpm test:backend (import plans incl. DST) + pnpm test:backend:integration (sources.test.ts IMPORT-01 plans) + pnpm test:worker (pipeline.test.ts IMPORT-02 open context, IMPORT-05 expansion without doubles; adapter.contract.test.ts strict from-now)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "resolved UTC boundaries per preset persisted and versioned, workspace start proposed to later sources; open/related context bounded to the order and its nested objects with snapshot labeling; history expansion appends without duplicate effects and keeps prior coverage; strict from-now imports nothing and seeds the incremental floor (IMPORT-06 scope separation: import selection vs view filter vs RAM working set vs retention is implemented per docs/connectors.md and docs/engine.md and covered by these tests; a UI-level check is the UI verifier's)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "IMPORT-02",
+    "status": "passed",
+    "command": "pnpm test:backend (import plans incl. DST) + pnpm test:backend:integration (sources.test.ts IMPORT-01 plans) + pnpm test:worker (pipeline.test.ts IMPORT-02 open context, IMPORT-05 expansion without doubles; adapter.contract.test.ts strict from-now)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "resolved UTC boundaries per preset persisted and versioned, workspace start proposed to later sources; open/related context bounded to the order and its nested objects with snapshot labeling; history expansion appends without duplicate effects and keeps prior coverage; strict from-now imports nothing and seeds the incremental floor (IMPORT-06 scope separation: import selection vs view filter vs RAM working set vs retention is implemented per docs/connectors.md and docs/engine.md and covered by these tests; a UI-level check is the UI verifier's)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "IMPORT-03",
+    "status": "implemented_unverified",
+    "command": "connection detail view on the SLICE-01 fixture connection",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Runs show counters (requested/loaded/committed/applied/failed/duplicates), totals_known, percent only when known, attempt number, error_code provider_unavailable with next_action retry, phases. Restart/pause/cancel matrix not exercised.",
+    "evidence_paths": [
+      "reports/evidence/UI-01/screens/en/61-connection-detail.png"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "IMPORT-04",
+    "status": "implemented_unverified",
+    "command": "GET /api/questions readiness + order-01 answer",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Readiness per question is ready/partial/blocked from actual datasets (9 ready, settlement-04 blocked); order-01 answered while supply (optional) was missing and flagged 'optional datasets absent'. UI/API shown; MCP path not re-run.",
+    "evidence_paths": [
+      "reports/evidence/UI-01/screens/en/21-answers-empty.png"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "IMPORT-05",
+    "status": "passed",
+    "command": "pnpm test:backend (import plans incl. DST) + pnpm test:backend:integration (sources.test.ts IMPORT-01 plans) + pnpm test:worker (pipeline.test.ts IMPORT-02 open context, IMPORT-05 expansion without doubles; adapter.contract.test.ts strict from-now)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "resolved UTC boundaries per preset persisted and versioned, workspace start proposed to later sources; open/related context bounded to the order and its nested objects with snapshot labeling; history expansion appends without duplicate effects and keeps prior coverage; strict from-now imports nothing and seeds the incremental floor (IMPORT-06 scope separation: import selection vs view filter vs RAM working set vs retention is implemented per docs/connectors.md and docs/engine.md and covered by these tests; a UI-level check is the UI verifier's)",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "IMPORT-06",
+    "status": "implemented_unverified",
+    "command": "design/code review of docs/engine.md (bounded RAM, cold reads), docs/connectors.md (strict from-now, expansion) and the worker suite (strict from-now imports nothing; expansion appends without doubles)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Import selection, view filters, RAM working set and retention are separate by construction and partially tested (strict from-now, expansion, cold reads in cargo ops_http); no dedicated end-to-end test of display-vs-collection separation on the install.",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "docs/engine.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "HEALTH-01",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (sources.test.ts HEALTH-01) + pnpm test:worker (pipeline/scheduler: successful check vs new event, credential check never a sync, no-plan reasons, next_check_at with reasons)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "last successful scoped check and last new event stay distinct; failures and credential checks never claim a sync; per-capability schedules/thresholds and nullable next checks with reasons; observed values from the ops install could not be captured through the API (unreachable on rc6, LOCAL-05); SLICE-01 on the 19180 install records the same fields after a real backfill.",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "HEALTH-02",
+    "status": "implemented_unverified",
+    "command": "headless probe + partial e2e",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Sources overview, connection detail (per-capability health table, import plan with timezone/UTC, runs) and answer data status render from the real API after the contract alignment; EN/DE/narrow/keyboard coverage is in tests/e2e/tests/03-views.spec.ts but no complete run exists.",
+    "evidence_paths": [
+      "reports/evidence/UI-01/screens/en/11-sources.png",
+      "reports/evidence/UI-01/screens/en/61-connection-detail.png"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "HEALTH-03",
+    "status": "implemented_unverified",
+    "command": "headless probe",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Answer envelope shows applied/required cursor, recorded cutoff, coverage population and per-source coverage intervals (real order-01 answer, available 112 = GOLDEN checkpoint). Concurrent-import cutoff behaviour not exercised.",
+    "evidence_paths": [
+      "reports/evidence/UI-01/screens/en/22-answer-inventory.png"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-01",
+    "status": "passed",
+    "command": "pnpm test:backend (keys, data key, origin allowlist incl. the published-port regression test) + pnpm test:backend:integration (auth.test.ts LOCAL-01..05) + ./blackbox setup --port 19185 on the ops install (owner key shown once on the attached terminal, captured to a 0600 file outside the repo)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "exactly one automatic owner/workspace with a 256-bit CSPRNG key shown once and only an argon2id verifier persisted; maintained session/throttle/cookie/origin components; host-only reset needs the secrets directory; agent keys are separate read-only principals revoked within 5 s; HOST other than 127.0.0.1 refused, only the api port is published on the loopback (docker inspect: engine/postgres unpublished). Defect found and fixed by the verifier: an install created with --port N (N != 19180) answered 403 to every request because the Host/Origin allowlist used the container-internal port only (packages/auth/src/origin.ts, apps/api/src/config.ts|guards.ts|routes/auth.ts, infra/compose BLACKBOX_PUBLIC_PORT); regression test added; the fix is in the rc6b api image and must be re-recorded after commit",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/LOCAL-05/public-port.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-02",
+    "status": "passed",
+    "command": "pnpm test:backend (keys, data key, origin allowlist incl. the published-port regression test) + pnpm test:backend:integration (auth.test.ts LOCAL-01..05) + ./blackbox setup --port 19185 on the ops install (owner key shown once on the attached terminal, captured to a 0600 file outside the repo)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "exactly one automatic owner/workspace with a 256-bit CSPRNG key shown once and only an argon2id verifier persisted; maintained session/throttle/cookie/origin components; host-only reset needs the secrets directory; agent keys are separate read-only principals revoked within 5 s; HOST other than 127.0.0.1 refused, only the api port is published on the loopback (docker inspect: engine/postgres unpublished). Defect found and fixed by the verifier: an install created with --port N (N != 19180) answered 403 to every request because the Host/Origin allowlist used the container-internal port only (packages/auth/src/origin.ts, apps/api/src/config.ts|guards.ts|routes/auth.ts, infra/compose BLACKBOX_PUBLIC_PORT); regression test added; the fix is in the rc6b api image and must be re-recorded after commit",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/LOCAL-05/public-port.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-03",
+    "status": "passed",
+    "command": "pnpm test:backend (keys, data key, origin allowlist incl. the published-port regression test) + pnpm test:backend:integration (auth.test.ts LOCAL-01..05) + ./blackbox setup --port 19185 on the ops install (owner key shown once on the attached terminal, captured to a 0600 file outside the repo)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "exactly one automatic owner/workspace with a 256-bit CSPRNG key shown once and only an argon2id verifier persisted; maintained session/throttle/cookie/origin components; host-only reset needs the secrets directory; agent keys are separate read-only principals revoked within 5 s; HOST other than 127.0.0.1 refused, only the api port is published on the loopback (docker inspect: engine/postgres unpublished). Defect found and fixed by the verifier: an install created with --port N (N != 19180) answered 403 to every request because the Host/Origin allowlist used the container-internal port only (packages/auth/src/origin.ts, apps/api/src/config.ts|guards.ts|routes/auth.ts, infra/compose BLACKBOX_PUBLIC_PORT); regression test added; the fix is in the rc6b api image and must be re-recorded after commit",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/LOCAL-05/public-port.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-04",
+    "status": "passed",
+    "command": "pnpm test:backend (keys, data key, origin allowlist incl. the published-port regression test) + pnpm test:backend:integration (auth.test.ts LOCAL-01..05) + ./blackbox setup --port 19185 on the ops install (owner key shown once on the attached terminal, captured to a 0600 file outside the repo)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "exactly one automatic owner/workspace with a 256-bit CSPRNG key shown once and only an argon2id verifier persisted; maintained session/throttle/cookie/origin components; host-only reset needs the secrets directory; agent keys are separate read-only principals revoked within 5 s; HOST other than 127.0.0.1 refused, only the api port is published on the loopback (docker inspect: engine/postgres unpublished). Defect found and fixed by the verifier: an install created with --port N (N != 19180) answered 403 to every request because the Host/Origin allowlist used the container-internal port only (packages/auth/src/origin.ts, apps/api/src/config.ts|guards.ts|routes/auth.ts, infra/compose BLACKBOX_PUBLIC_PORT); regression test added; the fix is in the rc6b api image and must be re-recorded after commit",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/LOCAL-05/public-port.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-05",
+    "status": "passed",
+    "command": "pnpm test:backend (keys, data key, origin allowlist incl. the published-port regression test) + pnpm test:backend:integration (auth.test.ts LOCAL-01..05) + ./blackbox setup --port 19185 on the ops install (owner key shown once on the attached terminal, captured to a 0600 file outside the repo)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "exactly one automatic owner/workspace with a 256-bit CSPRNG key shown once and only an argon2id verifier persisted; maintained session/throttle/cookie/origin components; host-only reset needs the secrets directory; agent keys are separate read-only principals revoked within 5 s; HOST other than 127.0.0.1 refused, only the api port is published on the loopback (docker inspect: engine/postgres unpublished). Defect found and fixed by the verifier: an install created with --port N (N != 19180) answered 403 to every request because the Host/Origin allowlist used the container-internal port only (packages/auth/src/origin.ts, apps/api/src/config.ts|guards.ts|routes/auth.ts, infra/compose BLACKBOX_PUBLIC_PORT); regression test added; the fix is in the rc6b api image and must be re-recorded after commit",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/LOCAL-05/public-port.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-06",
+    "status": "implemented_unverified",
+    "command": "scripts in reports/evidence/LOCAL-06/key-rotation-int-stack.txt (curl rotate-key proof)",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Rotation proof aborted: POST /api/auth/login returned 500 after 3 min (PostgreSQL 'timeout exceeded when trying to connect' under host load). Code review: rotateOwnerKey revokes the previous owner_key verifier and all owner sessions (packages/auth/src/service.ts). EN/DE locale persistence works (PATCH /api/workspace) but a locale switch immediately followed by a reload loses the preference until the PATCH completes (observed; test now waits for the PATCH).",
+    "evidence_paths": [
+      "reports/evidence/LOCAL-06/key-rotation-int-stack.txt",
+      "reports/evidence/E2E/playwright-int-stack-run3.txt"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-07",
+    "status": "passed",
+    "command": "pnpm test:worker (adapter.contract.test.ts LOCAL-07 mode declarations and refusals; scheduler.test.ts polling/coalescing/fairness) + SLICE-01 backfill runs on the installed stack",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "local_standalone outbound polling/import preserves cursors, dedupe and fairness; gateway/public modes declared unsupported with reasons and refused; no callback provisioned; declared schedules observed in capability_health",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SLICE-01/results.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-08",
+    "status": "implemented_unverified",
+    "command": "not run",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Fresh-folder install on this Mac not performed (no 0.1.0 archive, time-box).",
+    "evidence_paths": [],
+    "blocker": "no 0.1.0 artifact; host saturated",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-09",
+    "status": "implemented_unverified",
+    "command": "cargo test --workspace --release (ops_http: snapshot restart, corrupt snapshot rebuild to identical state/chain hash, 1000-entry unapplied tail applied within 30 s with concurrent ingestion, projection_behind barrier, admission limits); SLICE-01 step 5 (down/up, corrupted snapshot, same-cutoff answer identical); engine /health read on the ops install during corpus application",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Engine-boundary recovery behaviour passed; on the install with 52 tenants / ~380k entries the engine reported status degraded with RSS 1,220 MiB (container limit 1,536 MiB; contract steady target 1,024 MiB) while tailing the corpus on the saturated host, and slow-statement/pool-acquire warnings; restart-with-1000-tail timing, docker stats of the whole stack and a worker kill mid-ingestion were not measured on the install.",
+    "evidence_paths": [
+      "reports/evidence/CI-01/cargo-test-release.txt",
+      "reports/evidence/SLICE-01/results.json",
+      "reports/performance.json"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-10",
+    "status": "passed",
+    "command": "python3 scripts/validate-delivery-profile.py; python3 scripts/validate-delivery-profile.py --release; adversarial copies: deferred id moved to required, fake pass without evidence, required row removed, edited history line, loosened smoke target, all-passed-except-one-without-evidence, all-passed-without-approvals (reports/evidence/LOCAL-10/validator-adversarial.txt)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "ordinary validation passes (83 active / 37 deferred / 68 rows); --release fails honestly (uncommitted tree; then INSTALL-01 not_started; then \"Evidence paths required: PILOT-09\"; then \"bank_csv.bank is not independently approved\"); scope drift, removed rows and edited history are rejected. Findings: the ordinary validator does not detect a fake pass without evidence (only --release does, stopping at its first failed precondition) and a loosened smoke target in benchmarks/performance-contract.json is caught by neither the validator nor the tooling regression suite",
+    "evidence_paths": [
+      "reports/evidence/LOCAL-10/validator-adversarial.txt",
+      "reports/evidence/CI-01/python3_scripts_validate-delivery-profile.py.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "LOCAL-11",
+    "status": "implemented_unverified",
+    "command": "docs/tester-guide.md written (EN + DE); export preview exercised via POST /api/diagnostics/export?preview=1",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Tester guide covers install/key/demo/question/agent/restart/backup/diagnostics/limitations/feedback checklist. Export preview answered {size_bytes:16145, records:340, categories:[logs,health]} on the rc6 stack; a downloaded bundle was not inspected for leakage in this slot.",
+    "evidence_paths": [
+      "docs/tester-guide.md"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIAG-01",
+    "status": "implemented_unverified",
+    "command": "tests/e2e/tests/04-diagnostics.spec.ts (never reached in a completed run)",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Filters/live/pause/debug/export rewritten to the real contract (components auth/ingestion/query/cli, export categories versions/health/errors/logs, record siblings). Not executed to completion.",
+    "evidence_paths": [
+      "reports/evidence/UI-01/screens/en/62-system-diagnostics.png"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIAG-02",
+    "status": "implemented_unverified",
+    "command": "observation during runs",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Seven health cards come from real probes with observed_at/reason; stale after stale_after_seconds from the API; top-bar status showed 'degraded' while the SLICE-01 fixture connection was unavailable (truthful). Fault injection not performed.",
+    "evidence_paths": [
+      "reports/evidence/UI-01/screens/en/62-system-diagnostics.png"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIAG-03",
+    "status": "passed",
+    "command": "pnpm test:backend (logging contract/redaction/rotation/query) + pnpm test:backend:integration (diagnostics.test.ts DIAG-03 lifecycle records, DIAG-05 temporary debug + rotation, DIAG-06 canaries/access, DIAG-08 export) + SEC-01 canary grep on the ops install logs",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "journal commits logged after COMMIT with cursor/count/run ids, queries log their applied cutoff; debug off by default, server-enforced <=15 min, reset on restart; canaries never reach any sink; logs owner-only and workspace-scoped; export previews then produces a bounded pseudonymized zip without credentials/paths; canary grep of the installed stack logs after login/agent creation: 0 matches",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SEC-01/log-canary-scan.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIAG-04",
+    "status": "implemented_unverified",
+    "command": "pnpm test:backend:integration (diagnostics.test.ts \"CLI fallback\": logs reads retained files without the database with --level/--since/--run/--format, doctor exit codes, diagnostics export capped zip while the database is down); bash tests/ops/wrapper-unit.sh (doctor on a fresh dir, refusals); ./blackbox doctor during the interrupted upgrade (exit 1 with DOC-* codes)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "CLI fallback semantics proven in the suites and doctor's degraded state observed on the install; the full sequence ./blackbox down -> logs --since 1h -> doctor -> diagnostics export (zip <=10 MiB, sanitized contents) with containers stopped was not run because the install was mid-upgrade on the saturated host.",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/bash_tests_ops_wrapper-unit.sh.txt",
+      "reports/evidence/OPS-02/upgrade-interrupted.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIAG-05",
+    "status": "passed",
+    "command": "pnpm test:backend (logging contract/redaction/rotation/query) + pnpm test:backend:integration (diagnostics.test.ts DIAG-03 lifecycle records, DIAG-05 temporary debug + rotation, DIAG-06 canaries/access, DIAG-08 export) + SEC-01 canary grep on the ops install logs",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "journal commits logged after COMMIT with cursor/count/run ids, queries log their applied cutoff; debug off by default, server-enforced <=15 min, reset on restart; canaries never reach any sink; logs owner-only and workspace-scoped; export previews then produces a bounded pseudonymized zip without credentials/paths; canary grep of the installed stack logs after login/agent creation: 0 matches",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SEC-01/log-canary-scan.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIAG-06",
+    "status": "passed",
+    "command": "pnpm test:backend (logging contract/redaction/rotation/query) + pnpm test:backend:integration (diagnostics.test.ts DIAG-03 lifecycle records, DIAG-05 temporary debug + rotation, DIAG-06 canaries/access, DIAG-08 export) + SEC-01 canary grep on the ops install logs",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "journal commits logged after COMMIT with cursor/count/run ids, queries log their applied cutoff; debug off by default, server-enforced <=15 min, reset on restart; canaries never reach any sink; logs owner-only and workspace-scoped; export previews then produces a bounded pseudonymized zip without credentials/paths; canary grep of the installed stack logs after login/agent creation: 0 matches",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SEC-01/log-canary-scan.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIAG-07",
+    "status": "implemented_unverified",
+    "command": "NOT executed: node tests/diag/log-corpus.mjs (synthetic contract-shaped corpus up to the cap) + first-page/text-search timings + read-only LOGS_DIR commit test",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "The log-corpus helper is written; the collector enforces 100 MiB / 7 days (unit suite logging rotation) and uses bounded async buffers with dropped counts; no corpus run, no p95 first-page measurement and no failed-sink test happened on the install.",
+    "evidence_paths": [
+      "tests/diag/log-corpus.mjs",
+      "reports/evidence/CI-01/test-backend-unit.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIAG-08",
+    "status": "passed",
+    "command": "pnpm test:backend (logging contract/redaction/rotation/query) + pnpm test:backend:integration (diagnostics.test.ts DIAG-03 lifecycle records, DIAG-05 temporary debug + rotation, DIAG-06 canaries/access, DIAG-08 export) + SEC-01 canary grep on the ops install logs",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "journal commits logged after COMMIT with cursor/count/run ids, queries log their applied cutoff; debug off by default, server-enforced <=15 min, reset on restart; canaries never reach any sink; logs owner-only and workspace-scoped; export previews then produces a bounded pseudonymized zip without credentials/paths; canary grep of the installed stack logs after login/agent creation: 0 matches",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-unit.txt",
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md",
+      "reports/evidence/SEC-01/log-canary-scan.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIST-01",
+    "status": "implemented_unverified",
+    "command": "scripts/release/serve-landing.sh (19181 released rc6 manifest; 19188 pending; 19187 invalid sha256); Playwright captures + built-in browser",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Landing fixed so all three CTAs resolve to the real artifact when the manifest is released (relative download_url against the manifest URL; serve-landing puts manifest+archive next to index.html). Built-in browser showed the released rc6 state ('Download for Mac 0.1.0-rc6', EN) and the pending/invalid states (EN/DE): hero CTA disabled with 'Download not available yet' / 'Download noch nicht verfügbar', invalid metadata message. Not re-verified for 0.1.0 and the e2e landing spec never ran to completion.",
+    "evidence_paths": [
+      "reports/evidence/DIST-01/landing-pending-en-desktop.png",
+      "reports/evidence/DIST-01/landing-pending-de-mobile.png",
+      "reports/evidence/DIST-01/landing-invalid-sha256-en-desktop.png",
+      "reports/evidence/DIST-01/landing-invalid-sha256-de-mobile.png"
+    ],
+    "blocker": "0.1.0 archive not built",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIST-02",
+    "status": "implemented_unverified",
+    "command": "not run",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Browser download of the exact advertised 0.1.0 archive, checksum, extract, doctor/setup/up on a fresh folder: not performed (no 0.1.0 artifact; the browser pane cannot save downloads, so curl of the CTA href was the planned fallback).",
+    "evidence_paths": [],
+    "blocker": "no 0.1.0 artifact",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "DIST-03",
+    "status": "failed",
+    "command": "scripts/release/build.sh 0.1.0 (running since 2026-11-01T14:24Z, still in docker build pnpm install at 16:52 local); scripts/release/verify-download.sh negative cases",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "Negative cases enforce the contract: pending manifest -> FAIL exit 2; corrupted (non-hex) sha256 -> landing shows invalid state, verify-download fails (artifact 404); wrong but well-formed sha256 -> 'sha256 mismatch' exit 2; missing manifest path -> exit 2. The 0.1.0 archive/manifest do not exist yet; the only existing artifact is rc6 (release/dist/blackbox-0.1.0-rc6-mac-arm64.tar.gz, sha256 b2068460b8c4cc32624a35687d22ad9b4f8e06509e47de4bb3eeb644aa486432, 594309750 bytes, tested_commit aa18411 = pre-integration tree).",
+    "evidence_paths": [
+      "reports/evidence/DIST-03/verify-download-negative.txt",
+      "reports/evidence/DIST-03/build-tree-state-0.1.0.txt",
+      "reports/evidence/DIST-03/build-0.1.0-partial.log"
+    ],
+    "blocker": "docker build cannot fetch npm packages at usable speed inside the saturated Docker VM (UND_ERR_SOCKET, 50-100 s per request)",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "SLICE-01",
+    "status": "passed",
+    "command": "scripts/release/build.sh 0.1.0-rc6; ./blackbox doctor && ./blackbox setup && ./blackbox status (install dir); INSTALL_DIR=~/blackbox-pilot-int OWNER_KEY_FILE=~/blackbox-pilot-int/owner.key tests/slice/slice-01.sh",
+    "environment": "macOS 27.2 arm64, Docker 27.3.1 / Compose v2.30.3, release 0.1.0-rc6 images (api/worker/engine/backup + postgres:16.6-alpine), Compose project blackbox-agent-c on 127.0.0.1:19180, synthetic Shopify-shaped fixture on 127.0.0.1:19182; uncommitted working tree at the recorded commit",
+    "observed_result": "52/52 checks passed: backfill through worker+journal/outbox (437 entries, dedupe on rerun), order state identical via API and MCP, committed=applied=437, cutoff answer identical after full restart + corrupted-snapshot engine rebuild, late correction current-vs-historical, revoked agent denied within 2 s, no cross-tenant disclosure for a colliding order id, correlated logs",
+    "evidence_paths": [
+      "reports/evidence/SLICE-01/README.md",
+      "reports/evidence/SLICE-01/results.json",
+      "reports/evidence/SLICE-01/run-output.txt"
+    ],
+    "blocker": null,
+    "tested_commit": "aa18411ee6f77725cf1fa13d77596d08ec9efdab"
+  },
+  {
+    "id": "SLICE-02",
+    "status": "blocked_external",
+    "command": "blocked: no store/credentials; see SLICE-01 for the synthetic path",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "actual source data cannot pass the persisted adapter/journal/Rust/MCP path without an authorized store; SLICE-01 (synthetic, passed) is not a substitute",
+    "evidence_paths": [
+      "reports/evidence/SLICE-01/README.md",
+      "INTEGRATIONS.md"
+    ],
+    "blocker": "owner-authorized Shopify store with read-only custom app token and Shopify Payments account",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "PILOT-01",
+    "status": "implemented_unverified",
+    "command": "fix in scripts/blackbox backup_config (recreate backup-scheduler with the enrolled destination before writing status.json); runtime check planned: ./blackbox backup-config <dir> on a running stack, then cat data/backups/status.json after >10 min and ./blackbox backup",
+    "environment": "macOS 27.2 arm64, working tree on 28dd568 + uncommitted fixes; Docker daemon unavailable during this pass (owner restart blocked on an admin prompt)",
+    "observed_result": "Root cause of the failed case (scheduler started before enrollment kept rewriting status.json to not_configured) fixed in the wrapper; bash syntax and wrapper unit checks pass (46/51, the 5 failures need Docker). Backup/scheduling behaviour on an installed stack not re-run in this pass.",
+    "evidence_paths": [
+      "scripts/blackbox",
+      "reports/evidence/RERUN/README.md",
+      "reports/evidence/PILOT-01/backup-config.txt"
+    ],
+    "blocker": "Docker daemon down (owner admin prompt) — runtime re-check pending"
+  },
+  {
+    "id": "PILOT-02",
+    "status": "implemented_unverified",
+    "command": "NOT executed: ./blackbox restore <generation> --into <fresh dir> --port 19187 --project blackbox-agent-c-ops-restore with BLACKBOX_RECOVERY_KEY_FILE",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Restore of the 128 MB generation was not attempted: pg_restore on the saturated host (a 234 MB docker load took >30 minutes) would not have finished in the run; the restore path (inspect/unpack/decrypt/database/fence/reset-access/verify, wrong-key failure, evidence-access block) exists in the wrapper and is covered by tests/ops/backup-roundtrip.sh (ops-only mode in docs) which was not re-run.",
+    "evidence_paths": [
+      "reports/evidence/OPS-02/upgrade-run1.txt",
+      "docs/operations.md"
+    ],
+    "blocker": "quiet host to run the isolated restore and measure machine time",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "PILOT-03",
+    "status": "implemented_unverified",
+    "command": "as OPS-02",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Serialized fenced maintenance flow with version/space/backup preflight, lease, fence, resumable phase file and honest doctor state demonstrated up to the images phase; verification/release after resume not observed; changed-rule rebuild (versioned projection) is covered only by the engine corrupt-snapshot rebuild test (cargo ops_http) and not by a reducer-version change.",
+    "evidence_paths": [
+      "reports/evidence/OPS-02/refusals.txt",
+      "reports/evidence/OPS-02/upgrade-interrupted.txt",
+      "reports/evidence/OPS-02/upgrade-run2-resume.txt",
+      "reports/evidence/CI-01/cargo-test-release.txt"
+    ],
+    "blocker": "resume completion pending",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "PILOT-04",
+    "status": "passed",
+    "command": "pnpm test:backend:integration (sources.test.ts PILOT-04 review workflow)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
+    "observed_result": "owner-only, revision-checked, idempotent review actions append review.decision entries with actor/reason/provenance; stale revisions answer 409; repeated clicks do not double-apply; agents can read but not act",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-backend-integration.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "PILOT-05",
+    "status": "implemented_unverified",
+    "command": "pnpm test:worker (scheduler.test.ts: suspension detection, one coalesced job per overdue group with spread, bounded overlap reconciliation, expired lease recovery, fairness, Retry-After; pipeline.test.ts: different-account reconnect never reuses cursors) + INSTALL.en.md lifecycle statement + the ops backend ran for 3 h without any browser client",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Suite-level behaviour passed (32/32); the guide states that closing the browser does not stop processing and that no autostart/keep-awake service is installed (docker inspect: restart unless-stopped only); an actual Mac sleep/wake, a worker restart on the install and an agent reconnect after revocation were not exercised on the install.",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-worker.txt",
+      "INSTALL.en.md",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "PILOT-06",
+    "status": "implemented_unverified",
+    "command": "pnpm test:worker (pipeline.test.ts storage critical pause/resume with cursor retention; scheduler.test.ts no dispatch while critical) + apps/api/src/routes/auth.ts storage thresholds (GET/PATCH /api/settings/storage with validated bounds)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Suite-level: critical storage pauses the next fetch inside running jobs (import_runs paused, next_action free_disk_space), retains cursors and resumes; thresholds default warn < max(10%,5 GiB) / critical < max(2%,1 GiB) with validated positive bounds in the API schema. Not exercised on the install: threshold visibility via the API, simulated critical by lowering thresholds, failed-write non-acknowledgement.",
+    "evidence_paths": [
+      "reports/evidence/CI-01/test-worker.txt",
+      "reports/evidence/CI-01/README.md"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "PILOT-07",
+    "status": "implemented_unverified",
+    "command": "pnpm test:backend (unit: data key rotation layout); pnpm test:backend:integration (sources.test.ts PILOT-07, needs the dev PostgreSQL container); planned on the ops install: ./blackbox rotate-data-key, ./blackbox rotate-data-key --resume after an interrupted swap, restore of a pre-rotation generation with its recovery key",
+    "environment": "macOS 27.2 arm64, node v25.9.0, pnpm 11.20.0, working tree on 28dd568 + uncommitted fixes; Docker unavailable during this pass",
+    "observed_result": "Implemented: versioned key layout (data.key.version, anchor.key), loadCandidateKey/reencryptSecret, rotateDataKey/verifyDataKey (one transaction, verified before COMMIT, data_key.rotated audit per tenant, mixed generations refused), api cli rotate-data-key (tenant ids on stdin), wrapper rotate-data-key with fenced resumable phases and container recreate, Compose secret mounts, backup inclusion, docs. Unit test passed (140/140 backend unit); integration test written but not executed (no PostgreSQL); no run on an installed stack yet.",
+    "evidence_paths": [
+      "packages/auth/src/datakey.ts",
+      "packages/application/src/datakey-rotation.ts",
+      "apps/api/src/cli.ts",
+      "scripts/blackbox",
+      "tests/backend/unit/auth-and-plans.test.ts",
+      "tests/backend/integration/sources.test.ts",
+      "docs/operations.md",
+      "reports/evidence/PILOT-07/filesystem-permissions.txt"
+    ],
+    "blocker": "Docker daemon down (owner admin prompt) — integration test and installed-stack rotation/restore proof pending"
+  },
+  {
+    "id": "PILOT-08",
+    "status": "implemented_unverified",
+    "command": "pnpm test:backend:integration (sources.test.ts PILOT-08 evidence restriction; needs the dev PostgreSQL container); planned on the install: POST /api/evidence/:id/restrict via curl, GET /api/evidence/:id (API + MCP get_evidence) -> restricted, restore of a pre-restriction generation keeps raw access blocked until reconcile",
+    "environment": "as PILOT-07",
+    "observed_result": "Implemented: owner-only POST /api/evidence/:id/restrict {reason} appending an immutable evidence_redactions row (action restricted, policy_ref owner_restriction) and a security_audit event in one transaction, live content removed after COMMIT, explicit status restricted (API GET, /content 410, MCP get_evidence passthrough, UI badge already localized), idempotent repeat; api typecheck/build pass. Integration test written but not executed; no installed-stack run.",
+    "evidence_paths": [
+      "apps/api/src/routes/journal.ts",
+      "packages/application/src/evidence.ts",
+      "tests/backend/integration/sources.test.ts",
+      "docs/api-contract.md"
+    ],
+    "blocker": "Docker daemon down (owner admin prompt) — integration test and installed-stack proof pending"
+  },
+  {
+    "id": "PILOT-09",
+    "status": "implemented_unverified",
+    "command": "corpus generation (partial) + manifest reconstruction; load runs NOT executed (see reports/performance.json commands/limitations)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
+    "observed_result": "Dataset minimums not met (50 tenants, 348,233 entries, 6,305 orders < 10,000, largest tenant 20.7% < 50%); no per-class API/MCP latency, success-fraction, lag, memory, restart, rebuild or restore measurement; engine RSS 1,220 MiB observed during corpus application; the gate is not passed.",
+    "evidence_paths": [
+      "reports/performance.json",
+      "reports/evidence/PILOT-09/corpus-manifest.json",
+      "reports/evidence/PILOT-09/corpus-generation.txt",
+      "tests/perf/smoke.mjs",
+      "tests/perf/verdict.mjs"
+    ],
+    "blocker": null,
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  },
+  {
+    "id": "PILOT-10",
+    "status": "implemented_unverified",
+    "command": "headless probe of /app/questions; real POST /api/questions/inventory.available_to_sell",
+    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+    "observed_result": "All 24 templates render typed parameter forms from the real params_schema; order-01 answered complete/112 from the engine, unknown item -> status unknown with 'no stock observation'; the search box is literal (GET /api/questions/search). No LLM call exists in the web app (no network egress besides 127.0.0.1:19180). Varying all 24 intents through the UI was not done.",
+    "evidence_paths": [
+      "reports/evidence/UI-01/screens/en/21-answers-empty.png"
+    ],
+    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+  }
+]

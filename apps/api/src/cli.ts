@@ -3,12 +3,12 @@ import { parseArgs } from "node:util";
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { bootstrapRoles, passwordsFromEnv, pendingMigrations, runMigrations } from "@blackbox/database";
-import { AuthError, ensureDataKey } from "@blackbox/auth";
+import { AuthError, DataKeyError, ensureDataKey, loadCandidateKey, loadDataKey } from "@blackbox/auth";
 import { createLogger, FileCollector, followLogs, queryLogs, type LogLevel, type LogRecord } from "@blackbox/logging";
 import { createContext } from "./app.js";
 import { ConfigError, loadConfig, normalizeEnv } from "./config.js";
 import { withTenant } from "@blackbox/database";
-import type { Observation } from "@blackbox/application";
+import { rotateDataKey, verifyDataKey, RotationError, type Observation } from "@blackbox/application";
 import { buildDiagnosticsExport, doctorExitCode, doctorFileChecks, EXPORT_CATEGORIES, healthCards, probePostgres, type DoctorCheck } from "./diagnostics.js";
 
 const HELP = `blackbox API CLI (node apps/api/dist/cli.js <command>)
@@ -16,6 +16,7 @@ const HELP = `blackbox API CLI (node apps/api/dist/cli.js <command>)
 Commands
   setup [--name <workspace>] [--locale en|de]   Create the single workspace/owner, show the personal key once (idempotent).
   rotate-key                                    Rotate the owner key (reads the current key from stdin, prints the new key once).
+  rotate-data-key --new-key-file <path> [--verify-only] [--json]   Host-only (./blackbox rotate-data-key): re-seal every stored secret with the next data-key generation in one transaction, verified before COMMIT; tenant ids one per line on stdin.
   reset-access                                  Host-only: new owner key, all sessions and agent keys revoked (needs SECRETS_DIR read access).
   create-agent-key --name <name> [--expires <RFC3339>]   Create a read-only agent key (printed once).
   migrate                                       Apply pending SQL migrations as bb_migrate (MIGRATE_DATABASE_URL).
@@ -123,6 +124,55 @@ async function cmdRotateKey(args: string[]): Promise<number> {
     } catch (e) {
       if (e instanceof AuthError) {
         err(`rotation rejected: ${e.message}`);
+        return 2;
+      }
+      throw e;
+    }
+  });
+}
+
+/** Tenant ids for host-authorized installation-wide operations: one per line on stdin (the wrapper enumerates them as the superuser). */
+async function tenantIdsFromStdin(): Promise<string[]> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(Buffer.from(chunk));
+  const ids = Buffer.concat(chunks).toString("utf8").split(/\s+/).map((x) => x.trim()).filter(Boolean);
+  for (const id of ids) if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error(`invalid tenant id on stdin: ${id.slice(0, 12)}…`);
+  return ids;
+}
+
+async function cmdRotateDataKey(args: string[]): Promise<number> {
+  const { values } = parseArgs({ args, options: { "new-key-file": { type: "string" }, "verify-only": { type: "boolean" }, json: { type: "boolean" } }, strict: true });
+  const config = loadConfig();
+  const tenantIds = await tenantIdsFromStdin();
+  if (tenantIds.length === 0) {
+    err("no tenant ids on stdin (the wrapper passes `SELECT tenant_id FROM tenants`)");
+    return 2;
+  }
+  return withContext(async (ctx) => {
+    try {
+      const live = loadDataKey(config.secretsDir);
+      if (values["verify-only"]) {
+        // With --new-key-file the candidate (generation live+1) is verified instead: a resumed rotation uses this to
+        // learn whether the re-seal transaction already committed before the host swapped the files.
+        const key = values["new-key-file"] ? loadCandidateKey(values["new-key-file"], live.version + 1, live.anchorRoot) : live;
+        const r = await verifyDataKey(ctx.pool, key, tenantIds);
+        ctx.logger.info("data_key.verified", values["new-key-file"] ? "Every stored secret opens with the candidate data key" : "Every stored secret opens with the live data key", { action_code: "data_key_verified", record_count: r.verified });
+        out(values.json ? JSON.stringify({ status: "verified", version: key.version, ...r }) : `data key generation ${key.version}: ${r.verified} stored secret(s) across ${r.tenants} workspace(s) verified`);
+        return 0;
+      }
+      if (!values["new-key-file"]) {
+        err("--new-key-file <path> is required (or --verify-only)");
+        return 2;
+      }
+      const next = loadCandidateKey(values["new-key-file"], live.version + 1, live.anchorRoot);
+      const r = await rotateDataKey(ctx.pool, live, next, tenantIds);
+      ctx.logger.info("data_key.rotated", "Stored secrets re-sealed with the next data-key generation (database committed; host swaps the key files)", { action_code: "data_key_rotated", record_count: r.verified });
+      out(values.json ? JSON.stringify({ status: "reencrypted", ...r }) : `re-sealed ${r.connections} connection secret(s) and ${r.producers} producer secret(s) across ${r.tenants} workspace(s): generation ${r.from_version} -> ${r.to_version}, ${r.verified} verified with the new key before commit`);
+      return 0;
+    } catch (e) {
+      if (e instanceof RotationError || e instanceof DataKeyError) {
+        ctx.logger.error("data_key.rotation_failed", "Data-key rotation refused or rolled back; the live key stays valid", { error_code: e instanceof RotationError ? e.code : e.code });
+        err(`rotation failed (${e instanceof RotationError ? e.code : e.code}): ${e.message}`);
         return 2;
       }
       throw e;
@@ -523,6 +573,8 @@ async function main(): Promise<number> {
       return cmdCreateTenantAgentKey(rest);
     case "setup":
       return cmdSetup(rest);
+    case "rotate-data-key":
+      return cmdRotateDataKey(rest);
     case "rotate-key":
       return cmdRotateKey(rest);
     case "reset-access":

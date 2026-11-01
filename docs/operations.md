@@ -21,6 +21,7 @@ Engineering reference for the host wrapper `blackbox` (repo: `scripts/blackbox`;
 | `resume-sources` | Clears the writer fence and unpauses/starts the worker after a restore/upgrade review. | 0 |
 | `upgrade <archive.tar.gz\|dir> [--use-backup <gen>] [--resume]` | Fenced, resumable upgrade (phases below). | 0, 1 (blocked/interrupted), 2 |
 | `reset-access` / `rotate-key` / `create-agent-key` | Host-only (secrets dir must be readable/writable by the OS user), delegate to the api CLI with the TTY attached. | 0/1/2 |
+| `rotate-data-key [--resume]` | Host-only installation data-key rotation (PILOT-07): fence writers + pause the worker → generate `secrets/data.key.next` (CSPRNG) → `api cli rotate-data-key` re-seals every connection/producer secret of every workspace (tenant ids piped from `psql` as superuser) from generation N to N+1 **in one transaction, verified with the candidate before COMMIT** → swap `data.key`/`data.key.version`, delete the retired material → recreate api/worker (Compose file secrets are bind mounts; running containers keep the old inode) → `--verify-only` with the live key → release the fence. Phases persist in `data/state/key-rotation.json`; an interrupted run is resumed with `--resume` (a committed-but-unswapped database is detected by verifying with the candidate). Failure before COMMIT changes nothing and releases the fence. | 0, 1 (blocked/interrupted), 2 |
 
 `BLACKBOX_BIND` other than `127.0.0.1` is refused everywhere with `public/LAN binding is unsupported` (exit 2). `BLACKBOX_INSTALL_DIR` overrides the install directory (default: release dir; `<repo>/.local` for a checkout so Git stays clean). `BLACKBOX_MIGRATOR=auto|cli|sql` selects the migrator. `BLACKBOX_SERVICES` / `BLACKBOX_BUILD_SERVICES` restrict the started services / built images (test knob for the ops-only round trip while application images are missing).
 
@@ -38,6 +39,7 @@ Engineering reference for the host wrapper `blackbox` (repo: `scripts/blackbox`;
   secrets/                      0700; files 0600:
     pg_superuser_password pg_migrate_password pg_api_password pg_worker_password pg_engine_password
     engine_token (hex-64)   data.key (32 raw bytes, AES-256-GCM installation key, ADR-0002)
+    data.key.version (integer generation of data.key; absent = 1)   anchor.key (32 raw bytes, HKDF root of the PII anchors)
     backup_recipient.pub (age X25519 recipient; the identity is never stored)
   logs/setup.log                sanitized wrapper phases (no values)
   data/
@@ -67,6 +69,16 @@ Required behaviors:
 - **CLI subcommands the wrapper calls** (all inside the api image, TTY attached unless noted): `setup` (shows owner key once), `reset-access`, `rotate-key`, `create-agent-key`, `logs <filters>` (-T), `diagnostics export --since --output` (-T), `demo` (-T), `verify` (-T; exit 0 when the golden demo answer matches), `migrate` (-T), optional `maintenance-lease acquire|release --reason` (-T; DB advisory lease — the wrapper tolerates its absence).
 - **Health**: `GET /api/health` → 200 `{status, version}`; engine binary must accept `--healthcheck` (exit 0 when healthy) because the runtime image has no curl.
 - **Backup status**: api reads `/data/backups/status.json` for `GET /api/settings/backups` and the health card: `{status: not_configured|scheduled|running|failed|overdue, configured, destination_label, destination_available, same_device, last_attempt_at, last_attempt_kind, last_completed_at, last_generation, last_generation_path, last_sha256, last_bytes, last_cutoff_at, last_cutoff_committed:[{tenant_id, committed_sequence}], next_due_at, retention:{daily,weekly}, last_error, failures}`. `recoverable_age_seconds = now - last_cutoff_at`. `POST /api/settings/backups/run` cannot run the wrapper; it should write `/data/state/backup-request.json` (requires rw on state — see TODO above) which the scheduler container picks up on its next check (TODO: scheduler currently checks only the 24 h objective).
+
+## Data-key rotation (PILOT-07)
+
+Ciphertext layout `[format][key_version][nonce][tag][ct]` with AAD `tenant|purpose|key_version` (`packages/auth/src/datakey.ts`). The live generation is `secrets/data.key.version` (absent = 1). `./blackbox rotate-data-key` (table above) rotates connection secrets and signed-producer HMAC secrets; owner/agent credentials are argon2 verifiers and are independent of the data key. Rules:
+
+- **Verified before retired.** The database transaction decrypts every re-sealed blob with the candidate before COMMIT; the host swaps files only after COMMIT and deletes the retired generation only after the swap; the live key is verified again after the containers restarted.
+- **Fail closed.** A blob whose header version differs from the live key answers `data_key_version` ("complete the rotation or restore the matching generation") — never a plaintext fallback or a silent re-key.
+- **PII anchors stay joinable.** Anchors are HKDF(anchor root, tenant). Installations created before this layout derived them from the generation-1 key; the wrapper freezes that material into `secrets/anchor.key` (so history keeps joining) and fresh setups get an independent random root. Honest limitation: on upgraded installations the anchor root *is* the generation-1 material, so rotation retires it for secrets but not for anchoring; anchors are opaque HMAC join keys, not reversible identifiers.
+- **Old backups.** A generation created before the rotation carries its own `keys.tar.age` (data.key, data.key.version, anchor.key) and restores with its own recovery identity; it cannot be erased by rotating the live key (documented recovery/erasure limitation).
+- **Interrupted rotation.** `data/state/key-rotation.json` records the next phase (`reencrypt`, `swap`, `restart`, `verify`); `doctor`/`status` show the fence; `rotate-data-key --resume` continues. Between COMMIT and swap the api/worker refuse to open secrets (`data_key_version`), which is the intended fail-closed window.
 
 ## Fences and coherence
 

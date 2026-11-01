@@ -1,0 +1,47 @@
+[
+  {
+    "id": "PILOT-01",
+    "status": "implemented_unverified",
+    "command": "fix in scripts/blackbox backup_config (recreate backup-scheduler with the enrolled destination before writing status.json); runtime check planned: ./blackbox backup-config <dir> on a running stack, then cat data/backups/status.json after >10 min and ./blackbox backup",
+    "environment": "macOS 27.2 arm64, working tree on 28dd568 + uncommitted fixes; Docker daemon unavailable during this pass (owner restart blocked on an admin prompt)",
+    "observed_result": "Root cause of the failed case (scheduler started before enrollment kept rewriting status.json to not_configured) fixed in the wrapper; bash syntax and wrapper unit checks pass (46/51, the 5 failures need Docker). Backup/scheduling behaviour on an installed stack not re-run in this pass.",
+    "evidence_paths": [
+      "scripts/blackbox",
+      "reports/evidence/RERUN/README.md",
+      "reports/evidence/PILOT-01/backup-config.txt"
+    ],
+    "blocker": "Docker daemon down (owner admin prompt) \u2014 runtime re-check pending"
+  },
+  {
+    "id": "PILOT-07",
+    "status": "implemented_unverified",
+    "command": "pnpm test:backend (unit: data key rotation layout); pnpm test:backend:integration (sources.test.ts PILOT-07, needs the dev PostgreSQL container); planned on the ops install: ./blackbox rotate-data-key, ./blackbox rotate-data-key --resume after an interrupted swap, restore of a pre-rotation generation with its recovery key",
+    "environment": "macOS 27.2 arm64, node v25.9.0, pnpm 11.20.0, working tree on 28dd568 + uncommitted fixes; Docker unavailable during this pass",
+    "observed_result": "Implemented: versioned key layout (data.key.version, anchor.key), loadCandidateKey/reencryptSecret, rotateDataKey/verifyDataKey (one transaction, verified before COMMIT, data_key.rotated audit per tenant, mixed generations refused), api cli rotate-data-key (tenant ids on stdin), wrapper rotate-data-key with fenced resumable phases and container recreate, Compose secret mounts, backup inclusion, docs. Unit test passed (140/140 backend unit); integration test written but not executed (no PostgreSQL); no run on an installed stack yet.",
+    "evidence_paths": [
+      "packages/auth/src/datakey.ts",
+      "packages/application/src/datakey-rotation.ts",
+      "apps/api/src/cli.ts",
+      "scripts/blackbox",
+      "tests/backend/unit/auth-and-plans.test.ts",
+      "tests/backend/integration/sources.test.ts",
+      "docs/operations.md",
+      "reports/evidence/PILOT-07/filesystem-permissions.txt"
+    ],
+    "blocker": "Docker daemon down (owner admin prompt) \u2014 integration test and installed-stack rotation/restore proof pending"
+  },
+  {
+    "id": "PILOT-08",
+    "status": "implemented_unverified",
+    "command": "pnpm test:backend:integration (sources.test.ts PILOT-08 evidence restriction; needs the dev PostgreSQL container); planned on the install: POST /api/evidence/:id/restrict via curl, GET /api/evidence/:id (API + MCP get_evidence) -> restricted, restore of a pre-restriction generation keeps raw access blocked until reconcile",
+    "environment": "as PILOT-07",
+    "observed_result": "Implemented: owner-only POST /api/evidence/:id/restrict {reason} appending an immutable evidence_redactions row (action restricted, policy_ref owner_restriction) and a security_audit event in one transaction, live content removed after COMMIT, explicit status restricted (API GET, /content 410, MCP get_evidence passthrough, UI badge already localized), idempotent repeat; api typecheck/build pass. Integration test written but not executed; no installed-stack run.",
+    "evidence_paths": [
+      "apps/api/src/routes/journal.ts",
+      "packages/application/src/evidence.ts",
+      "tests/backend/integration/sources.test.ts",
+      "docs/api-contract.md"
+    ],
+    "blocker": "Docker daemon down (owner admin prompt) \u2014 integration test and installed-stack proof pending"
+  }
+]

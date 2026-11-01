@@ -28,6 +28,7 @@ const searchQuery = z.object({ q: z.string().min(1).max(200), track: z.enum(["so
 const stateQuery = z.object({ mode: z.enum(["latest_committed", "at_least_cursor", "as_of", "stale_explicit"]).optional(), cursor: z.coerce.number().int().min(0).optional(), as_of_recorded: dt.optional(), as_of_effective: dt.optional() }).strict();
 const historyQuery = z.object({ cursor: z.string().max(2000).optional(), limit: z.coerce.number().int().min(1).max(500).optional() }).strict();
 const questionBody = z.object({ params: z.record(z.string(), z.unknown()).optional().default({}), consistency: z.object({ mode: z.enum(["latest_committed", "at_least_cursor", "as_of", "stale_explicit"]).optional(), cursor: z.number().int().min(0).optional().nullable(), as_of_recorded: dt.optional().nullable(), as_of_effective: dt.optional().nullable(), deadline_ms: z.number().int().min(100).max(5000).optional() }).optional() }).strict();
+const restrictBody = z.object({ reason: z.string().min(3).max(500) }).strict();
 const reviewAction = z.object({ action: z.enum(["retry", "confirm_link", "reject_link", "append_correction", "leave_open"]), revision: z.number().int().min(1), reason: z.string().min(3).max(500), payload: z.record(z.string(), z.unknown()).optional() }).strict();
 
 function entityParam(raw: string): { type: string; id: string } {
@@ -131,6 +132,29 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
     reply.header("content-disposition", `attachment; filename="evidence-${id}.${access.meta.media_type === "application/json" ? "json" : "bin"}"`);
     reply.header("x-content-type-options", "nosniff");
     return reply.send(access.content);
+  });
+
+  // PILOT-08: owner-authorized restriction of one raw evidence object. Appends an immutable ledger row and a
+  // security-audit event in one transaction, then removes the live content. Typed journal entries, their
+  // evidence_refs and the business history stay; every content path (API, MCP, UI) answers the explicit
+  // status `restricted` with the recorded reason. Agents cannot restrict (owner session + CSRF only).
+  app.post("/api/evidence/:evidence_id/restrict", { preHandler: [guards.requireOwner] }, async (request, reply) => {
+    const id = (request.params as { evidence_id: string }).evidence_id;
+    if (!/^[0-9a-f-]{36}$/i.test(id)) throw notFound("evidence");
+    const body = restrictBody.safeParse(request.body ?? {});
+    if (!body.success) throw validation("invalid restriction request", body.error.issues);
+    const tenantId = guards.tenantOf(request);
+    const actor = guards.principalOf(request).id;
+    const r = await withTenant(ctx.pool, tenantId, async (c) => {
+      const res = await ctx.evidence.restrict(c, { tenantId, evidenceId: id, reason: body.data.reason, actorId: actor });
+      if (res.found && !res.already) await ctx.auth.auditIn(c, tenantId, "evidence.restricted", "owner", actor, "api", { evidence_id: id, redaction_id: res.redactionId, reason_length: body.data.reason.length });
+      return res;
+    });
+    if (!r.found) throw notFound("evidence");
+    const removed = r.storageRef ? ctx.evidence.removeContent(tenantId, r.storageRef) : false;
+    ctx.logger.info("evidence.restricted", r.already ? "Evidence already restricted; no new ledger row" : "Evidence restricted by the owner; live content removed", { tenant_id: tenantId, trace_id: request.traceId });
+    reply.code(r.already ? 200 : 201);
+    return { status: "restricted", evidence_id: id, redaction_id: r.redactionId, already_restricted: r.already, content_removed: removed, audited: !r.already };
   });
 
   app.get("/api/schema", { preHandler: [guards.requireRead] }, async (request) => {
