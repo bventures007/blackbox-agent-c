@@ -1,6 +1,7 @@
 # BuildKit per-Dockerfile ignore (context = repo root)
 **/node_modules
 **/dist
+**/*.tsbuildinfo
 **/.vite
 target
 .git
@@ -11,7 +12,8 @@ release
 reference
 reports
 docs
-specs
+specs/*
+!specs/question-data-contracts.json
 integrations
 features
 templates

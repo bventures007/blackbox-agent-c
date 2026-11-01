@@ -1,0 +1,164 @@
+{
+  "status": "passed",
+  "case": "SLICE-01",
+  "started_at": "2026-11-01T11:49:48Z",
+  "finished_at": "2026-11-01T11:52:00.909Z",
+  "observed": {
+    "step1": {
+      "login_status": 204,
+      "tenant_id": "8be1eca2-f369-4389-abe1-cd2cfb9bab3c",
+      "agent_credential_id": "d6e8c5c0-bea7-43d3-a62c-43802b0a0a20",
+      "agent_workspace_status": 200
+    },
+    "step2": {
+      "connection_id": "00712d35-a1a2-4706-ae56-9277610dd1c6",
+      "plan_id": "ff63f4ee-5e57-446a-a284-f37e68380966",
+      "orders_run_id": "c98c076b-77c8-428d-a976-eaf7bf9b8163",
+      "runs": [
+        {
+          "run_id": "4e9eeaed-6263-4316-8db5-f48f7c6e6aa4",
+          "poll_group": "shopify:stock",
+          "state": "completed",
+          "counters": {
+            "requested": 0,
+            "loaded": 6,
+            "committed": 12,
+            "applied": 12,
+            "failed": 0,
+            "duplicates": 0,
+            "conflicts": 0,
+            "rejected": 0
+          },
+          "pages": 1,
+          "committed_cursor": 24
+        },
+        {
+          "run_id": "5b119491-74f1-4074-a53a-dc81140c0541",
+          "poll_group": "shopify:allocations",
+          "state": "completed",
+          "counters": {
+            "requested": 0,
+            "loaded": 10,
+            "committed": 10,
+            "applied": 10,
+            "failed": 0,
+            "duplicates": 0,
+            "conflicts": 0,
+            "rejected": 0
+          },
+          "pages": 1,
+          "committed_cursor": 44
+        },
+        {
+          "run_id": "c98c076b-77c8-428d-a976-eaf7bf9b8163",
+          "poll_group": "shopify:orders",
+          "state": "completed_with_gaps",
+          "counters": {
+            "requested": 31,
+            "loaded": 31,
+            "committed": 99,
+            "applied": 99,
+            "failed": 0,
+            "duplicates": 0,
+            "conflicts": 0,
+            "rejected": 5
+          },
+          "pages": 5,
+          "committed_cursor": 437
+        }
+      ]
+    },
+    "step3": {
+      "entries_after_first_backfill": 437,
+      "entries_after_rerun": 437,
+      "rerun_duplicates": 159,
+      "rerun_new_records": 0,
+      "committed_cursor": 437,
+      "derived_without_links": 0
+    },
+    "step4": {
+      "order": "gid://shopify/Order/5021",
+      "api_status": 200,
+      "committed_cursor": 437,
+      "applied_cursor": 437,
+      "state": {
+        "physical_stock": null,
+        "reserved_stock": null,
+        "quarantined_stock": null,
+        "available_stock": null,
+        "authorized_minor": 0,
+        "captured_minor": 6250,
+        "fees_minor": 0,
+        "refunded_minor": 3200,
+        "refund_payable_minor": 0,
+        "invoice_original_minor": 0,
+        "invoice_credit_minor": 0,
+        "invoice_net_minor": 0,
+        "open_receivable_minor": 0,
+        "customer_net_paid_minor": 3050,
+        "provider_balance_minor": 3050,
+        "provider_held_minor": 0,
+        "provider_available_minor": 3050,
+        "payout_announced_minor": 0,
+        "in_transit_minor": 0,
+        "bank_confirmed_minor": 0,
+        "shipment_status": "dispatched",
+        "currency": "EUR",
+        "unit": "piece"
+      },
+      "status": "partial",
+      "cutoff": "2026-11-01T11:50:21.000Z",
+      "cutoff_cursor": 437
+    },
+    "step5": {
+      "snapshot_rows": 1,
+      "snapshot_before": "437|46bc79f25e67534d40f989551addefc96dd81a16ab6e953772717c947a40feb0|308656",
+      "corrupted_rows_left": 0,
+      "asof_status_after": 200,
+      "newer_since_cutoff": 0,
+      "latest_applied_after": 437,
+      "latest_status": "current"
+    },
+    "step6": {
+      "correction_entry": "2969eb57-7b7a-4c33-a6d6-2265717104b9",
+      "superseded_entry": "c2d8be11-4bd4-4cb3-81f1-d873173785b7",
+      "denial_seconds": 2,
+      "mcp_after_revoke_rc": 3,
+      "api_after_revoke_status": 401,
+      "tenant_b": "04cff41a-be67-4daa-a1d8-e50f1394389d",
+      "cross_tenant_entries_visible": 0,
+      "owner_entries_for_order": 28,
+      "run_log_records": 12
+    }
+  },
+  "artifacts": [
+    "step-0-health.json",
+    "step-1-agent.json",
+    "step-1-session.json",
+    "step-2-connection.json",
+    "step-2-fixture.json",
+    "step-2-import-plan.json",
+    "step-2-run-4e9eeaed-6263-4316-8db5-f48f7c6e6aa4.json",
+    "step-2-run-5b119491-74f1-4074-a53a-dc81140c0541.json",
+    "step-2-run-c98c076b-77c8-428d-a976-eaf7bf9b8163.json",
+    "step-3-journal-after-first-backfill.json",
+    "step-3-rerun-0641c0b0-6228-435a-acc0-3d1b3dcbe856.json",
+    "step-3-rerun-d02fce97-2e84-4836-a092-5cfcb960b9a1.json",
+    "step-3-rerun-dada8e3a-68a7-4f5d-a102-a1045e7068df.json",
+    "step-4-asof-normalized.json",
+    "step-4-health.json",
+    "step-4-normalized.json",
+    "step-4-order-source-entries.json",
+    "step-4-state-api.json",
+    "step-4-state-mcp.json",
+    "step-5-asof-normalized.json",
+    "step-5-newer-observations.json",
+    "step-6-correction.json",
+    "step-6-cross-tenant.json",
+    "step-6-current-state.json",
+    "step-6-historical-state.json",
+    "step-6-mcp-after-revoke.json",
+    "step-6-tenant-b.json",
+    "step-summary.json"
+  ]
+}

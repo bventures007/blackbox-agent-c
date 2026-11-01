@@ -1,6 +1,7 @@
 /** Worker configuration from the environment. No secrets on the command line; nothing is logged. */
 import { hostname } from 'node:os';
 import { randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 export interface WorkerConfig {
   database_url: string;
@@ -26,11 +27,25 @@ export interface WorkerConfig {
   pgboss_schema: string;
   /** Hard cap on retries before a job is dead-lettered (visible). */
   job_retry_limit: number;
+  /** Shared logs directory (LOGS_DIR / LOG_DIR); null = stderr only. */
+  logs_dir: string | null;
+  /** Host-wrapper fence directory (FENCE_DIR): writers.paused.json pauses all provider work. */
+  fence_dir: string | null;
+}
+
+/** Compose release convention: PGHOST/PGPORT/PGDATABASE + PGUSER + PGPASSWORD_FILE (never a password in env/argv). */
+export function databaseUrlFromEnv(env: NodeJS.ProcessEnv): string | undefined {
+  const user = env.PGUSER;
+  const file = env.PGPASSWORD_FILE;
+  if (!user || !file) return undefined;
+  let password: string;
+  try { password = readFileSync(file, 'utf8').trim(); } catch { return undefined; }
+  return `postgres://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${env.PGHOST ?? '127.0.0.1'}:${env.PGPORT ?? '5432'}/${env.PGDATABASE ?? 'blackbox'}`;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
-  const url = env.DATABASE_URL_WORKER ?? env.WORKER_DATABASE_URL;
-  if (!url) throw new Error('DATABASE_URL_WORKER (bb_worker role) is required');
+  const url = env.DATABASE_URL_WORKER ?? env.WORKER_DATABASE_URL ?? databaseUrlFromEnv(env);
+  if (!url) throw new Error('DATABASE_URL_WORKER (bb_worker role) or PGHOST/PGUSER/PGPASSWORD_FILE is required');
   const num = (name: string, def: number, min = 1, max = Number.MAX_SAFE_INTEGER) => {
     const v = env[name] === undefined ? def : Number(env[name]);
     if (!Number.isFinite(v) || v < min || v > max) throw new Error(`${name} must be a number between ${min} and ${max}`);
@@ -57,5 +72,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
     log_level: env.LOG_LEVEL ?? 'info',
     pgboss_schema: env.PGBOSS_SCHEMA ?? 'pgboss',
     job_retry_limit: num('JOB_RETRY_LIMIT', 5, 0, 50),
+    logs_dir: env.LOGS_DIR ?? env.LOG_DIR ?? null,
+    fence_dir: env.FENCE_DIR ?? null,
   };
 }

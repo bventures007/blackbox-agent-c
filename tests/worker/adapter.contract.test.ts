@@ -36,11 +36,14 @@ beforeEach(async () => { await fetch(`${fixture.url}/__fixture/reset`, { method:
 describe('mapping table and declarations', () => {
   it('derives only tracks allowed by events.json', () => {
     expect(validateMappingTable()).toEqual([]);
-    expect(derivedTracks('order.accepted')).toEqual(['fact']);
-    expect(derivedTracks('payment.captured')).toEqual(['movement']);
+    // Unified table (shared with the API replay path): every family derives a fact; movements/commitments/
+    // reservations only where the golden semantics say so (authorization and paid marker are facts only).
+    expect(derivedTracks('order.accepted')).toEqual(['fact', 'commitment']);
+    expect(derivedTracks('payment.captured')).toEqual(['fact', 'movement']);
     expect(derivedTracks('payment.authorized')).toEqual(['fact']);
-    expect(derivedTracks('shipment.dispatched')).toEqual(['movement', 'reservation']);
+    expect(derivedTracks('shipment.dispatched')).toEqual(['fact', 'movement', 'reservation']);
     expect(derivedTracks('invoice.payment_marked')).toEqual(['fact']);
+    expect(derivedTracks('allocation.revised')).toEqual(['fact']);
     expect(() => derivedTracks('nonsense.event')).toThrow();
   });
   it('declares all three modes per capability; gateway/public are unsupported with no methods (LOCAL-07)', () => {

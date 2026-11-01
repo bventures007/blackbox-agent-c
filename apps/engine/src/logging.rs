@@ -1,9 +1,14 @@
 //! JSON log records on stderr following packages/contracts/log-record.json: allowlisted fields,
 //! clipped strings (512 chars), 16 KiB cap, control characters escaped by the JSON encoder.
+//! When `LOG_DIR` is set the same records are appended to
+//! `<LOG_DIR>/records-YYYYMMDD-HH-engine.jsonl` so the shared diagnostics query
+//! (`./blackbox logs`) correlates engine, api and worker records (ADR-0006).
 
 use std::collections::BTreeMap;
 use std::io::Write;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
 use tracing::field::{Field, Visit};
 use tracing::{Event, Level, Subscriber};
 use tracing_subscriber::layer::Context;
@@ -40,15 +45,50 @@ pub struct JsonLayer {
     pub instance_id: String,
     pub min_level: Level,
     counter: AtomicU64,
+    /// Optional shared logs directory (LOG_DIR); hourly files, append-only, never rotated by the engine
+    /// (the api collector enforces the 7-day / 100 MiB bound over the directory).
+    log_dir: Option<PathBuf>,
+    file: Mutex<Option<(String, std::fs::File)>>,
 }
 
 impl JsonLayer {
     pub fn new(service_version: String, instance_id: String, min_level: Level) -> JsonLayer {
+        let log_dir = std::env::var("LOG_DIR")
+            .ok()
+            .filter(|d| !d.is_empty())
+            .map(PathBuf::from)
+            .filter(|d| d.is_dir());
         JsonLayer {
             service_version,
             instance_id,
             min_level,
             counter: AtomicU64::new(0),
+            log_dir,
+            file: Mutex::new(None),
+        }
+    }
+
+    fn append_file(&self, now: &chrono::DateTime<chrono::Utc>, line: &str) {
+        let Some(dir) = &self.log_dir else { return };
+        let name = format!("records-{}-engine.jsonl", now.format("%Y%m%d-%H"));
+        if let Ok(mut guard) = self.file.lock() {
+            let reopen = match &*guard {
+                Some((current, _)) => current != &name,
+                None => true,
+            };
+            if reopen {
+                match std::fs::OpenOptions::new().create(true).append(true).open(dir.join(&name)) {
+                    Ok(f) => *guard = Some((name, f)),
+                    Err(_) => {
+                        *guard = None;
+                        return;
+                    }
+                }
+            }
+            if let Some((_, f)) = guard.as_mut() {
+                let _ = f.write_all(line.as_bytes());
+                let _ = f.write_all(b"\n");
+            }
         }
     }
 }
@@ -125,7 +165,8 @@ impl<S: Subscriber> Layer<S> for JsonLayer {
         }
         let mut c = Collector::default();
         event.record(&mut c);
-        let now = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+        let now_dt = chrono::Utc::now();
+        let now = now_dt.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
         let n = self.counter.fetch_add(1, Ordering::Relaxed);
         let level_s = match level {
             Level::ERROR => "ERROR",
@@ -172,5 +213,7 @@ impl<S: Subscriber> Layer<S> for JsonLayer {
         let mut h = stderr.lock();
         let _ = h.write_all(line.as_bytes());
         let _ = h.write_all(b"\n");
+        drop(h);
+        self.append_file(&now_dt, &line);
     }
 }

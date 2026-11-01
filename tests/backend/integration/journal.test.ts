@@ -108,7 +108,7 @@ describe("JOURNAL-01 append-only enforcement", () => {
       await c.end();
     }
     const after = await app.built.ctx.journal.get(owner.tenant_id, entryId);
-    expect(after?.entry.payload).toMatchObject({ dataset: "orders" });
+    expect(after?.entry.payload).toMatchObject({ order: "#1001", observation_mode: "import" });
   });
 });
 
@@ -127,17 +127,17 @@ describe("JOURNAL-02 corrections, duplicates, conflicts, replay", () => {
     expect(entry?.entry.event_type).toBe("source.conflict_observed");
     expect(entry?.entry.input_entry_ids).toEqual([(first.outcomes[0] as { entry_ids: string[] }).entry_ids[0]]);
     const original = await app.built.ctx.journal.get(owner.tenant_id, (first.outcomes[0] as { entry_ids: string[] }).entry_ids[0]!);
-    expect((original!.entry.payload.observation as { captured_minor: number }).captured_minor).toBe(11900);
+    expect(original!.entry.payload.captured_minor).toBe(11900);
     const cases = await app.built.ctx.review.list(owner.tenant_id, "open");
     expect(cases.some((c) => c.case_id === out.case_id && c.type === "provider_content_conflict")).toBe(true);
     // The movement derived from the original capture exists exactly once.
-    const moves = await app.built.ctx.journal.list(owner.tenant_id, { track: "movement", event_type: "movement.cash_captured" }, {});
+    const moves = await app.built.ctx.journal.list(owner.tenant_id, { track: "movement", event_type: "payment.captured" }, {});
     expect(moves.entries.filter((e) => e.entity_refs.transaction === "TX-1001")).toHaveLength(1);
   });
 
   it("a correction appends a superseding entry; both versions remain readable and linked", async () => {
     const commitment = (await app.built.ctx.journal.list(owner.tenant_id, { track: "commitment", record_id: "order:#1001" }, {})).entries[0]!;
-    expect(commitment.payload).toMatchObject({ quantity: "10" });
+    expect(commitment.payload).toMatchObject({ quantity: 10, gross_minor: 11900, currency: "EUR" });
     const corrected = await withTenant(app.pool, owner.tenant_id, async (c) => {
       const r = await c.query<{ append_journal_entries: Array<{ entry_id: string; journal_sequence: number }> }>("SELECT append_journal_entries($1::jsonb)", [
         JSON.stringify([{ track: "commitment", record_id: "order:#1001", event_type: "commitment.customer_order_revised", occurred_at: "2026-10-31T09:30:00Z", entity_refs: { order: "#1001" }, payload: { kind: "customer_order", quantity: "8", unit: "piece", amount_minor: 9520, currency: "EUR" }, input_entry_ids: [commitment.entry_id], supersedes_entry_id: commitment.entry_id, derivation_rule: "test.correction", derivation_version: 1 }]),
@@ -148,7 +148,7 @@ describe("JOURNAL-02 corrections, duplicates, conflicts, replay", () => {
     expect(link?.supersedes?.entry_id).toBe(commitment.entry_id);
     const orig = await app.built.ctx.journal.get(owner.tenant_id, commitment.entry_id);
     expect(orig?.superseded_by.map((e) => e.entry_id)).toEqual([corrected.entry_id]);
-    expect(orig?.entry.payload).toMatchObject({ quantity: "10" });
+    expect(orig?.entry.payload).toMatchObject({ quantity: 10 });
     const history = await app.built.ctx.journal.entityHistory(owner.tenant_id, "order", "#1001", {});
     expect(history.entries.map((e) => e.entry_id)).toEqual(expect.arrayContaining([commitment.entry_id, corrected.entry_id]));
   });
@@ -299,7 +299,7 @@ describe("INGEST-01/02/04/05/06", () => {
     const duplicates = results.reduce((n, r) => n + r.duplicate, 0);
     expect(accepted).toBe(1);
     expect(duplicates).toBe(5);
-    const refunds = await app.built.ctx.journal.list(owner.tenant_id, { event_type: "movement.cash_refunded" }, {});
+    const refunds = await app.built.ctx.journal.list(owner.tenant_id, { event_type: "refund.completed", track: "movement" }, {});
     expect(refunds.entries).toHaveLength(1);
     const delivery = await withTenant(app.pool, owner.tenant_id, async (c) => (await c.query("SELECT attempts, status FROM deliveries WHERE provider_event_id = $1", [o.provider_event_id])).rows[0]);
     expect(delivery).toMatchObject({ attempts: 6, status: "accepted" });

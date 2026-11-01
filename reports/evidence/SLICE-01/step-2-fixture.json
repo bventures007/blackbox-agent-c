@@ -1,0 +1,6 @@
+{
+  "seed": 42,
+  "orders": 40,
+  "clock": null,
+  "fixture": "synthetic Shopify-shaped GraphQL Admin API subset"
+}

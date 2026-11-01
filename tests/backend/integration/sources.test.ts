@@ -183,14 +183,14 @@ describe("bank CSV and policy producers", () => {
     expect(preview.parsed[0]!.match).toMatchObject({ status: "matched", payout: "OUT-2001", basis: "reference" });
     expect(preview.parsed[1]!.kind).toBe("bank.debit_booked");
     expect(preview.parsed[2]!.match.status).toBe("unmatched");
-    const before = (await c.get("/api/journal?event_type=movement.bank_credit&track=movement")).json as { entries: unknown[] };
+    const before = (await c.get("/api/journal?event_type=bank.credit_booked&track=movement")).json as { entries: unknown[] };
     const commit = (await c.post("/api/ingest/bank-csv", { connection_id: demo.connections.bank_csv, csv })).json as { accepted: number; duplicate: number; ambiguous: number };
     expect(commit).toMatchObject({ accepted: 4, duplicate: 0, ambiguous: 0 }); // 3 rows + 1 match assertion
     const again = (await c.post("/api/ingest/bank-csv", { connection_id: demo.connections.bank_csv, csv })).json as { accepted: number; duplicate: number; conflict: number };
     expect(again).toMatchObject({ accepted: 0, duplicate: 3, conflict: 0 }); // rows are pure content: re-import is a no-op; the match is now known, no new assertion
     const matches = (await c.get("/api/entities/payout/OUT-2001/history")).json as { entries: Array<{ event_type: string; track: string }> };
     expect(matches.entries.some((e) => e.event_type === "bank.match_recorded" && e.track === "fact")).toBe(true);
-    const after = (await c.get("/api/journal?event_type=movement.bank_credit&track=movement")).json as { entries: Array<{ payload: Record<string, unknown> }> };
+    const after = (await c.get("/api/journal?event_type=bank.credit_booked&track=movement")).json as { entries: Array<{ payload: Record<string, unknown> }> };
     expect(after.entries.length).toBe(before.entries.length + 2);
     expect(JSON.stringify(after.entries)).not.toContain("Shop Payments Ltd");
     // Ambiguity: two unmatched payouts with the same amount → review case, no link asserted.
@@ -250,8 +250,8 @@ describe("PILOT-04 review workflow", () => {
     expect(decisions.entries[0]!.payload).toMatchObject({ decision: "append_correction", provenance: "human_confirmed", actor_kind: "owner", correction: { captured_minor: 11900 } });
     expect(decisions.entries[0]!.supersedes_entry_id).toBeTruthy();
     expect(decisions.entries[0]!.correlation_id).toBe(caseId);
-    const original = (await c.get(`/api/journal/${decisions.entries[0]!.supersedes_entry_id}`)).json as { entry: { payload: { observation: { captured_minor: number } } }; superseded_by: unknown[] };
-    expect(original.entry.payload.observation.captured_minor).toBe(11900); // untouched
+    const original = (await c.get(`/api/journal/${decisions.entries[0]!.supersedes_entry_id}`)).json as { entry: { payload: { captured_minor: number } }; superseded_by: unknown[] };
+    expect(original.entry.payload.captured_minor).toBe(11900); // untouched
     expect(original.superseded_by).toHaveLength(1);
     expect((await c.post(`/api/review/cases/${caseId}/actions`, { action: "retry", revision: 3, reason: "again" })).status).toBe(409); // already resolved
     expect(((await c.get("/api/workspace")).json as { unresolved_review_count: number }).unresolved_review_count).toBeGreaterThanOrEqual(0);

@@ -19,9 +19,17 @@ RUN corepack enable && corepack prepare --activate
 # pnpm >=10 runs dependency build scripts (argon2, esbuild) only when pnpm-workspace.yaml allows them
 # (allowBuilds / onlyBuiltDependencies). Integration point: that allowlist must be valid in the repo.
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm run build && pnpm run build:web \
- && (pnpm --filter @blackbox/api deploy --prod --legacy /out/api || pnpm --filter @blackbox/api deploy --prod /out/api) \
- && cp -R apps/web/dist /out/web-dist
+# Backend first (must succeed); the web/landing builds are owned by another component and may lag —
+# an image without them still serves the API (the UI routes then 404 until the next build).
+# The runtime image carries the workspace re-linked with production dependencies only: pnpm deploy does not
+# bundle workspace packages reliably across pnpm majors, and relative workspace symlinks stay valid
+# when /src is copied to /app.
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm run build:backend \
+ && (pnpm run build:web || (echo "WARN: web build failed; API-only image" && mkdir -p apps/web/dist)) \
+ && (pnpm run build:landing || (echo "WARN: landing build failed" && mkdir -p apps/landing/dist)) \
+ && pnpm install --prod --frozen-lockfile --offline \
+ && rm -rf .git target tests/e2e/node_modules apps/web/node_modules apps/landing/node_modules packages/ui/node_modules \
+ && find . -name '*.tsbuildinfo' -delete
 
 FROM ${NODE_IMAGE} AS runtime
 ARG BLACKBOX_VERSION=dev
@@ -35,9 +43,12 @@ RUN groupadd --gid 10001 blackbox && useradd --uid 10001 --gid 10001 --home /app
  && mkdir -p /app /data/logs /data/evidence /data/snapshots /data/backups /data/state \
  && chown -R 10001:10001 /app /data
 WORKDIR /app
-COPY --from=build --chown=10001:10001 /out/api /app/apps/api
-COPY --from=build --chown=10001:10001 /out/web-dist /app/apps/web/dist
-COPY --chown=10001:10001 packages/database/migrations /app/packages/database/migrations
+# Whole pruned workspace: apps/api/dist (server + CLI), apps/web/dist, apps/landing/dist, packages/*/dist,
+# packages/database/migrations, and the binding contracts read at runtime (BLACKBOX_REPO_ROOT=/app:
+# packages/contracts, specs/question-data-contracts.json, GOLDEN-ORDER-TO-CASH.json).
+COPY --from=build --chown=10001:10001 /src /app
+COPY --chmod=0755 infra/docker/api-entrypoint.sh /usr/local/bin/blackbox-api-entrypoint
+ENV BLACKBOX_REPO_ROOT=/app
 USER 10001:10001
 EXPOSE 19180
-ENTRYPOINT ["node", "/app/apps/api/dist/index.js"]
+ENTRYPOINT ["/usr/local/bin/blackbox-api-entrypoint"]

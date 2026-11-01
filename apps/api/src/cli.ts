@@ -6,7 +6,9 @@ import { bootstrapRoles, passwordsFromEnv, pendingMigrations, runMigrations } fr
 import { AuthError, ensureDataKey } from "@blackbox/auth";
 import { createLogger, FileCollector, followLogs, queryLogs, type LogLevel, type LogRecord } from "@blackbox/logging";
 import { createContext } from "./app.js";
-import { ConfigError, loadConfig } from "./config.js";
+import { ConfigError, loadConfig, normalizeEnv } from "./config.js";
+import { withTenant } from "@blackbox/database";
+import type { Observation } from "@blackbox/application";
 import { buildDiagnosticsExport, doctorExitCode, doctorFileChecks, EXPORT_CATEGORIES, healthCards, probePostgres, type DoctorCheck } from "./diagnostics.js";
 
 const HELP = `blackbox API CLI (node apps/api/dist/cli.js <command>)
@@ -21,6 +23,10 @@ Commands
   logs [--follow] [--level <min>] [--since <1h|RFC3339>] [--until <RFC3339>] [--component a,b] [--connection <id>] [--run <id>] [--trace <id>] [--q <text>] [--format json|text] [--limit n]
   doctor [--format json|text]                   Prerequisite/port/storage/service checks. Exit 0 ok, 1 degraded, 2 failure.
   diagnostics export --since <1h|RFC3339> [--until <RFC3339>] --output <file> [--categories versions,health,errors,logs]
+  demo [--confirm] [--up-to Gnn]                Load the labeled GOLDEN scenario into demo connections of the owner workspace (replay path; never over user data).
+  verify [--json]                               Golden order state check through the shared query services (physical/available stock, captured, fees, refunded, bank-confirmed). Exit 0 only on an exact match.
+  maintenance-lease acquire|release [--reason r] [--ttl-minutes n]   Installation maintenance lease for ./blackbox upgrade.
+  create-tenant --name <name> [--seed-order <external order id>]     Test-only: second synthetic workspace (never reachable over HTTP); optionally seeds a colliding order observation.
 
 Environment: DATABASE_URL (bb_api), MIGRATE_DATABASE_URL (bb_migrate), SECRETS_DIR, EVIDENCE_DIR, LOGS_DIR, SNAPSHOT_DIR, ENGINE_URL, ENGINE_TOKEN|ENGINE_TOKEN_FILE, PORT, HOST=127.0.0.1.
 Secrets are never accepted as command-line arguments. Keys are shown once on this terminal and never written to logs.
@@ -166,7 +172,7 @@ async function cmdCreateAgentKey(args: string[]): Promise<number> {
 }
 
 async function cmdMigrate(): Promise<number> {
-  const url = process.env.MIGRATE_DATABASE_URL;
+  const url = normalizeEnv().MIGRATE_DATABASE_URL;
   if (!url) {
     err("MIGRATE_DATABASE_URL (bb_migrate role) is required");
     return 2;
@@ -193,7 +199,7 @@ async function cmdLogs(args: string[]): Promise<number> {
     options: { follow: { type: "boolean" }, level: { type: "string" }, since: { type: "string" }, until: { type: "string" }, component: { type: "string" }, connection: { type: "string" }, run: { type: "string" }, trace: { type: "string" }, q: { type: "string" }, format: { type: "string" }, limit: { type: "string" } },
     strict: true,
   });
-  const logsDir = process.env.LOGS_DIR;
+  const logsDir = normalizeEnv().LOGS_DIR;
   if (!logsDir) {
     err("LOGS_DIR is required");
     return 2;
@@ -233,7 +239,8 @@ async function cmdDoctor(args: string[]): Promise<number> {
   } catch (e) {
     checks.push({ id: "config", state: "failure", message: (e as Error).message, next_action: "fix the environment variables" });
   }
-  const dirs = { logsDir: process.env.LOGS_DIR ?? "", evidenceDir: process.env.EVIDENCE_DIR ?? "", secretsDir: process.env.SECRETS_DIR ?? "", snapshotDir: process.env.SNAPSHOT_DIR ?? path.join(process.env.EVIDENCE_DIR ?? ".", "..", "snapshots") };
+  const denv = normalizeEnv();
+  const dirs = { logsDir: denv.LOGS_DIR ?? "", evidenceDir: denv.EVIDENCE_DIR ?? "", secretsDir: denv.SECRETS_DIR ?? "", snapshotDir: denv.SNAPSHOT_DIR ?? path.join(denv.EVIDENCE_DIR ?? ".", "..", "snapshots") };
   trace("file checks");
   checks.push(...doctorFileChecks(dirs));
   if (config) {
@@ -244,9 +251,9 @@ async function cmdDoctor(args: string[]): Promise<number> {
       const pg = await probePostgres(pool, 8000);
       trace(`postgres probe done: ${pg.ok ? "ok" : pg.error}`);
       checks.push({ id: "postgres", state: pg.ok ? "ok" : "unavailable", message: pg.ok ? `reachable in ${pg.latency_ms} ms` : `unreachable: ${pg.error}`, next_action: pg.ok ? null : "start the runtime (./blackbox start) and re-run doctor" });
-      if (pg.ok && process.env.MIGRATE_DATABASE_URL) {
+      if (pg.ok && config.migrateDatabaseUrl) {
         try {
-          const pending = await pendingMigrations(process.env.MIGRATE_DATABASE_URL);
+          const pending = await pendingMigrations(config.migrateDatabaseUrl);
           checks.push({ id: "migrations", state: pending.length === 0 ? "ok" : "degraded", message: pending.length === 0 ? "schema up to date" : `${pending.length} pending migration(s)`, next_action: pending.length === 0 ? null : "run migrate" });
         } catch (e) {
           checks.push({ id: "migrations", state: "degraded", message: `cannot check migrations: ${(e as Error).message.slice(0, 80)}`, next_action: null });
@@ -267,7 +274,8 @@ async function cmdDoctor(args: string[]): Promise<number> {
     }
     if (config.engineUrl !== "stub") {
       try {
-        const res = await fetch(`${config.engineUrl}/health`, { headers: { "x-engine-token": config.engineToken ?? "" }, signal: AbortSignal.timeout(2000) });
+        const token = config.engineToken ?? (config.engineTokenFile ? (await import("node:fs")).readFileSync(config.engineTokenFile, "utf8").trim() : "");
+        const res = await fetch(`${config.engineUrl}/health`, { headers: { "x-engine-token": token }, signal: AbortSignal.timeout(2000) });
         checks.push({ id: "engine", state: res.ok ? "ok" : "degraded", message: res.ok ? "engine responding" : `engine responded ${res.status}`, next_action: null });
       } catch {
         checks.push({ id: "engine", state: "unavailable", message: "engine not reachable from this host (expected outside Compose: engine is on the private network)", next_action: null });
@@ -291,7 +299,7 @@ async function cmdDiagnosticsExport(args: string[]): Promise<number> {
     err("--output <file> is required");
     return 2;
   }
-  const logsDir = process.env.LOGS_DIR;
+  const logsDir = normalizeEnv().LOGS_DIR;
   if (!logsDir) {
     err("LOGS_DIR is required");
     return 2;
@@ -325,9 +333,169 @@ async function cmdDiagnosticsExport(args: string[]): Promise<number> {
   return 0;
 }
 
+/** Final checkpoint of GOLDEN-ORDER-TO-CASH.json (after G19); stock values arrive as decimal strings, money as integers. */
+const GOLDEN_ORDER_EXPECTED = { physical_stock: 112, available_stock: 112, captured_minor: 11900, fees_minor: 350, refunded_minor: 2380, bank_confirmed_minor: 9170 } as const;
+
+async function cmdDemo(args: string[]): Promise<number> {
+  const { values } = parseArgs({ args, options: { confirm: { type: "boolean" }, "up-to": { type: "string" }, json: { type: "boolean" } }, strict: true });
+  return withContext(async (ctx) => {
+    const owner = await ownerPrincipal(ctx);
+    if (!owner) {
+      err("not initialized; run setup first");
+      return 2;
+    }
+    if (!ctx.demo) {
+      err(`demo unavailable: ${ctx.dataKeyError?.message ?? "installation data key unavailable"}`);
+      return 2;
+    }
+    const r = await ctx.demo.run(owner.tenant_id, { confirm: values.confirm, upTo: values["up-to"] });
+    ctx.logger.info("demo.loaded", "Golden demo scenario loaded through the replay path (CLI)", { tenant_id: owner.tenant_id, run_id: r.run_id, record_count: r.result.accepted, committed_cursor: r.result.committed_cursor ?? undefined });
+    const summary = { status: "loaded", run_id: r.run_id, accepted: r.result.accepted, duplicate: r.result.duplicate, conflict: r.result.conflict, rejected: r.result.rejected, committed_cursor: r.result.committed_cursor, connections: r.connections };
+    if (values.json) out(JSON.stringify(summary));
+    else out(`demo scenario loaded: accepted=${r.result.accepted} duplicate=${r.result.duplicate} conflict=${r.result.conflict} rejected=${r.result.rejected} committed_cursor=${r.result.committed_cursor ?? "none"} run=${r.run_id}`);
+    return r.result.rejected > 0 ? 1 : 0;
+  });
+}
+
+async function ownerPrincipal(ctx: ReturnType<typeof createContext>): Promise<{ principal_id: string; tenant_id: string } | null> {
+  const { withAuthenticator } = await import("@blackbox/database");
+  return withAuthenticator(ctx.pool, async (c) => (await c.query<{ principal_id: string; tenant_id: string }>("SELECT principal_id, tenant_id FROM principals WHERE kind = 'owner' LIMIT 1")).rows[0] ?? null);
+}
+
+/**
+ * Golden answer check (`./blackbox verify`): the demo order #1001 state is read through the same
+ * engine client and consistency barrier the HTTP route uses (latest_committed, deadline 5 s) and
+ * compared field by field with GOLDEN-ORDER-TO-CASH.json's final checkpoint. Exit 0 only on match;
+ * 1 when the demo is not loaded or the engine is behind; 2 on a mismatch.
+ */
+async function cmdVerify(args: string[]): Promise<number> {
+  const { values } = parseArgs({ args, options: { json: { type: "boolean" }, order: { type: "string" } }, strict: true });
+  return withContext(async (ctx) => {
+    const owner = await ownerPrincipal(ctx);
+    if (!owner) {
+      err("not initialized; run setup first");
+      return 2;
+    }
+    const orderId = values.order ?? "#1001";
+    const loaded = await withTenant(ctx.pool, owner.tenant_id, async (c) => (await c.query<{ n: string }>("SELECT count(*)::text AS n FROM journal_entries WHERE track = 'source' AND entity_refs->>'order' = $1", [orderId])).rows[0]?.n ?? "0");
+    if (Number(loaded) === 0) {
+      err(`golden order ${orderId} has no journal entries in the owner workspace; run ./blackbox demo first`);
+      if (values.json) out(JSON.stringify({ status: "not_loaded", order: orderId }));
+      return 1;
+    }
+    let state: Record<string, unknown>;
+    try {
+      state = await ctx.engine.state({ tenant_id: owner.tenant_id, entity_type: "order", entity_id: orderId, consistency: { mode: "latest_committed", deadline_ms: 5000 } });
+    } catch (e) {
+      err(`engine state unavailable: ${(e as Error).message}`);
+      if (values.json) out(JSON.stringify({ status: "unavailable", error: (e as Error).message }));
+      return 1;
+    }
+    const stateValues = (state.state ?? {}) as Record<string, unknown>;
+    const observed: Record<string, unknown> = {};
+    const mismatches: string[] = [];
+    for (const [k, expected] of Object.entries(GOLDEN_ORDER_EXPECTED)) {
+      const v = stateValues[k];
+      observed[k] = v;
+      const same = v !== null && v !== undefined && Number(v) === expected;
+      if (!same) mismatches.push(`${k}: expected ${expected}, observed ${JSON.stringify(v)}`);
+    }
+    const consistency = state.consistency as Record<string, unknown> | undefined;
+    ctx.logger.info("query.served", "Golden verify served", { tenant_id: owner.tenant_id, operation_id: "verify:order", applied_cursor: typeof consistency?.applied_cursor === "number" ? consistency.applied_cursor : undefined });
+    const result = { status: mismatches.length === 0 ? "passed" : "failed", order: orderId, expected: GOLDEN_ORDER_EXPECTED, observed, consistency, mismatches };
+    if (values.json) out(JSON.stringify(result));
+    else {
+      for (const [k, v] of Object.entries(observed)) out(`${k.padEnd(22)} observed=${JSON.stringify(v)} expected=${JSON.stringify((GOLDEN_ORDER_EXPECTED as Record<string, unknown>)[k])}`);
+      out(`consistency: ${JSON.stringify(consistency ?? null)}`);
+      out(mismatches.length === 0 ? "verify: passed (golden order state matches)" : `verify: FAILED\n  ${mismatches.join("\n  ")}`);
+    }
+    return mismatches.length === 0 ? 0 : 2;
+  });
+}
+
+async function cmdMaintenanceLease(args: string[]): Promise<number> {
+  const [action, ...rest] = args;
+  const { values } = parseArgs({ args: rest, options: { reason: { type: "string" }, "ttl-minutes": { type: "string" }, owner: { type: "string" }, json: { type: "boolean" } }, strict: true });
+  if (action !== "acquire" && action !== "release" && action !== "status") {
+    err("usage: maintenance-lease acquire|release|status [--reason r] [--ttl-minutes n]");
+    return 2;
+  }
+  return withContext(async (ctx) => {
+    const { withInstallation } = await import("@blackbox/database");
+    const owner = values.owner ?? "wrapper";
+    const ttl = Math.min(Math.max(Number(values["ttl-minutes"] ?? "120"), 1), 1440);
+    const r = await withInstallation(ctx.pool, async (c) => {
+      await c.query("DELETE FROM maintenance_lease WHERE expires_at < now()");
+      if (action === "acquire") {
+        const existing = (await c.query<{ owner: string; reason: string; expires_at: Date }>("SELECT owner, reason, expires_at FROM maintenance_lease")).rows[0];
+        if (existing && existing.owner !== owner) return { status: "held", owner: existing.owner, reason: existing.reason, expires_at: existing.expires_at.toISOString() };
+        await c.query("INSERT INTO maintenance_lease (singleton, owner, reason, acquired_at, expires_at) VALUES (true, $1, $2, now(), now() + ($3 || ' minutes')::interval) ON CONFLICT (singleton) DO UPDATE SET owner = EXCLUDED.owner, reason = EXCLUDED.reason, acquired_at = now(), expires_at = EXCLUDED.expires_at", [owner, values.reason ?? "maintenance", String(ttl)]);
+        return { status: "acquired", owner, reason: values.reason ?? "maintenance", ttl_minutes: ttl };
+      }
+      if (action === "release") {
+        const n = (await c.query("DELETE FROM maintenance_lease WHERE owner = $1", [owner])).rowCount ?? 0;
+        return { status: n > 0 ? "released" : "not_held", owner };
+      }
+      const row = (await c.query<{ owner: string; reason: string; expires_at: Date }>("SELECT owner, reason, expires_at FROM maintenance_lease")).rows[0];
+      return row ? { status: "held", owner: row.owner, reason: row.reason, expires_at: row.expires_at.toISOString() } : { status: "free" };
+    });
+    ctx.logger.info("maintenance.lease", `maintenance lease ${r.status}`, { action_code: action, operation_id: owner });
+    out(values.json ? JSON.stringify(r) : `maintenance lease: ${JSON.stringify(r)}`);
+    return r.status === "held" && action === "acquire" ? 1 : 0;
+  });
+}
+
+/**
+ * Test-only second synthetic workspace (TENANT-* cases). It is created directly in the database by
+ * the host CLI; no HTTP route can create or reach it. With --seed-order a replay connection and an
+ * `order.accepted` observation with the given (colliding) external order id are ingested through the
+ * ordinary ingestion service so cross-tenant disclosure can be checked from the owner workspace.
+ */
+async function cmdCreateTenant(args: string[]): Promise<number> {
+  const { values } = parseArgs({ args, options: { name: { type: "string" }, "seed-order": { type: "string" }, json: { type: "boolean" } }, strict: true });
+  if (!values.name) {
+    err("--name is required");
+    return 2;
+  }
+  return withContext(async (ctx) => {
+    const { randomUUID } = await import("node:crypto");
+    const tenantId = randomUUID();
+    await withTenant(ctx.pool, tenantId, async (c) => {
+      await c.query("INSERT INTO tenants (tenant_id, display_name) VALUES ($1, $2)", [tenantId, values.name]);
+      await c.query("INSERT INTO tenant_sequences (tenant_id, last_sequence) VALUES ($1, 0)", [tenantId]);
+      await c.query("INSERT INTO workspace_settings (tenant_id) VALUES ($1)", [tenantId]);
+      await c.query("INSERT INTO storage_thresholds (tenant_id) VALUES ($1)", [tenantId]);
+    });
+    const result: Record<string, unknown> = { status: "created", tenant_id: tenantId, display_name: values.name };
+    if (values["seed-order"]) {
+      if (!ctx.connections || !ctx.ingestion) {
+        err("ingestion unavailable (data key)");
+        return 2;
+      }
+      const conn = await ctx.connections.create(tenantId, { provider: "replay", display_name: "synthetic colliding source", config: { synthetic: true } });
+      const orderId = values["seed-order"];
+      const obs: Observation = { provider_event_id: `collide:${orderId}`, kind: "order.accepted", occurred_at: new Date().toISOString(), entity: { order: orderId, customer: "C-OTHER", item: "OTHER-SKU" }, payload: { order: orderId, quantity: 3, unit: "piece", unit_gross_minor: 9999, gross_minor: 29997, currency: "EUR", status: "accepted" }, evidence_refs: [] };
+      const r = await ctx.ingestion.ingest({ tenantId, connectionId: conn.connection.connection_id, producer: "replay", observations: [obs] });
+      result.connection_id = conn.connection.connection_id;
+      result.seeded = { order: orderId, accepted: r.accepted, committed_cursor: r.committed_cursor, entry_ids: r.outcomes[0]?.status === "accepted" ? r.outcomes[0].entry_ids : [] };
+    }
+    ctx.logger.info("tenant.created", "Synthetic test workspace created by the host CLI", { tenant_id: tenantId, action_code: "create_tenant" });
+    out(values.json ? JSON.stringify(result) : `created synthetic workspace ${tenantId}${result.connection_id ? ` with colliding order ${values["seed-order"]} in connection ${String(result.connection_id)}` : ""}`);
+    return 0;
+  });
+}
+
 async function main(): Promise<number> {
   const [command, ...rest] = process.argv.slice(2);
   switch (command) {
+    case "demo":
+      return cmdDemo(rest);
+    case "verify":
+      return cmdVerify(rest);
+    case "maintenance-lease":
+      return cmdMaintenanceLease(rest);
+    case "create-tenant":
+      return cmdCreateTenant(rest);
     case "setup":
       return cmdSetup(rest);
     case "rotate-key":

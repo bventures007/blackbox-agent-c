@@ -1,0 +1,66 @@
+[
+  {
+    "entry_id": "c2d8be11-4bd4-4cb3-81f1-d873173785b7",
+    "event_type": "order.accepted",
+    "occurred_at": "2026-10-04T12:32:19.733Z",
+    "recorded_at": "2026-11-01T11:49:59.956Z",
+    "journal_sequence": 81,
+    "provider_event_id": "1042|order:5021|accepted"
+  },
+  {
+    "entry_id": "20958a29-e6ea-4f42-8a01-76f88574e056",
+    "event_type": "order.revised",
+    "occurred_at": "2026-10-09T12:33:19.733Z",
+    "recorded_at": "2026-11-01T11:49:59.995Z",
+    "journal_sequence": 84,
+    "provider_event_id": "1042|order:5021|rev:2026-10-09T12:33:19.733Z"
+  },
+  {
+    "entry_id": "b73269d4-29d0-4923-b69b-8ce450ac95c1",
+    "event_type": "payment.captured",
+    "occurred_at": "2026-10-04T12:32:20.733Z",
+    "recorded_at": "2026-11-01T11:50:00.132Z",
+    "journal_sequence": 87,
+    "provider_event_id": "1042|txn:20033|success"
+  },
+  {
+    "entry_id": "6f696e1f-6662-4c4c-86ff-b96da8ff0f64",
+    "event_type": "refund.completed",
+    "occurred_at": "2026-10-09T12:32:19.733Z",
+    "recorded_at": "2026-11-01T11:50:00.190Z",
+    "journal_sequence": 90,
+    "provider_event_id": "1042|txn:20034|success"
+  },
+  {
+    "entry_id": "1428de09-2048-4af9-b281-8849f305d5c7",
+    "event_type": "shipment.dispatched",
+    "occurred_at": "2026-10-05T12:32:19.733Z",
+    "recorded_at": "2026-11-01T11:50:00.234Z",
+    "journal_sequence": 94,
+    "provider_event_id": "1042|ful:40035|dispatched"
+  },
+  {
+    "entry_id": "3054d1c5-ba92-427b-a9ec-4fa72e06ec13",
+    "event_type": "return.approved",
+    "occurred_at": "2026-10-09T12:33:19.733Z",
+    "recorded_at": "2026-11-01T11:50:00.315Z",
+    "journal_sequence": 98,
+    "provider_event_id": "1042|ret:60004|open"
+  },
+  {
+    "entry_id": "fc780a3a-18a3-4651-a073-b33615167619",
+    "event_type": "return.received",
+    "occurred_at": "2026-10-09T12:33:19.733Z",
+    "recorded_at": "2026-11-01T11:50:00.384Z",
+    "journal_sequence": 100,
+    "provider_event_id": "1042|disp:80003|processing_required"
+  },
+  {
+    "entry_id": "25fdca25-fd82-4790-b68b-bce1c07814a1",
+    "event_type": "return.restocked",
+    "occurred_at": "2026-10-09T12:33:19.733Z",
+    "recorded_at": "2026-11-01T11:50:00.413Z",
+    "journal_sequence": 103,
+    "provider_event_id": "1042|disp:80004|restocked"
+  }
+]

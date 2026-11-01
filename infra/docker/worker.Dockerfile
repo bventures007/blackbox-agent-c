@@ -15,8 +15,11 @@ RUN corepack enable && corepack prepare --activate
 # pnpm >=10 runs dependency build scripts (argon2, esbuild) only when pnpm-workspace.yaml allows them
 # (allowBuilds / onlyBuiltDependencies). Integration point: that allowlist must be valid in the repo.
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm -r --filter './packages/*' run build && pnpm --filter @blackbox/worker run build \
- && (pnpm --filter @blackbox/worker deploy --prod --legacy /out/worker || pnpm --filter @blackbox/worker deploy --prod /out/worker)
+# Runtime = pruned workspace copy (see api.Dockerfile for the rationale).
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm run build:worker \
+ && pnpm install --prod --frozen-lockfile --offline \
+ && rm -rf .git target tests/e2e/node_modules apps/web/node_modules apps/landing/node_modules packages/ui/node_modules \
+ && find . -name '*.tsbuildinfo' -delete
 
 FROM ${NODE_IMAGE} AS runtime
 ARG BLACKBOX_VERSION=dev
@@ -28,6 +31,7 @@ ENV NODE_ENV=production BLACKBOX_VERSION=${BLACKBOX_VERSION} BLACKBOX_COMMIT=${B
 RUN groupadd --gid 10001 blackbox && useradd --uid 10001 --gid 10001 --home /app --shell /usr/sbin/nologin blackbox \
  && mkdir -p /app /data/logs /data/evidence /data/backups /data/state && chown -R 10001:10001 /app /data
 WORKDIR /app
-COPY --from=build --chown=10001:10001 /out/worker /app/apps/worker
+COPY --from=build --chown=10001:10001 /src /app
+ENV BLACKBOX_REPO_ROOT=/app
 USER 10001:10001
 ENTRYPOINT ["node", "/app/apps/worker/dist/index.js"]

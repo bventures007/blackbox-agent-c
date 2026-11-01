@@ -1,6 +1,7 @@
 import type { Pool, TenantClient } from "@blackbox/database";
 import { withTenant } from "@blackbox/database";
 import { encryptSecret, type DataKey } from "@blackbox/auth";
+import { capabilitiesFor, pollGroupOf } from "@blackbox/connectors";
 import { loadQuestionContracts } from "./contracts.js";
 import { SignedInputService } from "./signed.js";
 
@@ -30,8 +31,13 @@ export interface ImportRun {
   kind: string;
   phase: string;
   state: string;
-  counters: { requested: number; loaded: number; committed: number; applied: number; failed: number; duplicates: number };
+  counters: { requested: number; loaded: number; committed: number; applied: number; failed: number; duplicates: number; conflicts: number; rejected: number };
   totals_known: boolean;
+  pages: number;
+  poll_group: string | null;
+  capability_scope: string[];
+  coverage_from: string | null;
+  coverage_to: string | null;
   percent: number | null;
   attempt: number;
   started_at: string | null;
@@ -83,8 +89,13 @@ export function rowToRun(r: Record<string, unknown>): ImportRun {
     kind: r.kind as string,
     phase: r.phase as string,
     state: r.state as string,
-    counters: { requested, loaded, committed: Number(r.committed), applied: Number(r.applied), failed: Number(r.failed), duplicates: Number(r.duplicates) },
+    counters: { requested, loaded, committed: Number(r.committed), applied: Number(r.applied), failed: Number(r.failed), duplicates: Number(r.duplicates), conflicts: Number(r.conflicts ?? 0), rejected: Number(r.rejected ?? 0) },
     totals_known: totalsKnown,
+    pages: Number(r.pages ?? 0),
+    poll_group: ((r.checkpoint as Record<string, unknown> | null)?.poll_group as string | undefined) ?? null,
+    capability_scope: Array.isArray(r.capability_scope) ? (r.capability_scope as string[]) : [],
+    coverage_from: ts(r.coverage_from),
+    coverage_to: ts(r.coverage_to),
     // Percentages only when an exact total for the named cohort is known (IMPORT-03).
     percent: totalsKnown && requested > 0 ? Math.min(100, Math.round((loaded / requested) * 100)) : null,
     attempt: Number(r.attempt),
@@ -96,6 +107,17 @@ export function rowToRun(r: Record<string, unknown>): ImportRun {
     next_action: (r.next_action as string | null) ?? null,
     committed_cursor: r.committed_cursor === null || r.committed_cursor === undefined ? null : Number(r.committed_cursor),
   };
+}
+
+/**
+ * `applied` is derived at read time from the engine checkpoint: once the engine's applied cursor has
+ * reached the run's committed cursor every committed record of the run is applied; before that the
+ * worker's last observation stands (durable counters never claim more than the checkpoint proves).
+ */
+export function withLiveApplied(run: ImportRun, appliedSequence: number | null): ImportRun {
+  if (appliedSequence === null || run.committed_cursor === null) return run;
+  if (appliedSequence >= run.committed_cursor) return { ...run, counters: { ...run.counters, applied: run.counters.committed } };
+  return run;
 }
 
 export class ConnectionService {
@@ -163,6 +185,41 @@ export class ConnectionService {
     });
   }
 
+  /**
+   * Queues worker-executed runs for a polled connector (one per poll group, the row shape
+   * `apps/worker` SyncEngine.executeRun expects: state queued, checkpoint {poll_group, cursor, window},
+   * capability_scope). `check` queues one credential check. The worker scheduler dispatches queued
+   * runs on its next tick; counters/phases are then updated by the worker after every COMMIT.
+   */
+  async queueRuns(tenantId: string, connectionId: string, kind: "backfill" | "incremental" | "reconcile" | "check", planId: string | null): Promise<ImportRun[]> {
+    return withTenant(this.pool, tenantId, async (c) => {
+      const conn = await c.query<{ status: string; provider: string }>("SELECT status, provider FROM connections WHERE connection_id = $1", [connectionId]);
+      if (!conn.rows[0]) throw new ConnectionError("connection_not_found", 404, "connection not found");
+      if (conn.rows[0].status === "disconnected") throw new ConnectionError("connection_disconnected", 409, "connection is disconnected");
+      const provider = conn.rows[0].provider;
+      const caps = capabilitiesFor(provider).filter((cap) => cap.modes.local_standalone.methods.includes("polling"));
+      if (caps.length === 0) throw new ConnectionError("runs_not_applicable", 422, `provider '${provider}' is producer-driven (no outbound polling); runs are not applicable`);
+      const groups = [...new Set(caps.map((cap) => pollGroupOf(provider, cap.id)))];
+      if (kind === "backfill" && !planId) throw new ConnectionError("import_plan_required", 422, "create an import plan before starting a backfill");
+      const open = await c.query<{ n: string }>("SELECT count(*)::text AS n FROM import_runs WHERE connection_id = $1 AND kind = $2 AND state IN ('queued','running')", [connectionId, kind]);
+      if (Number(open.rows[0]?.n ?? 0) > 0) throw new ConnectionError("run_already_active", 409, `a ${kind} run is already queued or running for this connection`);
+      const selected = kind === "check" ? groups.slice(0, 1) : groups;
+      const runs: ImportRun[] = [];
+      for (const group of selected) {
+        const scope = caps.filter((cap) => pollGroupOf(provider, cap.id) === group).map((cap) => cap.id);
+        const checkpoint = { poll_group: group, cursor: null, window: null };
+        const r = await c.query(
+          `INSERT INTO import_runs (tenant_id, connection_id, plan_id, kind, state, phase, checkpoint, capability_scope)
+           VALUES ($1, $2, $3, $4, 'queued', 'check_connection', $5, $6) RETURNING *`,
+          [tenantId, connectionId, planId, kind, JSON.stringify(checkpoint), JSON.stringify(scope)],
+        );
+        runs.push(rowToRun(r.rows[0]!));
+      }
+      if (kind === "backfill") await c.query("UPDATE connections SET status = 'backfilling', updated_at = now() WHERE connection_id = $1 AND status IN ('configured','validating')", [connectionId]);
+      return runs;
+    });
+  }
+
   async updateRun(tenantId: string, runId: string, patch: Partial<{ phase: string; state: string; outcome: string | null; error_code: string | null; next_action: string | null; applied: number; finished: boolean }>): Promise<ImportRun | null> {
     return withTenant(this.pool, tenantId, async (c) => {
       const sets: string[] = ["updated_at = now()"];
@@ -187,12 +244,24 @@ export class ConnectionService {
     if (!/^[0-9a-f-]{36}$/i.test(runId) || !/^[0-9a-f-]{36}$/i.test(connectionId)) return null;
     return withTenant(this.pool, tenantId, async (c) => {
       const r = await c.query("SELECT * FROM import_runs WHERE run_id = $1 AND connection_id = $2", [runId, connectionId]);
-      return r.rows[0] ? rowToRun(r.rows[0]) : null;
+      if (!r.rows[0]) return null;
+      const applied = await this.appliedSequence(c, tenantId);
+      return withLiveApplied(rowToRun(r.rows[0]), applied);
     });
   }
 
   async listRuns(tenantId: string, connectionId: string): Promise<ImportRun[]> {
-    return withTenant(this.pool, tenantId, async (c) => (await c.query("SELECT * FROM import_runs WHERE connection_id = $1 ORDER BY started_at DESC NULLS LAST LIMIT 50", [connectionId])).rows.map(rowToRun));
+    return withTenant(this.pool, tenantId, async (c) => {
+      const rows = (await c.query("SELECT * FROM import_runs WHERE connection_id = $1 ORDER BY started_at DESC NULLS LAST LIMIT 50", [connectionId])).rows;
+      const applied = await this.appliedSequence(c, tenantId);
+      return rows.map((row) => withLiveApplied(rowToRun(row), applied));
+    });
+  }
+
+  /** Engine checkpoint of this workspace (applied journal cursor), read inside the tenant transaction. */
+  private async appliedSequence(c: TenantClient, tenantId: string): Promise<number | null> {
+    const r = await c.query<{ applied_sequence: string }>("SELECT applied_sequence FROM engine_checkpoints WHERE tenant_id = $1", [tenantId]);
+    return r.rows[0] ? Number(r.rows[0].applied_sequence) : null;
   }
 
   async healthFor(c: TenantClient, connectionId: string): Promise<Array<Record<string, unknown>>> {

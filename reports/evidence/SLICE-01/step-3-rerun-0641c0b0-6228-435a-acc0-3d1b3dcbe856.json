@@ -1,0 +1,18 @@
+{
+  "run_id": "0641c0b0-6228-435a-acc0-3d1b3dcbe856",
+  "kind": "backfill",
+  "poll_group": "shopify:allocations",
+  "state": "completed",
+  "counters": {
+    "requested": 0,
+    "loaded": 10,
+    "committed": 0,
+    "applied": 0,
+    "failed": 0,
+    "duplicates": 10,
+    "conflicts": 0,
+    "rejected": 0
+  },
+  "pages": 1,
+  "committed_cursor": null
+}

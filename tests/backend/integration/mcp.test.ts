@@ -148,7 +148,7 @@ describe("MCP-04 complete read coverage", () => {
       // Correction/derivation links on the golden order
       const orderHistory = parse<{ entries: Array<{ track: string; derivation_rule: string | null }> }>(await client.callTool({ name: "get_entity_history", arguments: { entity_type: "order", entity_id: "#1001", limit: 500 } }));
       expect(new Set(orderHistory.entries.map((e) => e.track)).size).toBe(5);
-      expect(orderHistory.entries.filter((e) => e.track !== "source").every((e) => e.derivation_rule?.startsWith("mapping."))).toBe(true);
+      expect(orderHistory.entries.filter((e) => e.track !== "source").every((e) => e.derivation_rule?.startsWith("connectors.mapping.v1:"))).toBe(true);
       // Redacted evidence is explicit, not a broken link.
       const redactMe = recorded.evidence_refs[0]!;
       await withTenant(app.pool, owner.tenant_id, (cl) => app.built.ctx.evidence.redact(cl, { tenantId: owner.tenant_id, evidenceId: redactMe, action: "redacted", reason: "test_policy", actorId: null }));

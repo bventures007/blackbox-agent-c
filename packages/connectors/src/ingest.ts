@@ -12,8 +12,8 @@
  * Acknowledgement (returned counters/cursor) is only meaningful after the caller's COMMIT.
  */
 import type { PoolClient } from 'pg';
-import { canonicalJson, sha256Hex, type EvidenceStore } from './evidence.js';
-import { derivationRule, derivedTracks, familyDataset, isKnownFamily, requiresTestFlag, MAPPING_RULE_VERSION } from './mapping.js';
+import { canonicalJson, type EvidenceStore } from './evidence.js';
+import { buildEntryDrafts, familyDataset, isKnownFamily, linkDerived, observationHash, requiresTestFlag, type ObservationMode } from './mapping.js';
 import type { Observation, RejectedInput } from './types.js';
 
 export interface IngestContext {
@@ -23,7 +23,7 @@ export interface IngestContext {
   account_ref: string | null;
   run_id: string | null;
   /** 'backfill' labels history learned later; 'live' labels activity observed during ongoing collection. */
-  observation_mode: 'backfill' | 'live' | 'reconcile' | 'import';
+  observation_mode: ObservationMode;
   evidence: EvidenceStore;
 }
 
@@ -44,8 +44,9 @@ export interface IngestOutcome {
 
 interface AppendedEntry { entry_id: string; journal_sequence: number; track: string; record_id: string }
 
+/** Content hash of one observation (shared with the API path through observationHash). */
 export function contentHash(o: Observation): string {
-  return sha256Hex(canonicalJson({ kind: o.kind, occurred_at: o.occurred_at, source_time: o.source_time, record_id: o.record_id, entity: o.entity, payload: o.payload }));
+  return observationHash({ kind: o.kind, occurred_at: new Date(o.occurred_at).toISOString(), source_time: o.source_time ? new Date(o.source_time).toISOString() : null, record_id: o.record_id, entity: o.entity, payload: o.payload });
 }
 
 /** Structural validation before anything touches the database. */
@@ -104,7 +105,8 @@ export async function ingestObservations(client: PoolClient, ctx: IngestContext,
       out.committed_cursor = Math.max(out.committed_cursor ?? 0, ...conflictEntries.map((e) => e.journal_sequence));
       continue;
     }
-    // New identity: evidence first (immutable metadata), then Source, then derived tracks.
+    // New identity: evidence first (immutable metadata), then Source, then derived tracks — the
+    // entry shapes come from the shared builder (packages/connectors/src/mapping.ts) used by the API too.
     const evidenceRefs: string[] = [];
     if (o.evidence) {
       const bytes = Buffer.from(canonicalJson(o.evidence.content), 'utf8');
@@ -115,23 +117,12 @@ export async function ingestObservations(client: PoolClient, ctx: IngestContext,
         [ctx.tenant_id, ctx.connection_id, o.evidence.kind, o.evidence.media_type, stored.byte_size, stored.content_hash, stored.storage_ref]);
       evidenceRefs.push(ev.rows[0]!.evidence_id);
     }
-    const payload = { ...o.payload, observation_mode: ctx.observation_mode };
-    const source = await appendEntries(client, [{
-      track: 'source', record_id: o.record_id, event_type: o.kind, schema_version: 1,
-      connection_id: ctx.connection_id, provider: ctx.provider, account_ref: ctx.account_ref,
-      provider_event_id: o.provider_event_id, occurred_at: o.occurred_at, source_time: o.source_time,
-      entity_refs: o.entity, payload, evidence_refs: evidenceRefs, input_entry_ids: [],
-      derivation_rule: null, derivation_version: null, correlation_id: o.correlation_id, causation_id: null,
-    }]);
+    const drafts = buildEntryDrafts(
+      { provider_event_id: o.provider_event_id, kind: o.kind, occurred_at: o.occurred_at, source_time: o.source_time, record_id: o.record_id, entity: o.entity, payload: o.payload, correlation_id: o.correlation_id },
+      { connection_id: ctx.connection_id, provider: ctx.provider, account_ref: ctx.account_ref, observation_mode: ctx.observation_mode, evidence_refs: evidenceRefs });
+    const source = await appendEntries(client, [drafts.source as unknown as Record<string, unknown>]);
     const sourceEntry = source[0]!;
-    const derived = derivedTracks(o.kind).map((track) => ({
-      track, record_id: o.record_id, event_type: o.kind, schema_version: 1,
-      connection_id: ctx.connection_id, provider: ctx.provider, account_ref: ctx.account_ref,
-      provider_event_id: null, occurred_at: o.occurred_at, source_time: o.source_time,
-      entity_refs: o.entity, payload, evidence_refs: evidenceRefs, input_entry_ids: [sourceEntry.entry_id],
-      derivation_rule: derivationRule(o.kind, track), derivation_version: MAPPING_RULE_VERSION,
-      correlation_id: o.correlation_id, causation_id: sourceEntry.entry_id,
-    }));
+    const derived = linkDerived(drafts.derived, sourceEntry.entry_id) as unknown as Record<string, unknown>[];
     const derivedEntries = derived.length ? await appendEntries(client, derived) : [];
     const all = [sourceEntry, ...derivedEntries];
     await client.query(

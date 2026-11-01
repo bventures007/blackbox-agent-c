@@ -300,7 +300,7 @@ export class SyncEngine {
     let secret: Record<string, unknown> | null = null;
     if (connection.secret_ciphertext) {
       if (!this.deps.keyring) throw Object.assign(new Error('secret key not configured for the worker'), { code: 'secret_key_missing', retryable: false });
-      secret = openSecret(connection.secret_ciphertext, connection.secret_key_version, this.deps.keyring);
+      secret = openSecret(connection.secret_ciphertext, connection.secret_key_version, this.deps.keyring, tenant_id);
     }
     const adapter = this.deps.adapterFactory ? this.deps.adapterFactory(connection.provider, connection.config_json, secret, connection.account_ref) : createAdapter(connection.provider, connection.config_json, secret, connection.account_ref);
     return { connection, adapter, plan: plan ? { ...plan, requested_from: toIso(plan.requested_from), initial_cutoff: toIso(plan.initial_cutoff)! } : null };

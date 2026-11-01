@@ -102,16 +102,21 @@ tails the files, `getLogRecord` returns a record with its trace siblings.
 
 ## packages/application
 
-- **Mapping** (`src/mapping/families.ts`, table-driven): every family in `events.json` is accepted as
-  a Source entry; the 19 golden kinds (plus `bank.debit_booked`, `business.rule_recorded`) have
-  explicit derivations; all other families get a generic fact. Semantics: authorizations are facts
-  only; captures/fees/refunds/payouts/bank credits are cash movements; invoice payment markers never
-  create cash (`invoice.payment_marked` has no movement track in the contract — a marker with
-  `is_new_cash_movement=true` is a fact that `requires_payment_evidence`); credit notes and payout
-  announcements are commitments; return approval is intent, receipt/restock are goods movements;
-  pending refunds are provider holds (reservation track) released on completion. PII keys (and any
+- **Mapping** (`src/mapping/`): validation/description table for the 19 golden kinds (required typed
+  fields, entity keys, semantic notes) plus PII anchoring; the journal entry shapes come from the ONE
+  builder in `@blackbox/connectors` (`buildEntryDrafts`, ADR-0007): one Source entry per observation
+  (`event_type = kind`, flat sanitized payload + `observation_mode`, `record_id` per the engine
+  convention, `entity_refs` augmented from payload identifiers, `correlation_id` = producer value or
+  `<connection_id>:<provider_event_id>`) plus the derived fact/commitment/movement/reservation entries
+  of `DERIVED_TRACKS` with the same payload, `derivation_rule = connectors.mapping.v1:<kind>-><track>`
+  and `input_entry_ids`/`causation_id` = the persisted source entry. Semantics: authorizations are
+  facts only; captures/fees/refunds/payouts/bank credits are cash movements; invoice payment markers
+  never create cash; credit notes and payout announcements are commitments; return approval is
+  intent, receipt/restock are goods movements; pending refunds are provider holds (reservation
+  track) released on completion; allocations are planned work (fact only). PII keys (and any
   `*_name/_email/_phone/_address/_street/_iban`) become keyed anchors; `tenant_id`, `api_key`,
-  `token`, … are dropped. Content hash = SHA-256 of canonical JSON of kind/occurred_at/entity/payload.
+  `token`, … are dropped. Content hash = SHA-256 of canonical JSON of kind/occurred_at/source_time/
+  record_id/entity/payload (identical on both paths).
 - **Ingestion** (`IngestionService.ingest`) — the only writer: per observation one tenant transaction:
   connection check (RLS) → mapping/validation → `deliveries` insert `ON CONFLICT DO NOTHING` (dedupe
   boundary) → raw observation stored as evidence (`EVIDENCE_DIR/<tenant>/<yyyymm>/<id>.json`, hash +
@@ -131,6 +136,11 @@ tails the files, `getLogRecord` returns a record with its trace siblings.
   with end-of-month clamp; local midnight for custom; strict from-now with explicit opening-state
   restriction). Plans are revisioned per connection; the workspace keeps its first history start as
   the proposal for later sources.
+- **Connections/runs** (`ConnectionService`): connection rows with the sealed secret (`@blackbox/auth`
+  codec, AAD `tenant|connection_secret|key_version`); `queueRuns` creates the queued `import_runs`
+  rows the worker executes (one per poll group with `checkpoint.poll_group`, `capability_scope`;
+  `check` = one credential check; 409 while a run of that kind is active; 422 for producer-driven
+  providers without polling).
 - **Engine client**: typed `EngineClient` (health/state/query/history/summary/schema) over HTTP with
   `X-Engine-Token`; `ENGINE_URL=stub` selects a clearly labelled test stub that answers
   `projection_behind` for state/query/summary, replays journal history and builds the schema from
@@ -156,18 +166,30 @@ Routes exactly as in `docs/api-contract.md`; guards: `requireOwner` (session + H
 non-GET), `requireRead` (owner or read-only agent; agents GET-only except `POST /api/questions/:intent`).
 Errors: `{error:{code,message,retryable,details?}}`. SSE log stream re-checks authorization every
 2.5 s and ends within 5 s of revocation. Static: `apps/web/dist` at `/` (SPA fallback) and
-`apps/landing/dist` at `/landing` when present. CLI (`apps/api/dist/cli.js`): `setup`, `rotate-key`,
-`reset-access --yes`, `create-agent-key --name`, `migrate`, `bootstrap`, `logs`, `doctor` (exit 0/1/2),
-`diagnostics export`. Health cards and the export bundle are built in `src/diagnostics.ts`.
+`apps/landing/dist` at `/landing` when present. Maintenance fences written by the host wrapper under
+`FENCE_DIR` (`writers.paused.json` → every non-GET `/api` route except login/logout/diagnostics
+answers `503 maintenance` with `Retry-After`; `evidence-access.json {blocked:true}` → evidence routes
+answer `restricted`/423 until the owner reconciles a restore). CLI (`apps/api/dist/cli.js`): `setup`,
+`rotate-key`, `reset-access --yes`, `create-agent-key --name`, `migrate`, `bootstrap`, `logs`, `doctor`
+(exit 0/1/2), `diagnostics export`, `demo` (golden scenario through the replay path), `verify`
+(golden order #1001 state through the shared engine client; exit 0 only when physical/available
+stock 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170 match), `maintenance-lease
+acquire|release|status` (`maintenance_lease` table, migration 0101) and the test-only `create-tenant
+--name [--seed-order <id>]` (second synthetic workspace created directly in the database, never
+reachable over HTTP). Health cards and the export bundle are built in `src/diagnostics.ts`.
 
 ### Environment
 
 | Variable | Meaning |
 | --- | --- |
-| `HOST` | must be `127.0.0.1` (default) |
+| `HOST` | must be `127.0.0.1` (default). Single exception: `0.0.0.0` together with `BLACKBOX_CONTAINER_BIND=1`, set only by the Compose service whose port Docker publishes on the host loopback alone (`127.0.0.1:19180`; the wrapper refuses any other bind) — inside the container the interface is the only route from that publish. |
 | `PORT` | default `19180` |
-| `DATABASE_URL` | `bb_api` connection string |
-| `MIGRATE_DATABASE_URL` | `bb_migrate` connection string (CLI `migrate`, doctor migration check) |
+| `DATABASE_URL` | `bb_api` connection string; the Compose release instead sets `PGHOST`/`PGPORT`/`PGDATABASE`/`PGUSER` + `PGPASSWORD_FILE` (password as a secret file, never in env/argv) |
+| `MIGRATE_DATABASE_URL` | `bb_migrate` connection string (CLI `migrate`, doctor migration check); Compose: `PGMIGRATE_USER` + `PGMIGRATE_PASSWORD_FILE`; `MIGRATIONS_DIR` overrides the migration directory |
+| `FENCE_DIR` | host-wrapper fence directory (`/data/state`) |
+| `DATA_KEY_FILE` | alias: `SECRETS_DIR` = its directory (`/run/secrets`) |
+| `LOG_DIR`, `WEB_DIST_DIR`, `LANDING_DIST_DIR`, `BLACKBOX_VERSION` | Compose aliases for `LOGS_DIR`, `WEB_DIST`, `LANDING_DIST`, `SERVICE_VERSION` |
+| `BLACKBOX_REPO_ROOT` | root holding `packages/contracts`, `specs/question-data-contracts.json`, `GOLDEN-ORDER-TO-CASH.json` (`/app` in the image) |
 | `BB_SUPERUSER_URL`, `BB_*_PASSWORD`, `BB_DATABASE` | CLI `bootstrap` only |
 | `SECRETS_DIR` | holds `data.key` (0600) |
 | `EVIDENCE_DIR`, `LOGS_DIR`, `SNAPSHOT_DIR` | volumes |

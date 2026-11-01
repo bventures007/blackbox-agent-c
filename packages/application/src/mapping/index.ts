@@ -1,121 +1,23 @@
-import { createHash } from "node:crypto";
-import { loadEventsContract, TRACKS, type Track } from "../contracts.js";
+import { buildEntryDrafts, canonicalJsonStable, derivedTracks, entityRefsFor, linkDerived, sanitizePayload, DROPPED_KEYS, PII_KEYS, type AnchorFn, type JournalEntryDraft, type ObservationMode } from "@blackbox/connectors";
+import { loadEventsContract, type Track } from "../contracts.js";
 import { DATASET_PRIMARY, GOLDEN_FAMILIES } from "./families.js";
-import { MappingError, type DerivedDraft, type EntryDraft, type FamilyMapping, type Observation } from "./types.js";
+import { MappingError, type EntryDraft, type FamilyMapping, type Observation } from "./types.js";
 
 export { GOLDEN_FAMILIES, DATASET_PRIMARY } from "./families.js";
 export { MappingError } from "./types.js";
-export type { Observation, EntryDraft, DerivedDraft, FamilyMapping, MappingContext } from "./types.js";
-
-/** Payload keys that must never reach a canonical payload (PILOT-08). Values become opaque anchors. */
-export const PII_KEYS: ReadonlySet<string> = new Set([
-  "name",
-  "first_name",
-  "last_name",
-  "full_name",
-  "customer_name",
-  "contact",
-  "email",
-  "e_mail",
-  "mail",
-  "phone",
-  "telephone",
-  "mobile",
-  "address",
-  "address1",
-  "address2",
-  "street",
-  "house_number",
-  "city",
-  "zip",
-  "postal_code",
-  "postcode",
-  "iban",
-  "bic",
-  "account_number",
-  "account_holder",
-  "counterparty",
-  "counterparty_name",
-  "note",
-  "notes",
-  "message",
-  "body",
-  "subject",
-  "booking_text",
-  "comment",
-  "description",
-  "ip",
-  "ip_address",
-  "user_agent",
-]);
-
-/** Keys that are silently dropped: they can never authorize or redirect anything (INGEST-01). */
-export const DROPPED_KEYS: ReadonlySet<string> = new Set(["tenant_id", "workspace_id", "tenant", "workspace", "connection_id", "api_key", "token", "secret", "password", "authorization"]);
-
-export type AnchorFn = (field: string, value: string) => string;
-
-/**
- * Replaces PII-bearing fields with keyed anchors (`<key>_anchor`), drops authority-like keys,
- * recursively. Values that are not strings under a PII key are dropped entirely.
- */
-export function sanitizePayload(payload: Record<string, unknown>, anchor: AnchorFn, depth = 0): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  if (depth > 6) return out;
-  for (const [rawKey, value] of Object.entries(payload)) {
-    const key = rawKey.toLowerCase();
-    if (DROPPED_KEYS.has(key)) continue;
-    if (PII_KEYS.has(key) || /(?:^|_)(?:name|email|phone|address|street|iban)$/.test(key)) {
-      if (typeof value === "string" && value.trim() !== "") out[`${rawKey}_anchor`] = anchor(rawKey, value);
-      continue;
-    }
-    if (Array.isArray(value)) {
-      out[rawKey] = value.map((v) => (v && typeof v === "object" && !Array.isArray(v) ? sanitizePayload(v as Record<string, unknown>, anchor, depth + 1) : typeof v === "string" ? clip(v) : v));
-    } else if (value && typeof value === "object") {
-      out[rawKey] = sanitizePayload(value as Record<string, unknown>, anchor, depth + 1);
-    } else if (typeof value === "string") {
-      out[rawKey] = clip(value);
-    } else if (typeof value === "number" || typeof value === "boolean" || value === null) {
-      out[rawKey] = value;
-    }
-  }
-  return out;
-}
-
-function clip(s: string): string {
-  return s.length > 1000 ? s.slice(0, 1000) : s;
-}
-
-const ENTITY_TYPES = new Set(["order", "line", "customer", "item", "invoice", "shipment", "transaction", "refund", "payout", "return", "reservation", "bank_entry", "credit", "hold", "dispute", "supply", "promise", "rule", "case", "link", "account", "entitlement", "communication", "coverage", "location", "variant"]);
-
-export function sanitizeEntityRefs(entity: Record<string, unknown> | undefined): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(entity ?? {})) {
-    if (!ENTITY_TYPES.has(k)) continue;
-    if (typeof v === "string" && v.length > 0 && v.length <= 200) out[k] = v;
-    else if (typeof v === "number") out[k] = String(v);
-  }
-  return out;
-}
+export type { Observation, EntryDraft, FamilyMapping } from "./types.js";
+// The ONE sanitizer/draft builder lives in @blackbox/connectors; re-exported for existing callers/tests.
+export { sanitizePayload, PII_KEYS, DROPPED_KEYS, buildEntryDrafts, linkDerived, entityRefsFor };
+export type { AnchorFn, ObservationMode };
 
 /** Canonical JSON (sorted keys) for stable content hashing. */
-export function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value && typeof value === "object") {
-    const o = value as Record<string, unknown>;
-    return `{${Object.keys(o)
-      .sort()
-      .filter((k) => o[k] !== undefined)
-      .map((k) => `${JSON.stringify(k)}:${canonicalJson(o[k])}`)
-      .join(",")}}`;
-  }
-  return JSON.stringify(value);
+export const canonicalJson = canonicalJsonStable;
+
+export function sanitizeEntityRefs(entity: Record<string, unknown> | undefined): Record<string, string> {
+  return entityRefsFor({}, entity);
 }
 
-export function contentHash(obs: { kind: string; occurred_at: string; entity: Record<string, string>; payload: Record<string, unknown> }): string {
-  return createHash("sha256").update(canonicalJson({ kind: obs.kind, occurred_at: obs.occurred_at, entity: obs.entity, payload: obs.payload })).digest("hex");
-}
-
-/** Mapping for a family: the golden table entry or a generic fact mapping derived from events.json. */
+/** Mapping for a family: the golden table entry or a generic mapping derived from events.json. */
 export function getMapping(kind: string): FamilyMapping {
   const contract = loadEventsContract();
   const family = contract.families[kind];
@@ -128,18 +30,14 @@ export function getMapping(kind: string): FamilyMapping {
     return golden;
   }
   const primary = DATASET_PRIMARY[family.dataset] ?? "record";
+  const emitted: Track[] = ["source", ...derivedTracks(kind)];
   return {
     dataset: family.dataset,
-    tracks: ["source", "fact"],
+    tracks: emitted,
     required: [],
     entityKeys: [primary],
     primary,
-    note: `Generic mapping: accepted as source observation plus a typed fact about the ${primary} record. Declared tracks: ${family.tracks.join(", ")}; movement/commitment/reservation effects require an explicit connector mapping.`,
-    derive: (ctx) => {
-      const id = ctx.payload[primary] ?? ctx.entity[primary];
-      if (id === undefined || id === null) return [];
-      return [{ track: "fact", record_id: `${primary}:${String(id)}`, event_type: kind, payload: ctx.payload }];
-    },
+    note: `Generic mapping: accepted as source observation plus ${emitted.slice(1).join("/")} entries about the ${primary} record (shared connector table). Declared tracks: ${family.tracks.join(", ")}.`,
   };
 }
 
@@ -149,7 +47,7 @@ export function listMappings(): Array<{ kind: string; dataset: string; declared_
     .sort()
     .map((kind) => {
       const m = getMapping(kind);
-      return { kind, dataset: m.dataset, declared_tracks: contract.families[kind]!.tracks, emitted_tracks: m.tracks, required: m.required.map((r) => r.field), note: m.note, golden: Boolean(GOLDEN_FAMILIES[kind]) };
+      return { kind, dataset: m.dataset, declared_tracks: contract.families[kind]!.tracks, emitted_tracks: ["source", ...derivedTracks(kind)], required: m.required.map((r) => r.field), note: m.note, golden: Boolean(GOLDEN_FAMILIES[kind]) };
     });
 }
 
@@ -169,6 +67,9 @@ function validateRequired(mapping: FamilyMapping, payload: Record<string, unknow
   if ("currency" in payload && typeof payload.currency === "string" && !/^[A-Z]{3}$/.test(payload.currency)) {
     throw new MappingError("invalid_payload", `${kind}: currency must be an ISO 4217 code`);
   }
+  for (const [k, v] of Object.entries(payload)) {
+    if (k.endsWith("_minor") && v !== null && v !== undefined && !(typeof v === "number" && Number.isInteger(v))) throw new MappingError("invalid_payload", `${kind}: payload field '${k}' must be an integer minor amount`);
+  }
 }
 
 export interface MappedObservation {
@@ -176,8 +77,11 @@ export interface MappedObservation {
   dataset: string;
   sanitizedPayload: Record<string, unknown>;
   entityRefs: Record<string, string>;
+  recordId: string;
   contentHash: string;
+  correlationId: string;
   source: EntryDraft;
+  /** Derived drafts; link them with `linkDerived(derived, sourceEntryId)` after the source is persisted. */
   derived: EntryDraft[];
 }
 
@@ -186,13 +90,25 @@ export interface MapOptions {
   provider: string;
   producer: string;
   runKind: string | null;
+  connectionId?: string;
+  accountRef?: string | null;
+  evidenceRefs?: string[];
+  inputEntryIds?: string[];
   defaultUnit?: string;
 }
 
+/** Producer/run kind to the observation_mode label stored on every entry of the observation. */
+export function observationModeFor(producer: string, runKind: string | null): ObservationMode {
+  if (runKind === "backfill" || runKind === "history_expansion") return "backfill";
+  if (runKind === "reconcile") return "reconcile";
+  if (producer === "bank_csv" || producer === "replay" || producer === "policy" || runKind === "demo") return "import";
+  return "live";
+}
+
 /**
- * Validates and maps one observation to a Source entry plus derived entries. Pure: no I/O.
- * `input_entry_ids`/evidence are attached by the ingestion service after the source entry is
- * persisted.
+ * Validates and maps one observation to a Source entry plus derived entries through the shared
+ * connector builder. Pure: no I/O. The ingestion service persists the source entry first and
+ * links the derived drafts to it.
  */
 export function mapObservation(obs: Observation, options: MapOptions): MappedObservation {
   if (typeof obs.kind !== "string") throw new MappingError("invalid_kind", "kind is required");
@@ -203,37 +119,22 @@ export function mapObservation(obs: Observation, options: MapOptions): MappedObs
   if (!obs.payload || typeof obs.payload !== "object" || Array.isArray(obs.payload)) throw new MappingError("invalid_payload", "payload must be an object");
   const sanitizedPayload = sanitizePayload(obs.payload, options.anchor);
   validateRequired(mapping, sanitizedPayload, obs.kind);
-  const entityRefs = sanitizeEntityRefs(obs.entity);
+  const entity: Record<string, unknown> = { ...(obs.entity ?? {}) };
   for (const key of mapping.entityKeys) {
     const v = sanitizedPayload[key];
-    if (typeof v === "string" && ENTITY_TYPES.has(key)) entityRefs[key] = v;
+    if (typeof v === "string" && !entity[key]) entity[key] = v;
   }
-  const unit = typeof sanitizedPayload.unit === "string" ? sanitizedPayload.unit : (options.defaultUnit ?? "piece");
-  const hash = contentHash({ kind: obs.kind, occurred_at: occurred.toISOString(), entity: entityRefs, payload: sanitizedPayload });
-  const schemaVersion = typeof obs.schema_version === "number" ? obs.schema_version : 1;
-  const source: EntryDraft = {
-    track: "source",
-    record_id: `source:${options.provider}:${obs.provider_event_id}`,
-    event_type: obs.kind,
-    schema_version: schemaVersion,
-    entity_refs: entityRefs,
-    payload: { observation: sanitizedPayload, dataset: mapping.dataset, ingest: { producer: options.producer, run_kind: options.runKind, backfill: options.runKind === "backfill" || options.runKind === "history_expansion" } },
-    correlation_id: obs.correlation_id ?? null,
-  };
-  const derivedDrafts: DerivedDraft[] = mapping.derive({ payload: sanitizedPayload, entity: entityRefs, unit });
-  const derived: EntryDraft[] = derivedDrafts.map((d) => {
-    if (!TRACKS.includes(d.track) || !mapping.tracks.includes(d.track)) throw new MappingError("mapping_contract_violation", `${obs.kind}: derived track ${d.track} is not permitted`);
-    return {
-      track: d.track,
-      record_id: d.record_id,
-      event_type: d.event_type,
-      schema_version: schemaVersion,
-      entity_refs: { ...entityRefs, ...(d.entity_refs ?? {}) },
-      payload: d.payload,
-      derivation_rule: `mapping.${obs.kind}`,
-      derivation_version: 1,
-      correlation_id: obs.correlation_id ?? null,
-    };
-  });
-  return { mapping, dataset: mapping.dataset, sanitizedPayload, entityRefs, contentHash: hash, source, derived };
+  const drafts = buildEntryDrafts(
+    { provider_event_id: obs.provider_event_id, kind: obs.kind, occurred_at: obs.occurred_at, source_time: obs.source_time ?? null, entity, payload: sanitizedPayload, correlation_id: obs.correlation_id ?? null, schema_version: obs.schema_version, supersedes_entry_id: obs.supersedes_entry_id ?? null },
+    { connection_id: options.connectionId ?? "00000000-0000-0000-0000-000000000000", provider: options.provider, account_ref: options.accountRef ?? null, observation_mode: observationModeFor(options.producer, options.runKind), evidence_refs: options.evidenceRefs ?? [], input_entry_ids: options.inputEntryIds ?? [] },
+  );
+  for (const d of drafts.derived) {
+    if (!mapping.tracks.includes(d.track)) throw new MappingError("mapping_contract_violation", `${obs.kind}: derived track ${d.track} is not permitted`);
+  }
+  return { mapping, dataset: mapping.dataset, sanitizedPayload, entityRefs: drafts.entity_refs, recordId: drafts.record_id, contentHash: drafts.content_hash, correlationId: drafts.correlation_id, source: drafts.source as JournalEntryDraft, derived: drafts.derived };
+}
+
+/** Content hash of an observation (sanitized payload); identical to the worker path. */
+export function contentHash(obs: { kind: string; occurred_at: string; entity: Record<string, string>; payload: Record<string, unknown> }): string {
+  return buildEntryDrafts({ provider_event_id: "-", kind: obs.kind, occurred_at: obs.occurred_at, entity: obs.entity, payload: obs.payload }, { connection_id: "-", provider: "-", account_ref: null, observation_mode: "live", evidence_refs: [] }).content_hash;
 }

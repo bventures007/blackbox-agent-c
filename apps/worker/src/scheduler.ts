@@ -51,9 +51,13 @@ export class Scheduler {
           'SELECT connection_id, provider, account_ref, status, config_json, secret_ciphertext, secret_key_version, disconnected_at FROM connections WHERE disconnected_at IS NULL AND status = ANY($1)', [ACTIVE_STATES]);
         for (const conn of conns.rows) await this.deps.engine.ensureHealthRows(client, tenant_id, conn);
         // 1. Queued runs created by the API or by a previous yield/retry (lease expired or absent).
+        //    A provider Retry-After (capability_health.retry_after_until) holds the whole poll group,
+        //    queued runs included, so a throttled connection is never re-dispatched early.
         const queued = await client.query<{ run_id: string; connection_id: string; kind: string; checkpoint: { poll_group?: string }; updated_at: Date }>(
           `SELECT r.run_id, r.connection_id, r.kind, r.checkpoint, r.updated_at FROM import_runs r JOIN connections c ON c.connection_id = r.connection_id
-           WHERE r.state = 'queued' AND (r.lease_expires_at IS NULL OR r.lease_expires_at < $1) AND c.disconnected_at IS NULL AND c.status = ANY($2) ORDER BY r.updated_at`, [now, ACTIVE_STATES]);
+           WHERE r.state = 'queued' AND (r.lease_expires_at IS NULL OR r.lease_expires_at < $1) AND c.disconnected_at IS NULL AND c.status = ANY($2)
+             AND NOT EXISTS (SELECT 1 FROM capability_health h WHERE h.connection_id = r.connection_id AND h.poll_group = r.checkpoint->>'poll_group' AND h.retry_after_until IS NOT NULL AND h.retry_after_until > $1)
+           ORDER BY r.updated_at, r.run_id`, [now, ACTIVE_STATES]);
         for (const r of queued.rows) candidates.push({ tenant_id, connection_id: r.connection_id, run_id: r.run_id, poll_group: r.checkpoint.poll_group ?? r.kind, kind: r.kind, start_after_ms: 0, last_attempt_at: 0 });
         // 2. Due incremental polls and reconciliations (one per poll group), skipping groups with an open run.
         const due = await client.query<{ connection_id: string; provider: string; capability_id: string; poll_group: string; next_check_at: Date | null; next_reconciliation_at: Date | null; last_attempt_at: Date | null; retry_after_until: Date | null }>(

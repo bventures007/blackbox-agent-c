@@ -15,11 +15,14 @@ x-common-env: &common-env
   ENGINE_URL: http://engine:7070
   ENGINE_TOKEN_FILE: /run/secrets/engine_token
   DATA_KEY_FILE: /run/secrets/data.key
+  SECRETS_DIR: /run/secrets
   LOG_DIR: /data/logs
+  LOGS_DIR: /data/logs
   EVIDENCE_DIR: /data/evidence
   SNAPSHOT_DIR: /data/snapshots
   BACKUP_STATUS_FILE: /data/backups/status.json
   FENCE_DIR: /data/state
+  BLACKBOX_REPO_ROOT: /app
   LOG_LEVEL: ${BLACKBOX_LOG_LEVEL:-info}
   TZ: ${BLACKBOX_TZ:-UTC}
 
@@ -112,16 +115,24 @@ services:
       <<: *common-env
       PGUSER: bb_api
       PGPASSWORD_FILE: /run/secrets/pg_api_password
+      # The container interface is the only route from Docker's loopback-only publish (127.0.0.1:19180)
+      # into the container; the api refuses 0.0.0.0 without this explicit container flag.
+      HOST: 0.0.0.0
+      BLACKBOX_CONTAINER_BIND: "1"
       PGMIGRATE_USER: bb_migrate
       PGMIGRATE_PASSWORD_FILE: /run/secrets/pg_migrate_password
       MIGRATIONS_DIR: /migrations
       WEB_DIST_DIR: /app/apps/web/dist
+      LANDING_DIST_DIR: /app/apps/landing/dist
       NODE_ENV: production
     secrets:
       - pg_api_password
       - pg_migrate_password
       - engine_token
       - data.key
+    # Local provider-shaped fixtures/producers on the host (synthetic tests only; never a public callback).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       # The only published port. ./blackbox refuses any BLACKBOX_BIND other than 127.0.0.1.
       - "${BLACKBOX_BIND:-127.0.0.1}:${BLACKBOX_PORT:-19180}:19180"
@@ -165,11 +176,14 @@ services:
       <<: *common-env
       PGUSER: bb_worker
       PGPASSWORD_FILE: /run/secrets/pg_worker_password
+      STORAGE_PATHS: /data/evidence:/data/logs
       NODE_ENV: production
     secrets:
       - pg_worker_password
       - engine_token
       - data.key
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ${BLACKBOX_DATA_DIR}/logs:/data/logs
       - ${BLACKBOX_DATA_DIR}/evidence:/data/evidence

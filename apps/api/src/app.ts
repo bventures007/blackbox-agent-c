@@ -11,6 +11,7 @@ import { BankCsvService, ConnectionService, createEngineClient, DemoService, Evi
 import type { ApiConfig } from "./config.js";
 import { HttpError, type AppContext } from "./context.js";
 import { createGuards } from "./guards.js";
+import { isFenceExempt, readWritersFence } from "./fence.js";
 import { registerAuthRoutes } from "./routes/auth.js";
 import { registerSourceRoutes } from "./routes/sources.js";
 import { registerJournalRoutes } from "./routes/journal.js";
@@ -92,6 +93,15 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
     reply.header("referrer-policy", "no-referrer");
     reply.header("cache-control", "no-store");
     if (request.url.startsWith("/api/")) reply.header("content-security-policy", "default-src 'none'; frame-ancestors 'none'");
+    // Maintenance fence (backup/restore/upgrade): writes are refused with an explicit 503 while
+    // /data/state/writers.paused.json exists; reads and sign-in keep working.
+    if (request.url.startsWith("/api/") && !isFenceExempt(request.method, request.url)) {
+      const fence = readWritersFence(config.fenceDir);
+      if (fence) {
+        reply.header("retry-after", "30");
+        throw new HttpError(503, "maintenance", `writers are paused (${fence.reason}); retry after the operation finishes`, { retryable: true, retryAfterSeconds: 30, details: { reason: fence.reason, since: fence.since } });
+      }
+    }
   });
 
   app.setErrorHandler((err: unknown, request, reply) => {

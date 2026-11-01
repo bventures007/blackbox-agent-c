@@ -137,6 +137,9 @@ importers:
       '@blackbox/connectors':
         specifier: workspace:*
         version: link:../../packages/connectors
+      '@blackbox/logging':
+        specifier: workspace:*
+        version: link:../../packages/logging
       pg:
         specifier: 8.23.1
         version: 8.23.1
@@ -165,6 +168,9 @@ importers:
       '@blackbox/auth':
         specifier: workspace:*
         version: link:../auth
+      '@blackbox/connectors':
+        specifier: workspace:*
+        version: link:../connectors
       '@blackbox/database':
         specifier: workspace:*
         version: link:../database
@@ -203,6 +209,9 @@ importers:
 
   packages/connectors:
     dependencies:
+      '@blackbox/auth':
+        specifier: workspace:*
+        version: link:../auth
       pg:
         specifier: 8.23.1
         version: 8.23.1

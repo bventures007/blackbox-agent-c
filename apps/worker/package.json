@@ -5,7 +5,9 @@
   "type": "module",
   "description": "Blackbox connector worker: pg-boss jobs for outbox dispatch, provider polling/backfill/reconciliation, credential checks, backups, retention and heartbeat. Binds no listener.",
   "main": "./dist/index.js",
-  "bin": { "blackbox-worker": "./dist/index.js" },
+  "bin": {
+    "blackbox-worker": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -17,7 +19,8 @@
     "@blackbox/connectors": "workspace:*",
     "pg": "8.23.1",
     "pg-boss": "12.38.0",
-    "pino": "10.4.0"
+    "pino": "10.4.0",
+    "@blackbox/logging": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

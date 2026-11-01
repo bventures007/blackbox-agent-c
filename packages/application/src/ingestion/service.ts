@@ -3,7 +3,7 @@ import { withTenant } from "@blackbox/database";
 import type { Logger } from "@blackbox/logging";
 import { anchorKeyFor, piiAnchor, type DataKey } from "@blackbox/auth";
 import { EvidenceStore } from "../evidence.js";
-import { mapObservation, MappingError, type EntryDraft, type Observation } from "../mapping/index.js";
+import { linkDerived, mapObservation, MappingError, type Observation } from "../mapping/index.js";
 
 export type Producer = "replay" | "generic" | "bank_csv" | "policy" | "review";
 
@@ -130,7 +130,7 @@ export class IngestionService {
     const providerEventId = typeof obs?.provider_event_id === "string" ? obs.provider_event_id : "";
     let mapped;
     try {
-      mapped = mapObservation(obs, { anchor, provider: connection.provider, producer: input.producer, runKind: input.runKind ?? null });
+      mapped = mapObservation(obs, { anchor, provider: connection.provider, producer: input.producer, runKind: input.runKind ?? null, connectionId: input.connectionId, accountRef: connection.account_ref });
     } catch (err) {
       if (err instanceof MappingError) {
         batchLog.warn("ingest.observation_rejected", "Observation rejected by mapping validation", { error_code: err.code, retryable: false });
@@ -160,39 +160,24 @@ export class IngestionService {
         if (existing.content_hash === mapped.contentHash) {
           return { provider_event_id: providerEventId, status: "duplicate", entry_ids: existing.entry_ids };
         }
-        return this.recordConflict(c, input, connection, obs, mapped.contentHash, existing, providerEventId);
+        return this.recordConflict(c, input, connection, obs, mapped.contentHash, existing, providerEventId, mapped.recordId, mapped.entityRefs);
       }
       // New delivery: store raw evidence (separately controlled), then append.
       const raw = Buffer.from(JSON.stringify(obs), "utf8");
       const stored = await this.evidence.store(c, { tenantId: input.tenantId, connectionId: input.connectionId, kind: `observation.${obs.kind}`, mediaType: "application/json", content: raw });
       const resolved = await this.resolveEvidenceRefs(c, obs.evidence_refs ?? []);
-      const sourceDraft: EntryDraft & Record<string, unknown> = {
+      // Shared shapes (packages/connectors buildEntryDrafts): evidence and producer references are
+      // attached to the source entry; derived entries link to the persisted source entry.
+      const sourceDraft = {
         ...mapped.source,
-        connection_id: input.connectionId,
-        provider: connection.provider,
-        account_ref: connection.account_ref,
-        provider_event_id: providerEventId,
-        occurred_at: new Date(obs.occurred_at).toISOString(),
-        source_time: obs.source_time ?? null,
         evidence_refs: [stored.evidence_id, ...resolved.evidenceIds, ...resolved.unresolved.map((u) => `unresolved:${u}`)],
         input_entry_ids: resolved.entryIds,
       };
-      const [sourceEntry] = await this.append(c, [sourceDraft]);
+      const [sourceEntry] = await this.append(c, [sourceDraft as unknown as Record<string, unknown>]);
       const entries: AppendedEntry[] = [sourceEntry!];
       if (mapped.derived.length > 0) {
-        const derivedDrafts = mapped.derived.map((d) => ({
-          ...d,
-          connection_id: input.connectionId,
-          provider: connection.provider,
-          account_ref: connection.account_ref,
-          provider_event_id: providerEventId,
-          occurred_at: new Date(obs.occurred_at).toISOString(),
-          source_time: obs.source_time ?? null,
-          evidence_refs: [stored.evidence_id],
-          input_entry_ids: [sourceEntry!.entry_id],
-          causation_id: sourceEntry!.entry_id,
-        }));
-        entries.push(...(await this.append(c, derivedDrafts)));
+        const derivedDrafts = linkDerived(mapped.derived.map((d) => ({ ...d, evidence_refs: [stored.evidence_id] })), sourceEntry!.entry_id);
+        entries.push(...(await this.append(c, derivedDrafts as unknown as Record<string, unknown>[])));
       }
       const ids = entries.map((e) => e.entry_id);
       await c.query("UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1", [deliveryId, ids]);
@@ -245,6 +230,8 @@ export class IngestionService {
     newHash: string,
     existing: { delivery_id: string; content_hash: string; entry_ids: string[] },
     providerEventId: string,
+    recordId: string,
+    entityRefs: Record<string, string>,
   ): Promise<ObservationOutcome> {
     const originalEntryId = existing.entry_ids[0] ?? null;
     const raw = Buffer.from(JSON.stringify(obs), "utf8");
@@ -252,20 +239,23 @@ export class IngestionService {
     const [entry] = await this.append(c, [
       {
         track: "source",
-        record_id: `source:${connection.provider}:${providerEventId}`,
+        record_id: recordId,
         event_type: "source.conflict_observed",
         schema_version: 1,
         connection_id: input.connectionId,
         provider: connection.provider,
         account_ref: connection.account_ref,
-        provider_event_id: null, // the identity is already taken by the original; the conflict references it
+        provider_event_id: `${providerEventId}#conflict:${newHash.slice(0, 16)}`, // the identity is taken by the original; the conflict references it
         occurred_at: new Date(obs.occurred_at).toISOString(),
-        entity_refs: {},
-        payload: { conflicting_provider_event_id: providerEventId, original_entry_id: originalEntryId, original_content_hash: existing.content_hash, conflicting_content_hash: newHash, kind: obs.kind },
+        source_time: obs.source_time ?? null,
+        entity_refs: entityRefs,
+        payload: { original_provider_event_id: providerEventId, original_entry_id: originalEntryId, original_content_hash: existing.content_hash, conflicting_content_hash: newHash, conflicting_kind: obs.kind },
         evidence_refs: [stored.evidence_id],
         input_entry_ids: originalEntryId ? [originalEntryId] : [],
-        derivation_rule: "ingest.conflict",
+        derivation_rule: "connectors.ingest.conflict.v1",
         derivation_version: 1,
+        correlation_id: obs.correlation_id ?? null,
+        causation_id: providerEventId,
       },
     ]);
     const identity = `${input.connectionId}:${providerEventId}`;

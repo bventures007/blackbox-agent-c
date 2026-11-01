@@ -5,6 +5,7 @@ import { CursorError, EngineError, QuestionError, ReviewError, buildSchemaFromCo
 import type { AppContext } from "../context.js";
 import { HttpError, notFound, validation } from "../context.js";
 import type { Guards } from "../guards.js";
+import { readEvidenceFence } from "../fence.js";
 
 const TRACKS: Track[] = ["source", "fact", "commitment", "movement", "reservation"];
 const dt = z.string().datetime({ offset: true });
@@ -110,6 +111,8 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
     const tenantId = guards.tenantOf(request);
     const access = await withTenant(ctx.pool, tenantId, (c) => ctx.evidence.get(c, tenantId, id));
     if (access.status === "unavailable" && !access.meta) throw notFound("evidence");
+    const fence = readEvidenceFence(ctx.config.fenceDir);
+    if (fence) return { status: "restricted", reason: fence.reason, since: fence.since, evidence: access.meta };
     if (access.status !== "available") return { status: access.status, reason: access.reason, evidence: access.meta };
     const text = access.meta.media_type === "application/json" || access.meta.media_type.startsWith("text/") ? access.content.toString("utf8") : null;
     return { status: "available", evidence: access.meta, content: text !== null ? (access.meta.media_type === "application/json" ? safeJson(text) : text) : null, content_encoding: text === null ? "binary_use_content_endpoint" : "inline" };
@@ -121,6 +124,8 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
     const tenantId = guards.tenantOf(request);
     const access = await withTenant(ctx.pool, tenantId, (c) => ctx.evidence.get(c, tenantId, id));
     if (access.status === "unavailable" && !access.meta) throw notFound("evidence");
+    const fence = readEvidenceFence(ctx.config.fenceDir);
+    if (fence) throw new HttpError(423, "evidence_restricted", fence.reason);
     if (access.status !== "available") throw new HttpError(410, `evidence_${access.status}`, access.reason);
     reply.header("content-type", access.meta.media_type);
     reply.header("content-disposition", `attachment; filename="evidence-${id}.${access.meta.media_type === "application/json" ? "json" : "bin"}"`);

@@ -6,7 +6,7 @@ import type { LogRecord } from "./record.js";
 export const DEFAULT_LOG_CAP_BYTES = 100 * 1024 * 1024; // 100 MiB total including index
 export const DEFAULT_LOG_RETENTION_DAYS = 7;
 export const INDEX_FILE = "index.json";
-const FILE_RE = /^records-(\d{8})-(\d{2})\.jsonl$/;
+const FILE_RE = /^records-(\d{8})-(\d{2})(?:-[a-z]+)?\.jsonl$/;
 
 export interface FileIndexEntry {
   bytes: number;
@@ -46,15 +46,19 @@ export interface FileCollectorOptions {
   bufferCapacity?: number;
   flushIntervalMs?: number;
   now?: () => Date;
+  /** File name suffix (`records-YYYYMMDD-HH-<suffix>.jsonl`) so several processes share one directory. */
+  suffix?: string;
+  /** Secondary writers (worker) keep index.json untouched; the api collector owns it. Default true. */
+  maintainIndex?: boolean;
 }
 
-export function fileNameFor(occurredAt: string): string {
+export function fileNameFor(occurredAt: string, suffix = ""): string {
   const d = new Date(occurredAt);
   const y = d.getUTCFullYear();
   const m = String(d.getUTCMonth() + 1).padStart(2, "0");
   const day = String(d.getUTCDate()).padStart(2, "0");
   const h = String(d.getUTCHours()).padStart(2, "0");
-  return `records-${y}${m}${day}-${h}.jsonl`;
+  return `records-${y}${m}${day}-${h}${suffix ? `-${suffix}` : ""}.jsonl`;
 }
 
 export function fileHourStart(name: string): number | null {
@@ -123,10 +127,14 @@ export class FileCollector implements LogSink {
   private closed = false;
   private readonly flushIntervalMs: number;
   private readonly now: () => Date;
+  private readonly suffix: string;
+  private readonly maintainIndex: boolean;
   private available = true;
 
   constructor(options: FileCollectorOptions) {
     this.dir = options.dir;
+    this.suffix = options.suffix ?? "";
+    this.maintainIndex = options.maintainIndex ?? true;
     this.capBytes = options.capBytes ?? DEFAULT_LOG_CAP_BYTES;
     this.retentionDays = options.retentionDays ?? DEFAULT_LOG_RETENTION_DAYS;
     this.bufferCapacity = options.bufferCapacity ?? 5000;
@@ -175,7 +183,7 @@ export class FileCollector implements LogSink {
     try {
       const groups = new Map<string, LogRecord[]>();
       for (const r of batch) {
-        const name = fileNameFor(r.occurred_at);
+        const name = fileNameFor(r.occurred_at, this.suffix);
         const g = groups.get(name);
         if (g) g.push(r);
         else groups.set(name, [r]);
@@ -208,6 +216,7 @@ export class FileCollector implements LogSink {
   }
 
   private writeIndex(): void {
+    if (!this.maintainIndex) return;
     const tmp = path.join(this.dir, INDEX_FILE + ".tmp");
     writeFileSync(tmp, JSON.stringify(this.index));
     // rename is atomic on POSIX
@@ -236,7 +245,7 @@ export class FileCollector implements LogSink {
 
   /** Deletes oldest files while total (files + index) exceeds the cap; never the current hour. */
   enforceSize(): void {
-    const current = fileNameFor(this.now().toISOString());
+    const current = fileNameFor(this.now().toISOString(), this.suffix);
     const names = Object.keys(this.index.files).sort();
     while (this.totalBytes() > this.capBytes && names.length > 0) {
       const oldest = names.shift()!;

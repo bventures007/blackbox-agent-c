@@ -19,6 +19,8 @@ const observationSchema = z.object({
   evidence_refs: z.array(z.string().max(300)).max(50).optional().default([]),
   correlation_id: z.string().max(200).optional().nullable(),
   schema_version: z.number().int().min(1).max(100).optional(),
+  /** Correction: the earlier entry this observation supersedes (engine reverts it before applying). */
+  supersedes_entry_id: z.string().uuid().optional().nullable(),
 });
 const replayBody = z.object({ connection_id: z.string().uuid(), run_id: z.string().uuid().optional(), events: z.array(observationSchema).min(1).max(1000) }).strict();
 const genericBody = z.object({ connection_id: z.string().uuid(), records: z.array(observationSchema).min(1).max(1000) }).passthrough();
@@ -29,7 +31,7 @@ const demoBody = z.object({ confirm: z.boolean().optional(), up_to: z.string().r
 function toObservation(e: z.infer<typeof observationSchema>): Observation {
   const entity: Record<string, string> = {};
   for (const [k, v] of Object.entries(e.entity)) entity[k] = String(v);
-  return { provider_event_id: e.provider_event_id, kind: e.kind, occurred_at: e.occurred_at, source_time: e.source_time ?? null, entity, payload: e.payload, evidence_refs: e.evidence_refs, correlation_id: e.correlation_id ?? null, schema_version: e.schema_version };
+  return { provider_event_id: e.provider_event_id, kind: e.kind, occurred_at: e.occurred_at, source_time: e.source_time ?? null, entity, payload: e.payload, evidence_refs: e.evidence_refs, correlation_id: e.correlation_id ?? null, schema_version: e.schema_version, supersedes_entry_id: e.supersedes_entry_id ?? null };
 }
 
 function mapError(err: unknown): never {
@@ -115,9 +117,11 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
     const tenantId = guards.tenantOf(request);
     try {
       const plan = await ctx.importPlans.current(tenantId, id);
-      const run = await connections().createRun(tenantId, id, body.data.kind, plan?.plan_id ?? null);
-      ctx.logger.info("import.run_started", "Import run created", { tenant_id: tenantId, connection_id: id, run_id: run.run_id, action_code: body.data.kind });
-      return reply.code(201).send(run);
+      // Polled connectors: queued rows per poll group executed by the worker (one check run for `check`).
+      const runs = await connections().queueRuns(tenantId, id, body.data.kind, plan?.plan_id ?? null);
+      for (const run of runs) ctx.logger.info("import.run_queued", "Import run queued for the worker", { tenant_id: tenantId, connection_id: id, run_id: run.run_id, action_code: body.data.kind, operation_id: run.poll_group ?? undefined });
+      const primary = runs[0]!;
+      return reply.code(201).send({ ...primary, runs });
     } catch (err) {
       mapError(err);
     }

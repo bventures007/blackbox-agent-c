@@ -13,7 +13,7 @@ import { createWorkerPool, withTenant, sealSecret, type SecretKeyring } from '@b
 export const SUPERUSER_URL = process.env.WORKER_TEST_SUPERUSER_URL ?? 'postgres://postgres:workerpg@127.0.0.1:19185/postgres';
 export const WORKER_PASSWORD = 'workerpg_worker_test_password';
 export const MIGRATIONS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'packages', 'database', 'migrations');
-export const KEYRING: SecretKeyring = { version: 1, key: Buffer.from('0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', 'hex') };
+export const KEYRING: SecretKeyring = { version: 1, key: Buffer.from('0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', 'hex'), path: 'test://data.key' };
 
 export interface TestDb { name: string; workerUrl: string; pool: pg.Pool; superuser: (sql: string, params?: unknown[]) => Promise<pg.QueryResult>; close: () => Promise<void> }
 
@@ -59,7 +59,7 @@ export async function createTenant(db: TestDb, display_name: string): Promise<st
 export interface ConnectionSpec { provider: 'shopify' | 'shopify_payments'; base_url: string; shop_domain?: string; secret?: Record<string, unknown>; account_ref?: string | null; page_size?: number }
 
 export async function createConnection(db: TestDb, tenant_id: string, spec: ConnectionSpec): Promise<string> {
-  const sealed = sealSecret(spec.secret ?? { access_token: 'shpat_fixture_0123456789abcdef' }, KEYRING);
+  const sealed = sealSecret(spec.secret ?? { access_token: 'shpat_fixture_0123456789abcdef' }, KEYRING, tenant_id);
   return withTenant(db.pool, tenant_id, async (c) => {
     const r = await c.query<{ connection_id: string }>(
       `INSERT INTO connections (tenant_id, provider, account_ref, display_name, status, config_json, secret_ciphertext, secret_key_version) VALUES ($1, $2, $3, $4, 'configured', $5, $6, $7) RETURNING connection_id`,

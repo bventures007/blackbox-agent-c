@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "note": "No product case has run. delivery_scope distinguishes active pilot proof from deferred platform references; deferred work is not a pass. Update only from actual evidence.",
+  "note": "Results recorded from actual runs by scripts/acceptance/record.py. delivery_scope distinguishes active pilot proof from deferred platform references; deferred work stays not_started.",
   "specification": "ACCEPTANCE.json",
   "cases": [
     {
@@ -1302,12 +1302,16 @@
     {
       "id": "SLICE-01",
       "stage": "core",
-      "status": "not_started",
-      "tested_commit": null,
-      "command": null,
-      "environment": null,
-      "observed_result": null,
-      "evidence_paths": [],
+      "status": "passed",
+      "tested_commit": "aa18411ee6f77725cf1fa13d77596d08ec9efdab",
+      "command": "scripts/release/build.sh 0.1.0-rc6; ./blackbox doctor && ./blackbox setup && ./blackbox status (install dir); INSTALL_DIR=~/blackbox-pilot-int OWNER_KEY_FILE=~/blackbox-pilot-int/owner.key tests/slice/slice-01.sh",
+      "environment": "macOS 27.2 arm64, Docker 27.3.1 / Compose v2.30.3, release 0.1.0-rc6 images (api/worker/engine/backup + postgres:16.6-alpine), Compose project blackbox-agent-c on 127.0.0.1:19180, synthetic Shopify-shaped fixture on 127.0.0.1:19182; uncommitted working tree at the recorded commit",
+      "observed_result": "52/52 checks passed: backfill through worker+journal/outbox (437 entries, dedupe on rerun), order state identical via API and MCP, committed=applied=437, cutoff answer identical after full restart + corrupted-snapshot engine rebuild, late correction current-vs-historical, revoked agent denied within 2 s, no cross-tenant disclosure for a colliding order id, correlated logs",
+      "evidence_paths": [
+        "reports/evidence/SLICE-01/README.md",
+        "reports/evidence/SLICE-01/results.json",
+        "reports/evidence/SLICE-01/run-output.txt"
+      ],
       "blocker": null,
       "delivery_scope": "local_pilot"
     },

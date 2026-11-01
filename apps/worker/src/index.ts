@@ -11,11 +11,12 @@ import { systemClock } from './clock.js';
 import { DEFAULT_THRESHOLDS, observeStorage, type StorageState } from './storage.js';
 import { SyncEngine } from './sync.js';
 import { Scheduler, type ScheduledJob } from './scheduler.js';
+import { waitForWriters, writersPaused } from './fence.js';
 import { dispatchOutbox, heartbeat, retentionCleanup, runBackup } from './jobs/maintenance.js';
 
 export async function main(): Promise<void> {
   const config = loadConfig();
-  const logger = createLogger({ component: 'worker', service_version: config.service_version, instance_id: config.instance_id, level: config.log_level });
+  const logger = createLogger({ component: 'worker', service_version: config.service_version, instance_id: config.instance_id, level: config.log_level, logs_dir: config.logs_dir });
   const pool = createWorkerPool(config.database_url, 6);
   const clock = systemClock;
   const startedAt = clock.now();
@@ -48,6 +49,12 @@ export async function main(): Promise<void> {
   const scheduler = new Scheduler({ pool, engine, logger, clock, dispatch, max_per_tick: config.max_concurrent_polls * 2, wake_spread_ms: config.wake_spread_ms, suspension_threshold_ms: config.suspension_threshold_ms, lease_seconds: config.lease_seconds, storageCritical: () => storage.state === 'critical' });
 
   await boss.work<ScheduledJob>('source.run', { batchSize: 1, pollingIntervalSeconds: 2 }, async ([job]) => {
+    // Writer fence (backup/restore/upgrade): idle instead of touching the journal; the run keeps its checkpoint.
+    if (writersPaused(config.fence_dir)) {
+      logger.log('info', 'worker.fenced', 'writers paused by the host wrapper; waiting before the run', { run_id: job.data.run_id, tenant_id: job.data.tenant_id, action_code: 'wait_for_fence' });
+      const clear = await waitForWriters(config.fence_dir, 10 * 60 * 1000);
+      if (!clear) throw Object.assign(new Error('writers fenced'), { code: 'writers_fenced' });
+    }
     const result = await engine.executeRun(job.data.tenant_id, job.data.run_id, { attempt: job.retryCount + 1 });
     if (result.state === 'queued' && result.error_code) throw Object.assign(new Error(`run ${result.error_code}`), { code: result.error_code });
   });
@@ -62,7 +69,16 @@ export async function main(): Promise<void> {
 
   const timers: NodeJS.Timeout[] = [];
   const guard = (name: string, fn: () => Promise<unknown>) => async () => { try { await fn(); } catch (err) { logger.log('error', `${name}.failed`, (err as Error).message, { error_code: (err as { code?: string }).code ?? 'unexpected', retryable: true }); } };
-  timers.push(setInterval(guard('scheduler.tick', async () => { const r = await scheduler.tick(); if (r.suspended) suspension = { at: clock.now(), gap_ms: r.gap_ms }; }), config.scheduler_tick_ms));
+  let fenceLogged = false;
+  timers.push(setInterval(guard('scheduler.tick', async () => {
+    const fence = writersPaused(config.fence_dir);
+    if (fence) {
+      if (!fenceLogged) { logger.log('warn', 'worker.fenced', `writers paused (${fence.reason}); scheduler idle`, { action_code: 'wait_for_fence' }); fenceLogged = true; }
+      return;
+    }
+    if (fenceLogged) { logger.log('info', 'worker.resumed', 'writer fence cleared; scheduler active', { action_code: 'resume' }); fenceLogged = false; }
+    const r = await scheduler.tick(); if (r.suspended) suspension = { at: clock.now(), gap_ms: r.gap_ms };
+  }), config.scheduler_tick_ms));
   timers.push(setInterval(guard('outbox.dispatch', () => dispatchOutbox(pool, logger)), config.outbox_interval_ms));
   timers.push(setInterval(guard('storage.check', refreshStorage), config.storage_check_ms));
   const beat = guard('worker.heartbeat', async () => heartbeat(pool, { instance_id: config.instance_id, service_version: config.service_version, started_at: startedAt, clock, storage, queues: { source_run: (await boss.getQueues(['source.run'])).map((q) => ({ name: q.name, policy: q.policy })) }, suspension }));
@@ -76,6 +92,7 @@ export async function main(): Promise<void> {
     await boss.stop({ graceful: true, timeout: 30_000 }).catch(() => undefined);
     await heartbeat(pool, { instance_id: config.instance_id, service_version: config.service_version, started_at: startedAt, clock, storage, queues: {}, suspension, stopped: true }).catch(() => undefined);
     await pool.end().catch(() => undefined);
+    logger.close();
     process.exit(0);
   };
   process.on('SIGINT', () => void shutdown('SIGINT'));

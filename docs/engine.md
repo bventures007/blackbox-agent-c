@@ -15,7 +15,7 @@ The engine is the single implementation of the canonical money/stock rules (spec
 | `tests/engine` | `blackbox-engine-tests` | Integration harness (throwaway database, migrations, appends as `bb_api`, engine process spawn). Tests live in `apps/engine/tests/`. |
 | `docs/engine.md` | this file | |
 
-Build integration hooks expected by `infra/docker/engine.Dockerfile` and Compose: package `blackbox-engine`, binary `blackbox-engine`, `--healthcheck` exits 0 when `/health` reports `healthy`, `catching_up` or `rebuilding`. The Dockerfile currently copies only `apps/engine` and `packages/contracts`; it must also copy `crates/` and `tests/engine/Cargo.toml` + `tests/engine/src` (workspace members) before `cargo build --release --locked -p blackbox-engine` can resolve the workspace.
+Build integration hooks expected by `infra/docker/engine.Dockerfile` and Compose: package `blackbox-engine`, binary `blackbox-engine`, `--healthcheck` exits 0 when `/health` reports `healthy`, `catching_up` or `rebuilding`. The Dockerfile copies the whole Cargo workspace (`apps/engine`, `crates/`, `tests/engine`, `packages/contracts`; trimmed by `engine.Dockerfile.dockerignore`) and runs `cargo build --release --locked -p blackbox-engine`.
 
 ## Data model in RAM
 
@@ -115,6 +115,7 @@ Payload field names follow the golden examples in `packages/contracts/events.jso
 | `ENGINE_PG_POOL` | 8 | Pool size |
 | `LOG_LEVEL` / `RUST_LOG` | info | Log level |
 | `BLACKBOX_VERSION` | crate version | Reported `service_version` |
+| `LOG_DIR` | – | When set (Compose: `/data/logs`), every log record is also appended to `records-YYYYMMDD-HH-engine.jsonl` there, so `./blackbox logs --component engine` and the diagnostics view correlate engine records with api/worker records |
 
 Logs are JSON lines on stderr following `packages/contracts/log-record.json` (allowlisted fields, 512-character strings, 16 KiB records). No payloads, ids of customers/orders or secrets are logged; tenant ids are workspace scope.
 

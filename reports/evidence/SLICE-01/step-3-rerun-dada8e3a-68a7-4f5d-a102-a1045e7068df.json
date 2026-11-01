@@ -1,0 +1,18 @@
+{
+  "run_id": "dada8e3a-68a7-4f5d-a102-a1045e7068df",
+  "kind": "backfill",
+  "poll_group": "shopify:stock",
+  "state": "completed",
+  "counters": {
+    "requested": 0,
+    "loaded": 6,
+    "committed": 0,
+    "applied": 0,
+    "failed": 0,
+    "duplicates": 12,
+    "conflicts": 0,
+    "rejected": 0
+  },
+  "pages": 1,
+  "committed_cursor": null
+}

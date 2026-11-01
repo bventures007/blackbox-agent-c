@@ -1,0 +1,15 @@
+{
+  "principal": {
+    "id": "3ba3e4e6-a96e-4940-817a-82b49fe551c7",
+    "kind": "owner"
+  },
+  "workspace": {
+    "tenant_id": "8be1eca2-f369-4389-abe1-cd2cfb9bab3c",
+    "display_name": "My workspace",
+    "locale": "en"
+  },
+  "session": {
+    "expires_at": "2026-11-01T19:49:51.228Z",
+    "remembered": false
+  }
+}

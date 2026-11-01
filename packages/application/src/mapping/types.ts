@@ -1,4 +1,5 @@
 import type { Track } from "../contracts.js";
+import type { JournalEntryDraft } from "@blackbox/connectors";
 
 /** A producer observation as accepted by the ingestion boundary (replay/generic/bank_csv/policy). */
 export interface Observation {
@@ -11,37 +12,12 @@ export interface Observation {
   evidence_refs?: string[];
   correlation_id?: string | null;
   schema_version?: number;
+  /** Correction: entry id this observation supersedes (set on the source entry). */
+  supersedes_entry_id?: string | null;
 }
 
 /** Entry draft handed to append_journal_entries (ids/sequence assigned by the database). */
-export interface EntryDraft {
-  track: Track;
-  record_id: string;
-  event_type: string;
-  schema_version: number;
-  entity_refs: Record<string, string>;
-  payload: Record<string, unknown>;
-  derivation_rule?: string;
-  derivation_version?: number;
-  supersedes_entry_id?: string | null;
-  correlation_id?: string | null;
-  causation_id?: string | null;
-}
-
-export interface DerivedDraft {
-  track: Exclude<Track, "source">;
-  record_id: string;
-  event_type: string;
-  entity_refs?: Record<string, string>;
-  payload: Record<string, unknown>;
-}
-
-export interface MappingContext {
-  /** Sanitized payload (PII replaced by anchors, tenant ids stripped). */
-  payload: Record<string, unknown>;
-  entity: Record<string, string>;
-  unit: string;
-}
+export type EntryDraft = JournalEntryDraft;
 
 export interface FamilyMapping {
   dataset: string;
@@ -53,8 +29,6 @@ export interface FamilyMapping {
   entityKeys: string[];
   /** Primary entity type whose history the fact entry extends. */
   primary: string;
-  /** Derivation: returns the non-source entries (never emitted blindly). */
-  derive: (ctx: MappingContext) => DerivedDraft[];
   /** Semantic notes shown by describe_business_schema. */
   note: string;
 }

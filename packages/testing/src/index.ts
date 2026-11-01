@@ -155,6 +155,8 @@ export async function startTestApp(options: { engineUrl?: string; logLevel?: Api
     host: "127.0.0.1",
     port,
     databaseUrl: db.urls.api,
+    migrateDatabaseUrl: db.urls.migrate,
+    fenceDir: null,
     secretsDir: install.secretsDir,
     evidenceDir: install.evidenceDir,
     logsDir: install.logsDir,

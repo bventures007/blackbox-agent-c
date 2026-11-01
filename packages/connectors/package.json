@@ -18,7 +18,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "pg": "8.23.1"
+    "pg": "8.23.1",
+    "@blackbox/auth": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

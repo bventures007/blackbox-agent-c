@@ -1,0 +1,61 @@
+SLICE-01 against http://127.0.0.1:19180 (install: /Users/benediktsauter/blackbox-pilot-int, project blackbox-agent-c); artifacts -> /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/SLICE-01
+== Step 1: owner login, agent key
+PASS step1 owner login (204, HttpOnly session cookie)
+PASS step1 session for workspace 8be1eca2-f369-4389-abe1-cd2cfb9bab3c
+PASS step1 agent key created via API (d6e8c5c0-bea7-43d3-a62c-43802b0a0a20)
+PASS step1 agent key authorized on GET /api/workspace
+== Step 2: Shopify-shaped fixture, connection, import plan, backfill
+PASS step2 fixture server listening on 127.0.0.1:19182 (seed 42, 40 orders)
+PASS step2 connection created 00712d35-a1a2-4706-ae56-9277610dd1c6 (secret sealed with the installation data key)
+PASS step2 import plan last_30_days (2026-10-02T11:49:53.388Z .. 2026-11-01T11:49:53.388Z)
+PASS step2 backfill queued: 3 run(s) (orders/stock/allocations poll groups); orders run c98c076b-77c8-428d-a976-eaf7bf9b8163
+PASS step2 run 4e9eeaed-6263-4316-8db5-f48f7c6e6aa4 (shopify:stock) completed: {"requested":0,"loaded":6,"committed":12,"applied":12,"failed":0,"duplicates":0,"conflicts":0,"rejected":0} pages=1 committed_cursor=24
+PASS step2 run 5b119491-74f1-4074-a53a-dc81140c0541 (shopify:allocations) completed: {"requested":0,"loaded":10,"committed":10,"applied":10,"failed":0,"duplicates":0,"conflicts":0,"rejected":0} pages=1 committed_cursor=44
+PASS step2 run c98c076b-77c8-428d-a976-eaf7bf9b8163 (shopify:orders) completed_with_gaps: {"requested":31,"loaded":31,"committed":99,"applied":99,"failed":0,"duplicates":0,"conflicts":0,"rejected":5} pages=5 committed_cursor=437
+PASS step2 orders backfill committed 99 logical records through the journal/outbox boundary
+== Step 3: journal entries and delivery dedupe
+PASS step3 journal holds 437 entries for the connection (tracks: commitment fact movement reservation source ), committed_cursor=437
+PASS step3 source + derived fact/movement entries present
+PASS step3 every derived entry links its source (input_entry_ids), shares correlation_id and carries entity_refs
+PASS step3 second backfill queued (3 runs)
+PASS step3 rerun deduped: duplicates=159 new_records=0, journal unchanged (437 entries, committed_cursor 437)
+== Step 4: order state through API and MCP; committed vs applied cursor
+PASS step4 order under test: gid://shopify/Order/5021 (has capture/refund observations)
+PASS step4 API latest_committed state 200 (status partial)
+PASS step4 cursors: journal committed=437, engine applied=437 (health card applied=437 of committed=437)
+PASS step4 latest_committed barrier: applied >= committed
+PASS step4 MCP get_business_state (stdio bridge, agent key, official SDK client) answered
+PASS step4 normalized business values/evidence identical via API and MCP
+PASS step4 fixed-cutoff (as_of_recorded=2026-11-01T11:50:21.000Z, cursor 437) answer captured, status historical
+== Step 5: full restart, then engine restart with a corrupted snapshot
+PASS step5 ./blackbox down
+PASS step5 ./blackbox up
+PASS step5 owner session valid after full restart
+PASS step5 engine snapshot written on request ({"accepted":true,"snapshots_written":1}; rows=1)
+PASS step5 snapshot blob corrupted in engine_snapshots (was: 437|46bc79f25e67534d40f989551addefc96dd81a16ab6e953772717c947a40feb0|308656)
+PASS step5 engine restarted
+PASS step5 engine health after restart: healthy
+PASS step5 engine log: engine.snapshot_rejected (corrupt snapshot refused, tenant rebuilt from the journal)
+PASS step5 corrupted snapshot row deleted by the engine
+PASS step5 fixed-cutoff query answered after rebuild
+PASS step5 same cutoff -> identical normalized values, entry ids and evidence refs before/after rebuild
+PASS step5 MCP as_of answer identical to the API answer (authorization still agent key)
+PASS step5 latest_committed after rebuild: status current, applied=437; observations recorded after the cutoff: 0 (disclosed, not hidden)
+== Step 6: late correction, revoked agent, second tenant with colliding order id, correlated logs
+PASS step6 late correction appended (order.revised supersedes c2d8be11-4bd4-4cb3-81f1-d873173785b7, committed_cursor 440)
+PASS step6 original entry stays readable and links superseded_by -> 2969eb57-7b7a-4c33-a6d6-2265717104b9
+PASS step6 historical (cutoff) answer unchanged by the later correction
+PASS step6 current answer includes the correction entry; the cutoff answer does not
+PASS step6 engine marks the original order.accepted entry as superseded (no double count)
+PASS step6 revoked agent denied within 2s (MCP typed 401 error, API 401)
+PASS step6 denial observed within 5 s
+PASS step6 tenant B 04cff41a-be67-4daa-a1d8-e50f1394389d seeded with colliding order id gid://shopify/Order/5021 (own sequence starts at 1: cursor 3)
+PASS step6 owner journal for order gid://shopify/Order/5021: 28 own entries, 0 from tenant B (no cross-tenant disclosure)
+PASS step6 owner order state unchanged by tenant B's colliding order
+PASS step6 tenant B's entry id is 404 for the owner (existence not revealed across tenants)
+PASS step6 ./blackbox logs --run c98c076b-77c8-428d-a976-eaf7bf9b8163: 12 records (components: api worker ) incl. journal.batch_committed
+PASS step6 engine.batch_applied records present with committed/applied cursors
+PASS step6 api logs: query.served and auth.access_denied (revoked agent) records
+PASS artifacts contain no owner/agent keys or session cookies
+SLICE-01: passed (artifacts: /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/SLICE-01)
+exit 0
