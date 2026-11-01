@@ -1,0 +1,295 @@
+# Blackbox local pilot — versioned Compose release (ADR-0005).
+# Only the api service publishes a host port, and only on 127.0.0.1. PostgreSQL and the Rust engine
+# live on the internal "backend" network. All non-secret configuration comes from <install>/.env,
+# which ./blackbox setup generates. Secrets are files under <install>/secrets (0700/0600) and are
+# mounted read-only at /run/secrets/<name>; nothing secret appears in environment dumps or argv.
+name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}
+
+x-common-env: &common-env
+  BLACKBOX_VERSION: ${BLACKBOX_VERSION:-dev}
+  BLACKBOX_BIND: ${BLACKBOX_BIND:-127.0.0.1}
+  BLACKBOX_PORT: "19180"
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGDATABASE: ${BLACKBOX_PGDATABASE:-blackbox}
+  ENGINE_URL: http://engine:7070
+  ENGINE_TOKEN_FILE: /run/secrets/engine_token
+  DATA_KEY_FILE: /run/secrets/data.key
+  LOG_DIR: /data/logs
+  EVIDENCE_DIR: /data/evidence
+  SNAPSHOT_DIR: /data/snapshots
+  BACKUP_STATUS_FILE: /data/backups/status.json
+  FENCE_DIR: /data/state
+  LOG_LEVEL: ${BLACKBOX_LOG_LEVEL:-info}
+  TZ: ${BLACKBOX_TZ:-UTC}
+
+services:
+  postgres:
+    image: ${BLACKBOX_POSTGRES_IMAGE:-postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef}
+    container_name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${BLACKBOX_PGDATABASE:-blackbox}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_superuser_password
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - max_connections=80
+      - -c
+      - log_min_messages=warning
+      - -c
+      - log_statement=none
+    secrets:
+      - pg_superuser_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ${BLACKBOX_MIGRATIONS_DIR:?set by ./blackbox setup}:/migrations:ro
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${BLACKBOX_PGDATABASE:-blackbox} -h 127.0.0.1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    stop_grace_period: 30s
+
+  engine:
+    image: ${BLACKBOX_IMAGE_PREFIX:-blackbox}/engine:${BLACKBOX_VERSION:-dev}
+    build:
+      context: ../..
+      dockerfile: infra/docker/engine.Dockerfile
+      platforms: ["linux/arm64"]
+    container_name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}-engine
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    environment:
+      <<: *common-env
+      PGUSER: bb_engine
+      PGPASSWORD_FILE: /run/secrets/pg_engine_password
+      ENGINE_LISTEN: 0.0.0.0:7070
+      RUST_LOG: ${BLACKBOX_LOG_LEVEL:-info}
+    secrets:
+      - pg_engine_password
+      - engine_token
+    volumes:
+      - ${BLACKBOX_DATA_DIR:?set by ./blackbox setup}/snapshots:/data/snapshots
+      - ${BLACKBOX_DATA_DIR}/logs:/data/logs
+    tmpfs:
+      - /tmp:size=64m
+    networks:
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # Integration hook: the engine binary must support `--healthcheck` (exit 0 when /health is OK).
+      test: ["CMD", "/usr/local/bin/blackbox-engine", "--healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+    stop_grace_period: 30s
+    mem_limit: ${BLACKBOX_ENGINE_MEM_LIMIT:-1536m}
+
+  api:
+    image: ${BLACKBOX_IMAGE_PREFIX:-blackbox}/api:${BLACKBOX_VERSION:-dev}
+    build:
+      context: ../..
+      dockerfile: infra/docker/api.Dockerfile
+      platforms: ["linux/arm64"]
+    container_name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}-api
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    environment:
+      <<: *common-env
+      PGUSER: bb_api
+      PGPASSWORD_FILE: /run/secrets/pg_api_password
+      PGMIGRATE_USER: bb_migrate
+      PGMIGRATE_PASSWORD_FILE: /run/secrets/pg_migrate_password
+      MIGRATIONS_DIR: /migrations
+      WEB_DIST_DIR: /app/apps/web/dist
+      NODE_ENV: production
+    secrets:
+      - pg_api_password
+      - pg_migrate_password
+      - engine_token
+      - data.key
+    ports:
+      # The only published port. ./blackbox refuses any BLACKBOX_BIND other than 127.0.0.1.
+      - "${BLACKBOX_BIND:-127.0.0.1}:${BLACKBOX_PORT:-19180}:19180"
+    volumes:
+      - ${BLACKBOX_DATA_DIR}/logs:/data/logs
+      - ${BLACKBOX_DATA_DIR}/evidence:/data/evidence
+      - ${BLACKBOX_DATA_DIR}/snapshots:/data/snapshots:ro
+      - ${BLACKBOX_DATA_DIR}/backups:/data/backups:ro
+      - ${BLACKBOX_DATA_DIR}/state:/data/state:ro
+      - ${BLACKBOX_MIGRATIONS_DIR}:/migrations:ro
+    tmpfs:
+      - /tmp:size=256m
+    networks:
+      - backend
+      - egress
+    depends_on:
+      postgres:
+        condition: service_healthy
+      engine:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:19180/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    stop_grace_period: 30s
+    mem_limit: ${BLACKBOX_API_MEM_LIMIT:-1024m}
+
+  worker:
+    image: ${BLACKBOX_IMAGE_PREFIX:-blackbox}/worker:${BLACKBOX_VERSION:-dev}
+    build:
+      context: ../..
+      dockerfile: infra/docker/worker.Dockerfile
+      platforms: ["linux/arm64"]
+    container_name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}-worker
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    environment:
+      <<: *common-env
+      PGUSER: bb_worker
+      PGPASSWORD_FILE: /run/secrets/pg_worker_password
+      NODE_ENV: production
+    secrets:
+      - pg_worker_password
+      - engine_token
+      - data.key
+    volumes:
+      - ${BLACKBOX_DATA_DIR}/logs:/data/logs
+      - ${BLACKBOX_DATA_DIR}/evidence:/data/evidence
+      - ${BLACKBOX_DATA_DIR}/backups:/data/backups:ro
+      - ${BLACKBOX_DATA_DIR}/state:/data/state:ro
+    tmpfs:
+      - /tmp:size=256m
+    networks:
+      - backend
+      - egress
+    depends_on:
+      postgres:
+        condition: service_healthy
+      engine:
+        condition: service_started
+    stop_grace_period: 60s
+    mem_limit: ${BLACKBOX_WORKER_MEM_LIMIT:-1024m}
+
+  # Persisted backup scheduler: runs one overdue encrypted generation per 24 h while the backend runs
+  # (fences writers through /data/state/writers.paused.json). Idle until a destination is enrolled.
+  backup-scheduler:
+    image: ${BLACKBOX_IMAGE_PREFIX:-blackbox}/backup:${BLACKBOX_VERSION:-dev}
+    container_name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}-backup-scheduler
+    restart: unless-stopped
+    user: "10001:10001"
+    command: ["/scripts/scheduler.sh"]
+    environment:
+      BLACKBOX_VERSION: ${BLACKBOX_VERSION:-dev}
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: ${BLACKBOX_PGDATABASE:-blackbox}
+      PGUSER: postgres
+      PGPASSWORD_FILE: /run/secrets/pg_superuser_password
+      BACKUP_STATUS_FILE: /data/backups/status.json
+      BACKUP_DESTINATION: /backup-dest
+      BACKUP_RECIPIENT_FILE: /secrets/backup_recipient.pub
+      RELEASE_JSON: /release/release.json
+    secrets:
+      - pg_superuser_password
+    volumes:
+      - ${BLACKBOX_DATA_DIR}/evidence:/data/evidence:ro
+      - ${BLACKBOX_DATA_DIR}/snapshots:/data/snapshots:ro
+      - ${BLACKBOX_DATA_DIR}/backups:/data/backups
+      - ${BLACKBOX_DATA_DIR}/state:/data/state
+      - ${BLACKBOX_SECRETS_DIR}:/secrets:ro
+      - ${BLACKBOX_BACKUP_DESTINATION:-${BLACKBOX_DATA_DIR}/backups/unconfigured}:/backup-dest
+      - ${BLACKBOX_RELEASE_DIR}:/release:ro
+    tmpfs:
+      - /tmp:size=64m
+    networks:
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 256m
+
+  # Operations helper: pg_dump/pg_restore 16 + age. Never started by `up`; only `./blackbox backup`,
+  # `restore` and `upgrade` run it with `compose run --rm`. Profile "ops" keeps it out of `up`.
+  backup:
+    image: ${BLACKBOX_IMAGE_PREFIX:-blackbox}/backup:${BLACKBOX_VERSION:-dev}
+    build:
+      context: ../..
+      dockerfile: infra/docker/backup.Dockerfile
+      platforms: ["linux/arm64"]
+    profiles: ["ops"]
+    user: "10001:10001"
+    environment:
+      BLACKBOX_VERSION: ${BLACKBOX_VERSION:-dev}
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: ${BLACKBOX_PGDATABASE:-blackbox}
+      PGUSER: postgres
+      PGPASSWORD_FILE: /run/secrets/pg_superuser_password
+      BACKUP_SOURCE_EVIDENCE: /data/evidence
+      BACKUP_SOURCE_SNAPSHOTS: /data/snapshots
+      BACKUP_SOURCE_SECRETS: /secrets
+      BACKUP_STATUS_FILE: /data/backups/status.json
+      BACKUP_DESTINATION: /backup-dest
+      BACKUP_RECIPIENT_FILE: /secrets/backup_recipient.pub
+      RELEASE_JSON: /release/release.json
+    secrets:
+      - pg_superuser_password
+    volumes:
+      - ${BLACKBOX_DATA_DIR}/evidence:/data/evidence
+      - ${BLACKBOX_DATA_DIR}/snapshots:/data/snapshots
+      - ${BLACKBOX_DATA_DIR}/backups:/data/backups
+      - ${BLACKBOX_DATA_DIR}/state:/data/state
+      - ${BLACKBOX_DATA_DIR}/restore:/data/restore
+      - ${BLACKBOX_SECRETS_DIR:?set by ./blackbox setup}:/secrets
+      - ${BLACKBOX_BACKUP_DESTINATION:-${BLACKBOX_DATA_DIR}/backups/unconfigured}:/backup-dest
+      - ${BLACKBOX_RELEASE_DIR:?set by ./blackbox setup}:/release:ro
+      - ${BLACKBOX_MIGRATIONS_DIR}:/migrations:ro
+    tmpfs:
+      - /tmp:size=64m
+    networks:
+      - backend
+
+secrets:
+  pg_superuser_password:
+    file: ${BLACKBOX_SECRETS_DIR}/pg_superuser_password
+  pg_migrate_password:
+    file: ${BLACKBOX_SECRETS_DIR}/pg_migrate_password
+  pg_api_password:
+    file: ${BLACKBOX_SECRETS_DIR}/pg_api_password
+  pg_worker_password:
+    file: ${BLACKBOX_SECRETS_DIR}/pg_worker_password
+  pg_engine_password:
+    file: ${BLACKBOX_SECRETS_DIR}/pg_engine_password
+  engine_token:
+    file: ${BLACKBOX_SECRETS_DIR}/engine_token
+  data.key:
+    file: ${BLACKBOX_SECRETS_DIR}/data.key
+
+volumes:
+  pgdata:
+    name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}_pgdata
+
+networks:
+  backend:
+    name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}_backend
+    internal: true
+  egress:
+    name: ${COMPOSE_PROJECT_NAME:-blackbox-agent-c}_egress

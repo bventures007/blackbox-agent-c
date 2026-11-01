@@ -1,0 +1,167 @@
+{
+  "row_id": "shopify.stock",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "InventoryItem",
+    "InventoryLevel",
+    "InventoryQuantity"
+  ],
+  "grants": [
+    "read_inventory",
+    "read_products"
+  ],
+  "identity_rule": "Account scope = Shop.id. Record identity = \"stock:<InventoryItem gid>@<Location gid>\"; provider_event_id = \"<shop>|inv:<InventoryLevel numeric id>|<updatedAt>\" so unchanged levels are duplicates and changed levels are new snapshots.",
+  "coverage_rule": "Snapshot-only: the backfill reads all current levels once (history_kind snapshot_only); incremental reads items with updated_at >= floor; differences between snapshots never prove a movement cause.",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "item_id": {
+      "status": "source",
+      "normalization": "InventoryItem gid.",
+      "missing_behavior": "Required.",
+      "source_path": "inventoryItems.nodes[].id"
+    },
+    "location_id": {
+      "status": "source",
+      "normalization": "Location gid.",
+      "missing_behavior": "Level without location is rejected.",
+      "source_path": "inventoryItems.nodes[].inventoryLevels.nodes[].location.id"
+    },
+    "unit": {
+      "status": "derived",
+      "normalization": "Constant unit \"piece\": Shopify line quantities are integer counts without a unit field.",
+      "missing_behavior": "Not applicable (constant).",
+      "rule": "connectors.normalize.shopify.v1: unit = \"piece\" for all Shopify quantities."
+    },
+    "observed_at": {
+      "status": "source",
+      "normalization": "InventoryLevel.updatedAt as the snapshot time.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "inventoryItems.nodes[].inventoryLevels.nodes[].updatedAt"
+    },
+    "basis": {
+      "status": "derived",
+      "normalization": "Constant \"shopify_named_quantity_states\": named states are read as published; available is already net of unavailable states and is never reduced again.",
+      "missing_behavior": "Constant.",
+      "rule": "connectors.normalize.shopify.v1: basis constant; see CONNECTOR-CAPABILITIES finding 1."
+    },
+    "physical": {
+      "status": "source",
+      "normalization": "quantities[name=on_hand].quantity as decimal string.",
+      "missing_behavior": "null when the state is not returned (never zero).",
+      "source_path": "inventoryLevels.nodes[].quantities[name=on_hand].quantity"
+    },
+    "available": {
+      "status": "source",
+      "normalization": "quantities[name=available].",
+      "missing_behavior": "null when absent.",
+      "source_path": "inventoryLevels.nodes[].quantities[name=available].quantity"
+    },
+    "committed": {
+      "status": "source",
+      "normalization": "quantities[name=committed].",
+      "missing_behavior": "null when absent.",
+      "source_path": "inventoryLevels.nodes[].quantities[name=committed].quantity"
+    },
+    "reserved": {
+      "status": "source",
+      "normalization": "quantities[name=reserved].",
+      "missing_behavior": "null when absent.",
+      "source_path": "inventoryLevels.nodes[].quantities[name=reserved].quantity"
+    },
+    "damaged": {
+      "status": "source",
+      "normalization": "quantities[name=damaged].",
+      "missing_behavior": "null when absent.",
+      "source_path": "inventoryLevels.nodes[].quantities[name=damaged].quantity"
+    },
+    "safety_stock": {
+      "status": "source",
+      "normalization": "quantities[name=safety_stock].",
+      "missing_behavior": "null when absent.",
+      "source_path": "inventoryLevels.nodes[].quantities[name=safety_stock].quantity"
+    },
+    "quality_control": {
+      "status": "source",
+      "normalization": "quantities[name=quality_control].",
+      "missing_behavior": "null when absent.",
+      "source_path": "inventoryLevels.nodes[].quantities[name=quality_control].quantity"
+    },
+    "incoming": {
+      "status": "source",
+      "normalization": "quantities[name=incoming]; not on hand.",
+      "missing_behavior": "null when absent.",
+      "source_path": "inventoryLevels.nodes[].quantities[name=incoming].quantity"
+    }
+  },
+  "event_rules": [
+    {
+      "event": "inventory.snapshot",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "One snapshot per (item, location, updatedAt); supersedes earlier snapshots in projections; never a movement."
+    },
+    {
+      "event": "inventory.adjustment_observed",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "Inventory adjustment history (reasons/ledger) is not part of the pinned query subset; a snapshot difference is not an adjustment observation."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "BlackboxInventoryItems (first=25, nested inventoryLevels first=10 with eight named quantity states) over all items, Relay pagination; no provider count (totals unknown).",
+    "cursor": "Incremental query updated_at:>=floor on InventoryItem with 900 s overlap; page cursor = Relay endCursor; floor never advances past now.",
+    "reconciliation": "Every 24 h (bounded to 24 h after sleep/wake) a full re-read of changed items; identical levels are duplicates.",
+    "deduplication": "provider_event_id includes the level updatedAt; identical content = duplicate delivery; different content under the same updatedAt = conflict (review case).",
+    "freshness": "Poll every 900 s (300 s to 6 h, jitter 60 s). A successful empty poll advances last_successful_check_at only.",
+    "modes": {
+      "local_standalone": {
+        "status": "partial",
+        "methods": [
+          "polling"
+        ],
+        "schedule": "Poll every 900 s (300 s-6 h, jitter 60 s); reconciliation daily.",
+        "history_limit": "No stock history: only current levels (snapshot_only).",
+        "authentication": "Admin API access token for a merchant-installed custom app (X-Shopify-Access-Token), or the Dev Dashboard client-credentials grant (POST /admin/oauth/access_token, 24h token, refreshed one minute before expiry, no redirect URL). The token is stored encrypted on the connection (AES-256-GCM, key outside the database) and never logged.",
+        "recovery": "Provider cursor and phase are persisted per page in import_runs.checkpoint / capability_health.*_cursor after COMMIT; a failed page never advances the checkpoint. Expired cursors restart the current phase from its floor (idempotent through the deliveries dedupe boundary). 401/403 stop polling with status reauthorization_required/degraded; 429 waits for Retry-After (fallback 1 s); 5xx retry with exponential backoff (max 5 attempts) then the run is re-queued with backoff; non-retryable failures become visible dead letters. After sleep/wake one coalesced poll per poll group plus one bounded overlap reconciliation (gap + overlap, capped at the reconcile window) is scheduled; no burst replay.",
+        "limitations": "Snapshot-only; named states depend on location/app configuration; levels beyond 10 locations per item are flagged.",
+        "reason": "Current levels are readable by polling; movement history is not, so the capability stays partial."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "InventoryLevel.updatedAt is the snapshot time; a date plan does not apply to stock (there is no stock history) and the plan window is disclosed as not applicable for this capability.",
+    "historical_availability": "Only the current state is available (history_kind snapshot_only); no earlier levels are reconstructed.",
+    "open_and_related_records": "All items/locations are read; related orders are not traversed from stock.",
+    "opening_state": "The first snapshot is the opening stock as of its updatedAt; it is a fact, not a movement.",
+    "progress_accounting": "loaded = inventory items fetched; committed = distinct (item, location) records with a new snapshot; totals unknown (no provider count) so counts and phase are shown, no percentage.",
+    "readiness_rules": "Stock questions are ready for items with a snapshot not older than the schedule; partial for items without named states (null); free stock derivations require physical/committed/reserved/damaged/safety_stock/quality_control to be present.",
+    "health_rules": "healthy after a complete poll within interval + jitter; degraded on missing read_inventory; stale snapshots are reported with their observed_at.",
+    "history_expansion": "Not applicable beyond re-reading current levels; a history expansion creates no older snapshots.",
+    "data_handling": "Only gids, SKU strings and integer quantities; no personal data."
+  }
+}

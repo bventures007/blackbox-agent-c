@@ -1,0 +1,22 @@
+# BuildKit per-Dockerfile ignore (context = repo root)
+**/node_modules
+**/dist
+**/.vite
+target
+.git
+.local
+data
+backups
+release
+reference
+reports
+docs
+specs
+integrations
+features
+templates
+benchmarks
+fixtures/**/*.bin
+*.log
+.env*
+!.env.example

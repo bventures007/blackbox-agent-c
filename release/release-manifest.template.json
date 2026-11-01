@@ -1,0 +1,25 @@
+{
+  "schema_version": "1",
+  "status": "pending",
+  "version": null,
+  "date": null,
+  "tested_commit": null,
+  "artifact_filename": null,
+  "platform": "macOS Apple Silicon (arm64)",
+  "architecture": "arm64",
+  "format": "tar.gz",
+  "byte_size": null,
+  "sha256": null,
+  "download_url": null,
+  "guide_url": "./INSTALL.en.md",
+  "guide_url_de": "./INSTALL.de.md",
+  "prerequisites": {
+    "container_runtime": "Docker Desktop 4.3x+ with Compose v2",
+    "min_os": "macOS 14",
+    "disk_free_gib": 10,
+    "network": "none for installation (images are bundled); outbound provider access for sources"
+  },
+  "images_bundled": false,
+  "signing": "none (SHA-256 checksum only; not signed or notarized)",
+  "release_notes": "No release has been built yet. The landing page must show the localized 'Download not available yet' state and keep demo/guide access."
+}

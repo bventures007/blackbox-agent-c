@@ -1,0 +1,10 @@
+export * from "./record.js";
+export { redactString, sanitizeRecord, looksSensitive } from "./redact.js";
+export { DebugGate, DEBUG_MAX_MINUTES } from "./debug.js";
+export type { DebugSession } from "./debug.js";
+export { createLogger, createSilentLogger } from "./logger.js";
+export type { Logger, LogSink, LoggerOptions } from "./logger.js";
+export { FileCollector, rebuildIndex, listLogFiles, fileNameFor, fileHourStart, DEFAULT_LOG_CAP_BYTES, DEFAULT_LOG_RETENTION_DAYS, INDEX_FILE } from "./collector.js";
+export type { CollectorStats, FileCollectorOptions, LogIndex, FileIndexEntry } from "./collector.js";
+export { queryLogs, getLogRecord, followLogs, encodeCursor, decodeCursor, normalizeQuery, matches, readIndex, DEFAULT_PAGE, MAX_PAGE } from "./query.js";
+export type { LogQuery, LogQueryResult } from "./query.js";

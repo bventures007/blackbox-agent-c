@@ -1,0 +1,49 @@
+[workspace]
+resolver = "2"
+members = [
+  "apps/engine",
+  "crates/domain",
+  "crates/projections",
+  "crates/query",
+  "crates/storage",
+  "tests/engine",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+license = "UNLICENSED"
+publish = false
+
+[workspace.dependencies]
+blackbox-domain = { path = "crates/domain" }
+blackbox-projections = { path = "crates/projections" }
+blackbox-query = { path = "crates/query" }
+blackbox-storage = { path = "crates/storage" }
+
+anyhow = "1.0.93"
+arc-swap = "1.7.1"
+axum = { version = "0.7.9", features = ["json", "http1", "tokio"] }
+bincode = "1.3.3"
+chrono = { version = "0.4.38", features = ["serde"] }
+hex = "0.4.3"
+libc = "0.2.164"
+proptest = "1.5.0"
+rand = "0.8.5"
+rand_chacha = "0.3.1"
+reqwest = { version = "0.12.9", default-features = false, features = ["json"] }
+rust_decimal = { version = "1.36.0", features = ["serde-str"] }
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = { version = "1.0.133", features = ["preserve_order"] }
+sha2 = "0.10.8"
+sqlx = { version = "0.8.2", default-features = false, features = ["runtime-tokio", "postgres", "uuid", "chrono", "json", "macros"] }
+thiserror = "2.0.3"
+tokio = { version = "1.41.1", features = ["rt-multi-thread", "macros", "sync", "time", "signal", "net", "fs"] }
+tower = "0.5.1"
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json", "registry"] }
+uuid = { version = "1.11.0", features = ["serde", "v4", "v5"] }
+
+[profile.release]
+debug = 1

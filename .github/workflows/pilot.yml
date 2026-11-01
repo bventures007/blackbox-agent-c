@@ -1,0 +1,72 @@
+name: Pilot build and checks
+# Application build/lint/test plus operations checks. The existing "Integration register" workflow is untouched.
+# Real-Mac installation, DIST-02/03 and the Compose round trip are not CI evidence; they are recorded in reports/.
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: pilot-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validators:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Preparation validators
+        run: |
+          python3 scripts/validate-question-catalogue.py
+          python3 scripts/integration-register.py check
+          python3 scripts/validate-delivery-profile.py
+          python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+
+  ops:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Wrapper and release tooling unit checks
+        run: bash tests/ops/wrapper-unit.sh
+      - name: Compose file renders
+        run: docker compose -f infra/compose/docker-compose.yml --env-file infra/compose/.env.example config --quiet
+      - name: Release archive dry run (no images) and manifest check
+        run: |
+          bash scripts/release/build.sh 0.0.0 --skip-images
+          bash scripts/release/check-manifest.sh release/dist/release-manifest.json
+      - name: Backup image builds (amd64 runner; release images are built arm64 on the Mac)
+        run: docker build -f infra/docker/backup.Dockerfile -t blackbox/backup:ci .
+
+  typescript:
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 9
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm -r build
+      - name: Lint and typecheck
+        run: |
+          pnpm -r --if-present lint
+          pnpm -r --if-present typecheck
+      - name: Unit tests (vitest)
+        run: pnpm -r --if-present test
+
+  rust:
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('Cargo.lock') != '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@1.83.0
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+      - name: Build and test engine
+        run: |
+          cargo build --locked --workspace
+          cargo test --locked --workspace

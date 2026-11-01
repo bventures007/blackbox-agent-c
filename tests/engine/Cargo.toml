@@ -1,0 +1,24 @@
+[package]
+name = "blackbox-engine-tests"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+blackbox-domain.workspace = true
+blackbox-projections.workspace = true
+blackbox-query.workspace = true
+blackbox-storage.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+libc.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+uuid.workspace = true

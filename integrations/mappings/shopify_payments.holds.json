@@ -1,0 +1,146 @@
+{
+  "row_id": "shopify_payments.holds",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "ShopifyPaymentsAccount (inspected; no hold object exists)"
+  ],
+  "grants": [],
+  "identity_rule": "Not applicable: no provider object carries a hold identity.",
+  "coverage_rule": "Unsupported: no holds, reserves or release promises are readable; answers depending on holds stay unknown unless a generic producer supplies them.",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "hold_id": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "account_id": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "transaction_id": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "currency": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "amount_minor": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "reason": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "state": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "release_promised_at": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "released_at": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    },
+    "evidence_id": {
+      "status": "missing",
+      "normalization": "Not published.",
+      "missing_behavior": "Hold/availability questions remain unknown; the generic producer may supply holds.",
+      "reason": "Shopify Payments exposes no hold/reserve/release-promise objects in the 2026-10 schema (only a total balance; CONNECTOR-CAPABILITIES finding 3)."
+    }
+  },
+  "event_rules": [
+    {
+      "event": "provider.hold_recorded",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "No provider object for holds; see fields."
+    },
+    {
+      "event": "provider.hold_released",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "No provider object for holds; see fields."
+    },
+    {
+      "event": "provider.release_promised",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "No provider object for holds; see fields."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "None: the capability has no provider resource; the worker records next_check_reason \"Shopify Payments exposes no hold objects; nothing to poll.\"",
+    "cursor": "None (no resource).",
+    "reconciliation": "None (no resource).",
+    "deduplication": "Not applicable.",
+    "freshness": "Not applicable; the Sources page shows the capability as unsupported with this reason.",
+    "modes": {
+      "local_standalone": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No hold objects exist at the provider.",
+        "reason": "Shopify Payments publishes no holds/reserves/release promises; the capability is declared unsupported until a verified source exists (generic producer or a future provider report)."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "Not applicable (no resource).",
+    "historical_availability": "Not available.",
+    "open_and_related_records": "Not applicable.",
+    "opening_state": "Not applicable; held balance components are unknown.",
+    "progress_accounting": "No run is created; the capability shows unsupported instead of counters.",
+    "readiness_rules": "Questions requiring holds are blocked/unknown for Shopify-only workspaces and say so.",
+    "health_rules": "Health shows unsupported with the reason; no stale/overdue state is derived for it.",
+    "history_expansion": "Not applicable.",
+    "data_handling": "No data is read."
+  }
+}

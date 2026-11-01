@@ -1,0 +1,40 @@
+[package]
+name = "blackbox-engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+default-run = "blackbox-engine"
+
+[[bin]]
+name = "blackbox-engine"
+path = "src/main.rs"
+
+[[bin]]
+name = "corpus"
+path = "src/bin/corpus.rs"
+
+[dependencies]
+blackbox-domain.workspace = true
+blackbox-projections.workspace = true
+blackbox-query.workspace = true
+blackbox-storage.workspace = true
+anyhow.workspace = true
+arc-swap.workspace = true
+axum.workspace = true
+chrono.workspace = true
+libc.workspace = true
+rand.workspace = true
+rand_chacha.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+tower.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+blackbox-engine-tests = { path = "../../tests/engine" }

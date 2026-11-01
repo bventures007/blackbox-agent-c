@@ -1,0 +1,164 @@
+{
+  "row_id": "shopify_payments.payouts",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "ShopifyPaymentsAccount",
+    "ShopifyPaymentsPayout",
+    "ShopifyPaymentsPayoutSummary"
+  ],
+  "grants": [
+    "read_shopify_payments_payouts (view_payouts)"
+  ],
+  "identity_rule": "provider_event_id = \"<shop>|payout:<numeric id>|<status>\" so each status transition is a new observation; record id payout:<gid>.",
+  "coverage_rule": "Payouts with issuedAt in the plan window / since the floor; status transitions are observed at polls (intermediate transitions between polls are not reconstructed).",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "payout_id": {
+      "status": "source",
+      "normalization": "ShopifyPaymentsPayout gid.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "shopifyPaymentsAccount.payouts.nodes[].id"
+    },
+    "account_id": {
+      "status": "source",
+      "normalization": "ShopifyPaymentsAccount gid.",
+      "missing_behavior": "Blocked when the account is inactive.",
+      "source_path": "shopifyPaymentsAccount.id"
+    },
+    "status": {
+      "status": "source",
+      "normalization": "Lowercased status: scheduled, in_transit, paid, failed, canceled.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "payouts.nodes[].status"
+    },
+    "direction": {
+      "status": "source",
+      "normalization": "transactionType DEPOSIT -> to_bank, WITHDRAWAL -> from_bank.",
+      "missing_behavior": "Defaults to to_bank only when transactionType is DEPOSIT; otherwise from_bank.",
+      "source_path": "payouts.nodes[].transactionType"
+    },
+    "amount_minor": {
+      "status": "source",
+      "normalization": "net.amount in minor units.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "payouts.nodes[].net.amount"
+    },
+    "currency": {
+      "status": "source",
+      "normalization": "net.currencyCode.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "payouts.nodes[].net.currencyCode"
+    },
+    "issued_at": {
+      "status": "source",
+      "normalization": "issuedAt (effective time of the transfer order).",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "payouts.nodes[].issuedAt"
+    },
+    "trace_reference": {
+      "status": "missing",
+      "normalization": "Would be an external bank trace id.",
+      "missing_behavior": "Bank matching must use amount/date/currency candidates from bank_csv and stays explicit (bank.match_recorded), never automatic.",
+      "reason": "No bank trace reference field is part of the verified 2026-10 payout selection (externalTraceId could not be confirmed offline); recorded as a SOURCE-01 live proof item."
+    },
+    "ledger_membership": {
+      "status": "derived",
+      "normalization": "Derived from balance transactions whose associatedPayout.id equals the payout (recorded on the ledger entries); the payout record itself carries null and a fee_summary from ShopifyPaymentsPayoutSummary.",
+      "missing_behavior": "null until the ledger poll links entries; gross-to-net explanation stays partial while membership is incomplete.",
+      "rule": "connectors.normalize.shopify_payments.v1: membership = ledger entries with associatedPayout.id = payout_id"
+    },
+    "reversal_id": {
+      "status": "missing",
+      "normalization": "Would reference a reversing payout.",
+      "missing_behavior": "Reversed transfers are visible only as FAILED/CANCELED payouts (payout.failed) or new ledger postings.",
+      "reason": "No reversal link exists on ShopifyPaymentsPayout in the pinned schema."
+    }
+  },
+  "event_rules": [
+    {
+      "event": "payout.announced",
+      "tracks": [
+        "source",
+        "commitment"
+      ],
+      "rule": "Status SCHEDULED: the provider commits to transfer; no asset moved yet."
+    },
+    {
+      "event": "payout.sent",
+      "tracks": [
+        "source",
+        "movement"
+      ],
+      "rule": "Status IN_TRANSIT or PAID: funds in transit / provider asserts paid; bank credit must be confirmed independently (bank_csv)."
+    },
+    {
+      "event": "payout.failed",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "Status FAILED or CANCELED (state carried)."
+    },
+    {
+      "event": "payout.reversed",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "No payout reversal object/state exists in the pinned schema; a reversal would appear as a new ledger posting."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "Backfill reads shopifyPaymentsAccount.payouts with the query filter issued_at:>=requested_from AND issued_at:<=initial_cutoff, first=50, Relay cursor pagination; the provider gives no exact count, so totals stay unknown (counts/phase shown instead of a percentage).",
+    "cursor": "Incremental: issued_at:>=floor where floor = max(previous floor, min(newest issued_at seen, now) - 3600 s); page cursor = Relay endCursor. Payout status is a provider assertion; transitions between polls are not reconstructed.",
+    "reconciliation": "Every 24 h (and once after sleep/wake, bounded to 7 days) re-read the window; deduplicated by provider_event_id.",
+    "deduplication": "provider_event_id = \"<shop numeric id>|<object>:<numeric id>|<state>\"; identical content duplicates, differing content conflicts (review case). Economic identity: sourceOrderTransactionId links a ledger entry to the shop transaction; adjustments without a source keep their own identity.",
+    "freshness": "Default poll every 1800 s (300 s to 24 h, jitter 120 s); successful-check and new-event timestamps are separate; payout status is a provider assertion until bank evidence (bank_csv) confirms it.",
+    "modes": {
+      "local_standalone": {
+        "status": "partial",
+        "methods": [
+          "polling"
+        ],
+        "schedule": "Poll every 1800 s (bounds 300 s-24 h, jitter 120 s); reconciliation every 24 h over 7 days.",
+        "history_limit": "Account history as exposed by the pinned API; the exact retention of balance transactions on the account is not verifiable offline and is recorded from the live account at SLICE-02/SOURCE-01 time.",
+        "authentication": "Admin API access token for a merchant-installed custom app (X-Shopify-Access-Token), or the Dev Dashboard client-credentials grant (POST /admin/oauth/access_token, 24h token, refreshed one minute before expiry, no redirect URL). The token is stored encrypted on the connection (AES-256-GCM, key outside the database) and never logged. Additionally requires an active Shopify Payments account (shopifyPaymentsAccount.activated) and the read_shopify_payments_payouts scope (view_payouts permission); disputes need read_shopify_payments_disputes.",
+        "recovery": "Provider cursor and phase are persisted per page in import_runs.checkpoint / capability_health.*_cursor after COMMIT; a failed page never advances the checkpoint. Expired cursors restart the current phase from its floor (idempotent through the deliveries dedupe boundary). 401/403 stop polling with status reauthorization_required/degraded; 429 waits for Retry-After (fallback 1 s); 5xx retry with exponential backoff (max 5 attempts) then the run is re-queued with backoff; non-retryable failures become visible dead letters. After sleep/wake one coalesced poll per poll group plus one bounded overlap reconciliation (gap + overlap, capped at the reconcile window) is scheduled; no burst replay.",
+        "limitations": "Payout status is a provider assertion; transitions between polls are not reconstructed.",
+        "reason": "Outbound polling of the Shopify Payments account works for the declared subset; missing fields keep the capability partial."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "issuedAt selects payouts.",
+    "historical_availability": "Balance transactions and payouts as far back as the account exposes them; the exact depth is not verifiable offline and is recorded from the authorized account (blocked_external until then).",
+    "open_and_related_records": "Unsettled payouts (SCHEDULED/IN_TRANSIT) before the window are included through the open-items phase of the plan.",
+    "opening_state": "Account balance snapshots (positions) are the opening state as of the poll time; they are never summed with ledger movements.",
+    "progress_accounting": "loaded = payouts fetched; committed = distinct payouts with new observations; totals unknown.",
+    "readiness_rules": "Payout questions are ready after a complete backfill and current poll; bank-settlement answers stay partial until bank_csv evidence matches.",
+    "health_rules": "healthy after a complete poll; degraded on missing scope/inactive account.",
+    "history_expansion": "Wider issued_at window; status transitions already observed are duplicates.",
+    "data_handling": "Only gids, amounts, types, statuses and timestamps; no bank account numbers (bankAccounts is not queried)."
+  }
+}

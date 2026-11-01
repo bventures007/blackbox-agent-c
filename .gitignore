@@ -34,3 +34,11 @@ test-results/
 .vscode/
 __pycache__/
 *.pyc
+
+# Generated release artifacts, install state, mock screenshots
+/release/dist/
+/secrets/
+/.local/
+/tests/e2e/screenshots/
+/target/
+/test-results/

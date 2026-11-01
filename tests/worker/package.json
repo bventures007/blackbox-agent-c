@@ -1,0 +1,21 @@
+{
+  "name": "@blackbox/tests-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --config vitest.config.ts",
+    "test:worker": "vitest run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "@blackbox/connectors": "workspace:*",
+    "@blackbox/worker": "workspace:*",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}

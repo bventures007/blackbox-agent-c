@@ -1,0 +1,16 @@
+[package]
+name = "blackbox-query"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+blackbox-domain.workspace = true
+chrono.workspace = true
+hex.workspace = true
+sha2.workspace = true
+rust_decimal.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true

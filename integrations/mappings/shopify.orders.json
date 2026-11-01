@@ -1,0 +1,194 @@
+{
+  "row_id": "shopify.orders",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "Order",
+    "LineItem"
+  ],
+  "grants": [
+    "read_orders",
+    "read_all_orders (only for orders older than 60 days)"
+  ],
+  "identity_rule": "Account scope = Shop.id (immutable gid, compared on every credential check; a different shop requires a new connection). Record identity = provider gid; provider_event_id = \"<shop numeric id>|<object>:<numeric id>|<state or updatedAt>\"; entity_refs carry order/customer/transaction/shipment/return/receipt gids.",
+  "coverage_rule": "Coverage = plan window [requested_from, initial_cutoff) plus the open phase, then continuous from the incremental floor; coverage_to advances only after a complete successful poll. The 60-day default access limit and unreadable nested pages are reported as restrictions, never silently shortened.",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "order_id": {
+      "status": "source",
+      "normalization": "Opaque gid string.",
+      "missing_behavior": "Order without id is rejected (missing_required_field).",
+      "source_path": "Order.id"
+    },
+    "line_id": {
+      "status": "source",
+      "normalization": "Opaque gid per line; lines beyond the first 25 are fetched with BlackboxOrderLineItems follow-up pages.",
+      "missing_behavior": "Order without lines yields an order record with an empty lines array.",
+      "source_path": "Order.lineItems.nodes[].id"
+    },
+    "customer_id": {
+      "status": "source",
+      "normalization": "Opaque gid only; no name/email.",
+      "missing_behavior": "null for guest checkouts (no fabricated customer).",
+      "source_path": "Order.customer.id"
+    },
+    "item_id": {
+      "status": "source",
+      "normalization": "InventoryItem gid (joins stock snapshots).",
+      "missing_behavior": "null for custom/non-product lines (no fabricated SKU); stock questions treat the line as unlinked.",
+      "source_path": "Order.lineItems.nodes[].variant.inventoryItem.id"
+    },
+    "variant_id": {
+      "status": "source",
+      "normalization": "ProductVariant gid.",
+      "missing_behavior": "null for custom lines.",
+      "source_path": "Order.lineItems.nodes[].variant.id"
+    },
+    "quantity": {
+      "status": "source",
+      "normalization": "Decimal string; order.accepted uses quantity (as ordered), order.revised uses currentQuantity (after removals/refunds) and also carries ordered_quantity/unfulfilled_quantity.",
+      "missing_behavior": "Required; a line without quantity is rejected.",
+      "source_path": "Order.lineItems.nodes[].quantity | currentQuantity"
+    },
+    "unit": {
+      "status": "derived",
+      "normalization": "Constant unit \"piece\": Shopify line quantities are integer counts without a unit field.",
+      "missing_behavior": "Not applicable (constant).",
+      "rule": "connectors.normalize.shopify.v1: unit = \"piece\" for all Shopify quantities."
+    },
+    "currency": {
+      "status": "source",
+      "normalization": "ISO 4217 code from the order; all money on the record uses shopMoney in this currency.",
+      "missing_behavior": "Required; rejected when absent.",
+      "source_path": "Order.currencyCode (and *.shopMoney.currencyCode)"
+    },
+    "line_net_minor": {
+      "status": "source",
+      "normalization": "Integer minor units via exact decimal parsing. order.accepted: originalTotalSet (pre-discount, pre-tax, as ordered); order.revised: discountedTotalSet (after discounts, before taxes). amount_basis is stated on every record.",
+      "missing_behavior": "null when the money bag is absent; the order itself is rejected only when originalTotalPriceSet is missing.",
+      "source_path": "LineItem.originalTotalSet.shopMoney | LineItem.discountedTotalSet.shopMoney"
+    },
+    "line_tax_minor": {
+      "status": "derived",
+      "normalization": "Sum of LineItem.taxLines[].priceSet.shopMoney in minor units (revised records); null on order.accepted because taxes are not fixed at acceptance.",
+      "missing_behavior": "null when no tax lines or mixed currencies.",
+      "rule": "connectors.normalize.shopify.v1: sum(taxLines.priceSet) with currency check; inputs = LineItem.taxLines evidence."
+    },
+    "line_gross_minor": {
+      "status": "derived",
+      "normalization": "line_net_minor + line_tax_minor on order.revised; null on order.accepted.",
+      "missing_behavior": "null when either component is null; never approximated from rounded unit prices.",
+      "rule": "connectors.normalize.shopify.v1: discountedTotalSet + sum(taxLines) per line."
+    },
+    "discount_minor": {
+      "status": "source",
+      "normalization": "LineItem.totalDiscountSet per line and Order.totalDiscountsSet per order on order.revised; null on order.accepted.",
+      "missing_behavior": "null when absent.",
+      "source_path": "LineItem.totalDiscountSet.shopMoney | Order.totalDiscountsSet.shopMoney"
+    },
+    "shipping_minor": {
+      "status": "source",
+      "normalization": "Order.totalShippingPriceSet in minor units on order.revised; null on order.accepted.",
+      "missing_behavior": "null when absent.",
+      "source_path": "Order.totalShippingPriceSet.shopMoney"
+    },
+    "agreed_version": {
+      "status": "source",
+      "normalization": "ISO timestamp of acceptance (createdAt); order.accepted carries original totals, later revisions reference it.",
+      "missing_behavior": "Required.",
+      "source_path": "Order.createdAt"
+    },
+    "cancellation_state": {
+      "status": "derived",
+      "normalization": "\"cancelled\" when cancelledAt is set (order.cancelled appended with cancelledAt as effective time), otherwise \"none\".",
+      "missing_behavior": "Never guessed from financial status.",
+      "rule": "connectors.normalize.shopify.v1: cancelledAt != null -> cancelled."
+    },
+    "updated_at": {
+      "status": "source",
+      "normalization": "Order.updatedAt; also the revision suffix of order.revised identities.",
+      "missing_behavior": "Required.",
+      "source_path": "Order.updatedAt"
+    }
+  },
+  "event_rules": [
+    {
+      "event": "order.accepted",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "One per order from Order.createdAt with original (agreed) totals; identity \"<shop>|order:<id>|accepted\" is stable across re-reads so re-fetches are duplicates. No commitment track is derived until the commitment semantics of an order are confirmed with the engine owner."
+    },
+    {
+      "event": "order.revised",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "One per observed updatedAt > createdAt with current quantities/totals; intermediate edits between polls are not reconstructed."
+    },
+    {
+      "event": "order.cancelled",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "When cancelledAt is set; effective time = cancelledAt."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "Backfill phase \"window\": orders with created_at in [requested_from, initial_cutoff) read with BlackboxOrders (sortKey UPDATED_AT, first=10, nested lineItems first=25 with follow-up BlackboxOrderLineItems pages). Phase \"open\" (when the plan includes open items): orders created before requested_from that are still open/unpaid/unshipped (status:open OR financial_status pending/authorized/partially_paid OR fulfillment_status unshipped/partial). ordersCount(precision EXACT) provides the exact window total; otherwise totals stay unknown. Orders and lines are read through their parent order on every page.",
+    "cursor": "Incremental: query updated_at:>=floor where floor = max(previous floor, min(newest updatedAt seen, now) - 900 s overlap); seeded at initial_cutoff - 900 s when the plan is created (initial_cutoff exactly for strict from-now). Page cursor = Relay endCursor within one phase. Transactions, fulfillments, refunds and returns are versioned by their parent order updatedAt.",
+    "reconciliation": "Every 6 h (and once after sleep/wake with a window bounded to 48 h) re-read updated_at within [to - window, to]; observations are deduplicated by provider_event_id, late revisions append order.revised, nothing is rewritten.",
+    "deduplication": "provider_event_id = \"<shop numeric id>|<object>:<numeric id>|<state or revision>\" is unique per (tenant, connection); identical content is a duplicate delivery (attempts++), different content under the same identity appends source.conflict_observed and opens a review case. Shop-side refunds and Shopify Payments ledger refunds share economic_effect_id = shopify:transaction:<id>.",
+    "freshness": "Default poll every 300 s (adjustable 60 s to 3600 s, jitter up to 30 s); last_successful_check_at advances only after a complete successful poll, last_new_event_at only when entries were committed; a credential check never advances either. Observed freshness is reported from these timestamps, never promised. Only the current revision of an order is readable; line removals and refunds are distinct (currentQuantity vs refund transactions).",
+    "modes": {
+      "local_standalone": {
+        "status": "supported",
+        "methods": [
+          "polling"
+        ],
+        "schedule": "Incremental poll every 300 s (bounds 60-3600 s, jitter 30 s); reconciliation every 6 h over a 48 h window; backfill paged with checkpoints.",
+        "history_limit": "Default order access is the last 60 days; older orders require the read_all_orders approval. Only the current version of an order is observable; edits before the first poll are not reconstructed.",
+        "authentication": "Admin API access token for a merchant-installed custom app (X-Shopify-Access-Token), or the Dev Dashboard client-credentials grant (POST /admin/oauth/access_token, 24h token, refreshed one minute before expiry, no redirect URL). The token is stored encrypted on the connection (AES-256-GCM, key outside the database) and never logged.",
+        "recovery": "Provider cursor and phase are persisted per page in import_runs.checkpoint / capability_health.*_cursor after COMMIT; a failed page never advances the checkpoint. Expired cursors restart the current phase from its floor (idempotent through the deliveries dedupe boundary). 401/403 stop polling with status reauthorization_required/degraded; 429 waits for Retry-After (fallback 1 s); 5xx retry with exponential backoff (max 5 attempts) then the run is re-queued with backoff; non-retryable failures become visible dead letters. After sleep/wake one coalesced poll per poll group plus one bounded overlap reconciliation (gap + overlap, capped at the reconcile window) is scheduled; no burst replay.",
+        "limitations": "No webhooks: changes are seen at the next poll. Nested connections beyond the selected page sizes are flagged truncated_connections (lineItems are completed by follow-up pages). Only the current revision of an order is readable; line removals and refunds are distinct (currentQuantity vs refund transactions).",
+        "reason": "Outbound GraphQL polling needs no inbound route and is supported in local_standalone."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "Order.createdAt selects the import window (business occurrence); Order.updatedAt selects incremental/reconciliation reads (last modification). Observation time is the poll time; recorded_at is the actual journal commit time and is never backdated.",
+    "historical_availability": "Default order access covers the last 60 days; older orders need the read_all_orders approval, which is recorded as a restriction on the plan and shown as an accessible-period limit. The current order version is observable, not its intermediate edits: history_kind event_history for new activity, snapshot for the state at first read.",
+    "open_and_related_records": "With include_open_items the \"open\" backfill phase retrieves orders created before the window that are still open/unpaid/unshipped; their transactions, fulfillments, refunds and returns come with the order. Traversal is bounded to the order and its nested objects; no unrelated customer history is crawled.",
+    "opening_state": "No opening balance applies to orders; the first read of an older open order is a snapshot of its current state labeled observation_mode=backfill, never a new sale.",
+    "progress_accounting": "requested = exact ordersCount of the window (precision EXACT) plus open phase; loaded = orders fetched; committed = distinct logical records with a new journal entry; duplicates/conflicts/rejected are separate; totals_known is true only for backfills with exact counts. Percentages are only shown for the backfill fetch stage.",
+    "readiness_rules": "Order questions are ready when the connection has a completed backfill for the declared window and the incremental cursor is current within the schedule; partial when the open phase or line-item follow-ups are incomplete (truncated_connections) or the 60-day limit cuts the requested window; blocked without read_orders.",
+    "health_rules": "healthy after a complete successful poll within interval + jitter; degraded after a failed/partial poll, missing grant or conflicts; unavailable on provider 5xx/429 beyond retries; paused on storage critical. next_check_at is null with a reason (no_import_plan, missing_grant, storage_critical).",
+    "history_expansion": "A new plan revision creates a history_expansion/backfill run over the additional interval; overlaps are deduplicated by provider_event_id; recorded_at of new entries is the actual import time; prior coverage is preserved.",
+    "data_handling": "Only opaque gids, amounts, quantities, statuses and timestamps enter payloads; customer is referenced by gid only; evidence stores the sanitized provider object without names, emails or addresses."
+  }
+}

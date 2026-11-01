@@ -1,0 +1,721 @@
+#!/usr/bin/env bash
+# blackbox — host wrapper for the Blackbox local pilot (macOS Apple Silicon, Docker Desktop + Compose v2).
+# Engineering reference: docs/operations.md. User guides: INSTALL.en.md / INSTALL.de.md.
+#
+# Exit codes: 0 ok, 1 degraded / user-recoverable, 2 failure / refused. `doctor` never installs or repairs.
+# Secrets: generated with openssl (CSPRNG) into <install>/secrets (0700, files 0600); passed to containers as
+# files, never as argv or persistent env dumps. The owner key is shown once on the terminal by the api CLI.
+set -euo pipefail
+
+BLACKBOX_WRAPPER_VERSION="1"
+SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/$(basename "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "$SCRIPT")"
+
+# ----- layout --------------------------------------------------------------------------------------
+# Release archive:  <root>/blackbox, <root>/infra/compose/docker-compose.yml, <root>/release.json,
+#                   <root>/images/*.tar, <root>/migrations/*.sql, INSTALL.*.md, examples/.env.example
+# Source checkout:  <repo>/scripts/blackbox → root = <repo>; install state lives in <repo>/.local
+if [ -f "$SCRIPT_DIR/infra/compose/docker-compose.yml" ]; then
+  ROOT="$SCRIPT_DIR"
+elif [ -f "$SCRIPT_DIR/../infra/compose/docker-compose.yml" ]; then
+  ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+else
+  echo "blackbox: cannot find infra/compose/docker-compose.yml next to this wrapper" >&2; exit 2
+fi
+if [ -f "$ROOT/release.json" ]; then
+  MODE="release"; INSTALL="${BLACKBOX_INSTALL_DIR:-$ROOT}"
+  MIGRATIONS_DIR="$ROOT/migrations"; [ -d "$MIGRATIONS_DIR" ] || MIGRATIONS_DIR="$ROOT/packages/database/migrations"
+  RELEASE_JSON="$ROOT/release.json"
+else
+  MODE="source"; INSTALL="${BLACKBOX_INSTALL_DIR:-$ROOT/.local}"
+  MIGRATIONS_DIR="$ROOT/packages/database/migrations"
+  RELEASE_JSON="$ROOT/.local/release.json"
+fi
+COMPOSE_FILE="$ROOT/infra/compose/docker-compose.yml"
+ENV_FILE="$INSTALL/.env"
+SECRETS_DIR="$INSTALL/secrets"
+DATA_DIR="$INSTALL/data"
+STATE_DIR="$DATA_DIR/state"
+SETUP_LOG="$INSTALL/logs/setup.log"
+FENCE_FILE="$STATE_DIR/writers.paused.json"
+DEFAULT_PORT=19180
+DEFAULT_PROJECT="blackbox-agent-c"
+# Test/ops-only knobs: restrict the started services / built images (e.g. "postgres backup-scheduler" while the
+# application images do not exist yet). Unset in normal use.
+SERVICES="${BLACKBOX_SERVICES:-}"
+IMAGE_SET="${BLACKBOX_BUILD_SERVICES:-api worker engine backup}"
+svc_enabled() { [ -z "$SERVICES" ] || [[ " $SERVICES " == *" $1 "* ]]; }
+up_services() { if [ -n "$SERVICES" ]; then compose up -d $SERVICES; else compose up -d "$@"; fi; }
+
+# ----- output helpers --------------------------------------------------------------------------------
+say()  { printf '%s\n' "$*"; }
+warn() { printf 'blackbox: %s\n' "$*" >&2; }
+fail() { printf 'blackbox: ERROR: %s\n' "$1" >&2; exit "${2:-2}"; }
+ts()   { date -u +%Y-%m-%dT%H:%M:%SZ; }
+# Sanitized phase log: phases and codes only, never values. Falls back to a terminal notice.
+phase() { # phase <command> <phase> [detail-code]
+  local line; line="$(ts) $1 $2${3:+ $3}"
+  if mkdir -p "$(dirname "$SETUP_LOG")" 2>/dev/null && printf '%s\n' "$line" >> "$SETUP_LOG" 2>/dev/null; then :; else
+    warn "setup log persistence unavailable ($SETUP_LOG); phase: $line"
+  fi
+  say "  [$2]${3:+ $3}"
+}
+confirm_typed() { # confirm_typed <expected phrase>
+  [ -t 0 ] || fail "typed confirmation required; run from an interactive terminal"
+  printf 'Type exactly "%s" to continue: ' "$1"; local a; IFS= read -r a
+  [ "$a" = "$1" ] || fail "confirmation did not match; nothing changed" 1
+}
+json_get() { # json_get <file> <key>  — first flat string/number/bool value for the key (no jq dependency on the host)
+  [ -f "$1" ] || return 0
+  grep -o -E "\"$2\"[[:space:]]*:[[:space:]]*(\"[^\"]*\"|[^,}[:space:]]+)" "$1" | head -n1 | sed -E 's/^"[^"]*"[[:space:]]*:[[:space:]]*//; s/^"//; s/"$//'
+}
+env_get() { [ -f "$ENV_FILE" ] && sed -n -E "s/^$1=(.*)$/\1/p" "$ENV_FILE" | head -n1 || true; }
+env_set() { # env_set KEY VALUE (creates or replaces)
+  local tmp="$ENV_FILE.tmp"
+  if [ -f "$ENV_FILE" ] && grep -q "^$1=" "$ENV_FILE"; then
+    sed -E "s|^$1=.*$|$1=$2|" "$ENV_FILE" > "$tmp"
+  else
+    { [ -f "$ENV_FILE" ] && cat "$ENV_FILE"; printf '%s=%s\n' "$1" "$2"; } > "$tmp"
+  fi
+  mv -f "$tmp" "$ENV_FILE"; chmod 0600 "$ENV_FILE"
+}
+
+# ----- prerequisites ----------------------------------------------------------------------------------
+require_env() { [ -f "$ENV_FILE" ] || fail "not set up yet: run ./blackbox doctor, then ./blackbox setup" 1; }
+check_bind() {
+  local b="${BLACKBOX_BIND:-$(env_get BLACKBOX_BIND)}"; b="${b:-127.0.0.1}"
+  [ "$b" = "127.0.0.1" ] || fail "BLACKBOX_BIND=$b: public/LAN binding is unsupported (loopback 127.0.0.1 only)"
+}
+have_docker() { command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; }
+require_docker() {
+  command -v docker >/dev/null 2>&1 || fail "docker CLI not found. Install Docker Desktop 4.3x+ (not installed automatically)."
+  docker info >/dev/null 2>&1 || fail "Docker daemon not reachable. Start Docker Desktop and retry."
+  docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 plugin missing (docker compose)."
+}
+compose() { require_env; check_bind; docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" "$@"; }
+project_name() { local p; p="$(env_get COMPOSE_PROJECT_NAME)"; echo "${p:-$DEFAULT_PROJECT}"; }
+port() { local p; p="${BLACKBOX_PORT:-$(env_get BLACKBOX_PORT)}"; echo "${p:-$DEFAULT_PORT}"; }
+version_installed() { [ -f "$STATE_DIR/installed-release.json" ] && json_get "$STATE_DIR/installed-release.json" version || echo ""; }
+version_release() { [ -f "$RELEASE_JSON" ] && json_get "$RELEASE_JSON" version || echo "dev"; }
+api_url() { echo "http://127.0.0.1:$(port)"; }
+api_health() { curl -fsS --max-time 3 "$(api_url)/api/health" 2>/dev/null; }
+pg_ready() { [ "$(service_state postgres)" = "running healthy" ]; }
+service_state() { compose ps --format '{{.Service}} {{.State}} {{.Health}}' 2>/dev/null | awk -v s="$1" '$1==s{print $2" "$3}' || true; }
+api_has_cli() { docker image inspect "$(image_ref api)" >/dev/null 2>&1 && docker run --rm --entrypoint sh "$(image_ref api)" -c 'test -f /app/apps/api/dist/cli.js' >/dev/null 2>&1; }
+image_ref() { echo "$(env_get BLACKBOX_IMAGE_PREFIX | sed 's/^$/blackbox/')/$1:$(env_get BLACKBOX_VERSION | sed 's/^$/dev/')"; }
+# Run the api CLI inside the api container (running) or a one-off container (stack down). TTY attached unless -T.
+api_cli() { # api_cli [-T] <args...>
+  local tty_flag=""; if [ "${1:-}" = "-T" ]; then tty_flag="-T"; shift; fi
+  if [ "$(service_state api | awk '{print $1}')" = "running" ]; then
+    compose exec $tty_flag api node /app/apps/api/dist/cli.js "$@"
+  else
+    compose run --rm --no-deps $tty_flag api node /app/apps/api/dist/cli.js "$@"
+  fi
+}
+secret_gen() { # secret_gen <file> <kind: pw|hex|raw>
+  umask 077
+  case "$2" in
+    pw)  openssl rand -base64 48 | tr -d '\n=+/' | cut -c1-44 > "$1" ;;
+    hex) openssl rand -hex 32 | tr -d '\n' > "$1" ;;
+    raw) openssl rand 32 > "$1" ;;
+  esac
+  chmod 0600 "$1"
+}
+wait_for() { # wait_for <seconds> <description> <command...>
+  local n="$1" d="$2"; shift 2; local i=0
+  until "$@" >/dev/null 2>&1; do i=$((i+1)); [ $i -ge "$n" ] && return 1; sleep 1; done
+  say "  $d ready (${i}s)"
+}
+fence_set() { # fence_set <reason>
+  mkdir -p "$STATE_DIR"; printf '{"reason":"%s","since":"%s","owner":"wrapper"}\n' "$1" "$(ts)" > "$FENCE_FILE.tmp" && mv -f "$FENCE_FILE.tmp" "$FENCE_FILE"
+}
+fence_clear() { rm -f "$FENCE_FILE"; }
+pause_worker() { [ "$(service_state worker | awk '{print $1}')" = "running" ] && compose pause worker >/dev/null 2>&1 || true; }
+unpause_worker() { [ "$(service_state worker | awk '{print $1}')" = "paused" ] && compose unpause worker >/dev/null 2>&1 || true; }
+
+# psql as superuser inside the postgres container; SQL on stdin (never argv).
+psql_super() { compose exec -T postgres psql -X -v ON_ERROR_STOP=1 -U postgres -d "$(env_get BLACKBOX_PGDATABASE | sed 's/^$/blackbox/')" "$@"; }
+
+# ----- doctor ---------------------------------------------------------------------------------------------
+doctor() {
+  local rc=0 json="${1:-}"; local -a out=()
+  rec() { # rec <OK|WARN|FAIL> <code> <message> [next action]
+    case "$1" in WARN) [ $rc -lt 1 ] && rc=1 ;; FAIL) rc=2 ;; esac
+    printf '[%-4s] %-12s %s%s\n' "$1" "$2" "$3" "${4:+ → $4}"
+    out+=("{\"state\":\"$1\",\"code\":\"$2\",\"message\":\"$3\",\"next_action\":\"${4:-}\"}")
+  }
+  say "blackbox doctor ($MODE mode, install: $INSTALL)"
+  [ "$(uname -m)" = "arm64" ] && rec OK DOC-ARCH "Apple Silicon arm64" || rec FAIL DOC-ARCH "architecture $(uname -m) unsupported" "use an Apple Silicon Mac"
+  [ "$(uname -s)" = "Darwin" ] && rec OK DOC-OS "macOS $(sw_vers -productVersion 2>/dev/null || echo ?)" || rec WARN DOC-OS "not macOS; pilot is tested on macOS 14+ only"
+  if command -v docker >/dev/null 2>&1; then
+    if docker info >/dev/null 2>&1; then
+      local dv; dv="$(docker version --format '{{.Server.Version}}' 2>/dev/null)"
+      rec OK DOC-DOCKER "Docker $dv ($(docker version --format '{{.Server.Arch}}' 2>/dev/null))"
+      if docker compose version >/dev/null 2>&1; then rec OK DOC-COMPOSE "Compose v$(docker compose version --short 2>/dev/null || true)"
+      else rec FAIL DOC-COMPOSE "Compose v2 plugin missing" "update Docker Desktop (4.3x+)"; fi
+    else rec FAIL DOC-DOCKER "Docker daemon not reachable" "start Docker Desktop"; fi
+  else rec FAIL DOC-DOCKER "docker CLI not installed" "install Docker Desktop 4.3x+ (not installed automatically)"; fi
+  command -v openssl >/dev/null 2>&1 && rec OK DOC-OPENSSL "openssl present" || rec FAIL DOC-OPENSSL "openssl missing (needed for key generation)"
+  command -v curl >/dev/null 2>&1 && rec OK DOC-CURL "curl present" || rec WARN DOC-CURL "curl missing; health probes unavailable"
+  # disk: warn below max(10%, 5 GiB), critical below max(2%, 1 GiB)
+  local dfk; dfk="$(df -k "$INSTALL" 2>/dev/null || df -k "$ROOT" || true)"
+  local avail total pct; avail="$(echo "$dfk" | awk 'NR==2{print $4}')"; total="$(echo "$dfk" | awk 'NR==2{print $2}')"
+  if [ -n "$avail" ] && [ -n "$total" ] && [ "$total" -gt 0 ]; then
+    pct=$((avail*100/total)); local gib=$((avail/1048576))
+    if [ "$pct" -lt 2 ] || [ "$avail" -lt 1048576 ]; then rec FAIL DOC-DISK "free space critical: ${gib} GiB (${pct}%)" "free space before setup/backup/upgrade"
+    elif [ "$pct" -lt 10 ] || [ "$avail" -lt 5242880 ]; then rec WARN DOC-DISK "free space low: ${gib} GiB (${pct}%)"
+    else rec OK DOC-DISK "free space ${gib} GiB (${pct}%)"; fi
+  else rec WARN DOC-DISK "cannot determine free space"; fi
+  # bind + port
+  local b="${BLACKBOX_BIND:-$(env_get BLACKBOX_BIND)}"; b="${b:-127.0.0.1}"
+  [ "$b" = "127.0.0.1" ] && rec OK DOC-BIND "listener bound to 127.0.0.1 only" || rec FAIL DOC-BIND "BLACKBOX_BIND=$b: public/LAN binding is unsupported" "set BLACKBOX_BIND=127.0.0.1"
+  local p; p="$(port)"
+  local owner; owner="$(lsof -nP -iTCP:"$p" -sTCP:LISTEN 2>/dev/null | awk 'NR==2{print $1}' || true)"
+  if [ -z "$owner" ]; then rec OK DOC-PORT "port $p free"
+  elif [ -f "$ENV_FILE" ] && have_docker && [ "$(service_state api 2>/dev/null | awk '{print $1}')" = "running" ]; then rec OK DOC-PORT "port $p owned by the blackbox api container"
+  else rec FAIL DOC-PORT "port $p in use by '$owner'" "stop that process or set BLACKBOX_PORT in .env"; fi
+  # install state
+  if [ ! -f "$ENV_FILE" ]; then
+    rec OK DOC-SETUP "not set up yet" "run ./blackbox setup"
+  else
+    rec OK DOC-SETUP "configured (project $(project_name), version $(version_installed))"
+    if [ -d "$SECRETS_DIR" ]; then
+      local m; m="$(stat -f %Lp "$SECRETS_DIR" 2>/dev/null || stat -c %a "$SECRETS_DIR")"
+      [ "$m" = "700" ] && rec OK DOC-SECRETS "secrets directory mode 0700" || rec FAIL DOC-SECRETS "secrets directory mode $m (expected 0700)" "chmod 700 $SECRETS_DIR"
+      local bad=0 f; for f in "$SECRETS_DIR"/*; do [ -f "$f" ] || continue; fm="$(stat -f %Lp "$f" 2>/dev/null || stat -c %a "$f")"; [ "$fm" = "600" ] || bad=$((bad+1)); done
+      [ $bad -eq 0 ] && rec OK DOC-SECRETF "secret files mode 0600" || rec FAIL DOC-SECRETF "$bad secret file(s) not 0600" "chmod 600 $SECRETS_DIR/*"
+      for f in pg_superuser_password pg_migrate_password pg_api_password pg_worker_password pg_engine_password engine_token data.key; do
+        [ -s "$SECRETS_DIR/$f" ] || rec FAIL DOC-SECRETF "missing secret $f" "do not regenerate over existing data; restore from backup"
+      done
+    else rec FAIL DOC-SECRETS "secrets directory missing" "restore from backup or set up a fresh install"; fi
+    for d in logs evidence snapshots backups state; do [ -w "$DATA_DIR/$d" ] || rec WARN DOC-DATA "$DATA_DIR/$d not writable"; done
+    [ -w "$DATA_DIR/logs" ] && rec OK DOC-DATA "data directories writable"
+    if have_docker; then
+      local missing=0 s; for s in $IMAGE_SET; do docker image inspect "$(image_ref "$s")" >/dev/null 2>&1 || missing=$((missing+1)); done
+      [ $missing -eq 0 ] && rec OK DOC-IMAGES "release images present ($(image_ref api), ...)" || rec WARN DOC-IMAGES "$missing release image(s) missing" "run ./blackbox setup (loads images/*.tar) or ./blackbox upgrade"
+      local st; st="$(compose ps --format '{{.Service}}={{.State}}' 2>/dev/null | tr '\n' ' ' || true)"
+      if [ -z "$st" ]; then rec WARN DOC-SERVICES "services stopped" "run ./blackbox up"
+      else
+        rec OK DOC-SERVICES "$st"
+        for s in postgres engine api worker; do
+          local ss; ss="$(service_state $s)"; case "$ss" in running*) ;; paused*) rec WARN DOC-SVC-$s "$s paused (maintenance fence?)" "./blackbox status";; *) rec WARN DOC-SVC-$s "$s not running ($ss)" "./blackbox logs --component $s";; esac
+        done
+        local h; if h="$(api_health)"; then rec OK DOC-API "api health: $(echo "$h" | tr -d '\n' | cut -c1-80)"; else rec WARN DOC-API "api health probe failed (live checks unavailable)" "./blackbox logs --component api"; fi
+      fi
+    else rec WARN DOC-SERVICES "live service checks unavailable (Docker down); retained logs still readable via ./blackbox logs"; fi
+    [ -f "$FENCE_FILE" ] && rec WARN DOC-FENCE "writers fenced: $(cat "$FENCE_FILE" | tr -d '\n' | cut -c1-80)" "finish the running operation or ./blackbox resume-sources"
+    if [ -f "$DATA_DIR/backups/status.json" ]; then
+      local bs; bs="$(json_get "$DATA_DIR/backups/status.json" status)"
+      case "$bs" in scheduled|idle) rec OK DOC-BACKUP "backups: $bs (last $(json_get "$DATA_DIR/backups/status.json" last_completed_at))";;
+        not_configured|"") rec WARN DOC-BACKUP "backups not configured — this installation is unprotected" "./blackbox backup-config <dir>";;
+        *) rec WARN DOC-BACKUP "backups: $bs" "./blackbox backup";; esac
+    else rec WARN DOC-BACKUP "backups not configured — this installation is unprotected" "./blackbox backup-config <dir>"; fi
+    local vi vr; vi="$(version_installed)"; vr="$(version_release)"
+    [ "$vi" = "$vr" ] && rec OK DOC-VERSION "release $vr installed" || rec WARN DOC-VERSION "release files $vr differ from installed $vi" "./blackbox upgrade"
+    [ -f "$STATE_DIR/upgrade.json" ] && rec WARN DOC-UPGRADE "upgrade in progress/interrupted (phase $(json_get "$STATE_DIR/upgrade.json" phase))" "./blackbox upgrade --resume"
+  fi
+  case $rc in 0) say "doctor: ok";; 1) say "doctor: degraded (exit 1)";; 2) say "doctor: failure (exit 2)";; esac
+  if [ "$json" = "--json" ]; then printf '{"exit_code":%d,"checks":[%s]}\n' "$rc" "$(IFS=,; echo "${out[*]}")"; fi
+  return $rc
+}
+
+# ----- setup ------------------------------------------------------------------------------------------------
+load_images() {
+  if ls "$ROOT"/images/*.tar >/dev/null 2>&1; then
+    phase "$1" images-load; local t; for t in "$ROOT"/images/*.tar; do say "  loading $(basename "$t")"; docker load -q -i "$t" >/dev/null; done
+  elif [ "$MODE" = "source" ]; then
+    phase "$1" images-build source-fallback; say "  building images from source (toolchain inside Docker; this takes a while)"
+    compose --profile ops build $IMAGE_SET
+  else
+    fail "no bundled images (images/*.tar) and not a source checkout; the release archive is incomplete"
+  fi
+  local s; for s in $IMAGE_SET; do docker image inspect "$(image_ref "$s")" >/dev/null 2>&1 || fail "image $(image_ref "$s") missing after load/build"; done
+}
+bootstrap_roles() { # idempotent: create roles (0000_roles.sql) and set passwords from secret files via stdin
+  phase "$1" db-roles
+  psql_super -f /migrations/0000_roles.sql >/dev/null
+  { for r in migrate api worker engine; do
+      printf "ALTER ROLE bb_%s PASSWORD '%s';\n" "$r" "$(tr -d '\n' < "$SECRETS_DIR/pg_${r}_password")"; done
+    printf "GRANT CONNECT ON DATABASE %s TO bb_migrate, bb_api, bb_worker, bb_engine;\n" "$(env_get BLACKBOX_PGDATABASE | sed 's/^$/blackbox/')"
+    printf "ALTER DATABASE %s OWNER TO bb_migrate;\n" "$(env_get BLACKBOX_PGDATABASE | sed 's/^$/blackbox/')"
+  } | psql_super >/dev/null
+}
+# Migrations: api CLI when available (same tracking table), else serial SQL fallback via psql as bb_migrate.
+run_migrations() {
+  phase "$1" db-migrate
+  local migrator="${BLACKBOX_MIGRATOR:-auto}"
+  if [ "$migrator" != "sql" ] && api_has_cli; then
+    compose run --rm --no-deps -T api node /app/apps/api/dist/cli.js migrate && return 0
+    [ "$migrator" = "cli" ] && fail "api cli migrate failed"
+    warn "api cli migrate failed; falling back to SQL migrator"
+  fi
+  local pw; pw="$(tr -d '\n' < "$SECRETS_DIR/pg_migrate_password")"
+  compose exec -T -e PGPASSWORD="$pw" postgres psql -X -v ON_ERROR_STOP=1 -U bb_migrate -d "$(env_get BLACKBOX_PGDATABASE | sed 's/^$/blackbox/')" >/dev/null <<'SQL'
+CREATE TABLE IF NOT EXISTS schema_migrations (version text PRIMARY KEY, checksum text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now());
+SQL
+  local f v sum applied
+  for f in $(ls "$MIGRATIONS_DIR"/*.sql | sort); do
+    v="$(basename "$f" .sql)"; [ "$v" = "0000_roles" ] && continue
+    sum="$(shasum -a 256 "$f" | awk '{print $1}')"
+    applied="$(compose exec -T -e PGPASSWORD="$pw" postgres psql -X -At -U bb_migrate -d "$(env_get BLACKBOX_PGDATABASE | sed 's/^$/blackbox/')" -c "select checksum from schema_migrations where version='$v'")"
+    if [ -n "$applied" ]; then [ "$applied" = "$sum" ] || fail "migration $v changed after it was applied (checksum mismatch); refusing"; continue; fi
+    say "  applying $v"
+    { echo "BEGIN;"; cat "$f"; printf "INSERT INTO schema_migrations(version, checksum) VALUES ('%s','%s');\nCOMMIT;\n" "$v" "$sum"; } \
+      | compose exec -T -e PGPASSWORD="$pw" postgres psql -X -v ON_ERROR_STOP=1 -q -U bb_migrate -d "$(env_get BLACKBOX_PGDATABASE | sed 's/^$/blackbox/')" >/dev/null
+  done
+}
+migrations_current() { # exit 0 when every file is recorded
+  local pw; pw="$(tr -d '\n' < "$SECRETS_DIR/pg_migrate_password")"; local f v
+  for f in $(ls "$MIGRATIONS_DIR"/*.sql | sort); do v="$(basename "$f" .sql)"; [ "$v" = "0000_roles" ] && continue
+    [ -n "$(compose exec -T -e PGPASSWORD="$pw" postgres psql -X -At -U bb_migrate -d "$(env_get BLACKBOX_PGDATABASE | sed 's/^$/blackbox/')" -c "select 1 from schema_migrations where version='$v'" 2>/dev/null)" ] || return 1
+  done
+}
+write_installed() {
+  mkdir -p "$STATE_DIR"
+  { printf '{\n  "version": "%s",\n  "installed_at": "%s",\n  "mode": "%s",\n  "wrapper_version": "%s",\n  "images": {' "$(version_release)" "$(ts)" "$MODE" "$BLACKBOX_WRAPPER_VERSION"
+    local first=1 s; for s in $IMAGE_SET; do
+      [ $first = 1 ] || printf ','; first=0
+      printf '\n    "%s": "%s"' "$s" "$(docker image inspect --format '{{if .RepoDigests}}{{index .RepoDigests 0}}{{else}}{{.Id}}{{end}}' "$(image_ref "$s")" 2>/dev/null)"
+    done; printf '\n  }\n}\n'; } > "$STATE_DIR/installed-release.json"
+}
+setup() {
+  local opt_port="$DEFAULT_PORT" opt_project="$DEFAULT_PROJECT"
+  while [ $# -gt 0 ]; do case "$1" in --port) opt_port="$2"; shift 2;; --project) opt_project="$2"; shift 2;; *) fail "setup: unknown option $1";; esac; done
+  [ "${BLACKBOX_BIND:-127.0.0.1}" = "127.0.0.1" ] || fail "BLACKBOX_BIND=${BLACKBOX_BIND}: public/LAN binding is unsupported"
+  if [ -f "$ENV_FILE" ] || [ -d "$SECRETS_DIR" ]; then
+    fail "an installation already exists in $INSTALL (.env/secrets present). Setup never overwrites credentials or volumes. Use ./blackbox up, ./blackbox upgrade, or a different directory." 1
+  fi
+  require_docker
+  [ "$(uname -m)" = "arm64" ] || fail "unsupported architecture $(uname -m) (Apple Silicon arm64 only)"
+  say "blackbox setup ($MODE mode) → $INSTALL"
+  umask 077
+  mkdir -p "$INSTALL" "$SECRETS_DIR" "$DATA_DIR"/{logs,evidence,snapshots,backups,state,restore} "$INSTALL/logs"
+  chmod 0700 "$SECRETS_DIR" "$DATA_DIR/restore"
+  phase setup start "mode=$MODE"
+  phase setup secrets-generate
+  secret_gen "$SECRETS_DIR/pg_superuser_password" pw; secret_gen "$SECRETS_DIR/pg_migrate_password" pw
+  secret_gen "$SECRETS_DIR/pg_api_password" pw; secret_gen "$SECRETS_DIR/pg_worker_password" pw; secret_gen "$SECRETS_DIR/pg_engine_password" pw
+  secret_gen "$SECRETS_DIR/engine_token" hex; secret_gen "$SECRETS_DIR/data.key" raw
+  printf '{"install_id":"%s","created_at":"%s"}\n' "$(openssl rand -hex 16)" "$(ts)" > "$STATE_DIR/install.json"
+  phase setup env-write
+  [ "$MODE" = "source" ] && { mkdir -p "$ROOT/.local"; [ -f "$RELEASE_JSON" ] || printf '{\n  "version": "dev",\n  "backup_format_version": 1,\n  "postgres_major": 16\n}\n' > "$RELEASE_JSON"; }
+  local pgi pgi_line=""; pgi="$( [ -f "$RELEASE_JSON" ] && json_get "$RELEASE_JSON" postgres_image || true )"; [ -n "$pgi" ] && pgi_line="BLACKBOX_POSTGRES_IMAGE=$pgi"
+  cat > "$ENV_FILE" <<EOF
+# Generated by ./blackbox setup on $(ts). Non-secret configuration only (secrets: $SECRETS_DIR).
+COMPOSE_PROJECT_NAME=$opt_project
+BLACKBOX_VERSION=$(version_release)
+BLACKBOX_IMAGE_PREFIX=blackbox
+$pgi_line
+BLACKBOX_BIND=127.0.0.1
+BLACKBOX_PORT=$opt_port
+BLACKBOX_PGDATABASE=blackbox
+BLACKBOX_RELEASE_DIR=$(dirname "$RELEASE_JSON")
+BLACKBOX_DATA_DIR=$DATA_DIR
+BLACKBOX_SECRETS_DIR=$SECRETS_DIR
+BLACKBOX_MIGRATIONS_DIR=$MIGRATIONS_DIR
+BLACKBOX_BACKUP_DESTINATION=
+BLACKBOX_LOG_LEVEL=info
+BLACKBOX_TZ=UTC
+BLACKBOX_API_MEM_LIMIT=1024m
+BLACKBOX_WORKER_MEM_LIMIT=1024m
+BLACKBOX_ENGINE_MEM_LIMIT=1536m
+EOF
+  sed '/^$/d' "$ENV_FILE" > "$ENV_FILE.tmp" && mv -f "$ENV_FILE.tmp" "$ENV_FILE"; chmod 0600 "$ENV_FILE"
+  load_images setup
+  phase setup postgres-start
+  compose up -d postgres >/dev/null
+  wait_for 120 "postgres" pg_ready || fail "PostgreSQL did not become healthy; see ./blackbox logs --component postgres"
+  bootstrap_roles setup
+  run_migrations setup
+  phase setup services-start
+  up_services >/dev/null
+  if svc_enabled api; then wait_for 120 "api" api_health || warn "api health not reachable yet; continuing (check ./blackbox doctor)"; else warn "api not in BLACKBOX_SERVICES; skipping health wait"; fi
+  write_installed
+  printf '{"status":"not_configured","configured":false}\n' > "$DATA_DIR/backups/status.json"
+  phase setup owner-key
+  if api_has_cli; then
+    say ""; say "Your personal owner key is shown ONCE below. Save it in a password manager now."; say ""
+    api_cli setup || { phase setup owner-key-failed; fail "owner setup failed (api cli setup); run ./blackbox reset-access after fixing the cause" 1; }
+  else
+    phase setup owner-key-skipped api-cli-missing
+    warn "TODO integration: apps/api/dist/cli.js not present in the api image; owner key issuance skipped. Run ./blackbox reset-access once the api CLI exists."
+  fi
+  phase setup done
+  say ""; say "Setup complete. Open $(api_url)/  — stop with ./blackbox down, restart with ./blackbox up."
+  say "Backups are NOT configured yet (unprotected). Enroll a destination: ./blackbox backup-config <directory>"
+}
+
+# ----- lifecycle --------------------------------------------------------------------------------------------
+up() { require_docker; check_bind; [ -f "$STATE_DIR/upgrade.json" ] && fail "an upgrade is in progress/interrupted; run ./blackbox upgrade --resume" 1
+  up_services "$@"; if svc_enabled api; then wait_for 60 "api" api_health || warn "api not healthy yet; run ./blackbox status"; fi
+  [ -f "$FENCE_FILE" ] && warn "writers are fenced ($(cat "$FENCE_FILE" | tr -d '\n')); run ./blackbox resume-sources when ready"
+  say "running at $(api_url)/ (project $(project_name))"; }
+down() { require_docker; compose stop "$@"; say "stopped; volumes and data preserved. Processing resumes with ./blackbox up"; }
+status() { require_env
+  say "project: $(project_name)   version: installed=$(version_installed) release=$(version_release)   url: $(api_url)/"
+  if have_docker; then compose ps 2>/dev/null || true; local h; h="$(api_health || true)"; say "api health: ${h:-unreachable}"; else say "Docker not reachable: live state unknown"; fi
+  [ -f "$FENCE_FILE" ] && say "writers fenced: $(cat "$FENCE_FILE")"
+  [ -f "$DATA_DIR/backups/status.json" ] && say "backups: $(tr -d '\n' < "$DATA_DIR/backups/status.json" | cut -c1-300)"
+  [ -f "$STATE_DIR/upgrade.json" ] && say "upgrade state: $(tr -d '\n' < "$STATE_DIR/upgrade.json")"; return 0; }
+destroy() { [ "${1:-}" = "--i-understand" ] || fail "destroy deletes ALL volumes and data of project $(project_name). Re-run as: ./blackbox destroy --i-understand"
+  require_docker; say "This removes containers, the pgdata volume and $DATA_DIR for project $(project_name)."
+  confirm_typed "destroy $(project_name)"; compose --profile ops down -v --remove-orphans; rm -rf "$DATA_DIR"; say "destroyed; secrets and .env left in place (delete $INSTALL yourself if unwanted)"; }
+
+# logs: api CLI reads the host-mounted logs directory (works with the stack down); coarse bash fallback otherwise.
+logs() { require_env
+  if [ "${1:-}" = "--raw" ] || ! { have_docker && api_has_cli; }; then
+    [ "${1:-}" = "--raw" ] && shift
+    warn "wrapper fallback filter (coarse): --level, --component, --follow, --since not time-parsed"
+    local level="" comp="" follow=0; while [ $# -gt 0 ]; do case "$1" in --level) level="$2"; shift 2;; --component) comp="$2"; shift 2;; --follow) follow=1; shift;; *) shift;; esac; done
+    ls "$DATA_DIR"/logs/records-*.jsonl >/dev/null 2>&1 || { say "no retained log files under $DATA_DIR/logs"; return 1; }
+    local lv='.'; case "$level" in warn) lv='"level":"(warn|error|fatal)"';; error) lv='"level":"(error|fatal)"';; esac
+    local cf='.'; [ -n "$comp" ] && cf="\"component\":\"$comp\""
+    if [ $follow = 1 ]; then tail -n 200 -F "$DATA_DIR"/logs/records-*.jsonl | grep -E "$lv" | grep -E "$cf"; else cat "$DATA_DIR"/logs/records-*.jsonl | grep -E "$lv" | grep -E "$cf" | tail -n 500; fi
+    return 0
+  fi
+  compose run --rm --no-deps -T api node /app/apps/api/dist/cli.js logs "$@"
+}
+diagnostics() { require_env; [ "${1:-}" = "export" ] || fail "usage: diagnostics export [--since 1h] --output <file>"; shift
+  local out=""; local -a args=(); while [ $# -gt 0 ]; do case "$1" in --output) out="$2"; shift 2;; *) args+=("$1"); shift;; esac; done
+  [ -n "$out" ] || fail "--output <local-file> required"
+  have_docker && api_has_cli || fail "diagnostics export needs the api image with its CLI (Docker must run; the API/database may be down)" 1
+  local dir; dir="$(cd "$(dirname "$out")" && pwd -P)"; mkdir -p "$DATA_DIR/exports"
+  compose run --rm --no-deps -T api node /app/apps/api/dist/cli.js diagnostics export "${args[@]}" --output "/tmp/export.zip" --copy-to /data/exports/ 2>/dev/null \
+    || compose run --rm --no-deps -T -v "$dir:/host-out" api node /app/apps/api/dist/cli.js diagnostics export "${args[@]}" --output "/host-out/$(basename "$out")"
+  say "sanitized diagnostics written to $out (explicit export; nothing is uploaded)"; }
+
+demo() { require_env; have_docker || fail "Docker not reachable"
+  api_has_cli || fail "demo needs the api CLI (node cli.js demo) — TODO integration: not present in this image" 1
+  api_cli -T demo "$@"; say "labeled GOLDEN demo scenario loaded into demo connections (never over user data)"; }
+verify() { require_env; have_docker || fail "Docker not reachable"
+  local rc=0; say "blackbox verify"
+  if h="$(api_health)"; then say "  [OK] api health: $h"; elif ! svc_enabled api; then say "  [WARN] api not enabled (ops-only mode)"; rc=1; else say "  [FAIL] api health unreachable"; rc=2; fi
+  if [ "$(service_state postgres | awk '{print $1}')" = "running" ]; then
+    if migrations_current; then say "  [OK] migrations current ($MIGRATIONS_DIR)"; else say "  [FAIL] migrations not current"; rc=2; fi
+  else say "  [FAIL] postgres not running"; rc=2; fi
+  for s in engine worker; do svc_enabled $s || continue; case "$(service_state $s)" in running*) say "  [OK] $s running";; *) say "  [WARN] $s $(service_state $s)"; [ $rc -lt 1 ] && rc=1;; esac; done
+  if api_has_cli; then
+    if api_cli -T verify; then say "  [OK] golden demo answer check (api cli verify)"; else say "  [FAIL] golden demo answer check"; rc=2; fi
+  else say "  [WARN] golden answer check unavailable: api cli verify missing (TODO integration)"; [ $rc -lt 1 ] && rc=1; fi
+  say "verify: exit $rc"; return $rc; }
+
+# ----- access --------------------------------------------------------------------------------------------------
+host_only() { [ -r "$SECRETS_DIR/data.key" ] && [ -w "$SECRETS_DIR" ] || fail "host-only command: the secrets directory $SECRETS_DIR must be readable and writable by the current OS user"; }
+reset_access() { require_env; host_only; require_docker; api_has_cli || fail "reset-access requires the api CLI (TODO integration)" 1
+  phase reset-access start; say "Rotating the owner key, revoking all sessions and agent keys (business data preserved)."
+  api_cli reset-access "$@" && phase reset-access done || { phase reset-access failed; exit 1; }; }
+rotate_key() { require_env; host_only; require_docker; api_has_cli || fail "rotate-key requires the api CLI (TODO integration)" 1; api_cli rotate-key "$@"; }
+create_agent_key() { require_env; host_only; require_docker; api_has_cli || fail "create-agent-key requires the api CLI (TODO integration)" 1; api_cli create-agent-key "$@"; }
+
+# ----- backups ------------------------------------------------------------------------------------------------
+backup_config() { # backup-config <destination-dir> [--label text]
+  require_env; host_only; require_docker
+  local dest="${1:-}"; [ -n "$dest" ] || fail "usage: backup-config <destination-directory> [--label <text>]"; shift
+  local label="$(basename "$dest")"; while [ $# -gt 0 ]; do case "$1" in --label) label="$2"; shift 2;; *) fail "unknown option $1";; esac; done
+  [ -d "$dest" ] || fail "destination directory does not exist (create it, or mount the volume first): $dest"
+  dest="$(cd "$dest" && pwd -P)"
+  case "$dest" in "$DATA_DIR"*|"$INSTALL"/secrets*) fail "destination must be outside the live data/secrets directories";; esac
+  [ -w "$dest" ] || fail "destination not writable: $dest"
+  local same=true; local dd id; dd="$(df "$dest" | awk 'NR==2{print $1}')"; id="$(df "$INSTALL" | awk 'NR==2{print $1}')"; [ "$dd" != "$id" ] && same=false
+  say "Enrolling backup destination: $dest"; $same && say "  note: same device as the installation — convenient, but does not protect against device loss. Prefer a separate volume."
+  local install_id; install_id="$(json_get "$STATE_DIR/install.json" install_id)"
+  if [ -f "$dest/.blackbox-backup-destination" ]; then
+    [ "$(json_get "$dest/.blackbox-backup-destination" install_id)" = "$install_id" ] || fail "destination already enrolled by another installation"
+  fi
+  umask 077
+  phase backup-config recovery-key
+  if [ -s "$SECRETS_DIR/backup_recipient.pub" ]; then
+    say "  recipient key already exists; keeping it (recovery secret unchanged)"
+  else
+    local tmp; tmp="$(mktemp -d "$DATA_DIR/restore/keygen.XXXXXX")"; chmod 0700 "$tmp"
+    compose run --rm --no-deps -T -v "$tmp:/keygen" backup -c 'age-keygen -o /keygen/identity 2>/dev/null && age-keygen -y /keygen/identity > /keygen/recipient && printf test | age -r "$(cat /keygen/recipient)" | age -d -i /keygen/identity' > "$tmp/roundtrip" \
+      || { rm -rf "$tmp"; fail "could not generate the recovery key (backup image missing?)"; }
+    [ "$(cat "$tmp/roundtrip")" = "test" ] || { rm -rf "$tmp"; fail "recovery key round trip failed"; }
+    cp "$tmp/recipient" "$SECRETS_DIR/backup_recipient.pub"; chmod 0600 "$SECRETS_DIR/backup_recipient.pub"
+    say ""; say "=== BACKUP RECOVERY KEY — shown once, not stored anywhere by Blackbox ==="
+    grep '^AGE-SECRET-KEY-1' "$tmp/identity"
+    say "=== Save it in your password manager, separately from the owner key. Without it, backups cannot be restored. ==="; say ""
+    rm -rf "$tmp"
+  fi
+  printf '{"install_id":"%s","label":"%s","same_device":%s,"enrolled_at":"%s"}\n' "$install_id" "$label" "$same" "$(ts)" > "$dest/.blackbox-backup-destination"
+  env_set BLACKBOX_BACKUP_DESTINATION "$dest"
+  printf '{"status":"scheduled","configured":true,"destination_label":"%s","same_device":%s,"last_completed_at":null,"next_due_at":"%s","retention":{"daily":7,"weekly":4}}\n' "$label" "$same" "$(ts)" > "$DATA_DIR/backups/status.json"
+  phase backup-config done
+  say "Destination enrolled. The scheduler creates one encrypted generation per 24 h while the backend runs."
+  say "Create the first one now: ./blackbox backup   (restart the stack with ./blackbox up so the scheduler sees the destination)"
+}
+backup() { # backup [--kind manual|pre-upgrade]
+  require_env; require_docker; local kind="manual"; [ "${1:-}" = "--kind" ] && kind="$2"
+  local dest; dest="$(env_get BLACKBOX_BACKUP_DESTINATION)"; [ -n "$dest" ] || fail "backups not configured: ./blackbox backup-config <directory>" 1
+  [ -d "$dest" ] && [ -f "$dest/.blackbox-backup-destination" ] || fail "backup destination unavailable or not enrolled ($dest): volume unmounted? Nothing written." 1
+  [ -s "$SECRETS_DIR/backup_recipient.pub" ] || fail "backup recipient key missing; run ./blackbox backup-config" 1
+  [ "$(service_state postgres | awk '{print $1}')" = "running" ] || fail "postgres is not running; start with ./blackbox up" 1
+  [ -f "$FENCE_FILE" ] && fail "writers already fenced ($(cat "$FENCE_FILE" | tr -d '\n')); finish that operation first" 1
+  phase backup fence "$kind"; fence_set "backup_$kind"; pause_worker
+  trap 'unpause_worker; fence_clear; phase backup unfenced' EXIT
+  local out; if out="$(compose run --rm -T backup /scripts/backup.sh "$kind")"; then
+    unpause_worker; fence_clear; trap - EXIT; phase backup done; say "backup finalized: $out"; printf '%s\n' "$out" > "$STATE_DIR/last-backup-path"
+  else phase backup failed; fail "backup failed; previous generations untouched (see output above)"; fi
+}
+resume_sources() { require_env; require_docker; fence_clear; unpause_worker; compose up -d worker >/dev/null 2>&1 || true; say "writers resumed; provider workers active"; }
+
+# ----- restore -----------------------------------------------------------------------------------------------
+restore() { # restore <backup.tar.age> [--into <dir>] [--replace] [--port N] [--project name]
+  local src="${1:-}"; [ -n "$src" ] || fail "usage: restore <backup.tar.age> [--into <dir>] [--replace] [--port N]"; shift
+  local into="" replace=0 rport=19184 rproject=""
+  while [ $# -gt 0 ]; do case "$1" in --into) into="$2"; shift 2;; --replace) replace=1; shift;; --port) rport="$2"; shift 2;; --project) rproject="$2"; shift 2;; *) fail "unknown option $1";; esac; done
+  [ -f "$src" ] || fail "backup file not found: $src"; src="$(cd "$(dirname "$src")" && pwd -P)/$(basename "$src")"
+  require_docker; [ "$(uname -m)" = "arm64" ] || fail "unsupported architecture"
+  local t0 t_prompt_start t_prompt=0; t0=$(date +%s)
+  # recovery identity: file via env or interactive prompt; never argv
+  local idfile="${BLACKBOX_RECOVERY_KEY_FILE:-}"; local key=""
+  if [ -n "$idfile" ]; then [ -r "$idfile" ] || fail "recovery key file not readable (BLACKBOX_RECOVERY_KEY_FILE=$idfile)"; key="$(grep -m1 '^AGE-SECRET-KEY-1' "$idfile" || true)"
+  else [ -t 0 ] || fail "recovery key needed: set BLACKBOX_RECOVERY_KEY_FILE or run interactively"
+    t_prompt_start=$(date +%s); printf 'Backup recovery key (AGE-SECRET-KEY-1..., input hidden): '; IFS= read -r -s key; echo; t_prompt=$(( $(date +%s) - t_prompt_start )); fi
+  case "$key" in AGE-SECRET-KEY-1*) ;; *) fail "no valid age recovery identity provided; without it the backup cannot be decrypted (this is not an authentication reset)";; esac
+  # target installation
+  local target
+  if [ $replace = 1 ]; then
+    require_env; host_only; target="$INSTALL"
+    say "REPLACE preview — this destroys the current data of project $(project_name):"
+    say "  pgdata volume: $(docker volume inspect --format '{{.Mountpoint}}' "$(project_name)_pgdata" 2>/dev/null || echo none)"
+    say "  data dir: $DATA_DIR ($(du -sh "$DATA_DIR" 2>/dev/null | awk '{print $1}' || true))"
+    say "  backup: $src"; compose run --rm --no-deps -T -v "$(dirname "$src"):/backup-src:ro" backup /scripts/restore.sh inspect "/backup-src/$(basename "$src")" 2>/dev/null || true
+    confirm_typed "replace $(project_name)"
+    [ -f "$DATA_DIR/backups/status.json" ] && cp "$DATA_DIR/backups/status.json" "$STATE_DIR/backup-status.before-replace.json" 2>/dev/null || true
+    compose --profile ops down -v --remove-orphans >/dev/null
+    rm -rf "$DATA_DIR/evidence" "$DATA_DIR/snapshots" "$DATA_DIR/restore"; mkdir -p "$DATA_DIR"/{evidence,snapshots,restore,state}; chmod 0700 "$DATA_DIR/restore"
+    rm -f "$SECRETS_DIR"/data.key "$SECRETS_DIR"/engine_token "$SECRETS_DIR"/pg_{migrate,api,worker,engine}_password
+  else
+    target="${into:-$(dirname "$ROOT")/blackbox-restore-$(date -u +%Y%m%dT%H%M%SZ)}"
+    [ -e "$target" ] && [ -n "$(ls -A "$target" 2>/dev/null)" ] && fail "restore target exists and is not empty: $target (use --replace only for a deliberate overwrite)"
+    say "restoring into fresh isolated installation: $target (port $rport)"
+    mkdir -p "$target"; cp -R "$ROOT/infra" "$target/"; cp "$SCRIPT" "$target/blackbox"; chmod 0755 "$target/blackbox"
+    [ -f "$RELEASE_JSON" ] && cp "$RELEASE_JSON" "$target/release.json"
+    mkdir -p "$target/migrations"; cp "$MIGRATIONS_DIR"/*.sql "$target/migrations/"
+    [ -d "$ROOT/images" ] && ln -s "$ROOT/images" "$target/images" 2>/dev/null || true
+    for f in INSTALL.en.md INSTALL.de.md; do [ -f "$ROOT/$f" ] && cp "$ROOT/$f" "$target/"; done
+    [ -f "$RELEASE_JSON" ] || { mkdir -p "$target/.local"; }
+    rproject="${rproject:-$(project_name 2>/dev/null || echo $DEFAULT_PROJECT)-restore-$(date -u +%Y%m%d%H%M%S)}"
+    # delegate the remaining phases to the wrapper inside the new directory
+    umask 077; local tmpkey; tmpkey="$(mktemp "$target/.recovery.XXXXXX")"; printf '%s\n' "$key" > "$tmpkey"; chmod 0600 "$tmpkey"
+    # the target wrapper must resolve its own installation directory, never the caller's
+    BLACKBOX_INSTALL_DIR="$target" BLACKBOX_RECOVERY_KEY_FILE="$tmpkey" BLACKBOX_RESTORE_T0="$t0" BLACKBOX_RESTORE_PROMPT="$t_prompt" \
+      "$target/blackbox" restore-internal "$src" --port "$rport" --project "$rproject"; local rc=$?
+    rm -f "$tmpkey"; exit $rc
+  fi
+  # --replace path continues here in the current installation
+  umask 077; local tmpkey; tmpkey="$(mktemp "$DATA_DIR/restore/.recovery.XXXXXX")"; printf '%s\n' "$key" > "$tmpkey"; chmod 0600 "$tmpkey"
+  BLACKBOX_RECOVERY_KEY_FILE="$tmpkey" BLACKBOX_RESTORE_T0="$t0" BLACKBOX_RESTORE_PROMPT="$t_prompt" restore_internal "$src" --replace; local rc=$?
+  rm -f "$tmpkey"; exit $rc
+}
+restore_internal() { # runs inside the target installation directory
+  local src="$1"; shift; local rport="$DEFAULT_PORT" rproject="$DEFAULT_PROJECT" replace=0
+  while [ $# -gt 0 ]; do case "$1" in --port) rport="$2"; shift 2;; --project) rproject="$2"; shift 2;; --replace) replace=1; shift;; *) shift;; esac; done
+  local t0="${BLACKBOX_RESTORE_T0:-$(date +%s)}" tp="${BLACKBOX_RESTORE_PROMPT:-0}" idfile="${BLACKBOX_RECOVERY_KEY_FILE:?}"
+  umask 077
+  if [ $replace = 0 ]; then
+    mkdir -p "$SECRETS_DIR" "$DATA_DIR"/{logs,evidence,snapshots,backups,state,restore} "$INSTALL/logs"; chmod 0700 "$SECRETS_DIR" "$DATA_DIR/restore"
+    secret_gen "$SECRETS_DIR/pg_superuser_password" pw
+    printf '{"install_id":"%s","created_at":"%s","restored_from":"%s"}\n' "$(openssl rand -hex 16)" "$(ts)" "$(basename "$src")" > "$STATE_DIR/install.json"
+    local pgi pgi_line=""; pgi="$( [ -f "$RELEASE_JSON" ] && json_get "$RELEASE_JSON" postgres_image || true )"; [ -n "$pgi" ] && pgi_line="BLACKBOX_POSTGRES_IMAGE=$pgi"
+    cat > "$ENV_FILE" <<EOF
+# Generated by ./blackbox restore on $(ts). Isolated restored installation.
+COMPOSE_PROJECT_NAME=$rproject
+BLACKBOX_VERSION=$(version_release)
+BLACKBOX_IMAGE_PREFIX=blackbox
+$pgi_line
+BLACKBOX_BIND=127.0.0.1
+BLACKBOX_PORT=$rport
+BLACKBOX_PGDATABASE=blackbox
+BLACKBOX_RELEASE_DIR=$(dirname "$RELEASE_JSON")
+BLACKBOX_DATA_DIR=$DATA_DIR
+BLACKBOX_SECRETS_DIR=$SECRETS_DIR
+BLACKBOX_MIGRATIONS_DIR=$MIGRATIONS_DIR
+BLACKBOX_BACKUP_DESTINATION=
+BLACKBOX_LOG_LEVEL=info
+BLACKBOX_TZ=UTC
+EOF
+    sed '/^$/d' "$ENV_FILE" > "$ENV_FILE.tmp" && mv -f "$ENV_FILE.tmp" "$ENV_FILE"; chmod 0600 "$ENV_FILE"
+    [ "$MODE" = "source" ] && { [ -f "$RELEASE_JSON" ] || { mkdir -p "$(dirname "$RELEASE_JSON")"; printf '{\n  "version": "dev",\n  "backup_format_version": 1,\n  "postgres_major": 16\n}\n' > "$RELEASE_JSON"; }; }
+  fi
+  phase restore start "$(basename "$src")"
+  local srcdir; srcdir="$(dirname "$src")"
+  local m1=$(date +%s)
+  phase restore inspect
+  compose run --rm --no-deps -T -v "$srcdir:/backup-src:ro" backup /scripts/restore.sh inspect "/backup-src/$(basename "$src")" || fail "backup validation failed"
+  phase restore unpack
+  local manifest; manifest="$(compose run --rm --no-deps -T -v "$srcdir:/backup-src:ro" -v "$idfile:/run/secrets/recovery_identity:ro" backup /scripts/restore.sh unpack "/backup-src/$(basename "$src")")" || fail "unpack/decrypt failed"
+  say "  manifest: $manifest"
+  # the restored key material is now in secrets/; keep host perms strict
+  chmod 0600 "$SECRETS_DIR"/* 2>/dev/null || true
+  fence_set "restore_pending_review"
+  phase restore postgres-start
+  compose up -d postgres >/dev/null; wait_for 120 "postgres" pg_ready || fail "PostgreSQL did not start"
+  bootstrap_roles restore
+  phase restore database
+  compose run --rm -T -v "$idfile:/run/secrets/recovery_identity:ro" backup /scripts/restore.sh database || fail "database restore failed"
+  run_migrations restore
+  # redaction policy: a restored older ledger must not revive restricted content; block raw evidence until reconciled
+  printf '{"blocked":true,"reason":"restore_policy_unreconciled","since":"%s","generation":"%s"}\n' "$(ts)" "$(basename "$src")" > "$STATE_DIR/evidence-access.json"
+  compose run --rm --no-deps -T backup /scripts/restore.sh finish >/dev/null 2>&1 || true
+  phase restore services-start
+  if [ -n "$SERVICES" ]; then up_services >/dev/null; else compose up -d engine api backup-scheduler >/dev/null; fi
+  if svc_enabled api; then wait_for 120 "api" api_health || warn "api not healthy yet"; fi
+  write_installed
+  local m2=$(date +%s)
+  phase restore fence-credentials
+  if api_has_cli; then
+    say ""; say "Restored credentials are stale by policy: rotating the owner key and revoking all sessions/agent keys. New owner key shown ONCE:"
+    api_cli reset-access || warn "reset-access failed; run ./blackbox reset-access before use"
+  else warn "TODO integration: api cli reset-access missing — restored owner/agent credentials are NOT yet rotated; run ./blackbox reset-access when available"; fi
+  phase restore verify
+  if api_has_cli; then api_cli -T verify && say "  representative answer verified" || warn "verify reported a failure"; else warn "representative answer check unavailable (api cli verify missing)"; fi
+  local m3=$(date +%s)
+  phase restore done
+  say ""; say "Restore complete into project $(project_name) at $(api_url)/"
+  say "  machine processing: $((m2-m1 + m3-m2))s (unpack/db/start $((m2-m1))s, fence/verify $((m3-m2))s); operator input: ${tp}s; full elapsed: $((m3-t0))s"
+  say "  provider workers stay PAUSED (fence: restore_pending_review). Check account bindings and the redaction policy, then: ./blackbox resume-sources"
+  say "  raw evidence access is blocked until the owner reconciles the restore's policy/cutoff in Settings."
+}
+
+# ----- upgrade ----------------------------------------------------------------------------------------------
+upgrade_state() { printf '{"phase":"%s","from":"%s","to":"%s","source":"%s","started_at":"%s","updated_at":"%s"}\n' "$1" "$2" "$3" "$4" "$5" "$(ts)" > "$STATE_DIR/upgrade.json.tmp" && mv -f "$STATE_DIR/upgrade.json.tmp" "$STATE_DIR/upgrade.json"; }
+upgrade() { # upgrade <new-archive.tar.gz|extracted-dir> [--use-backup <path>] [--resume]
+  require_env; require_docker; host_only
+  local src="" use_backup="" resume=0
+  while [ $# -gt 0 ]; do case "$1" in --use-backup) use_backup="$2"; shift 2;; --resume) resume=1; shift;; --continue) resume=1; shift;; -*) fail "unknown option $1";; *) src="$1"; shift;; esac; done
+  local from to phase_now started
+  if [ $resume = 1 ]; then
+    [ -f "$STATE_DIR/upgrade.json" ] || fail "no interrupted upgrade recorded" 1
+    phase_now="$(json_get "$STATE_DIR/upgrade.json" phase)"; from="$(json_get "$STATE_DIR/upgrade.json" from)"; to="$(json_get "$STATE_DIR/upgrade.json" to)"; src="$(json_get "$STATE_DIR/upgrade.json" source)"; started="$(json_get "$STATE_DIR/upgrade.json" started_at)"
+    say "resuming upgrade $from → $to from phase '$phase_now'"
+  else
+    [ -f "$STATE_DIR/upgrade.json" ] && fail "an upgrade is already recorded (phase $(json_get "$STATE_DIR/upgrade.json" phase)); use --resume" 1
+    [ -n "$src" ] || fail "usage: upgrade <new-release.tar.gz | extracted-release-dir> [--use-backup <generation.tar.age>]"
+    phase_now="preflight"; started="$(ts)"
+  fi
+  # stage the new release
+  local stage="$STATE_DIR/upgrade-stage"
+  if [ "$phase_now" = "preflight" ]; then
+    rm -rf "$stage"; mkdir -p "$stage"
+    if [ -d "$src" ]; then cp -R "$src"/. "$stage/"; elif [ -f "$src" ]; then tar -xzf "$src" -C "$stage" --strip-components=1; else fail "release source not found: $src"; fi
+    [ -f "$stage/release.json" ] || fail "staged release has no release.json"
+    from="$(version_installed)"; to="$(json_get "$stage/release.json" version)"
+    say "upgrade: installed $from → release $to"
+    [ "$from" != "$to" ] || fail "release $to is already installed" 1
+    local bf_new bf_old pg_new; bf_new="$(json_get "$stage/release.json" backup_format_version)"; bf_old="$(json_get "$RELEASE_JSON" backup_format_version 2>/dev/null || echo 1)"; pg_new="$(json_get "$stage/release.json" postgres_major)"
+    [ "${pg_new:-16}" = "16" ] || fail "release $to requires PostgreSQL major $pg_new; this installation runs 16 — a major upgrade needs the documented dump/restore route"
+    local jv; jv="$(json_get "$stage/release.json" journal_schema_version)"; [ -n "$jv" ] || fail "release.json lacks journal_schema_version"
+    # free space: need > 2x images size + 1 GiB
+    local need avail; need=$(( $(du -sk "$stage" | awk '{print $1}') * 2 + 1048576 )); avail="$(df -k "$INSTALL" | awk 'NR==2{print $4}')"
+    [ "$avail" -gt "$need" ] || fail "insufficient free space: need ~$((need/1024)) MiB, have $((avail/1024)) MiB"
+    upgrade_state lease "$from" "$to" "$src" "$started"; phase upgrade preflight "$from->$to"
+    phase_now="lease"
+  fi
+  if [ "$phase_now" = "lease" ]; then
+    mkdir "$STATE_DIR/maintenance.lock" 2>/dev/null || fail "maintenance lease held ($STATE_DIR/maintenance.lock); another operation is running" 1
+    printf '{"owner":"upgrade","pid":%d,"since":"%s"}\n' $$ "$(ts)" > "$STATE_DIR/maintenance.lock/lease.json"
+    # DB advisory lease through the api CLI when available (TODO integration: `cli maintenance-lease acquire`)
+    api_has_cli && api_cli -T maintenance-lease acquire --reason upgrade >/dev/null 2>&1 || true
+    upgrade_state backup "$from" "$to" "$src" "$started"; phase upgrade lease; phase_now="backup"
+  fi
+  if [ "$phase_now" = "backup" ]; then
+    if [ -n "$use_backup" ]; then
+      [ -f "$use_backup" ] || fail "--use-backup file not found"
+      compose run --rm --no-deps -T -v "$(cd "$(dirname "$use_backup")" && pwd -P):/backup-src:ro" backup /scripts/restore.sh inspect "/backup-src/$(basename "$use_backup")" || fail "selected backup generation is not valid"
+      say "  using separately verified generation: $use_backup"
+    else
+      backup --kind pre-upgrade || { rm -rf "$STATE_DIR/maintenance.lock"; rm -f "$STATE_DIR/upgrade.json"; fail "pre-upgrade backup failed: upgrade blocked. Fix backups or select a verified generation with --use-backup <path>." 1; }
+    fi
+    upgrade_state pause "$from" "$to" "$src" "$started"; phase_now="pause"
+  fi
+  if [ "$phase_now" = "pause" ]; then
+    fence_set "upgrade_$to"; compose stop worker api >/dev/null 2>&1 || true
+    upgrade_state stage-files "$from" "$to" "$src" "$started"; phase upgrade writers-paused; phase_now="stage-files"
+  fi
+  if [ "$phase_now" = "stage-files" ]; then
+    local prev="$STATE_DIR/previous-release/$from"; mkdir -p "$prev"
+    for f in blackbox release.json INSTALL.en.md INSTALL.de.md; do [ -f "$ROOT/$f" ] && cp "$ROOT/$f" "$prev/"; done
+    [ -d "$ROOT/infra" ] && { rm -rf "$prev/infra"; cp -R "$ROOT/infra" "$prev/"; }
+    [ -d "$ROOT/migrations" ] && { rm -rf "$prev/migrations"; cp -R "$ROOT/migrations" "$prev/"; }
+    if [ "$MODE" = "release" ]; then
+      cp -R "$stage/infra" "$ROOT/"; cp "$stage/release.json" "$ROOT/release.json"; [ -d "$stage/migrations" ] && { mkdir -p "$ROOT/migrations"; cp "$stage"/migrations/*.sql "$ROOT/migrations/"; }
+      [ -d "$stage/images" ] && { rm -rf "$ROOT/images"; cp -R "$stage/images" "$ROOT/"; }
+      for f in INSTALL.en.md INSTALL.de.md; do [ -f "$stage/$f" ] && cp "$stage/$f" "$ROOT/"; done
+      [ -d "$stage/examples" ] && { rm -rf "$ROOT/examples"; cp -R "$stage/examples" "$ROOT/"; }
+      cp "$stage/blackbox" "$ROOT/blackbox.new" && chmod 0755 "$ROOT/blackbox.new" && mv -f "$ROOT/blackbox.new" "$ROOT/blackbox"
+    else
+      cp "$stage/release.json" "$RELEASE_JSON"
+    fi
+    env_set BLACKBOX_VERSION "$to"
+    local pgi; pgi="$(json_get "$stage/release.json" postgres_image)"; [ -n "$pgi" ] && env_set BLACKBOX_POSTGRES_IMAGE "$pgi"
+    # record the NEXT phase before handing over, so the new wrapper never re-stages (and never loops)
+    upgrade_state images "$from" "$to" "$src" "$started"; phase upgrade files-staged
+    exec "$ROOT/$( [ "$MODE" = release ] && echo blackbox || echo scripts/blackbox )" upgrade --continue
+  fi
+  if [ "$phase_now" = "images" ]; then
+    load_images upgrade; upgrade_state migrate "$from" "$to" "$src" "$started"; phase_now="migrate"
+  fi
+  if [ "$phase_now" = "migrate" ]; then
+    compose up -d postgres >/dev/null; wait_for 120 "postgres" pg_ready || fail "PostgreSQL did not start"
+    bootstrap_roles upgrade; run_migrations upgrade
+    upgrade_state start "$from" "$to" "$src" "$started"; phase_now="start"
+  fi
+  if [ "$phase_now" = "start" ]; then
+    up_services --remove-orphans >/dev/null; if svc_enabled api; then wait_for 120 "api" api_health || fail "api did not become healthy after upgrade; fence kept. Inspect ./blackbox logs --component api, then ./blackbox upgrade --resume or restore the pre-upgrade generation." 1; fi
+    upgrade_state verify "$from" "$to" "$src" "$started"; phase_now="verify"
+  fi
+  if [ "$phase_now" = "verify" ]; then
+    local vrc=0; verify || vrc=$?
+    [ $vrc -le 1 ] || fail "post-upgrade verification failed; fence kept (writers paused). Do not use the installation until resolved; restore the pre-upgrade generation if needed." 1
+    write_installed; upgrade_state release "$from" "$to" "$src" "$started"; phase_now="release"
+  fi
+  if [ "$phase_now" = "release" ]; then
+    api_has_cli && api_cli -T maintenance-lease release >/dev/null 2>&1 || true
+    fence_clear; compose up -d worker >/dev/null 2>&1 || true
+    rm -rf "$STATE_DIR/maintenance.lock" "$STATE_DIR/upgrade-stage"; rm -f "$STATE_DIR/upgrade.json"
+    phase upgrade done "$from->$to"
+    say "upgrade complete: $from → $to. Previous release files kept in $STATE_DIR/previous-release/$from; previous image tags remain in Docker."
+    say "Rollback policy: see docs/operations.md — reverting images never reverts a database migration; use the pre-upgrade backup generation for an isolated restore."
+  fi
+}
+
+# ----- help ----------------------------------------------------------------------------------------------------
+help() { cat <<'EOF'
+blackbox — local commerce flight recorder (loopback-only local pilot)
+
+  doctor [--json]            check prerequisites, ports, secrets, images, services (exit 0 ok / 1 degraded / 2 failure; never installs)
+  setup [--port N]           create secrets/.env, load bundled images, start PostgreSQL, migrate, start services, show the owner key once
+  up | down | status         start / stop (volumes kept) / show state;  destroy --i-understand  deletes volumes after typed confirmation
+  logs [filters]             --follow --level warn|error --since 1h --component api|worker|engine|postgres --connection <id> --run <id> --format json
+  demo                       load the labeled GOLDEN demo scenario (never over user data)
+  verify                     health, migrations current, golden answer check
+  backup-config <dir>        enroll a backup destination and create/show the recovery key once
+  backup                     create one encrypted generation now (fences writers; retention 7 daily + 4 weekly)
+  restore <file.tar.age>     host-only restore into a fresh isolated install (default) or --replace with typed confirmation
+  resume-sources             release the fence after a restore/upgrade review
+  upgrade <release> [--use-backup <gen>] [--resume]   fenced, resumable upgrade with preflight + pre-upgrade backup
+  diagnostics export --since 1h --output <file>       sanitized local export (no upload)
+  reset-access | rotate-key | create-agent-key        host-only owner access operations (api CLI with terminal attached)
+  help
+
+Environment: BLACKBOX_INSTALL_DIR (default: release dir, or <repo>/.local for a checkout), BLACKBOX_BIND (127.0.0.1 only),
+BLACKBOX_RECOVERY_KEY_FILE (restore), BLACKBOX_MIGRATOR=auto|cli|sql. Guides: INSTALL.en.md / INSTALL.de.md, docs/operations.md.
+EOF
+}
+
+cmd="${1:-help}"; shift || true
+case "$cmd" in
+  doctor) doctor "$@";;
+  setup) setup "$@";;
+  up) up "$@";; down|stop) down "$@";; status) status;; destroy) destroy "$@";;
+  logs) logs "$@";; diagnostics) diagnostics "$@";;
+  demo) demo "$@";; verify) verify;;
+  backup-config) backup_config "$@";; backup) backup "$@";; restore) restore "$@";; restore-internal) restore_internal "$@";; resume-sources) resume_sources;;
+  upgrade) upgrade "$@";;
+  reset-access) reset_access "$@";; rotate-key) rotate_key "$@";; create-agent-key) create_agent_key "$@";;
+  help|--help|-h) help;;
+  version|--version) say "blackbox wrapper $BLACKBOX_WRAPPER_VERSION, release $(version_release), mode $MODE";;
+  *) warn "unknown command: $cmd"; help; exit 2;;
+esac

@@ -1,0 +1,156 @@
+{
+  "row_id": "shopify.refunds",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "Order",
+    "LineItem",
+    "Refund",
+    "OrderTransaction",
+    "RefundLineItem"
+  ],
+  "grants": [
+    "read_orders",
+    "read_all_orders (only for orders older than 60 days)"
+  ],
+  "identity_rule": "Account scope = Shop.id (immutable gid, compared on every credential check; a different shop requires a new connection). Record identity = provider gid; provider_event_id = \"<shop numeric id>|<object>:<numeric id>|<state or updatedAt>\"; entity_refs carry order/customer/transaction/shipment/return/receipt gids.",
+  "coverage_rule": "Coverage = plan window [requested_from, initial_cutoff) plus the open phase, then continuous from the incremental floor; coverage_to advances only after a complete successful poll. The 60-day default access limit and unreadable nested pages are reported as restrictions, never silently shortened.",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "refund_id": {
+      "status": "source",
+      "normalization": "Refund gid when the transaction belongs to a Refund object (refunds[].transactions), otherwise the refund transaction gid.",
+      "missing_behavior": "Falls back to the transaction gid (disclosed).",
+      "source_path": "Order.refunds[].id (via refunds[].transactions.nodes[].id join)"
+    },
+    "original_transaction_id": {
+      "status": "source",
+      "normalization": "parentTransaction gid of the refund transaction.",
+      "missing_behavior": "null when absent; never matched by amount.",
+      "source_path": "Order.transactions[].parentTransaction.id"
+    },
+    "order_id": {
+      "status": "source",
+      "normalization": "Parent order gid.",
+      "missing_behavior": "Required.",
+      "source_path": "Order.id"
+    },
+    "amount_minor": {
+      "status": "source",
+      "normalization": "amountSet.shopMoney minor units; refund.pending carries held_minor, refund.completed hold_released_minor.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "Order.transactions[kind=REFUND].amountSet.shopMoney.amount"
+    },
+    "currency": {
+      "status": "source",
+      "normalization": "ISO code.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "Order.transactions[kind=REFUND].amountSet.shopMoney.currencyCode"
+    },
+    "status": {
+      "status": "source",
+      "normalization": "success -> completed, pending -> pending, failure/error -> failed.",
+      "missing_behavior": "Other statuses are recorded as unsupported.",
+      "source_path": "Order.transactions[kind=REFUND].status"
+    },
+    "destination": {
+      "status": "derived",
+      "normalization": "\"gift_card\" when gateway == gift_card, otherwise \"original_payment_method\"; store-credit destinations are not distinguished by the pinned fields.",
+      "missing_behavior": "Defaults to original_payment_method with the gateway disclosed.",
+      "rule": "connectors.normalize.shopify.v1: destination from transaction.gateway"
+    },
+    "economic_effect_id": {
+      "status": "derived",
+      "normalization": "\"shopify:transaction:<numeric id>\" shared with the Shopify Payments ledger REFUND posting (sourceOrderTransactionId).",
+      "missing_behavior": "Always present.",
+      "rule": "connectors.normalize.shopify.v1: economic_effect_id = shopify:transaction:<numericId(refund transaction id)>"
+    }
+  },
+  "event_rules": [
+    {
+      "event": "refund.pending",
+      "tracks": [
+        "source",
+        "reservation"
+      ],
+      "rule": "REFUND + PENDING: funds held (held_minor); no cash movement yet."
+    },
+    {
+      "event": "refund.completed",
+      "tracks": [
+        "source",
+        "movement",
+        "reservation"
+      ],
+      "rule": "REFUND + SUCCESS: cash out (amount_minor) and hold released; deduplicated with the ledger refund by economic_effect_id."
+    },
+    {
+      "event": "refund.failed",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "REFUND + FAILURE/ERROR: fact only."
+    },
+    {
+      "event": "refund.reversed",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "Shopify exposes no refund reversal object on OrderTransaction; a reversal would appear as a new transaction and is not inferred."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "Backfill phase \"window\": orders with created_at in [requested_from, initial_cutoff) read with BlackboxOrders (sortKey UPDATED_AT, first=10, nested lineItems first=25 with follow-up BlackboxOrderLineItems pages). Phase \"open\" (when the plan includes open items): orders created before requested_from that are still open/unpaid/unshipped (status:open OR financial_status pending/authorized/partially_paid OR fulfillment_status unshipped/partial). ordersCount(precision EXACT) provides the exact window total; otherwise totals stay unknown. Refund transactions are read through their parent order on every page.",
+    "cursor": "Incremental: query updated_at:>=floor where floor = max(previous floor, min(newest updatedAt seen, now) - 900 s overlap); seeded at initial_cutoff - 900 s when the plan is created (initial_cutoff exactly for strict from-now). Page cursor = Relay endCursor within one phase. Transactions, fulfillments, refunds and returns are versioned by their parent order updatedAt.",
+    "reconciliation": "Every 6 h (and once after sleep/wake with a window bounded to 48 h) re-read updated_at within [to - window, to]; observations are deduplicated by provider_event_id, late revisions append order.revised, nothing is rewritten.",
+    "deduplication": "provider_event_id = \"<shop numeric id>|<object>:<numeric id>|<state or revision>\" is unique per (tenant, connection); identical content is a duplicate delivery (attempts++), different content under the same identity appends source.conflict_observed and opens a review case. Shop-side refunds and Shopify Payments ledger refunds share economic_effect_id = shopify:transaction:<id>.",
+    "freshness": "Default poll every 300 s (adjustable 60 s to 3600 s, jitter up to 30 s); last_successful_check_at advances only after a complete successful poll, last_new_event_at only when entries were committed; a credential check never advances either. Observed freshness is reported from these timestamps, never promised. Refund line restock flags are not receipts; receipts come from reverse fulfillment order dispositions.",
+    "modes": {
+      "local_standalone": {
+        "status": "partial",
+        "methods": [
+          "polling"
+        ],
+        "schedule": "Incremental poll every 300 s (bounds 60-3600 s, jitter 30 s); reconciliation every 6 h over a 48 h window; backfill paged with checkpoints.",
+        "history_limit": "Default order access is the last 60 days; older orders require the read_all_orders approval. Only the current version of an order is observable; edits before the first poll are not reconstructed.",
+        "authentication": "Admin API access token for a merchant-installed custom app (X-Shopify-Access-Token), or the Dev Dashboard client-credentials grant (POST /admin/oauth/access_token, 24h token, refreshed one minute before expiry, no redirect URL). The token is stored encrypted on the connection (AES-256-GCM, key outside the database) and never logged.",
+        "recovery": "Provider cursor and phase are persisted per page in import_runs.checkpoint / capability_health.*_cursor after COMMIT; a failed page never advances the checkpoint. Expired cursors restart the current phase from its floor (idempotent through the deliveries dedupe boundary). 401/403 stop polling with status reauthorization_required/degraded; 429 waits for Retry-After (fallback 1 s); 5xx retry with exponential backoff (max 5 attempts) then the run is re-queued with backoff; non-retryable failures become visible dead letters. After sleep/wake one coalesced poll per poll group plus one bounded overlap reconciliation (gap + overlap, capped at the reconcile window) is scheduled; no burst replay.",
+        "limitations": "No webhooks: changes are seen at the next poll. Nested connections beyond the selected page sizes are flagged truncated_connections (lineItems are completed by follow-up pages). Refund line restock flags are not receipts; receipts come from reverse fulfillment order dispositions.",
+        "reason": "Outbound polling works for the declared field subset; the listed missing fields/unsupported events keep the capability partial."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "Order.createdAt selects the import window (business occurrence); Order.updatedAt selects incremental/reconciliation reads (last modification). Observation time is the poll time; recorded_at is the actual journal commit time and is never backdated.",
+    "historical_availability": "Default order access covers the last 60 days; older orders need the read_all_orders approval, which is recorded as a restriction on the plan and shown as an accessible-period limit. The current order version is observable, not its intermediate edits: history_kind event_history for new activity, snapshot for the state at first read.",
+    "open_and_related_records": "With include_open_items the \"open\" backfill phase retrieves orders created before the window that are still open/unpaid/unshipped; their transactions, fulfillments, refunds and returns come with the order. Traversal is bounded to the order and its nested objects; no unrelated customer history is crawled.",
+    "opening_state": "No opening balance applies to orders; the first read of an older open order is a snapshot of its current state labeled observation_mode=backfill, never a new sale.",
+    "progress_accounting": "requested = exact ordersCount of the window (precision EXACT) plus open phase; loaded = orders fetched; committed = distinct logical records with a new journal entry; duplicates/conflicts/rejected are separate; totals_known is true only for backfills with exact counts. Percentages are only shown for the backfill fetch stage.",
+    "readiness_rules": "Order questions are ready when the connection has a completed backfill for the declared window and the incremental cursor is current within the schedule; partial when the open phase or line-item follow-ups are incomplete (truncated_connections) or the 60-day limit cuts the requested window; blocked without read_orders.",
+    "health_rules": "healthy after a complete successful poll within interval + jitter; degraded after a failed/partial poll, missing grant or conflicts; unavailable on provider 5xx/429 beyond retries; paused on storage critical. next_check_at is null with a reason (no_import_plan, missing_grant, storage_critical).",
+    "history_expansion": "A new plan revision creates a history_expansion/backfill run over the additional interval; overlaps are deduplicated by provider_event_id; recorded_at of new entries is the actual import time; prior coverage is preserved.",
+    "data_handling": "Only opaque gids, amounts, quantities, statuses and timestamps enter payloads; customer is referenced by gid only; evidence stores the sanitized provider object without names, emails or addresses."
+  }
+}

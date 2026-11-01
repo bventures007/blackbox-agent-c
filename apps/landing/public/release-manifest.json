@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "pending",
+  "version": "0.1.0-preview",
+  "date": null,
+  "tested_commit": null,
+  "artifact_filename": "blackbox-0.1.0-preview-mac-arm64.tar.gz",
+  "platform": "macOS Apple Silicon (arm64)",
+  "format": "tar.gz",
+  "byte_size": null,
+  "sha256": null,
+  "download_url": null,
+  "guide_url": "#install",
+  "app_url": "http://127.0.0.1:19180/",
+  "prerequisites": {
+    "container_runtime": "Docker Desktop 4.3x or newer with Compose v2",
+    "min_os": "macOS 14 (Sonoma) on Apple Silicon"
+  },
+  "release_notes": "No installable archive has been built for this version yet. The landing page shows the truthful pending state until the P4 release workflow publishes a tested artifact."
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@blackbox/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared visual language: the original prototype stylesheet plus production extensions",
+  "exports": {
+    "./styles/prototype.css": "./styles/prototype.css",
+    "./styles/extensions.css": "./styles/extensions.css"
+  }
+}

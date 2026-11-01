@@ -2,7 +2,12 @@
 
 ## Progress log (newest first)
 
-### 2026-11-01 — P0 done, P1 in progress
+### 2026-11-01 — P1 components built, integration running
+Done (uncommitted-tree test runs by the builders, to be re-verified in the integrated stack): backend core (packages/database/application/auth/logging/mcp, apps/api; 121 unit + 49 PostgreSQL integration tests), Rust engine (crates + apps/engine; golden checkpoints, adversarial variants, 24 intents, snapshot/rebuild, admission; release-binary load sample p95 125 ms engine-only), worker/connectors/fixture (32 tests through PostgreSQL; 14 Shopify/Shopify Payments mapping artifacts valid), web UI + landing + i18n (1,448 EN/DE keys; 68 Playwright tests against the mock API only), ops (wrapper, Compose, Dockerfiles, backup/restore/upgrade round trips passed with the ops-only stack, release builder/manifest checker).
+Open: full-stack integration in Compose project blackbox-agent-c, SLICE-01 proof, real-API Playwright run, release archive with bundled images, acceptance evidence for every active case.
+Next: integrator finishes wiring, SLICE-01 evidence under reports/evidence/SLICE-01, then P1 commit with recorded results.
+
+### 2026-11-01 — P0 done
 Done: build environment recorded (docs/build-environment.md), six ADRs (docs/decisions), binding shared contracts (packages/contracts), base journal migration with append-only triggers/RLS/roles (packages/database/migrations/0000, 0001), HTTP API contract (docs/api-contract.md), acceptance evidence recorder (scripts/acceptance/record.py). Shopify authorization feasibility: merchant-owned custom app Admin API token (read-only scopes) over GraphQL Admin API; no store/credentials are available in this environment, so SLICE-02 and all live provider rows are blocked_external.
 Open: api/worker/engine/web/landing/wrapper implementation running in parallel; SLICE-01 proof; nothing runs end-to-end yet.
 Next: integrate components in Compose project blackbox-agent-c (127.0.0.1:19180), run SLICE-01, commit P1.

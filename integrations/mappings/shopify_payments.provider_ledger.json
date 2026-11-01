@@ -1,0 +1,155 @@
+{
+  "row_id": "shopify_payments.provider_ledger",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "ShopifyPaymentsAccount",
+    "ShopifyPaymentsBalanceTransaction"
+  ],
+  "grants": [
+    "read_shopify_payments_payouts (view_payouts)"
+  ],
+  "identity_rule": "Account scope = ShopifyPaymentsAccount.id (compared on every check). provider_event_id = \"<shop>|bt:<numeric id>|posted\" plus \"|fee\" for the fee breakdown; economic_effect_id = shopify:transaction:<sourceOrderTransactionId> when present, otherwise shopify_payments:balance_transaction:<id>.",
+  "coverage_rule": "Ledger entries with transactionDate in the plan window / since the floor; unsettled residuals (no payout) stay visible; sign/type mapping is versioned (connectors.normalize.shopify_payments.v1).",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "ledger_entry_id": {
+      "status": "source",
+      "normalization": "ShopifyPaymentsBalanceTransaction gid.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "shopifyPaymentsAccount.balanceTransactions.nodes[].id"
+    },
+    "account_id": {
+      "status": "source",
+      "normalization": "ShopifyPaymentsAccount gid.",
+      "missing_behavior": "Blocked when the account is not active.",
+      "source_path": "shopifyPaymentsAccount.id"
+    },
+    "source_transaction_id": {
+      "status": "source",
+      "normalization": "sourceOrderTransactionId rendered as gid://shopify/OrderTransaction/<id>.",
+      "missing_behavior": "null for adjustments/transfers (no forced link).",
+      "source_path": "balanceTransactions.nodes[].sourceOrderTransactionId"
+    },
+    "order_link": {
+      "status": "source",
+      "normalization": "associatedOrder.id.",
+      "missing_behavior": "null when absent; never guessed from equal amounts.",
+      "source_path": "balanceTransactions.nodes[].associatedOrder.id"
+    },
+    "payout_id": {
+      "status": "source",
+      "normalization": "associatedPayout.id with its status.",
+      "missing_behavior": "null while unsettled (residual stays visible).",
+      "source_path": "balanceTransactions.nodes[].associatedPayout.id"
+    },
+    "posting_type": {
+      "status": "source",
+      "normalization": "Lowercased type (charge, refund, dispute, dispute_reversal, adjustment, transfer, ...).",
+      "missing_behavior": "Rejected when absent; unknown types are still recorded as ledger postings with their type string.",
+      "source_path": "balanceTransactions.nodes[].type"
+    },
+    "gross_minor": {
+      "status": "source",
+      "normalization": "amount in minor units (sign as published).",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "balanceTransactions.nodes[].amount"
+    },
+    "fee_minor": {
+      "status": "source",
+      "normalization": "fee in minor units.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "balanceTransactions.nodes[].fee"
+    },
+    "net_minor": {
+      "status": "source",
+      "normalization": "net in minor units (= gross - fee as published).",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "balanceTransactions.nodes[].net"
+    },
+    "currency": {
+      "status": "source",
+      "normalization": "net.currencyCode.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "balanceTransactions.nodes[].net.currencyCode"
+    },
+    "effective_time": {
+      "status": "source",
+      "normalization": "transactionDate.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "balanceTransactions.nodes[].transactionDate"
+    }
+  },
+  "event_rules": [
+    {
+      "event": "provider.ledger_posted",
+      "tracks": [
+        "source",
+        "movement"
+      ],
+      "rule": "Every balance transaction: movement on the provider balance with gross/fee/net; test flag explicit."
+    },
+    {
+      "event": "payment.fee_booked",
+      "tracks": [
+        "source",
+        "movement"
+      ],
+      "rule": "For type CHARGE with fee != 0: the fee breakdown of the same ledger entry (included_in_ledger_entry = true, economic_effect_id = <ledger effect>:fee); reducers must not add it to the net movement again."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "Backfill reads shopifyPaymentsAccount.balanceTransactions with the query filter processed_at:>=requested_from AND processed_at:<=initial_cutoff, first=50, Relay cursor pagination; the provider gives no exact count, so totals stay unknown (counts/phase shown instead of a percentage).",
+    "cursor": "Incremental: processed_at:>=floor where floor = max(previous floor, min(newest processed_at seen, now) - 3600 s); page cursor = Relay endCursor. Whether the balanceTransactions connection accepts a processed_at query filter was not verifiable offline (the fixture implements it); if the live API rejects it the adapter falls back to full pagination with client-side filtering, recorded as a limitation at SOURCE-01 time.",
+    "reconciliation": "Every 24 h (and once after sleep/wake, bounded to 7 days) re-read the window; deduplicated by provider_event_id.",
+    "deduplication": "provider_event_id = \"<shop numeric id>|<object>:<numeric id>|<state>\"; identical content duplicates, differing content conflicts (review case). Economic identity: sourceOrderTransactionId links a ledger entry to the shop transaction; adjustments without a source keep their own identity.",
+    "freshness": "Default poll every 1800 s (300 s to 24 h, jitter 120 s); successful-check and new-event timestamps are separate; payout status is a provider assertion until bank evidence (bank_csv) confirms it.",
+    "modes": {
+      "local_standalone": {
+        "status": "partial",
+        "methods": [
+          "polling"
+        ],
+        "schedule": "Poll every 1800 s (bounds 300 s-24 h, jitter 120 s); reconciliation every 24 h over 7 days.",
+        "history_limit": "Account history as exposed by the pinned API; the exact retention of balance transactions on the account is not verifiable offline and is recorded from the live account at SLICE-02/SOURCE-01 time.",
+        "authentication": "Admin API access token for a merchant-installed custom app (X-Shopify-Access-Token), or the Dev Dashboard client-credentials grant (POST /admin/oauth/access_token, 24h token, refreshed one minute before expiry, no redirect URL). The token is stored encrypted on the connection (AES-256-GCM, key outside the database) and never logged. Additionally requires an active Shopify Payments account (shopifyPaymentsAccount.activated) and the read_shopify_payments_payouts scope (view_payouts permission); disputes need read_shopify_payments_disputes.",
+        "recovery": "Provider cursor and phase are persisted per page in import_runs.checkpoint / capability_health.*_cursor after COMMIT; a failed page never advances the checkpoint. Expired cursors restart the current phase from its floor (idempotent through the deliveries dedupe boundary). 401/403 stop polling with status reauthorization_required/degraded; 429 waits for Retry-After (fallback 1 s); 5xx retry with exponential backoff (max 5 attempts) then the run is re-queued with backoff; non-retryable failures become visible dead letters. After sleep/wake one coalesced poll per poll group plus one bounded overlap reconciliation (gap + overlap, capped at the reconcile window) is scheduled; no burst replay.",
+        "limitations": "Whether the balanceTransactions connection accepts a processed_at query filter was not verifiable offline (the fixture implements it); if the live API rejects it the adapter falls back to full pagination with client-side filtering, recorded as a limitation at SOURCE-01 time.",
+        "reason": "Outbound polling of the Shopify Payments account works for the declared subset; missing fields keep the capability partial."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "transactionDate (processed_at) selects records; payout membership is an attribute, not a time filter.",
+    "historical_availability": "Balance transactions and payouts as far back as the account exposes them; the exact depth is not verifiable offline and is recorded from the authorized account (blocked_external until then).",
+    "open_and_related_records": "Entries linked to orders outside the plan window are kept (their order link is an optional attribute); no order traversal from the ledger.",
+    "opening_state": "Account balance snapshots (positions) are the opening state as of the poll time; they are never summed with ledger movements.",
+    "progress_accounting": "loaded = balance transactions fetched; committed = distinct ledger entries with new journal entries; totals unknown.",
+    "readiness_rules": "Provider ledger questions are ready after a complete backfill and a current poll; partial when sourceOrderTransactionId links are absent for charges in scope.",
+    "health_rules": "healthy after a complete poll within 1800 s + jitter; degraded on missing read_shopify_payments_payouts or inactive account.",
+    "history_expansion": "Wider processed_at window; duplicates deduplicated by id.",
+    "data_handling": "Only gids, amounts, types, statuses and timestamps; no bank account numbers (bankAccounts is not queried)."
+  }
+}

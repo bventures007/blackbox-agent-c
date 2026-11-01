@@ -1,0 +1,167 @@
+{
+  "row_id": "shopify_payments.disputes",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "ShopifyPaymentsAccount",
+    "ShopifyPaymentsDispute",
+    "ShopifyPaymentsBalanceTransaction"
+  ],
+  "grants": [
+    "read_shopify_payments_disputes",
+    "read_shopify_payments_payouts (view_payouts) for the booked debit/reversal postings"
+  ],
+  "identity_rule": "provider_event_id = \"<shop>|dispute:<numeric id>|<status>\" for case lifecycle and \"<shop>|bt:<numeric id>|dispute|dispute_reversal\" for booked postings; record ids dispute:<gid> and dispute-posting:<ledger gid>.",
+  "coverage_rule": "Disputes with initiatedAt in the window / since the floor plus ledger postings of type DISPUTE/DISPUTE_REVERSAL from the ledger poll; original transaction linkage is only through the ledger posting (sourceOrderTransactionId), the dispute object links an order only.",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "dispute_id": {
+      "status": "source",
+      "normalization": "ShopifyPaymentsDispute gid (postings carry it from sourceId when present).",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "shopifyPaymentsAccount.disputes.nodes[].id"
+    },
+    "original_transaction_id": {
+      "status": "missing",
+      "normalization": "Would be the disputed OrderTransaction.",
+      "missing_behavior": "With multiple captures on an order the link is ambiguous and stays null on the dispute record; the booked posting carries sourceOrderTransactionId when published.",
+      "reason": "ShopifyPaymentsDispute exposes order, not the original transaction (CONNECTOR-CAPABILITIES finding 3); only the ledger posting may carry sourceOrderTransactionId."
+    },
+    "order_id": {
+      "status": "source",
+      "normalization": "order.id.",
+      "missing_behavior": "null when absent.",
+      "source_path": "disputes.nodes[].order.id"
+    },
+    "amount_minor": {
+      "status": "source",
+      "normalization": "amount in minor units.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "disputes.nodes[].amount"
+    },
+    "currency": {
+      "status": "source",
+      "normalization": "amount.currencyCode.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "disputes.nodes[].amount.currencyCode"
+    },
+    "state": {
+      "status": "source",
+      "normalization": "Lowercased status: needs_response, under_review, won, lost, accepted, charge_refunded.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "disputes.nodes[].status"
+    },
+    "debit_posting_id": {
+      "status": "source",
+      "normalization": "Balance transaction gid of type DISPUTE (on chargeback.debit_posted).",
+      "missing_behavior": "null on the dispute record until the ledger posting is observed.",
+      "source_path": "balanceTransactions.nodes[type=DISPUTE].id"
+    },
+    "debit_minor": {
+      "status": "source",
+      "normalization": "abs(net) of the DISPUTE posting.",
+      "missing_behavior": "null until observed.",
+      "source_path": "balanceTransactions.nodes[type=DISPUTE].net"
+    },
+    "reversal_minor": {
+      "status": "source",
+      "normalization": "abs(net) of the DISPUTE_REVERSAL posting.",
+      "missing_behavior": "null until observed.",
+      "source_path": "balanceTransactions.nodes[type=DISPUTE_REVERSAL].net"
+    },
+    "evidence_id": {
+      "status": "derived",
+      "normalization": "journal_evidence id of the raw dispute/posting payload.",
+      "missing_behavior": "Always present.",
+      "rule": "connectors.ingest.v1: evidence_refs[0]"
+    }
+  },
+  "event_rules": [
+    {
+      "event": "dispute.opened",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "Status NEEDS_RESPONSE or UNDER_REVIEW: risk flag at initiatedAt; no money effect."
+    },
+    {
+      "event": "dispute.resolved",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "Status WON/LOST/ACCEPTED/CHARGE_REFUNDED at finalizedOn (fallback initiatedAt, disclosed)."
+    },
+    {
+      "event": "chargeback.debit_posted",
+      "tracks": [
+        "source",
+        "movement"
+      ],
+      "rule": "Ledger posting type DISPUTE: booked debit (debit_minor) on the provider balance. The exact ShopifyPaymentsTransactionType enum values are a live proof item (not verifiable offline)."
+    },
+    {
+      "event": "chargeback.reversed",
+      "tracks": [
+        "source",
+        "movement"
+      ],
+      "rule": "Ledger posting type DISPUTE_REVERSAL: booked reversal (reversal_minor)."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "Backfill reads shopifyPaymentsAccount.disputes with the query filter initiated_at:>=requested_from AND initiated_at:<=initial_cutoff, first=50, Relay cursor pagination; the provider gives no exact count, so totals stay unknown (counts/phase shown instead of a percentage).",
+    "cursor": "Incremental: initiated_at:>=floor where floor = max(previous floor, min(newest initiated_at seen, now) - 3600 s); page cursor = Relay endCursor. Dispute-to-transaction linkage is ambiguous with multiple captures; booked postings depend on the ledger poll and the (offline-unverified) enum values DISPUTE/DISPUTE_REVERSAL.",
+    "reconciliation": "Every 24 h (and once after sleep/wake, bounded to 7 days) re-read the window; deduplicated by provider_event_id.",
+    "deduplication": "provider_event_id = \"<shop numeric id>|<object>:<numeric id>|<state>\"; identical content duplicates, differing content conflicts (review case). Economic identity: sourceOrderTransactionId links a ledger entry to the shop transaction; adjustments without a source keep their own identity.",
+    "freshness": "Default poll every 1800 s (300 s to 24 h, jitter 120 s); successful-check and new-event timestamps are separate; payout status is a provider assertion until bank evidence (bank_csv) confirms it.",
+    "modes": {
+      "local_standalone": {
+        "status": "partial",
+        "methods": [
+          "polling"
+        ],
+        "schedule": "Poll every 1800 s (bounds 300 s-24 h, jitter 120 s); reconciliation every 24 h over 7 days.",
+        "history_limit": "Account history as exposed by the pinned API; the exact retention of balance transactions on the account is not verifiable offline and is recorded from the live account at SLICE-02/SOURCE-01 time.",
+        "authentication": "Admin API access token for a merchant-installed custom app (X-Shopify-Access-Token), or the Dev Dashboard client-credentials grant (POST /admin/oauth/access_token, 24h token, refreshed one minute before expiry, no redirect URL). The token is stored encrypted on the connection (AES-256-GCM, key outside the database) and never logged. Additionally requires an active Shopify Payments account (shopifyPaymentsAccount.activated) and the read_shopify_payments_payouts scope (view_payouts permission); disputes need read_shopify_payments_disputes.",
+        "recovery": "Provider cursor and phase are persisted per page in import_runs.checkpoint / capability_health.*_cursor after COMMIT; a failed page never advances the checkpoint. Expired cursors restart the current phase from its floor (idempotent through the deliveries dedupe boundary). 401/403 stop polling with status reauthorization_required/degraded; 429 waits for Retry-After (fallback 1 s); 5xx retry with exponential backoff (max 5 attempts) then the run is re-queued with backoff; non-retryable failures become visible dead letters. After sleep/wake one coalesced poll per poll group plus one bounded overlap reconciliation (gap + overlap, capped at the reconcile window) is scheduled; no burst replay.",
+        "limitations": "Dispute-to-transaction linkage is ambiguous with multiple captures; booked postings depend on the ledger poll and the (offline-unverified) enum values DISPUTE/DISPUTE_REVERSAL.",
+        "reason": "Outbound polling of the Shopify Payments account works for the declared subset; missing fields keep the capability partial."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "initiatedAt selects dispute cases; finalizedOn is the resolution time; postings use transactionDate.",
+    "historical_availability": "Balance transactions and payouts as far back as the account exposes them; the exact depth is not verifiable offline and is recorded from the authorized account (blocked_external until then).",
+    "open_and_related_records": "Open disputes initiated before the window are included through the plan open-items phase; the disputed order is an optional link.",
+    "opening_state": "Account balance snapshots (positions) are the opening state as of the poll time; they are never summed with ledger movements.",
+    "progress_accounting": "loaded = disputes fetched; committed = distinct cases/postings with new entries; totals unknown.",
+    "readiness_rules": "Dispute questions are ready for case status after a complete poll; booked debit/reversal answers are partial until the matching ledger postings are observed.",
+    "health_rules": "healthy after a complete poll; degraded on missing read_shopify_payments_disputes.",
+    "history_expansion": "Wider initiated_at window; status transitions already observed are duplicates.",
+    "data_handling": "Only gids, amounts, types, statuses and timestamps; no bank account numbers (bankAccounts is not queried)."
+  }
+}

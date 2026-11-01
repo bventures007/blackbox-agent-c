@@ -1,0 +1,39 @@
+{
+  "schema_version": "1",
+  "version": "__VERSION__",
+  "date": "__DATE__",
+  "tested_commit": "__COMMIT__",
+  "platform": "macOS Apple Silicon (arm64)",
+  "wrapper_version": "1",
+  "api_version": "__VERSION__",
+  "worker_version": "__VERSION__",
+  "engine_version": "__VERSION__",
+  "engine_rpc_version": 1,
+  "mcp_version": 1,
+  "journal_schema_version": 1,
+  "event_schema_version": 1,
+  "reducer_version": 1,
+  "projection_version": 1,
+  "snapshot_version": 1,
+  "backup_format_version": 1,
+  "log_record_schema_version": 1,
+  "postgres_major": 16,
+  "postgres_image": "__POSTGRES_IMAGE__",
+  "images": {
+    "api": "__API_DIGEST__",
+    "worker": "__WORKER_DIGEST__",
+    "engine": "__ENGINE_DIGEST__",
+    "backup": "__BACKUP_DIGEST__",
+    "postgres": "__POSTGRES_DIGEST__"
+  },
+  "compatibility": {
+    "upgrade_from": ["0.0.0"],
+    "binary_rollback_safe_to": [],
+    "rollback_note": "No binary rollback is declared safe for this version; recover through an isolated restore of the pre-upgrade backup generation (shows its cutoff) or a forward fix.",
+    "runtime_protocols": {
+      "engine_rpc": 1,
+      "mcp": 1,
+      "api": 1
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "row_id": "shopify.allocations",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "FulfillmentOrder",
+    "FulfillmentOrderLineItem",
+    "FulfillmentOrderAssignedLocation"
+  ],
+  "grants": [
+    "read_merchant_managed_fulfillment_orders",
+    "read_assigned_fulfillment_orders"
+  ],
+  "identity_rule": "Account scope = Shop.id. Record identity = \"allocation:<FulfillmentOrder gid>\"; provider_event_id = \"<shop>|fo:<numeric id>|<updatedAt>\".",
+  "coverage_rule": "Fulfillment orders with updated_at in the plan window / since the incremental floor; the assignment is planned work, never a reservation (is_stock_reservation = false on every record).",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "allocation_id": {
+      "status": "source",
+      "normalization": "FulfillmentOrder gid (record) with per-line FulfillmentOrderLineItem gids.",
+      "missing_behavior": "Required.",
+      "source_path": "fulfillmentOrders.nodes[].id / lineItems.nodes[].id"
+    },
+    "order_id": {
+      "status": "source",
+      "normalization": "Order gid.",
+      "missing_behavior": "Required.",
+      "source_path": "fulfillmentOrders.nodes[].order.id"
+    },
+    "line_id": {
+      "status": "source",
+      "normalization": "Order line gid.",
+      "missing_behavior": "Required per line.",
+      "source_path": "fulfillmentOrders.nodes[].lineItems.nodes[].lineItem.id"
+    },
+    "item_id": {
+      "status": "source",
+      "normalization": "InventoryItem gid.",
+      "missing_behavior": "null when absent.",
+      "source_path": "fulfillmentOrders.nodes[].lineItems.nodes[].inventoryItemId"
+    },
+    "location_id": {
+      "status": "source",
+      "normalization": "Assigned location gid.",
+      "missing_behavior": "null when unassigned.",
+      "source_path": "fulfillmentOrders.nodes[].assignedLocation.location.id"
+    },
+    "quantity": {
+      "status": "source",
+      "normalization": "remainingQuantity (outstanding work) as decimal string; total_quantity carried separately.",
+      "missing_behavior": "Required.",
+      "source_path": "fulfillmentOrders.nodes[].lineItems.nodes[].remainingQuantity"
+    },
+    "unit": {
+      "status": "derived",
+      "normalization": "Constant unit \"piece\": Shopify line quantities are integer counts without a unit field.",
+      "missing_behavior": "Not applicable (constant).",
+      "rule": "connectors.normalize.shopify.v1: unit = \"piece\" for all Shopify quantities."
+    },
+    "status": {
+      "status": "derived",
+      "normalization": "completed when remainingQuantity = 0, otherwise the lowercased FulfillmentOrder status (open, in_progress, on_hold, scheduled, cancelled...).",
+      "missing_behavior": "Required.",
+      "rule": "connectors.normalize.shopify.v1: status from remainingQuantity/status"
+    },
+    "policy_version": {
+      "status": "derived",
+      "normalization": "Constant \"shopify-fulfillment-order-assignment.v1\": declares that the allocation is the provider assignment, not a workspace allocation policy.",
+      "missing_behavior": "Constant.",
+      "rule": "connectors.normalize.shopify.v1 policy constant"
+    },
+    "evidence_id": {
+      "status": "derived",
+      "normalization": "journal_evidence id of the raw FulfillmentOrder payload stored with the source entry.",
+      "missing_behavior": "Always present.",
+      "rule": "connectors.ingest.v1: evidence_refs[0] of the source entry"
+    }
+  },
+  "event_rules": [
+    {
+      "event": "inventory.reserved",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "Shopify exposes no reservation evidence; a fulfillment-order location assignment is not a stock reservation (CONNECTOR-CAPABILITIES finding 1). Reservations must come from a generic producer."
+    },
+    {
+      "event": "inventory.reservation_released",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "No reservation is recorded from Shopify, so no release is recorded either."
+    },
+    {
+      "event": "allocation.revised",
+      "tracks": [
+        "source",
+        "fact"
+      ],
+      "rule": "One fact per observed FulfillmentOrder updatedAt with remaining quantities per line; no reservation track is derived."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "BlackboxFulfillmentOrders (first=20, lineItems first=25) with updated_at:>=requested_from; Relay pagination; no provider count.",
+    "cursor": "Incremental updated_at:>=floor with 900 s overlap; Relay endCursor within a run.",
+    "reconciliation": "Daily (bounded after sleep/wake) re-read of updated_at within the window.",
+    "deduplication": "provider_event_id includes updatedAt; identical content duplicates, differing content conflicts.",
+    "freshness": "Poll every 900 s (300 s-6 h, jitter 60 s).",
+    "modes": {
+      "local_standalone": {
+        "status": "partial",
+        "methods": [
+          "polling"
+        ],
+        "schedule": "Poll every 900 s; reconciliation daily.",
+        "history_limit": "Fulfillment orders as exposed by the API; closed fulfillment orders older than the window are not re-read.",
+        "authentication": "Admin API access token for a merchant-installed custom app (X-Shopify-Access-Token), or the Dev Dashboard client-credentials grant (POST /admin/oauth/access_token, 24h token, refreshed one minute before expiry, no redirect URL). The token is stored encrypted on the connection (AES-256-GCM, key outside the database) and never logged.",
+        "recovery": "Provider cursor and phase are persisted per page in import_runs.checkpoint / capability_health.*_cursor after COMMIT; a failed page never advances the checkpoint. Expired cursors restart the current phase from its floor (idempotent through the deliveries dedupe boundary). 401/403 stop polling with status reauthorization_required/degraded; 429 waits for Retry-After (fallback 1 s); 5xx retry with exponential backoff (max 5 attempts) then the run is re-queued with backoff; non-retryable failures become visible dead letters. After sleep/wake one coalesced poll per poll group plus one bounded overlap reconciliation (gap + overlap, capped at the reconcile window) is scheduled; no burst replay.",
+        "limitations": "Planned work only; no reservation semantics; line pages beyond 25 are flagged.",
+        "reason": "Polling works for planned fulfillment work; reservation evidence is missing, so the capability is partial."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "FulfillmentOrder.updatedAt selects both the import window and incremental reads (no created_at filter is used).",
+    "historical_availability": "Current assignments only; earlier assignment changes are not reconstructed.",
+    "open_and_related_records": "Open fulfillment orders of older orders are included through the updated_at window only; related orders are read by shopify.orders.",
+    "opening_state": "Not applicable: an assignment is not an opening reservation balance.",
+    "progress_accounting": "loaded = fulfillment orders fetched; committed = distinct fulfillment orders with a new fact; totals unknown.",
+    "readiness_rules": "Allocation questions that need reservations are blocked/partial for Shopify-only workspaces (explicit missing fields); questions about outstanding fulfillment work are ready after a complete poll.",
+    "health_rules": "healthy after a complete poll within interval + jitter; degraded on missing fulfillment-order scopes.",
+    "history_expansion": "Re-reading a wider updated_at window; no older reservations appear.",
+    "data_handling": "Only gids and quantities."
+  }
+}

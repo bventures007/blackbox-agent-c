@@ -1,0 +1,148 @@
+{
+  "row_id": "shopify_payments.refunds",
+  "source_revision": "Shopify GraphQL Admin API 2026-10 (latest stable per shopify.dev/docs/api/usage/versioning on 2026-11-01; 2025-10 is listed unsupported)",
+  "input_resources": [
+    "ShopifyPaymentsAccount",
+    "ShopifyPaymentsBalanceTransaction"
+  ],
+  "grants": [
+    "read_shopify_payments_payouts (view_payouts)"
+  ],
+  "identity_rule": "provider_event_id = \"<shop>|bt:<numeric id>|refund\"; record id refund:ledger:<id>; economic_effect_id = shopify:transaction:<sourceOrderTransactionId> (shared with shopify.refunds so one refund is never two debits).",
+  "coverage_rule": "Balance transactions of type REFUND in the window; pending/failed refunds are not visible in the ledger (see shopify.refunds).",
+  "retention": {
+    "decision": "permitted",
+    "basis": "Shopify API License and Terms of Use, merchant-owned data, read-only custom app; the merchant owns its order/payout data and installs the app on its own store. Raw provider payloads are stored as sanitized evidence (no customer names/emails/addresses) under the workspace retention policy."
+  },
+  "fields": {
+    "refund_id": {
+      "status": "derived",
+      "normalization": "\"ledger:<balance transaction id>\"; the shop Refund gid is reachable through the shared economic_effect_id.",
+      "missing_behavior": "Always present.",
+      "rule": "connectors.normalize.shopify_payments.v1: refund_id = ledger:<id>"
+    },
+    "original_transaction_id": {
+      "status": "source",
+      "normalization": "sourceOrderTransactionId as OrderTransaction gid.",
+      "missing_behavior": "null when absent (refund not linkable; kept as ledger posting only).",
+      "source_path": "balanceTransactions.nodes[type=REFUND].sourceOrderTransactionId"
+    },
+    "order_id": {
+      "status": "source",
+      "normalization": "associatedOrder.id.",
+      "missing_behavior": "null when absent.",
+      "source_path": "balanceTransactions.nodes[type=REFUND].associatedOrder.id"
+    },
+    "amount_minor": {
+      "status": "source",
+      "normalization": "abs(amount) in minor units.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "balanceTransactions.nodes[type=REFUND].amount"
+    },
+    "currency": {
+      "status": "source",
+      "normalization": "amount.currencyCode.",
+      "missing_behavior": "Rejected when absent.",
+      "source_path": "balanceTransactions.nodes[type=REFUND].amount.currencyCode"
+    },
+    "status": {
+      "status": "derived",
+      "normalization": "Constant \"completed\": a REFUND ledger posting is a settled provider movement.",
+      "missing_behavior": "Constant.",
+      "rule": "connectors.normalize.shopify_payments.v1: REFUND posting -> completed"
+    },
+    "destination": {
+      "status": "derived",
+      "normalization": "Constant \"original_payment_method\" (the ledger refunds the card/payment method).",
+      "missing_behavior": "Constant; gift-card refunds never appear in the Shopify Payments ledger.",
+      "rule": "connectors.normalize.shopify_payments.v1 destination constant"
+    },
+    "economic_effect_id": {
+      "status": "derived",
+      "normalization": "shopify:transaction:<sourceOrderTransactionId> or the balance transaction identity when unlinked.",
+      "missing_behavior": "Always present.",
+      "rule": "connectors.normalize.shopify_payments.v1 economic identity"
+    }
+  },
+  "event_rules": [
+    {
+      "event": "refund.pending",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "The provider ledger only shows settled postings; pending refunds come from shopify.refunds."
+    },
+    {
+      "event": "refund.completed",
+      "tracks": [
+        "source",
+        "movement",
+        "reservation"
+      ],
+      "rule": "REFUND posting: cash out on the provider balance; deduplicated with the shop refund by economic_effect_id."
+    },
+    {
+      "event": "refund.failed",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "Failed refunds never post to the ledger; see shopify.refunds."
+    },
+    {
+      "event": "refund.reversed",
+      "tracks": [],
+      "rule": "Not emitted.",
+      "unsupported_reason": "No refund reversal posting type is verifiable in the pinned enum offline; unknown types are kept as provider.ledger_posted with their type string."
+    }
+  ],
+  "synchronization": {
+    "initial_import": "Backfill reads shopifyPaymentsAccount.balanceTransactions with the query filter processed_at:>=requested_from AND processed_at:<=initial_cutoff, first=50, Relay cursor pagination; the provider gives no exact count, so totals stay unknown (counts/phase shown instead of a percentage).",
+    "cursor": "Incremental: processed_at:>=floor where floor = max(previous floor, min(newest processed_at seen, now) - 3600 s); page cursor = Relay endCursor. Same connection as provider_ledger; see its limitations.",
+    "reconciliation": "Every 24 h (and once after sleep/wake, bounded to 7 days) re-read the window; deduplicated by provider_event_id.",
+    "deduplication": "provider_event_id = \"<shop numeric id>|<object>:<numeric id>|<state>\"; identical content duplicates, differing content conflicts (review case). Economic identity: sourceOrderTransactionId links a ledger entry to the shop transaction; adjustments without a source keep their own identity.",
+    "freshness": "Default poll every 1800 s (300 s to 24 h, jitter 120 s); successful-check and new-event timestamps are separate; payout status is a provider assertion until bank evidence (bank_csv) confirms it.",
+    "modes": {
+      "local_standalone": {
+        "status": "partial",
+        "methods": [
+          "polling"
+        ],
+        "schedule": "Poll every 1800 s (bounds 300 s-24 h, jitter 120 s); reconciliation every 24 h over 7 days.",
+        "history_limit": "Account history as exposed by the pinned API; the exact retention of balance transactions on the account is not verifiable offline and is recorded from the live account at SLICE-02/SOURCE-01 time.",
+        "authentication": "Admin API access token for a merchant-installed custom app (X-Shopify-Access-Token), or the Dev Dashboard client-credentials grant (POST /admin/oauth/access_token, 24h token, refreshed one minute before expiry, no redirect URL). The token is stored encrypted on the connection (AES-256-GCM, key outside the database) and never logged. Additionally requires an active Shopify Payments account (shopifyPaymentsAccount.activated) and the read_shopify_payments_payouts scope (view_payouts permission); disputes need read_shopify_payments_disputes.",
+        "recovery": "Provider cursor and phase are persisted per page in import_runs.checkpoint / capability_health.*_cursor after COMMIT; a failed page never advances the checkpoint. Expired cursors restart the current phase from its floor (idempotent through the deliveries dedupe boundary). 401/403 stop polling with status reauthorization_required/degraded; 429 waits for Retry-After (fallback 1 s); 5xx retry with exponential backoff (max 5 attempts) then the run is re-queued with backoff; non-retryable failures become visible dead letters. After sleep/wake one coalesced poll per poll group plus one bounded overlap reconciliation (gap + overlap, capped at the reconcile window) is scheduled; no burst replay.",
+        "limitations": "Same connection as provider_ledger; see its limitations.",
+        "reason": "Outbound polling of the Shopify Payments account works for the declared subset; missing fields keep the capability partial."
+      },
+      "local_gateway": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No gateway runtime exists in the pilot; declared and refused by the connector (LOCAL-07).",
+        "reason": "local_gateway is deferred scope for the local pilot (delivery-profile.json); no gateway is provisioned and the capability declaration lists no methods for it."
+      },
+      "public_server": {
+        "status": "unsupported",
+        "methods": [],
+        "schedule": "none",
+        "history_limit": "none",
+        "authentication": "none",
+        "recovery": "none",
+        "limitations": "No public callback is registered; localhost cannot receive Shopify webhooks.",
+        "reason": "public_server is deferred scope for the local pilot; direct webhooks would require a public HTTPS endpoint that the pilot does not provide."
+      }
+    }
+  },
+  "import_readiness": {
+    "time_selection": "transactionDate of the REFUND posting.",
+    "historical_availability": "Balance transactions and payouts as far back as the account exposes them; the exact depth is not verifiable offline and is recorded from the authorized account (blocked_external until then).",
+    "open_and_related_records": "The refunded order is an optional link; no traversal.",
+    "opening_state": "Account balance snapshots (positions) are the opening state as of the poll time; they are never summed with ledger movements.",
+    "progress_accounting": "Counted within the ledger poll (same provider query).",
+    "readiness_rules": "Refund cash questions are ready when both shop and ledger refunds are current; partial when ledger postings lack sourceOrderTransactionId.",
+    "health_rules": "Shared with provider_ledger.",
+    "history_expansion": "Shared with provider_ledger.",
+    "data_handling": "Only gids, amounts, types, statuses and timestamps; no bank account numbers (bankAccounts is not queried)."
+  }
+}
