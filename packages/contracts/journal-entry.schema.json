@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JournalEntry",
+  "type": "object",
+  "required": ["entry_id","tenant_id","journal_sequence","track","record_id","event_type","schema_version","occurred_at","recorded_at","entity_refs","payload","evidence_refs","input_entry_ids"],
+  "properties": {
+    "entry_id": {"type":"string","format":"uuid"},
+    "tenant_id": {"type":"string","format":"uuid"},
+    "journal_sequence": {"type":"integer","minimum":1},
+    "track": {"enum":["source","fact","commitment","movement","reservation"]},
+    "record_id": {"type":"string","maxLength":200},
+    "event_type": {"type":"string","maxLength":100},
+    "schema_version": {"type":"integer"},
+    "connection_id": {"type":["string","null"],"format":"uuid"},
+    "provider": {"type":["string","null"]},
+    "account_ref": {"type":["string","null"],"description":"opaque provider account namespace"},
+    "provider_event_id": {"type":["string","null"],"maxLength":300},
+    "occurred_at": {"type":"string","format":"date-time"},
+    "recorded_at": {"type":"string","format":"date-time"},
+    "entity_refs": {"type":"object","additionalProperties":{"type":"string"},"description":"tenant-scoped opaque ids keyed by entity type: order, line, customer, item, invoice, shipment, transaction, refund, payout, return, reservation, bank_entry"},
+    "payload": {"type":"object","description":"typed business content; *_minor integers with currency; quantities decimal strings with unit"},
+    "evidence_refs": {"type":"array","items":{"type":"string"}},
+    "input_entry_ids": {"type":"array","items":{"type":"string","format":"uuid"}},
+    "derivation_rule": {"type":["string","null"]},
+    "derivation_version": {"type":["integer","null"]},
+    "supersedes_entry_id": {"type":["string","null"],"format":"uuid"},
+    "correlation_id": {"type":["string","null"]},
+    "causation_id": {"type":["string","null"]},
+    "source_time": {"type":["string","null"],"format":"date-time"}
+  }
+}

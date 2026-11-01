@@ -1,0 +1,817 @@
+{
+ "schema_version": 1,
+ "note": "Canonical event vocabulary. tracks lists the logical tracks an event of this family may extend; the connector mapping decides which apply to a concrete observation (never all blindly). Money is integer minor units with ISO currency; quantities are decimal with explicit unit.",
+ "families": {
+  "allocation.revised": {
+   "dataset": "allocations",
+   "tracks": [
+    "source",
+    "fact",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "bank.credit_booked": {
+   "dataset": "bank",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "bank_entry": "BANK-1001",
+     "payout": "OUT-1001",
+     "amount_minor": 9170,
+     "currency": "EUR",
+     "status": "booked"
+    },
+    "connection": "bank_csv"
+   }
+  },
+  "bank.debit_booked": {
+   "dataset": "bank",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": null
+  },
+  "bank.match_recorded": {
+   "dataset": "bank",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": null
+  },
+  "bank.match_revised": {
+   "dataset": "bank",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": null
+  },
+  "business.case_recorded": {
+   "dataset": "cases",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "business.case_revised": {
+   "dataset": "cases",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "business.rule_recorded": {
+   "dataset": "policy",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "business.rule_revised": {
+   "dataset": "policy",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "carrier.forecast_observed": {
+   "dataset": "tracking",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "carrier.scan_observed": {
+   "dataset": "tracking",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "chargeback.debit_posted": {
+   "dataset": "disputes",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "chargeback.reversed": {
+   "dataset": "disputes",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "communication.extraction_reviewed": {
+   "dataset": "communications",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "communication.observed": {
+   "dataset": "communications",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "coverage.gap_recorded": {
+   "dataset": "coverage",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "coverage.observed": {
+   "dataset": "coverage",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "customer.commitment_recorded": {
+   "dataset": "promises",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "customer.commitment_revised": {
+   "dataset": "promises",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "dispute.opened": {
+   "dataset": "disputes",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "dispute.resolved": {
+   "dataset": "disputes",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "entity.link_conflict": {
+   "dataset": "identity",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "entity.link_recorded": {
+   "dataset": "identity",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "entity.link_revised": {
+   "dataset": "identity",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "inventory.adjustment_observed": {
+   "dataset": "stock",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "inventory.reservation_released": {
+   "dataset": "allocations",
+   "tracks": [
+    "source",
+    "fact",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "inventory.reserved": {
+   "dataset": "allocations",
+   "tracks": [
+    "source",
+    "fact",
+    "reservation"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "reservation": "R-1001",
+     "quantity": 10
+    },
+    "connection": "shop"
+   }
+  },
+  "inventory.snapshot": {
+   "dataset": "stock",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "sku": "CUP-OLV",
+     "physical": 120,
+     "quarantined": 0,
+     "reserved": 0,
+     "unit": "piece"
+    },
+    "connection": "stock"
+   }
+  },
+  "invoice.cancelled": {
+   "dataset": "invoices",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "invoice.credit_issued": {
+   "dataset": "invoices",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "credit": "CN-1001",
+     "invoice": "INV-1001",
+     "credit_minor": 2380,
+     "currency": "EUR",
+     "cash_refund_confirmed": false
+    },
+    "connection": "invoice"
+   }
+  },
+  "invoice.dispatch_observed": {
+   "dataset": "invoice_dispatch",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "invoice.issued": {
+   "dataset": "invoices",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "invoice": "INV-1001",
+     "gross_minor": 11900,
+     "currency": "EUR",
+     "due_date": "2026-11-07"
+    },
+    "connection": "invoice"
+   }
+  },
+  "invoice.payment_marked": {
+   "dataset": "invoices",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "invoice": "INV-1001",
+     "transaction": "TX-1001",
+     "paid_minor": 11900,
+     "currency": "EUR",
+     "is_new_cash_movement": false
+    },
+    "connection": "invoice"
+   }
+  },
+  "invoice.revised": {
+   "dataset": "invoices",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "order.accepted": {
+   "dataset": "orders",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "order": "#1001",
+     "quantity": 10,
+     "unit_gross_minor": 1190,
+     "gross_minor": 11900,
+     "currency": "EUR"
+    },
+    "connection": "shop"
+   }
+  },
+  "order.cancelled": {
+   "dataset": "orders",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "order.revised": {
+   "dataset": "orders",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "payment.allocation_recorded": {
+   "dataset": "payment_allocations",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "payment.allocation_revised": {
+   "dataset": "payment_allocations",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "payment.authorized": {
+   "dataset": "payments",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "transaction": "TX-1001",
+     "authorized_minor": 11900,
+     "currency": "EUR"
+    },
+    "connection": "payment"
+   }
+  },
+  "payment.captured": {
+   "dataset": "payments",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "transaction": "TX-1001",
+     "captured_minor": 11900,
+     "currency": "EUR"
+    },
+    "connection": "payment"
+   }
+  },
+  "payment.failed": {
+   "dataset": "payments",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": null
+  },
+  "payment.fee_booked": {
+   "dataset": "provider_ledger",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "transaction": "TX-1001",
+     "fee_minor": 350,
+     "currency": "EUR"
+    },
+    "connection": "payment"
+   }
+  },
+  "payment.voided": {
+   "dataset": "payments",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": null
+  },
+  "payout.announced": {
+   "dataset": "payouts",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment",
+    "movement"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "payout": "OUT-1001",
+     "amount_minor": 9170,
+     "currency": "EUR"
+    },
+    "connection": "payment"
+   }
+  },
+  "payout.failed": {
+   "dataset": "payouts",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment",
+    "movement"
+   ],
+   "golden_example": null
+  },
+  "payout.reversed": {
+   "dataset": "payouts",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment",
+    "movement"
+   ],
+   "golden_example": null
+  },
+  "payout.sent": {
+   "dataset": "payouts",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment",
+    "movement"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "payout": "OUT-1001",
+     "amount_minor": 9170,
+     "currency": "EUR"
+    },
+    "connection": "payment"
+   }
+  },
+  "provider.balance_observed": {
+   "dataset": "positions",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "provider.hold_recorded": {
+   "dataset": "holds",
+   "tracks": [
+    "source",
+    "fact",
+    "reservation",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "provider.hold_released": {
+   "dataset": "holds",
+   "tracks": [
+    "source",
+    "fact",
+    "reservation",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "provider.ledger_posted": {
+   "dataset": "provider_ledger",
+   "tracks": [
+    "source",
+    "fact",
+    "movement"
+   ],
+   "golden_example": null
+  },
+  "provider.release_promised": {
+   "dataset": "holds",
+   "tracks": [
+    "source",
+    "fact",
+    "reservation",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "refund.completed": {
+   "dataset": "refunds",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "refund": "RF-1001",
+     "transaction": "TX-1001",
+     "amount_minor": 2380,
+     "hold_released_minor": 2380,
+     "currency": "EUR"
+    },
+    "connection": "payment"
+   }
+  },
+  "refund.entitlement_recorded": {
+   "dataset": "entitlements",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "refund.entitlement_revised": {
+   "dataset": "entitlements",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "refund.failed": {
+   "dataset": "refunds",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "refund.pending": {
+   "dataset": "refunds",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "refund": "RF-1001",
+     "transaction": "TX-1001",
+     "amount_minor": 2380,
+     "held_minor": 2380,
+     "currency": "EUR"
+    },
+    "connection": "payment"
+   }
+  },
+  "refund.reversed": {
+   "dataset": "refunds",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "return.approved": {
+   "dataset": "returns",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "return": "RET-1001",
+     "quantity": 2,
+     "expected_credit_minor": 2380,
+     "currency": "EUR"
+    },
+    "connection": "shop"
+   }
+  },
+  "return.cancelled": {
+   "dataset": "returns",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "return.disposition_observed": {
+   "dataset": "receipts",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "return.received": {
+   "dataset": "receipts",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "return": "RET-1001",
+     "quantity": 2,
+     "physical_stock_delta": 2,
+     "quarantine_delta": 2
+    },
+    "connection": "stock"
+   }
+  },
+  "return.restocked": {
+   "dataset": "receipts",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "return": "RET-1001",
+     "quantity": 2,
+     "quarantine_delta": -2,
+     "physical_stock_delta": 0
+    },
+    "connection": "stock"
+   }
+  },
+  "return.revised": {
+   "dataset": "returns",
+   "tracks": [
+    "source",
+    "fact"
+   ],
+   "golden_example": null
+  },
+  "shipment.cancelled": {
+   "dataset": "fulfillments",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "shipment.delivered": {
+   "dataset": "fulfillments",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "shipment": "SHIP-1001",
+     "carrier_status": "delivered"
+    },
+    "connection": "carrier"
+   }
+  },
+  "shipment.dispatched": {
+   "dataset": "fulfillments",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": {
+    "example_payload": {
+     "shipment": "SHIP-1001",
+     "quantity": 10,
+     "physical_stock_delta": -10,
+     "reservation_released": 10,
+     "reservation": "R-1001"
+    },
+    "connection": "shop"
+   }
+  },
+  "shipment.observed": {
+   "dataset": "fulfillments",
+   "tracks": [
+    "source",
+    "fact",
+    "movement",
+    "reservation"
+   ],
+   "golden_example": null
+  },
+  "supply.commitment_recorded": {
+   "dataset": "supply",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  },
+  "supply.commitment_revised": {
+   "dataset": "supply",
+   "tracks": [
+    "source",
+    "fact",
+    "commitment"
+   ],
+   "golden_example": null
+  }
+ },
+ "golden_only": {},
+ "internal": {
+  "source.conflict_observed": {
+   "tracks": [
+    "source"
+   ],
+   "rule": "Same provider event identity with different content; references the original entry."
+  },
+  "review.decision": {
+   "tracks": [
+    "fact"
+   ],
+   "rule": "Owner decision appended with actor/reason/evidence; supersedes_entry_id links the corrected assertion."
+  },
+  "evidence.redacted": {
+   "tracks": [
+    "source"
+   ],
+   "rule": "Audited redaction/restriction of separately stored evidence; business values unchanged."
+  }
+ }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "transport": "HTTP/1.1 JSON on the private Compose network, header X-Engine-Token (shared secret). Never published to the host.",
+  "consistency": {
+    "modes": ["latest_committed", "at_least_cursor", "as_of", "stale_explicit"],
+    "request": {"mode": "string", "cursor": "int64|null (journal_sequence)", "as_of_recorded": "RFC3339|null", "as_of_effective": "RFC3339|null", "deadline_ms": "int (<=5000)"},
+    "response": {"applied_cursor": "int64", "required_cursor": "int64|null", "reducer_version": "int", "status": "current|projection_behind|historical|stale", "recorded_cutoff": "RFC3339", "effective_cutoff": "RFC3339|null"}
+  },
+  "endpoints": {
+    "GET /health": {"response": {"status": "healthy|catching_up|rebuilding|degraded", "reducer_version": "int", "tenants": {"<tenant_id>": {"applied_cursor": "int64", "committed_cursor": "int64", "lag_entries": "int", "phase": "ready|loading|rebuilding"}}, "rss_bytes": "int", "uptime_seconds": "int", "heartbeat_at": "RFC3339"}},
+    "POST /v1/state": {"request": {"tenant_id": "uuid", "entity_type": "order|item|invoice|transaction|shipment|return|refund|payout|customer|reservation|bank_entry", "entity_id": "string", "consistency": "ConsistencyRequest"}, "response": {"consistency": "ConsistencyResponse", "entity": {"type": "string", "id": "string"}, "state": "typed current-state object (for order: physical_stock, reserved_stock, quarantined_stock, available_stock, authorized_minor, captured_minor, fees_minor, refunded_minor, refund_payable_minor, invoice_original_minor, invoice_credit_minor, invoice_net_minor, open_receivable_minor, customer_net_paid_minor, provider_balance_minor, provider_held_minor, provider_available_minor, payout_announced_minor, in_transit_minor, bank_confirmed_minor, shipment_status, currency, unit)", "tracks": {"source": "[entry summaries]", "fact": "[...]", "commitment": "[...]", "movement": "[...]", "reservation": "[...]"}, "evidence_refs": "[string]", "entry_ids": "[uuid]", "coverage": {"datasets_present": "[string]", "datasets_missing": "[string]"}, "conflicts": "[{case_id, reason}]"}},
+    "POST /v1/query": {"request": {"tenant_id": "uuid", "intent": "one of the 24 intents in specs/question-data-contracts.json", "params": "object validated per intent", "consistency": "ConsistencyRequest", "page": {"limit": "int (<=500, default 100)", "cursor": "string|null"}}, "response": "common_result_envelope from specs/question-data-contracts.json: status (complete|partial|unknown|conflict|unsupported), result, calculation, evidence_refs, entry_ids, missing_inputs, conflicts, coverage, consistency, page {next_cursor, truncated}"},
+    "POST /v1/history": {"request": {"tenant_id": "uuid", "entity_type": "string", "entity_id": "string", "page": "Page", "consistency": "ConsistencyRequest"}, "response": {"entries": "[JournalEntry]", "page": "Page result", "consistency": "ConsistencyResponse"}},
+    "POST /v1/summary": {"request": {"tenant_id": "uuid", "kind": "thirty_day_summary", "from": "RFC3339", "to": "RFC3339", "currency": "ISO", "consistency": "ConsistencyRequest"}, "response": {"totals": "per currency integer minor", "counts": "object", "consistency": "ConsistencyResponse"}},
+    "POST /v1/admin/rebuild": {"request": {"tenant_id": "uuid|null"}, "response": {"accepted": true}},
+    "GET /v1/schema": {"response": "describe_business_schema payload: record types, event families, filterable fields, units, time semantics"}
+  },
+  "errors": {"codes": ["unauthorized", "tenant_unknown", "projection_behind", "deadline_exceeded", "unsupported_intent", "invalid_params", "too_large", "overloaded"], "shape": {"error": {"code": "string", "message": "English", "retryable": "bool", "retry_after_ms": "int|null"}}},
+  "limits": {"max_page_rows": 500, "default_page_rows": 100, "synchronous_deadline_ms": 5000, "max_concurrent_global": 32, "max_concurrent_per_workspace": 16, "max_concurrent_per_agent": 8}
+}

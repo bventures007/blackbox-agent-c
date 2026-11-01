@@ -1,0 +1,5 @@
+{"schema_version":1,"required":["schema_version","record_id","occurred_at","observed_at","level","event_name","message","component","service_version","instance_id","scope"],
+ "levels":["DEBUG","INFO","WARN","ERROR"],"scope":["installation","workspace"],
+ "optional":["tenant_id","connection_id","capability_id","run_id","operation_id","attempt","trace_id","span_id","parent_span_id","duration_ms","record_count","error_code","retryable","next_retry_at","action_code","journal_batch_id","committed_cursor","applied_cursor","truncated","termination"],
+ "limits":{"max_string":512,"max_record_bytes":16384},
+ "rules":["Allowlist before emission; unknown keys dropped.","No credentials, cookies, Authorization headers, request bodies, SQL values, raw provider payloads, customer PII, emails, order numbers or absolute personal paths.","Control characters escaped; overlong strings clipped and flagged truncated=true.","MCP stdio stdout is protocol-only; logs go to stderr/collector."]}
