@@ -12,10 +12,7 @@
     "documented_provider_path": 9,
     "supplemental_data_required": 11,
     "provider_detail_unverified": 3,
-    "bank_import_required": 1,
-    "engine_boundary_positive_passed": 24,
-    "engine_boundary_missing_passed": 24,
-    "installed_api_mcp_runs": 0
+    "bank_import_required": 1
   },
   "questions": [
     {
