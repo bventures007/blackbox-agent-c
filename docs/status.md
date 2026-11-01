@@ -1,5 +1,13 @@
 # Local pilot implementation status
 
+## Progress log (newest first)
+
+### 2026-11-01 — P0 done, P1 in progress
+Done: build environment recorded (docs/build-environment.md), six ADRs (docs/decisions), binding shared contracts (packages/contracts), base journal migration with append-only triggers/RLS/roles (packages/database/migrations/0000, 0001), HTTP API contract (docs/api-contract.md), acceptance evidence recorder (scripts/acceptance/record.py). Shopify authorization feasibility: merchant-owned custom app Admin API token (read-only scopes) over GraphQL Admin API; no store/credentials are available in this environment, so SLICE-02 and all live provider rows are blocked_external.
+Open: api/worker/engine/web/landing/wrapper implementation running in parallel; SLICE-01 proof; nothing runs end-to-end yet.
+Next: integrate components in Compose project blackbox-agent-c (127.0.0.1:19180), run SLICE-01, commit P1.
+
+
 ## Current assignment
 
 Baseline-v14 / brief 2.3: P0–P4 local pilot, then handover and stop. The owner approved a personal saved access key and local testing before deciding later product/hosting scope. Passkeys, invitations, public SaaS/servers, gateways, native packaging and large capacity certification are deferred. Read delivery-profile.json and specs/LOCAL-PILOT.md.
