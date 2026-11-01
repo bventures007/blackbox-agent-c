@@ -108,3 +108,10 @@ Host-owner trust: anyone with read access to `<install>/secrets` can read the da
 - `tests/ops/backup-roundtrip.sh [--full]` — real Compose stack: setup → seed two tenants + evidence → refusals (unconfigured, unenrolled destination) → backup-config → two backups → wrong-key restore fails → restore into fresh install (data/evidence/keys identical, new superuser password, fence + evidence block present, staging removed, original untouched) → resume-sources → down/up keeps data → setup refuses overwrite. Ops-only by default; `--full` adds the api CLI paths once the application images exist.
 - `tests/ops/upgrade.sh [--full]` — builds two ops-only archives (`build.sh --images backup`), installs 0.0.1 in release mode from the extracted archive, seeds data, enrolls backups, refuses same-version/unknown sources, upgrades to 0.0.2 and checks the pre-upgrade generation, recorded version, `.env`/`release.json`, previous-release copy, released fence/lease/phase file, data intact, loaded image and doctor output. An *interrupted* upgrade (`--resume`) is implemented but not yet covered by an automated test.
 - `scripts/release/check-manifest.sh` and `scripts/release/verify-download.sh` for DIST-01..03 (see docs/release.md).
+
+## Known findings (ops verification 2026-11-01)
+
+- `backup-config` while the stack runs: the already running `backup-scheduler` has no destination in its environment and rewrites `data/backups/status.json` to `not_configured` every check until `./blackbox up` recreates it; the status surface is wrong for up to one scheduler interval after enrollment (PILOT-01 finding).
+- Refused `upgrade` preflights leave `data/state/upgrade-stage/` behind (harmless; cleaned by the next upgrade).
+- `json_get` on a missing key used to abort the wrapper silently under `set -eo pipefail` (a `release.json` without `journal_schema_version` exited 1 without the refusal message); fixed with `|| true`.
+- `scripts/blackbox` ships the same `BLACKBOX_PORT` publish for api, but the api image must know the published port for its Host/Origin allowlist (`BLACKBOX_PUBLIC_PORT`, see docs/architecture.md); release 0.1.0-rc6 is unusable on a non-default port.

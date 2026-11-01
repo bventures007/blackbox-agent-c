@@ -17,10 +17,13 @@ use serde_json::{json, Map, Value};
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{PgPool, Row};
 use std::collections::HashMap;
+use std::sync::Arc;
 use std::time::Instant;
 use uuid::Uuid;
 
-const GENERATOR_VERSION: &str = "corpus-v1";
+// corpus-v2: tenants are generated concurrently (bounded by --parallel) from per-tenant RNGs derived
+// from the seed, so the dataset is still deterministic for a given seed/parameters.
+const GENERATOR_VERSION: &str = "corpus-v2";
 
 struct Args {
     seed: u64,
@@ -31,6 +34,7 @@ struct Args {
     batch: usize,
     derived: bool,
     hot_orders: usize,
+    parallel: usize,
 }
 
 fn parse_args() -> Result<Args> {
@@ -43,6 +47,7 @@ fn parse_args() -> Result<Args> {
         batch: 100,
         derived: true,
         hot_orders: 2000,
+        parallel: 6,
     };
     let argv: Vec<String> = std::env::args().skip(1).collect();
     let mut i = 0;
@@ -60,9 +65,10 @@ fn parse_args() -> Result<Args> {
             "--manifest" => a.manifest = val()?,
             "--batch" => a.batch = val()?.parse()?,
             "--hot-orders" => a.hot_orders = val()?.parse()?,
+            "--parallel" => a.parallel = val()?.parse::<usize>()?.max(1),
             "--no-derived" => a.derived = false,
             "--help" | "-h" => {
-                println!("corpus --seed N --tenants N --min-entries N --min-orders N --manifest PATH [--batch N] [--hot-orders N] [--no-derived]");
+                println!("corpus --seed N --tenants N --min-entries N --min-orders N --manifest PATH [--batch N] [--hot-orders N] [--parallel N] [--no-derived]");
                 std::process::exit(0);
             }
             other => return Err(anyhow!("unknown argument {other}")),
@@ -263,12 +269,152 @@ async fn flush(pool: &PgPool, tenant: Uuid, derived: bool, pending: &mut Vec<Ent
     Ok((added, last))
 }
 
+struct TenantOut {
+    index: usize,
+    tenant: Uuid,
+    manifest: Value,
+    history_lengths: Vec<usize>,
+    order_ids: Vec<String>,
+    entries: u64,
+    orders: usize,
+}
+
+/// Generates one tenant: all its orders, derived entries and late corrections. Deterministic per
+/// (seed, tenant index); independent tenants run concurrently on their own connections.
+async fn generate_tenant(pool: PgPool, golden: Arc<GoldenScenario>, args: Arc<Args>, ti: usize, n_orders: usize, started: Instant, total_tenants: usize) -> Result<TenantOut> {
+    let mut rng = ChaCha20Rng::seed_from_u64(args.seed.wrapping_mul(1_000_003).wrapping_add(ti as u64 + 1));
+    let currencies = ["EUR", "EUR", "EUR", "USD", "CHF", "GBP"];
+    let connections = ["stock", "shop", "invoice", "payment", "carrier", "bank_csv"];
+    let base_day = Utc.with_ymd_and_hms(2026, 8, 1, 9, 0, 0).unwrap();
+    let tenant = Uuid::new_v4();
+    let tag = hex(&mut rng, 4);
+    create_tenant(&pool, tenant, &format!("Corpus tenant {ti} ({tag})")).await?;
+    let mut conn_ids = HashMap::new();
+    for c in connections {
+        conn_ids.insert(c.to_string(), create_connection(&pool, tenant, c).await?);
+    }
+    let skus: Vec<String> = (0..(50 + rng.gen_range(0..450))).map(|_| format!("SKU-{}", hex(&mut rng, 8).to_uppercase())).collect();
+    let mut tenant_entries: u64 = 0;
+    let mut last_seq = 0i64;
+    let mut order_ids: Vec<String> = Vec::new();
+    let mut history_lengths: Vec<usize> = Vec::new();
+    let mut pending_sources: Vec<Entry> = Vec::new();
+    let mut pending_late: Vec<Entry> = Vec::new();
+    for n in 0..n_orders {
+        let plan = make_plan(&mut rng, &tag, n, &skus, &currencies);
+        let sku = skus[rng.gen_range(0..skus.len())].clone();
+        let mut events: Vec<GoldenEvent> = mutate(&golden, &plan.params).into_iter().take(plan.events).collect();
+        let base_time = base_day + ChronoDuration::minutes(rng.gen_range(0..(90 * 24 * 60)));
+        rewrite_ids(&mut events, &sku, &plan.customer, &plan.tracking, base_time);
+        let order_id = format!("#1001{}", plan.params.suffix);
+        order_ids.push(order_id.clone());
+        let mut per_order = 0usize;
+        for ev in &events {
+            let conn = conn_ids[&ev.connection];
+            let src = source_entry(tenant, 0, ev, conn, Utc::now());
+            per_order += 1 + if args.derived { blackbox_domain::fixture::derived_tracks(&ev.kind).len() } else { 0 };
+            pending_sources.push(src);
+        }
+        // Extra carrier scans (high-cardinality tracking identities, late observations).
+        if plan.events >= 10 {
+            for s in 0..plan.extra_scans {
+                let at = base_time + ChronoDuration::minutes(9) + ChronoDuration::hours(s as i64 + 1);
+                let ev = GoldenEvent {
+                    id: format!("scan{s}"),
+                    connection: "carrier".into(),
+                    provider_event_id: format!("scan-{}-{}", plan.tracking, s),
+                    occurred_at: at,
+                    entity: [("order".to_string(), order_id.clone()), ("customer".to_string(), plan.customer.clone())].into_iter().collect(),
+                    kind: "carrier.scan_observed".into(),
+                    payload: json!({"tracking_number": plan.tracking, "shipment": format!("SHIP-1001{}", plan.params.suffix), "status_code": if s == 0 { "in_transit" } else { "delivered" }, "effective_time": at.to_rfc3339(), "scan_identity": format!("{}-{}", plan.tracking, s)}).as_object().cloned().unwrap(),
+                    evidence_refs: vec![],
+                };
+                pending_sources.push(source_entry(tenant, 0, &ev, conn_ids["carrier"], Utc::now()));
+                per_order += 2;
+            }
+        }
+        if plan.late_failed_attempt && plan.events >= 6 {
+            let ev = GoldenEvent {
+                id: "latefail".into(),
+                connection: "payment".into(),
+                provider_event_id: format!("fail-{}", plan.params.suffix),
+                occurred_at: base_time + ChronoDuration::minutes(4) + ChronoDuration::seconds(30),
+                entity: [("order".to_string(), order_id.clone()), ("customer".to_string(), plan.customer.clone())].into_iter().collect(),
+                kind: "payment.failed".into(),
+                payload: json!({"transaction": format!("TX-1001{}", plan.params.suffix), "attempt": format!("ATT{}", plan.params.suffix), "amount_minor": plan.params.gross(), "currency": plan.params.currency, "reason": "card_declined"}).as_object().cloned().unwrap(),
+                evidence_refs: vec![],
+            };
+            pending_late.push(source_entry(tenant, 0, &ev, conn_ids["payment"], Utc::now()));
+            per_order += 3;
+        }
+        if plan.late_fee_correction && plan.events >= 7 {
+            // Fee correction appended later as a fact superseding the fee observation.
+            let mut corr = source_entry(tenant, 0, &events[6], conn_ids["payment"], Utc::now());
+            corr.track = Track::Fact;
+            corr.provider_event_id = None;
+            corr.correlation_id = Some(format!("review:fee{}", plan.params.suffix));
+            corr.payload = json!({"transaction": format!("TX-1001{}", plan.params.suffix), "fee_minor": plan.params.fee_minor + 7, "currency": plan.params.currency, "reason": "statement correction"});
+            corr.payload_hash = payload_hash(&corr.payload);
+            corr.derivation_rule = Some("review.decision".into());
+            corr.record_id = format!("correction:{}", corr.record_id);
+            pending_late.push(corr);
+            per_order += 1;
+        }
+        history_lengths.push(per_order);
+        if pending_sources.len() >= args.batch * 19 {
+            let (added, last) = flush(&pool, tenant, args.derived, &mut pending_sources).await?;
+            tenant_entries += added;
+            last_seq = last.max(last_seq);
+        }
+    }
+    let (added, last) = flush(&pool, tenant, args.derived, &mut pending_sources).await?;
+    tenant_entries += added;
+    last_seq = last.max(last_seq);
+    // Late corrections: supersedes must point at the committed fee entry; resolve by record id.
+    let mut late_vals = Vec::new();
+    for mut e in pending_late.drain(..) {
+        if e.supersedes_entry_id.is_none() && e.track == Track::Fact {
+            let rec = e.record_id.trim_start_matches("correction:").to_string();
+            // RLS needs app.tenant_id on the connection: look up inside a tenant transaction.
+            let mut tx = with_tenant(&pool, tenant).await?;
+            let row = sqlx::query("SELECT entry_id FROM journal_entries WHERE tenant_id = $1 AND record_id = $2 AND event_type = 'payment.fee_booked' AND track = 'source' ORDER BY journal_sequence LIMIT 1")
+                .bind(tenant)
+                .bind(&rec)
+                .fetch_optional(&mut *tx)
+                .await?;
+            tx.commit().await?;
+            if let Some(r) = row {
+                e.supersedes_entry_id = Some(r.get::<Uuid, _>("entry_id"));
+                e.record_id = rec;
+            } else {
+                continue;
+            }
+        }
+        late_vals.push(append_json(&e));
+    }
+    for chunk in late_vals.chunks(200) {
+        let out = append(&pool, tenant, chunk).await?;
+        tenant_entries += out.len() as u64;
+        last_seq = out.last().map(|o| o.1).unwrap_or(last_seq);
+    }
+    eprintln!("tenant {ti}/{total_tenants}: {n_orders} orders, {tenant_entries} entries, {:?} elapsed", started.elapsed());
+    Ok(TenantOut {
+        index: ti,
+        tenant,
+        manifest: json!({"tenant_id": tenant, "display_name": format!("Corpus tenant {ti} ({tag})"), "orders": n_orders, "entries": tenant_entries, "last_sequence": last_seq, "skus": skus.len()}),
+        history_lengths,
+        order_ids,
+        entries: tenant_entries,
+        orders: n_orders,
+    })
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    let args = parse_args()?;
+    let args = Arc::new(parse_args()?);
     let started = Instant::now();
-    let golden = GoldenScenario::load_from_repo().context("GOLDEN-ORDER-TO-CASH.json")?;
-    let pool = PgPoolOptions::new().max_connections(8).connect_with(pool()?).await?;
+    let golden = Arc::new(GoldenScenario::load_from_repo().context("GOLDEN-ORDER-TO-CASH.json")?);
+    let pool = PgPoolOptions::new().max_connections((args.parallel + 2) as u32).connect_with(pool()?).await?;
     let mut rng = ChaCha20Rng::seed_from_u64(args.seed);
     // Orders needed: the richest history has 19 observations -> up to ~63 entries with derived
     // tracks; plan with a safety margin and verify the minimum afterwards.
@@ -276,139 +422,46 @@ async fn main() -> Result<()> {
     let orders_for_entries = ((args.min_entries as f64) / avg_entries_per_order).ceil() as usize;
     let total_orders = args.min_orders.max(orders_for_entries);
     let per_tenant = plan_orders(total_orders, args.tenants, &mut rng);
+    let total_tenants = per_tenant.len();
     let currencies = ["EUR", "EUR", "EUR", "USD", "CHF", "GBP"];
-    let connections = ["stock", "shop", "invoice", "payment", "carrier", "bank_csv"];
+
+    // Bounded concurrency: the largest tenant (index 0) starts first; every tenant appends on its own
+    // connection (sequence allocation is serialized per tenant by the journal's tenant row lock).
+    let semaphore = Arc::new(tokio::sync::Semaphore::new(args.parallel));
+    let mut set = tokio::task::JoinSet::new();
+    for (ti, n_orders) in per_tenant.iter().enumerate() {
+        let (pool, golden, args, sem) = (pool.clone(), golden.clone(), args.clone(), semaphore.clone());
+        let n = *n_orders;
+        set.spawn(async move {
+            let _permit = sem.acquire_owned().await.expect("semaphore");
+            generate_tenant(pool, golden, args, ti, n, started, total_tenants).await
+        });
+    }
+    let mut outs: Vec<TenantOut> = Vec::new();
+    while let Some(r) = set.join_next().await {
+        outs.push(r.map_err(|e| anyhow!("tenant task failed: {e}"))??);
+    }
+    outs.sort_by_key(|o| o.index);
+
     let mut manifest_tenants = Vec::new();
     let mut total_entries: u64 = 0;
     let mut total_orders_done: usize = 0;
     let mut history_lengths: Vec<usize> = Vec::new();
     let mut hot_set: Vec<Value> = Vec::new();
     let mut cold_set: Vec<Value> = Vec::new();
-    let base_day = Utc.with_ymd_and_hms(2026, 8, 1, 9, 0, 0).unwrap();
-
-    for (ti, n_orders) in per_tenant.iter().enumerate() {
-        let tenant = Uuid::new_v4();
-        let tag = hex(&mut rng, 4);
-        create_tenant(&pool, tenant, &format!("Corpus tenant {ti} ({tag})")).await?;
-        let mut conn_ids = HashMap::new();
-        for c in connections {
-            conn_ids.insert(c.to_string(), create_connection(&pool, tenant, c).await?);
-        }
-        let skus: Vec<String> = (0..(50 + rng.gen_range(0..450))).map(|_| format!("SKU-{}", hex(&mut rng, 8).to_uppercase())).collect();
-        let mut tenant_entries: u64 = 0;
-        let mut last_seq = 0i64;
-        let mut order_ids: Vec<String> = Vec::new();
-        let mut pending_sources: Vec<Entry> = Vec::new();
-        let mut pending_late: Vec<Entry> = Vec::new();
-        for n in 0..*n_orders {
-            let plan = make_plan(&mut rng, &tag, n, &skus, &currencies);
-            let sku = skus[rng.gen_range(0..skus.len())].clone();
-            let mut events: Vec<GoldenEvent> = mutate(&golden, &plan.params).into_iter().take(plan.events).collect();
-            let base_time = base_day + ChronoDuration::minutes(rng.gen_range(0..(90 * 24 * 60)));
-            rewrite_ids(&mut events, &sku, &plan.customer, &plan.tracking, base_time);
-            let order_id = format!("#1001{}", plan.params.suffix);
-            order_ids.push(order_id.clone());
-            let mut per_order = 0usize;
-            for ev in &events {
-                let conn = conn_ids[&ev.connection];
-                let src = source_entry(tenant, 0, ev, conn, Utc::now());
-                per_order += 1 + if args.derived { blackbox_domain::fixture::derived_tracks(&ev.kind).len() } else { 0 };
-                pending_sources.push(src);
-            }
-            // Extra carrier scans (high-cardinality tracking identities, late observations).
-            if plan.events >= 10 {
-                for s in 0..plan.extra_scans {
-                    let at = base_time + ChronoDuration::minutes(9) + ChronoDuration::hours(s as i64 + 1);
-                    let ev = GoldenEvent {
-                        id: format!("scan{s}"),
-                        connection: "carrier".into(),
-                        provider_event_id: format!("scan-{}-{}", plan.tracking, s),
-                        occurred_at: at,
-                        entity: [("order".to_string(), order_id.clone()), ("customer".to_string(), plan.customer.clone())].into_iter().collect(),
-                        kind: "carrier.scan_observed".into(),
-                        payload: json!({"tracking_number": plan.tracking, "shipment": format!("SHIP-1001{}", plan.params.suffix), "status_code": if s == 0 { "in_transit" } else { "delivered" }, "effective_time": at.to_rfc3339(), "scan_identity": format!("{}-{}", plan.tracking, s)}).as_object().cloned().unwrap(),
-                        evidence_refs: vec![],
-                    };
-                    pending_sources.push(source_entry(tenant, 0, &ev, conn_ids["carrier"], Utc::now()));
-                    per_order += 2;
-                }
-            }
-            if plan.late_failed_attempt && plan.events >= 6 {
-                let ev = GoldenEvent {
-                    id: "latefail".into(),
-                    connection: "payment".into(),
-                    provider_event_id: format!("fail-{}", plan.params.suffix),
-                    occurred_at: base_time + ChronoDuration::minutes(4) + ChronoDuration::seconds(30),
-                    entity: [("order".to_string(), order_id.clone()), ("customer".to_string(), plan.customer.clone())].into_iter().collect(),
-                    kind: "payment.failed".into(),
-                    payload: json!({"transaction": format!("TX-1001{}", plan.params.suffix), "attempt": format!("ATT{}", plan.params.suffix), "amount_minor": plan.params.gross(), "currency": plan.params.currency, "reason": "card_declined"}).as_object().cloned().unwrap(),
-                    evidence_refs: vec![],
-                };
-                pending_late.push(source_entry(tenant, 0, &ev, conn_ids["payment"], Utc::now()));
-                per_order += 3;
-            }
-            if plan.late_fee_correction && plan.events >= 7 {
-                // Fee correction appended later as a fact superseding the fee observation.
-                let mut corr = source_entry(tenant, 0, &events[6], conn_ids["payment"], Utc::now());
-                corr.track = Track::Fact;
-                corr.provider_event_id = None;
-                corr.correlation_id = Some(format!("review:fee{}", plan.params.suffix));
-                corr.payload = json!({"transaction": format!("TX-1001{}", plan.params.suffix), "fee_minor": plan.params.fee_minor + 7, "currency": plan.params.currency, "reason": "statement correction"});
-                corr.payload_hash = payload_hash(&corr.payload);
-                corr.derivation_rule = Some("review.decision".into());
-                corr.record_id = format!("correction:{}", corr.record_id);
-                pending_late.push(corr);
-                per_order += 1;
-            }
-            history_lengths.push(per_order);
-            if pending_sources.len() >= args.batch * 19 {
-                let (added, last) = flush(&pool, tenant, args.derived, &mut pending_sources).await?;
-                tenant_entries += added;
-                last_seq = last.max(last_seq);
-            }
-        }
-        let (added, last) = flush(&pool, tenant, args.derived, &mut pending_sources).await?;
-        tenant_entries += added;
-        last_seq = last.max(last_seq);
-        // Late corrections: supersedes must point at the committed fee entry; resolve by record id.
-        let mut late_vals = Vec::new();
-        for mut e in pending_late.drain(..) {
-            if e.supersedes_entry_id.is_none() && e.track == Track::Fact {
-                let rec = e.record_id.trim_start_matches("correction:").to_string();
-                // RLS needs app.tenant_id on the connection: look up inside a tenant transaction.
-                let mut tx = with_tenant(&pool, tenant).await?;
-                let row = sqlx::query("SELECT entry_id FROM journal_entries WHERE tenant_id = $1 AND record_id = $2 AND event_type = 'payment.fee_booked' AND track = 'source' ORDER BY journal_sequence LIMIT 1")
-                    .bind(tenant)
-                    .bind(&rec)
-                    .fetch_optional(&mut *tx)
-                    .await?;
-                tx.commit().await?;
-                if let Some(r) = row {
-                    e.supersedes_entry_id = Some(r.get::<Uuid, _>("entry_id"));
-                    e.record_id = rec;
-                } else {
-                    continue;
-                }
-            }
-            late_vals.push(append_json(&e));
-        }
-        for chunk in late_vals.chunks(200) {
-            let out = append(&pool, tenant, chunk).await?;
-            tenant_entries += out.len() as u64;
-            last_seq = out.last().map(|o| o.1).unwrap_or(last_seq);
-        }
-        total_entries += tenant_entries;
-        total_orders_done += n_orders;
-        if ti == 0 {
-            let mut ids = order_ids.clone();
+    for o in &outs {
+        total_entries += o.entries;
+        total_orders_done += o.orders;
+        history_lengths.extend(o.history_lengths.iter().copied());
+        if o.index == 0 {
+            let mut ids = o.order_ids.clone();
             ids.shuffle(&mut rng);
-            hot_set = ids.iter().take(args.hot_orders).map(|o| json!({"tenant_id": tenant, "order_id": o})).collect();
-            cold_set = ids.iter().skip(args.hot_orders).take(500).map(|o| json!({"tenant_id": tenant, "order_id": o})).collect();
+            hot_set = ids.iter().take(args.hot_orders).map(|id| json!({"tenant_id": o.tenant, "order_id": id})).collect();
+            cold_set = ids.iter().skip(args.hot_orders).take(500).map(|id| json!({"tenant_id": o.tenant, "order_id": id})).collect();
         } else if cold_set.len() < 1000 {
-            cold_set.extend(order_ids.iter().take(10).map(|o| json!({"tenant_id": tenant, "order_id": o})));
+            cold_set.extend(o.order_ids.iter().take(10).map(|id| json!({"tenant_id": o.tenant, "order_id": id})));
         }
-        manifest_tenants.push(json!({"tenant_id": tenant, "display_name": format!("Corpus tenant {ti} ({tag})"), "orders": n_orders, "entries": tenant_entries, "last_sequence": last_seq, "skus": skus.len()}));
-        eprintln!("tenant {ti}/{}: {} orders, {} entries, {:?} elapsed", per_tenant.len(), n_orders, tenant_entries, started.elapsed());
+        manifest_tenants.push(o.manifest.clone());
     }
     history_lengths.sort_unstable();
     let pct = |p: f64| -> usize {
@@ -419,11 +472,12 @@ async fn main() -> Result<()> {
     let mut manifest = Map::new();
     manifest.insert("generator".into(), json!(GENERATOR_VERSION));
     manifest.insert("seed".into(), json!(args.seed));
+    manifest.insert("parallel".into(), json!(args.parallel));
     manifest.insert("generated_at".into(), json!(Utc::now().to_rfc3339()));
     manifest.insert("source_fixture".into(), json!("GOLDEN-ORDER-TO-CASH.json (mutated per order; payload shapes unchanged)"));
     manifest.insert("derived_entries".into(), json!(args.derived));
     manifest.insert("tenants".into(), json!(manifest_tenants));
-    manifest.insert("totals".into(), json!({"tenants": per_tenant.len(), "orders": total_orders_done, "journal_entries": total_entries, "largest_tenant_order_fraction": largest as f64 / total_orders_done as f64}));
+    manifest.insert("totals".into(), json!({"tenants": outs.len(), "orders": total_orders_done, "journal_entries": total_entries, "largest_tenant_order_fraction": largest as f64 / total_orders_done as f64}));
     manifest.insert("order_history_entries".into(), json!({"p50": pct(0.5), "p95": pct(0.95), "max": history_lengths.last().copied().unwrap_or(0), "min": history_lengths.first().copied().unwrap_or(0)}));
     manifest.insert("features".into(), json!({"five_tracks": args.derived, "late_corrections": "5% fee corrections (supersedes_entry_id) + 8% late failed attempts", "high_cardinality": "random order/customer/SKU/tracking identifiers", "currencies": currencies, "short_histories": "25% stop after delivery, 15% after restock"}));
     manifest.insert("hot_set".into(), json!(hot_set));

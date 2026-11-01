@@ -1,0 +1,54 @@
+# command: PGHOST=127.0.0.1 PGPORT=19186 PGDATABASE=blackbox PGUSER=bb_api PGPASSWORD_FILE=<install>/secrets/pg_api_password target/release/corpus --seed 42 --tenants 50 --min-entries 250000 --min-orders 10000 --parallel 6 --manifest reports/evidence/PILOT-09/corpus-manifest.json
+# started 2026-11-01T12:25:16Z commit 482bdf592a599102a5ddcc18cf4e48f176241177 (+ uncommitted corpus-v2 generator change); via loopback TCP proxy container into the blackbox-agent-c-ops backend network
+tenant 16/50: 34 orders, 1920 entries, 79.450164542s elapsed
+tenant 11/50: 39 orders, 2164 entries, 82.295842208s elapsed
+tenant 5/50: 49 orders, 2720 entries, 84.583062292s elapsed
+tenant 3/50: 38 orders, 2086 entries, 124.367811583s elapsed
+tenant 21/50: 37 orders, 1956 entries, 140.146357667s elapsed
+tenant 4/50: 50 orders, 2738 entries, 167.248851542s elapsed
+tenant 2/50: 92 orders, 5177 entries, 229.45321275s elapsed
+tenant 1/50: 136 orders, 7503 entries, 284.664326292s elapsed
+tenant 22/50: 103 orders, 5962 entries, 360.854922417s elapsed
+tenant 23/50: 138 orders, 7806 entries, 377.830600042s elapsed
+tenant 24/50: 150 orders, 8471 entries, 394.620245167s elapsed
+tenant 25/50: 127 orders, 6814 entries, 416.518632208s elapsed
+tenant 28/50: 54 orders, 2954 entries, 418.488074875s elapsed
+tenant 27/50: 82 orders, 4511 entries, 439.83087925s elapsed
+tenant 31/50: 35 orders, 1900 entries, 440.957790042s elapsed
+tenant 26/50: 147 orders, 7787 entries, 454.47898175s elapsed
+tenant 29/50: 71 orders, 3817 entries, 455.855420542s elapsed
+tenant 35/50: 63 orders, 3648 entries, 485.85531875s elapsed
+tenant 32/50: 125 orders, 6708 entries, 508.274477458s elapsed
+tenant 33/50: 134 orders, 7092 entries, 512.7207505s elapsed
+tenant 30/50: 162 orders, 9241 entries, 522.971826625s elapsed
+tenant 34/50: 119 orders, 6713 entries, 531.58561875s elapsed
+tenant 38/50: 69 orders, 3827 entries, 558.012945708s elapsed
+tenant 37/50: 92 orders, 4955 entries, 567.148512333s elapsed
+tenant 36/50: 156 orders, 8752 entries, 573.362112083s elapsed
+tenant 41/50: 56 orders, 3160 entries, 574.75351975s elapsed
+tenant 39/50: 112 orders, 6155 entries, 583.404015458s elapsed
+tenant 40/50: 171 orders, 9456 entries, 619.5542375s elapsed
+tenant 43/50: 105 orders, 5709 entries, 625.369996333s elapsed
+tenant 44/50: 114 orders, 6047 entries, 655.863473333s elapsed
+tenant 45/50: 107 orders, 5660 entries, 662.762922292s elapsed
+tenant 42/50: 182 orders, 10104 entries, 683.353174375s elapsed
+tenant 49/50: 67 orders, 3683 entries, 710.471879167s elapsed
+tenant 47/50: 114 orders, 6383 entries, 762.204482333s elapsed
+tenant 46/50: 152 orders, 8843 entries, 820.959357583s elapsed
+tenant 48/50: 120 orders, 6581 entries, 823.487137292s elapsed
+tenant 17/50: 67 orders, 3598 entries, 825.421761583s elapsed
+tenant 19/50: 53 orders, 3079 entries, 836.451220708s elapsed
+tenant 18/50: 131 orders, 7141 entries, 859.651067583s elapsed
+tenant 20/50: 89 orders, 4996 entries, 931.373154208s elapsed
+tenant 12/50: 145 orders, 7911 entries, 958.211039167s elapsed
+tenant 14/50: 128 orders, 6931 entries, 962.586279875s elapsed
+tenant 13/50: 182 orders, 10120 entries, 985.147797625s elapsed
+tenant 15/50: 145 orders, 7832 entries, 986.920115417s elapsed
+tenant 8/50: 98 orders, 5462 entries, 988.733139917s elapsed
+tenant 9/50: 32 orders, 1842 entries, 1009.287115375s elapsed
+tenant 6/50: 80 orders, 4499 entries, 1023.480120625s elapsed
+tenant 10/50: 85 orders, 4652 entries, 1094.615531167s elapsed
+tenant 7/50: 163 orders, 8969 entries, 1145.392034s elapsed
+# exit: 137 finished 2026-11-01T12:54:04Z
+# generator stopped by the verifier at 2026-11-01T13:06:04Z: the last 1900-source batch of tenant 0 had been running for >9 minutes (PostgreSQL CPU-bound while the Docker VM load average was 44 on 8 vCPUs: concurrent rc6b image build, three projects' stacks, engine tail apply). Elapsed since start 12:22:04Z: ~43 min. The dataset manifest is reconstructed from the database by tests/perf/manifest-from-db.mjs and labeled as such.
+# manifest reconstruction at 2026-11-01T13:24:39Z: DATABASE_URL=postgres://postgres:***@127.0.0.1:19186/blackbox node tests/perf/manifest-from-db.mjs --out reports/evidence/PILOT-09/corpus-manifest.json --since 2026-11-01T12:22:00Z --seed 42

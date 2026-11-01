@@ -170,7 +170,9 @@
     "demoPoint3": "All answers still come from the same deterministic engine as real data.",
     "demoConfirm": "Load demo scenario",
     "demoLoaded": "Demo scenario loaded: {{count}} journal entries committed.",
-    "demoAlready": "The demo scenario was already loaded; nothing changed."
+    "demoAlready": "The demo scenario was already loaded; nothing changed.",
+    "demoAlongside": "Your workspace already holds data from non-demo sources. The demo scenario is loaded into separately labeled demo connections and never changes your own data. Confirm again to add it alongside.",
+    "demoConfirmAlongside": "Add demo data alongside my data"
   },
   "sources": {
     "title": "Your business has many sources.",
@@ -188,7 +190,8 @@
       "lastCheck": "Last successful check",
       "lastNewEvent": "Last new event",
       "nextCheck": "Next check",
-      "pending": "Pending / failed"
+      "pending": "Pending / failed",
+      "created": "Connected since"
     },
     "failedShort": "failed",
     "noNextCheck": "no scheduled check",
@@ -205,12 +208,30 @@
     "billingNote": "Invoicing tools are planned. Invoice, credit note and dispatch facts can be supplied through the signed generic input in the meantime.",
     "modeNote": "Connectivity mode: local_standalone — outbound import, polling and reconciliation only. No webhook callback, tunnel or public relay is registered. Provider accounts may still require their own authorization prerequisites.",
     "categories": {
-      "shops": { "title": "Shops & business", "description": "Orders, items, documents and promises from your systems." },
-      "payment": { "title": "Payments & payouts", "description": "From checkout to the bank record. Every status has an amount, an order and an origin." },
-      "billing": { "title": "Invoices & accounting", "description": "Invoice, reminder, correction and payment status. Every change becomes part of the history." },
-      "shipping": { "title": "Shipping sources", "description": "Carrier scans complete the actual transport history of a shipment." },
-      "other": { "title": "Typed input & replay", "description": "Signed producers, fixture replay and internal policies feed the same journal." }
-    }
+      "shops": {
+        "title": "Shops & business",
+        "description": "Orders, items, documents and promises from your systems."
+      },
+      "payment": {
+        "title": "Payments & payouts",
+        "description": "From checkout to the bank record. Every status has an amount, an order and an origin."
+      },
+      "billing": {
+        "title": "Invoices & accounting",
+        "description": "Invoice, reminder, correction and payment status. Every change becomes part of the history."
+      },
+      "shipping": {
+        "title": "Shipping sources",
+        "description": "Carrier scans complete the actual transport history of a shipment."
+      },
+      "other": {
+        "title": "Typed input & replay",
+        "description": "Signed producers, fixture replay and internal policies feed the same journal."
+      }
+    },
+    "noCapabilitiesYet": "no capability observed yet",
+    "plannedNote": "Providers marked “planned” come from the integration register and have no data path in this pilot.",
+    "observedAt": "Readiness observed {{time}}."
   },
   "providerState": {
     "implemented": "Available",
@@ -220,7 +241,9 @@
     "unsupported": "Unsupported",
     "planned": "Planned",
     "plannedHint": "This provider is planned for a later release. A visible card does not supply data.",
-    "unsupportedHint": "Not supported in the local pilot."
+    "unsupportedHint": "Not supported in the local pilot.",
+    "apiOnly": "Via API",
+    "apiOnlyHint": "This producer is fed through the local HTTP API (no browser dialog in this pilot)."
   },
   "sourceState": {
     "current": "Current",
@@ -229,7 +252,15 @@
     "error": "Error",
     "initial_import": "Initial import",
     "disconnected": "Disconnected",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "healthy": "healthy",
+    "working": "working",
+    "degraded": "degraded",
+    "unavailable": "unavailable",
+    "configured": "configured",
+    "catching_up": "catching up",
+    "backfilling": "backfilling",
+    "validating": "validating"
   },
   "nextCheckReason": {
     "schedule": "scheduled ({{detail}})",
@@ -238,28 +269,91 @@
     "push_only_signed_input": "push-only signed input — no poll applies",
     "awaiting_import_plan": "waiting for an import plan",
     "disconnected_history_preserved": "disconnected — history preserved, coverage frozen",
-    "paused": "paused by owner"
+    "paused": "paused by owner",
+    "backoff": "retrying with backoff",
+    "producer_driven": "producer-driven: no scheduled poll",
+    "resumed": "resumed: awaiting next check",
+    "pause": "paused: no further checks",
+    "disconnect": "disconnected: no further checks",
+    "scheduled poll": "scheduled poll"
   },
   "providers": {
-    "shopify": { "name": "Shopify", "description": "Every order becomes an event. Stock and reservations stay separately traceable. Read-only Admin API token, outbound polling." },
-    "shopify_payments": { "name": "Shopify Payments", "description": "Links orders to charge, fees and payout. An authorization stays distinguishable from a captured payment." },
-    "generic": { "name": "API (signed typed input)", "description": "Connect other systems through one typed event format with HMAC-signed producer identity. Policies, promises, allocations and warehouse evidence arrive here." },
-    "replay": { "name": "Replay (fixtures)", "description": "Replays labeled fixture events through the real ingestion pipeline. For tests and the demo only." },
-    "bank_csv": { "name": "Bank CSV", "description": "Upload booked bank statements. Preview before commit; bank confirmation needs independent booked data." },
-    "woocommerce": { "name": "WooCommerce", "description": "Another shop can feed the same flight recorder. Planned." },
-    "shopware": { "name": "Shopware 6", "description": "Shopware orders with deliveries and tracking numbers. Planned." },
-    "email": { "name": "E-mail", "description": "Delivery promises and changes from messages. Automatic extraction is not part of the local pilot." },
-    "stripe": { "name": "Stripe", "description": "Successful and failed payments, fees and refunds up to the payout. Planned." },
-    "paypal": { "name": "PayPal", "description": "Which order was paid and which amount is held because of a dispute. Planned." },
-    "mollie": { "name": "Mollie", "description": "Payment, refund, fees and settlement together. Planned." },
-    "easybill": { "name": "easybill", "description": "Invoices, outstanding items and payment status. Planned." },
-    "lexware": { "name": "Lexware Office", "description": "Invoice documents, due dates and reported payments. Planned." },
-    "sevdesk": { "name": "sevdesk", "description": "From open document to payment: invoices and reminders. Planned." },
-    "billbee": { "name": "Billbee", "description": "Order, invoice document and credit note in one history. Planned." },
-    "sufio": { "name": "Sufio", "description": "Shopify orders with their invoices up to dispatch and payment status. Planned." },
-    "dhl": { "name": "DHL", "description": "Parcel scans from label to delivery. Planned; retention and permitted-use restrictions must be resolved first." },
-    "dpd": { "name": "DPD", "description": "Shipment status and delivery clarifications. Planned." },
-    "ups": { "name": "UPS", "description": "Label, transport scans and delivery confirmation. Planned." }
+    "shopify": {
+      "name": "Shopify",
+      "description": "Every order becomes an event. Stock and reservations stay separately traceable. Read-only Admin API token, outbound polling."
+    },
+    "shopify_payments": {
+      "name": "Shopify Payments",
+      "description": "Links orders to charge, fees and payout. An authorization stays distinguishable from a captured payment."
+    },
+    "generic": {
+      "name": "API (signed typed input)",
+      "description": "Connect other systems through one typed event format with HMAC-signed producer identity. Policies, promises, allocations and warehouse evidence arrive here."
+    },
+    "replay": {
+      "name": "Replay (fixtures)",
+      "description": "Replays labeled fixture events through the real ingestion pipeline. For tests and the demo only."
+    },
+    "bank_csv": {
+      "name": "Bank CSV",
+      "description": "Upload booked bank statements. Preview before commit; bank confirmation needs independent booked data."
+    },
+    "woocommerce": {
+      "name": "WooCommerce",
+      "description": "Another shop can feed the same flight recorder. Planned."
+    },
+    "shopware": {
+      "name": "Shopware 6",
+      "description": "Shopware orders with deliveries and tracking numbers. Planned."
+    },
+    "email": {
+      "name": "E-mail",
+      "description": "Delivery promises and changes from messages. Automatic extraction is not part of the local pilot."
+    },
+    "stripe": {
+      "name": "Stripe",
+      "description": "Successful and failed payments, fees and refunds up to the payout. Planned."
+    },
+    "paypal": {
+      "name": "PayPal",
+      "description": "Which order was paid and which amount is held because of a dispute. Planned."
+    },
+    "mollie": {
+      "name": "Mollie",
+      "description": "Payment, refund, fees and settlement together. Planned."
+    },
+    "easybill": {
+      "name": "easybill",
+      "description": "Invoices, outstanding items and payment status. Planned."
+    },
+    "lexware": {
+      "name": "Lexware Office",
+      "description": "Invoice documents, due dates and reported payments. Planned."
+    },
+    "sevdesk": {
+      "name": "sevdesk",
+      "description": "From open document to payment: invoices and reminders. Planned."
+    },
+    "billbee": {
+      "name": "Billbee",
+      "description": "Order, invoice document and credit note in one history. Planned."
+    },
+    "sufio": {
+      "name": "Sufio",
+      "description": "Shopify orders with their invoices up to dispatch and payment status. Planned."
+    },
+    "dhl": {
+      "name": "DHL",
+      "description": "Parcel scans from label to delivery. Planned; retention and permitted-use restrictions must be resolved first."
+    },
+    "dpd": {
+      "name": "DPD",
+      "description": "Shipment status and delivery clarifications. Planned."
+    },
+    "ups": {
+      "name": "UPS",
+      "description": "Label, transport scans and delivery confirmation. Planned."
+    }
   },
   "capabilities": {
     "orders": "Orders",
@@ -281,7 +375,16 @@
     "invoice": "Invoices",
     "collection": "Customer payments",
     "settlement": "Payouts",
-    "reversal": "Returns & refunds"
+    "reversal": "Returns & refunds",
+    "stock": "Stock",
+    "allocations": "Allocations",
+    "fulfillments": "Fulfillments",
+    "returns": "Returns",
+    "receipts": "Receipts",
+    "provider_ledger": "Provider ledger",
+    "refunds": "Refunds",
+    "bank": "Bank",
+    "tracking": "Tracking"
   },
   "limitations": {
     "historical orders older than 60 days require read_all_orders": "Historical orders older than 60 days require the read_all_orders scope.",
@@ -301,9 +404,18 @@
     "planned": "{{provider}} is planned for a later release. No data can be imported from a planned card.",
     "unsupported": "{{provider}} is not supported in the local pilot.",
     "steps": {
-      "recognize": { "title": "Recognize the source", "detail": "Account identity, grants and available history are checked first." },
-      "append": { "title": "Append events to the flight recorder", "detail": "With source ID, timestamp and the original record." },
-      "context": { "title": "Gain evidence-backed context", "detail": "Facts, commitments, movements and reservations." }
+      "recognize": {
+        "title": "Recognize the source",
+        "detail": "Account identity, grants and available history are checked first."
+      },
+      "append": {
+        "title": "Append events to the flight recorder",
+        "detail": "With source ID, timestamp and the original record."
+      },
+      "context": {
+        "title": "Gain evidence-backed context",
+        "detail": "Facts, commitments, movements and reservations."
+      }
     },
     "shopify": {
       "domain": "Shop domain",
@@ -322,7 +434,10 @@
       "producerHint": "Stable identifier of the system that signs records.",
       "secret": "HMAC secret",
       "secretHint": "Shared secret used to sign X-Producer-Signature. Rotate it from the producer side.",
-      "howTo": "Send typed records to the local ingestion endpoint:"
+      "howTo": "Send typed records to the local ingestion endpoint:",
+      "secretTitle": "Producer created — signing secret shown once",
+      "secretOnce": "Give this secret to the system that sends records. It is stored encrypted and cannot be displayed again; create a new producer if it is lost.",
+      "copySecret": "Copy secret"
     },
     "bank": {
       "file": "CSV file",
@@ -357,7 +472,10 @@
       "pending": "Pending",
       "oldestPending": "oldest",
       "failed": "Failed",
-      "cursors": "Cursors"
+      "cursors": "Cursors",
+      "consecutiveFailures": "{{count}} consecutive failures",
+      "missingGrants": "Missing permissions",
+      "nextAction": "Next action"
     },
     "checkVsEventNote": "A successful empty check advances “last successful check” but not “last new event”. Neither proves complete history.",
     "coverage": "Coverage",
@@ -387,7 +505,8 @@
       "committed": "Committed",
       "applied": "Query-ready",
       "failed": "Failed",
-      "unknownTotal": "total unknown"
+      "unknownTotal": "total unknown",
+      "duplicates": "duplicates"
     },
     "cohort": "cohort: {{cohort}}",
     "progressLabel": "{{phase}} progress",
@@ -406,7 +525,17 @@
       "disconnect": "Disconnect",
       "disconnectHelp": "Stops collection and preserves all history with frozen coverage. Nothing is deleted.",
       "disconnectDone": "Connection disconnected; history preserved."
-    }
+    },
+    "noObservation": "No capability observation yet.",
+    "capabilitiesTitle": "Capabilities",
+    "noCapabilities": "No capability health recorded yet.",
+    "retryAfter": "retry after {{time}}",
+    "hasSecret": "Secret stored (encrypted)",
+    "planProposal": "Proposed history start: {{from}} ({{tz}}).",
+    "questionsTitle": "Questions fed by this source",
+    "questionsIntro": "Readiness is computed from the datasets this connection actually delivered, not from the card state.",
+    "noQuestions": "This connection feeds no question yet.",
+    "attempt": "attempt {{count}}"
   },
   "plan": {
     "title": "Import period",
@@ -448,14 +577,17 @@
     "inherited": "inherited workspace start",
     "restrictions": "Known restrictions",
     "noHistory": "no history (from now on)",
-    "save": "Save plan and start"
+    "save": "Save plan and start",
+    "owner": "owner"
   },
   "runKind": {
     "initial": "Initial import",
     "history_expansion": "History expansion",
     "incremental": "Incremental",
     "reconciliation": "Reconciliation",
-    "check": "Credential check"
+    "check": "Credential check",
+    "backfill": "History import",
+    "reconcile": "Reconciliation"
   },
   "runState": {
     "queued": "Queued",
@@ -504,13 +636,19 @@
     "countLabel_one": "{{count}} open review case",
     "countLabel_other": "{{count}} open review cases",
     "filterState": "State",
-    "states": { "all": "All", "open": "Open", "in_progress": "In progress", "resolved": "Resolved" },
+    "states": {
+      "all": "All",
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved"
+    },
     "types": {
       "quarantined_input": "Quarantined input",
       "unresolved_link": "Unresolved link",
       "content_conflict": "Content conflict",
       "failed_derivation": "Failed derivation",
-      "contradictory_assertion": "Contradictory assertions"
+      "contradictory_assertion": "Contradictory assertions",
+      "ambiguous_bank_match": "Ambiguous bank match"
     },
     "empty": "No review cases match.",
     "source": "Source",
@@ -548,7 +686,11 @@
     "decisionSaved": "Decision saved; recalculating affected answers.",
     "leftOpen": "Case left open.",
     "staleRevision": "This case changed since you loaded it (another decision or recalculation). It was reloaded — please decide again.",
-    "invalidJson": "The correction payload is not valid JSON."
+    "invalidJson": "The correction payload is not valid JSON.",
+    "inProgressNote": "Retry requested — waiting for the worker",
+    "refs": "References",
+    "updated": "Updated",
+    "ownerActor": "owner"
   },
   "questions": {
     "title": "Good questions. Evidence-backed answers.",
@@ -602,14 +744,18 @@
     "evidenceDrawerTitle": "Evidence for this answer",
     "evidenceEyebrow": "Original records",
     "evidenceIntro_one": "{{count}} journal entry supports this answer.",
-    "evidenceIntro_other": "{{count}} journal entries support this answer."
+    "evidenceIntro_other": "{{count}} journal entries support this answer.",
+    "unsupportedHeadline": "This question is not supported for the current data.",
+    "noBasis": "no basis observation",
+    "populationLine": "{{considered}} records considered · {{returned}} returned"
   },
   "answerStatus": {
     "complete": "Complete",
     "partial": "Partial",
     "insufficient_data": "Unknown — insufficient data",
     "conflict": "Conflict",
-    "unsupported": "Unsupported"
+    "unsupported": "Unsupported",
+    "unknown": "Unknown — insufficient data"
   },
   "answerSummaries": {
     "no_data_yet": "No journal data is available yet. Connect a source or run the example scenario.",
@@ -622,7 +768,9 @@
     "no_overlap_found_partial": "No overlap found in the verified data, but dispute coverage is unavailable — this is partial, not a clearance.",
     "delay_impact_conflict": "The supply promise changed, but allocations to open orders are missing. Impact cannot be resolved automatically.",
     "missing_datasets": "Required datasets are missing for this question.",
-    "empty_with_coverage": "No records match within the verified coverage."
+    "empty_with_coverage": "No records match within the verified coverage.",
+    "can_fulfill_yes": "Yes — {{available}} available, {{requested}} requested (shortfall {{shortfall}}).",
+    "can_fulfill_no": "No — only {{available}} available, {{requested}} requested (shortfall {{shortfall}})."
   },
   "answerWarnings": {
     "incoming_supply_not_counted": "Incoming supply (PO-208, promised 5 Nov) is a commitment. It counts as stock only after goods receipt.",
@@ -635,11 +783,32 @@
     "identity": "entity identity"
   },
   "datasets": {
-    "orders": "orders", "stock": "stock", "allocations": "allocations", "policy": "policies", "coverage": "coverage", "identity": "identity",
-    "fulfillments": "fulfillments", "supply": "supply", "promises": "promises", "tracking": "tracking", "communications": "communications",
-    "invoices": "invoices", "invoice_dispatch": "invoice dispatch", "payments": "payments", "payment_allocations": "payment allocations", "cases": "cases",
-    "provider_ledger": "provider ledger", "positions": "positions", "payouts": "payouts", "bank": "bank", "holds": "holds",
-    "returns": "returns", "receipts": "receipts", "refunds": "refunds", "entitlements": "entitlements", "disputes": "disputes"
+    "orders": "orders",
+    "stock": "stock",
+    "allocations": "allocations",
+    "policy": "policies",
+    "coverage": "coverage",
+    "identity": "identity",
+    "fulfillments": "fulfillments",
+    "supply": "supply",
+    "promises": "promises",
+    "tracking": "tracking",
+    "communications": "communications",
+    "invoices": "invoices",
+    "invoice_dispatch": "invoice dispatch",
+    "payments": "payments",
+    "payment_allocations": "payment allocations",
+    "cases": "cases",
+    "provider_ledger": "provider ledger",
+    "positions": "positions",
+    "payouts": "payouts",
+    "bank": "bank",
+    "holds": "holds",
+    "returns": "returns",
+    "receipts": "receipts",
+    "refunds": "refunds",
+    "entitlements": "entitlements",
+    "disputes": "disputes"
   },
   "readiness": {
     "title": "Data status",
@@ -651,7 +820,11 @@
     "committed": "committed",
     "applied": "applied",
     "reducerVersion": "Reducer version",
-    "consistency": { "current": "current", "behind": "behind", "unknown": "unknown" },
+    "consistency": {
+      "current": "current",
+      "behind": "behind",
+      "unknown": "unknown"
+    },
     "source": "Source",
     "status": "Status",
     "lastSuccessfulCheck": "Last successful check",
@@ -696,7 +869,7 @@
     },
     "openEntry": "Open entry {{id}}",
     "supersedesShort": "supersedes earlier",
-    "consistencyNote": "Committed cursor {{cursor}} · consistency {{status}}",
+    "consistencyNote": "Committed cursor {{cursor}} · snapshot cursor {{snapshot}}",
     "truncated": "page truncated",
     "historyNote": "Superseded entries remain visible. An answer uses the latest known state; the original stays.",
     "entryEyebrow": "Journal entry",
@@ -709,9 +882,14 @@
       "connection": "Connection",
       "providerEventId": "Provider event ID",
       "schemaVersion": "Schema version",
-      "derivation": "Derivation rule"
+      "derivation": "Derivation rule",
+      "correlation": "Correlation ID",
+      "payloadHash": "Payload hash"
     },
-    "historyKind": { "backfill": "backfilled history", "live": "observed live" },
+    "historyKind": {
+      "backfill": "backfilled history",
+      "live": "observed live"
+    },
     "openConnection": "Open connection",
     "entities": "Linked entities",
     "payload": "Typed payload",
@@ -724,13 +902,15 @@
     "supersededBy": "Superseded by later entry",
     "inputEntry": "Input entry",
     "derivedEntry": "Derived entry",
-    "appendOnlyNote": "Journal entries are never edited or deleted. Corrections append new entries that reference what they supersede."
+    "appendOnlyNote": "Journal entries are never edited or deleted. Corrections append new entries that reference what they supersede.",
+    "binaryEvidence": "Binary content — available through the evidence content endpoint only."
   },
   "evidenceStatus": {
     "available": "available",
     "redacted": "redacted",
     "expired": "expired",
-    "unavailable": "unavailable"
+    "unavailable": "unavailable",
+    "restricted": "restricted"
   },
   "evidenceReason": {
     "policy:customer_communication_redacted": "Redacted by policy: customer communication content is not retained in the journal.",
@@ -738,9 +918,28 @@
     "unknown": "Original content unavailable."
   },
   "entityTypes": {
-    "order": "Order", "line": "Order line", "customer": "Customer", "item": "Item", "invoice": "Invoice", "shipment": "Shipment",
-    "transaction": "Payment", "refund": "Refund", "payout": "Payout", "return": "Return", "reservation": "Reservation", "bank_entry": "Bank entry",
-    "location": "Location", "credit_note": "Credit note", "supplier_order": "Supplier order", "provider_account": "Provider account", "provider": "Provider"
+    "order": "Order",
+    "line": "Order line",
+    "customer": "Customer",
+    "item": "Item",
+    "invoice": "Invoice",
+    "shipment": "Shipment",
+    "transaction": "Payment",
+    "refund": "Refund",
+    "payout": "Payout",
+    "return": "Return",
+    "reservation": "Reservation",
+    "bank_entry": "Bank entry",
+    "location": "Location",
+    "credit_note": "Credit note",
+    "supplier_order": "Supplier order",
+    "provider_account": "Provider account",
+    "provider": "Provider",
+    "dispute": "Dispute",
+    "hold": "Hold",
+    "case": "Case",
+    "promise": "Promise",
+    "entitlement": "Entitlement"
   },
   "entityPlaceholder": {
     "item": "SKU, e.g. CUP-OLV",
@@ -748,7 +947,9 @@
     "customer": "Customer ID",
     "invoice": "Invoice, e.g. INV-1001",
     "shipment": "Shipment, e.g. SHP-1001",
-    "provider": "Provider"
+    "provider": "Provider",
+    "transaction": "e.g. TX-1001",
+    "payout": "e.g. PO-1001"
   },
   "entity": {
     "subtitle": "Current state and complete history from the journal.",
@@ -765,6 +966,17 @@
       "order": "Ordered, shipped and returned quantities are separate. A return is not an automatic restock.",
       "item": "Available = physical − committed − reserved − damaged − safety stock − quality control. Incoming supply never fills current stock.",
       "default": "Values come from the deterministic engine at the shown cutoff."
+    },
+    "noState": "No projection exists for this entity yet (no journal entry references it).",
+    "tracksTitle": "Entries per track",
+    "trackEntries_one": "{{count}} entry",
+    "trackEntries_other": "{{count}} entries",
+    "effect": {
+      "applied": "applied",
+      "deduplicated": "deduplicated",
+      "reverted": "reverted",
+      "superseded": "superseded",
+      "ignored": "ignored"
     }
   },
   "lifecycle": {
@@ -772,7 +984,29 @@
     "corrected_open": "issued, corrected, still open",
     "captured_refunded_partially": "captured, partially refunded, paid out",
     "shipped_partially_returned": "shipped, partially returned",
-    "in_stock": "in stock"
+    "in_stock": "in stock",
+    "issued": "issued",
+    "captured": "captured",
+    "authorized": "authorized",
+    "delivered": "delivered",
+    "paid": "paid",
+    "open": "open",
+    "corrected": "corrected",
+    "cancelled": "cancelled",
+    "canceled": "cancelled",
+    "refunded": "refunded",
+    "in_transit": "in transit",
+    "bank_matched": "bank matched",
+    "announced": "announced",
+    "pending": "pending",
+    "completed": "completed",
+    "shipped": "shipped",
+    "returned": "returned",
+    "accepted": "accepted",
+    "fulfilled": "fulfilled",
+    "closed": "closed",
+    "voided": "voided",
+    "failed": "failed"
   },
   "positions": {
     "outstanding": "Currently outstanding",
@@ -785,7 +1019,25 @@
     "physical": "Physical",
     "committed": "Committed",
     "available": "Available",
-    "due_on": "due"
+    "due_on": "due",
+    "reported_open_minor": "Currently outstanding (reported)",
+    "credit_balance_minor": "Credit balance",
+    "net_minor": "Net after credits",
+    "allocated_paid_minor": "Allocated payments",
+    "captured_minor": "Captured",
+    "authorized_minor": "Authorized",
+    "fees_minor": "Fees",
+    "refunded_minor": "Refunded",
+    "held_minor": "Held",
+    "announced_minor": "Announced",
+    "in_transit_minor": "In transit to bank",
+    "bank_confirmed_minor": "Bank matched",
+    "open_receivable_minor": "Open receivable",
+    "available_stock": "Available",
+    "quarantined": "Quarantined",
+    "requested_minor": "Requested",
+    "completed_minor": "Completed",
+    "pending_minor": "Pending"
   },
   "fields": {
     "original_net": "Original net",
@@ -804,7 +1056,76 @@
     "promised_date": "Promised delivery date",
     "invoice": "Invoice",
     "payment": "Payment",
-    "incoming": "Incoming (commitment)"
+    "incoming": "Incoming (commitment)",
+    "item_id": "Item",
+    "requested_quantity": "Requested quantity",
+    "incoming_counted_as_stock": "Incoming counted as stock",
+    "unit": "Unit",
+    "basis_at": "Basis observed at",
+    "basis": "Basis",
+    "physical": "Physical",
+    "quarantined": "Quarantined",
+    "reserved": "Reserved",
+    "committed": "Committed",
+    "available": "Available",
+    "shortfall": "Shortfall",
+    "can_fulfill": "Can fulfill",
+    "incoming_supply": "Incoming supply",
+    "invoice_id": "Invoice",
+    "status": "Status",
+    "order_id": "Order",
+    "customer_id": "Customer",
+    "gross_minor": "Gross",
+    "credit_minor": "Credit notes",
+    "net_minor": "Net after credits",
+    "reported_paid_minor": "Reported paid (marker)",
+    "allocated_paid_minor": "Allocated payments",
+    "reported_open_minor": "Reported open",
+    "credit_balance_minor": "Credit balance",
+    "issued_at": "Issued at",
+    "transaction_id": "Transaction",
+    "account_id": "Provider account",
+    "original_transaction_id": "Original transaction",
+    "gateway": "Gateway",
+    "refund_pending_minor": "Refund pending",
+    "held_minor": "Held by provider",
+    "chargeback_debit_minor": "Chargeback debit",
+    "chargeback_fee_minor": "Chargeback fee",
+    "chargeback_reversed_minor": "Chargeback reversed",
+    "voided_minor": "Voided",
+    "failed_attempts": "Failed attempts",
+    "occurred_at": "Occurred at",
+    "captured_at": "Captured at",
+    "location_id": "Location",
+    "stock_basis": "Stock basis present",
+    "reserved_active_after_basis": "Active reservations after basis",
+    "damaged": "Damaged",
+    "safety_stock": "Safety stock",
+    "quality_control": "Quality control",
+    "incoming_reported": "Incoming (reported)",
+    "provider_available": "Provider-reported available",
+    "physical_stock": "Physical stock",
+    "reserved_stock": "Reserved stock",
+    "quarantined_stock": "Quarantined stock",
+    "available_stock": "Available stock",
+    "authorized_minor": "Authorized",
+    "captured_minor": "Captured",
+    "fees_minor": "Fees",
+    "refunded_minor": "Refunded",
+    "refund_payable_minor": "Refund payable",
+    "invoice_original_minor": "Invoice original",
+    "invoice_credit_minor": "Invoice credits",
+    "invoice_net_minor": "Invoice net",
+    "open_receivable_minor": "Open receivable",
+    "customer_net_paid_minor": "Customer net paid",
+    "provider_balance_minor": "Provider balance",
+    "provider_held_minor": "Provider held",
+    "provider_available_minor": "Provider available",
+    "payout_announced_minor": "Payout announced",
+    "in_transit_minor": "In transit to bank",
+    "bank_confirmed_minor": "Bank confirmed",
+    "shipment_status": "Shipment status",
+    "currency": "Currency"
   },
   "calcLabels": {
     "physical": "physical",
@@ -816,31 +1137,117 @@
     "captured": "captured",
     "fees": "fees",
     "refunds": "refunds",
-    "paid_out": "paid out"
+    "paid_out": "paid out",
+    "shortfall": "shortfall",
+    "basis": "basis",
+    "quarantined": "quarantined",
+    "damaged": "damaged",
+    "safety_stock": "safety stock",
+    "quality_control": "quality control",
+    "snapshot_reserved": "reserved in snapshot",
+    "reservations_after_basis": "reservations after basis",
+    "requested": "requested",
+    "item_id": "item"
   },
-  "operators": { "-": "minus", "+": "plus", "=": "equals", "×": "times", "÷": "divided by" },
+  "operators": {
+    "-": "minus",
+    "+": "plus",
+    "=": "equals",
+    "×": "times",
+    "÷": "divided by"
+  },
   "columns": {
-    "item": "Item", "physical": "Physical", "committed": "Committed", "available": "Available", "incoming": "Incoming",
-    "invoice": "Invoice", "order": "Order", "original": "Original", "corrections": "Corrections", "outstanding": "Outstanding", "due": "Due",
-    "scope": "Scope", "amount": "Amount", "state": "State", "authorized": "Authorized", "captured": "Captured",
-    "transaction": "Transaction", "refund": "Refund", "chargeback": "Chargeback", "promised": "Promised", "supply": "Supply"
+    "item": "Item",
+    "physical": "Physical",
+    "committed": "Committed",
+    "available": "Available",
+    "incoming": "Incoming",
+    "invoice": "Invoice",
+    "order": "Order",
+    "original": "Original",
+    "corrections": "Corrections",
+    "outstanding": "Outstanding",
+    "due": "Due",
+    "scope": "Scope",
+    "amount": "Amount",
+    "state": "State",
+    "authorized": "Authorized",
+    "captured": "Captured",
+    "transaction": "Transaction",
+    "refund": "Refund",
+    "chargeback": "Chargeback",
+    "promised": "Promised",
+    "supply": "Supply"
   },
   "values": {
-    "paid": "paid", "authorized": "authorized only", "awaiting": "awaiting payment",
-    "provider_available": "available at provider", "in_transit": "in transit", "bank_matched": "bank-matched"
+    "paid": "paid",
+    "authorized": "authorized only",
+    "awaiting": "awaiting payment",
+    "provider_available": "available at provider",
+    "in_transit": "in transit",
+    "bank_matched": "bank-matched"
   },
   "params": {
-    "item_id": "Item", "quantity": "Quantity", "location_id": "Location", "period_from": "Period from", "period_to": "Period to",
-    "order_id": "Order", "supplier_order_id": "Supplier order", "attention_only": "Attention needed only", "risk_days": "Risk window (days)",
-    "overdue_only": "Overdue only", "rule": "Invoicing rule", "state": "State", "invoice_id": "Invoice", "as_of": "As of",
-    "provider": "Provider", "payout_id": "Payout"
+    "item_id": "Item",
+    "quantity": "Quantity",
+    "location_id": "Location",
+    "period_from": "Period from",
+    "period_to": "Period to",
+    "order_id": "Order",
+    "supplier_order_id": "Supplier order",
+    "attention_only": "Attention needed only",
+    "risk_days": "Risk window (days)",
+    "overdue_only": "Overdue only",
+    "rule": "Invoicing rule",
+    "state": "State",
+    "invoice_id": "Invoice",
+    "as_of": "As of",
+    "provider": "Provider",
+    "payout_id": "Payout",
+    "requested_quantity": "Quantity",
+    "account_ref": "Provider account",
+    "bank_entry_id": "Bank entry",
+    "bank_import_complete_through": "Bank import complete through",
+    "case_id": "Case",
+    "currency": "Currency",
+    "cursor": "Cursor",
+    "customer_id": "Customer",
+    "dispute_id": "Dispute",
+    "entitlement_id": "Entitlement",
+    "from": "From",
+    "hold_id": "Hold",
+    "limit": "Limit",
+    "now": "Now (clock override)",
+    "priority": "Priority (comma-separated)",
+    "promise_id": "Promise",
+    "refund_id": "Refund",
+    "reservation_id": "Reservation",
+    "return_id": "Return",
+    "shipment_id": "Shipment",
+    "supply_id": "Supplier order",
+    "to": "To",
+    "today": "Today (date override)",
+    "transaction_id": "Transaction",
+    "unit": "Unit"
   },
   "paramOptions": {
-    "all": "all", "WH-1": "WH-1", "after_shipment": "after shipment", "at_order": "at order", "any": "any",
-    "authorized": "authorized", "paid": "paid", "awaiting": "awaiting", "shopify_payments": "Shopify Payments",
-    "announced": "announced", "received": "received", "refunded": "refunded"
+    "all": "all",
+    "WH-1": "WH-1",
+    "after_shipment": "after shipment",
+    "at_order": "at order",
+    "any": "any",
+    "authorized": "authorized",
+    "paid": "paid",
+    "awaiting": "awaiting",
+    "shopify_payments": "Shopify Payments",
+    "announced": "announced",
+    "received": "received",
+    "refunded": "refunded"
   },
-  "units": { "piece": "pcs", "kg": "kg" },
+  "units": {
+    "piece": "pcs",
+    "kg": "kg"
+  },
   "agents": {
     "title": "Your agent. With business memory.",
     "subtitle": "Named read-only keys give a local MCP client the same evidence-backed context — never the owner key.",
@@ -852,8 +1259,19 @@
     "grantExcluded": "Excluded: secrets, sessions, source configuration, journal writes, ingestion, diagnostics, administration",
     "grantShort": "workspace.read_business",
     "none": "No agent keys yet.",
-    "columns": { "name": "Name", "status": "Status", "created": "Created", "lastUsed": "Last actual use", "expires": "Expires", "actions": "Actions" },
-    "status": { "active": "active", "revoked": "revoked", "expired": "expired" },
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "created": "Created",
+      "lastUsed": "Last actual use",
+      "expires": "Expires",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "active",
+      "revoked": "revoked",
+      "expired": "expired"
+    },
     "neverUsed": "never used",
     "noExpiry": "no expiry",
     "revoke": "Revoke",
@@ -883,7 +1301,11 @@
     "connectTitle": "Connect a local client",
     "connectIntro": "The bridge runs as a stdio process on this Mac and talks to the local API with the agent key. Choose a client to see notes.",
     "clientChoice": "Client",
-    "clients": { "claude": "Claude Desktop / Code", "inspector": "MCP Inspector", "custom": "Own agent" },
+    "clients": {
+      "claude": "Claude Desktop / Code",
+      "inspector": "MCP Inspector",
+      "custom": "Own agent"
+    },
     "clientNote": {
       "claude": "Works with local MCP-capable desktop clients that spawn stdio servers. The client's model talks to the vendor; the bridge itself sends nothing outside this Mac.",
       "inspector": "The MCP Inspector CLI is the documented protocol test client; no model subscription is needed.",
@@ -902,7 +1324,10 @@
       "get_entity_history": "Complete authorized history of an entity, paginated.",
       "get_evidence": "Original evidence metadata and content when permitted."
     },
-    "untrustedNote": "Tool results label external content as untrusted data. Blackbox cannot guarantee the wording of a third-party model's answer; it guarantees correct bounded data, evidence and explicit limitations."
+    "untrustedNote": "Tool results label external content as untrusted data. Blackbox cannot guarantee the wording of a third-party model's answer; it guarantees correct bounded data, evidence and explicit limitations.",
+    "bridgeCommand": "Bridge command",
+    "apiUrl": "Local API",
+    "testedClientsNote": "see docs/tester-guide.md (MCP Inspector CLI over stdio); Claude Desktop itself was not launched by the project."
   },
   "system": {
     "title": "System & Diagnostics",
@@ -923,7 +1348,12 @@
     "logsTitle": "Logs",
     "logsIntro": "Retained sanitized records (default: last hour, INFO and above, newest first). Engineering messages stay English; known events are explained.",
     "liveOff": "Live",
-    "live": { "connecting": "Live · connecting", "open": "Live · on", "reconnecting": "Live · reconnecting", "closed": "Live" },
+    "live": {
+      "connecting": "Live · connecting",
+      "open": "Live · on",
+      "reconnecting": "Live · reconnecting",
+      "closed": "Live"
+    },
     "pause": "Pause",
     "resume_one": "Resume ({{count}} new)",
     "resume_other": "Resume ({{count}} new)",
@@ -954,7 +1384,8 @@
       "out_of_retention": "range before retention",
       "debug_not_recorded": "DEBUG not recorded",
       "collector_failed": "collector failed",
-      "rotated": "rotated during read"
+      "rotated": "rotated during read",
+      "healthy": "collector healthy"
     },
     "logStateHelp": {
       "ok": "All matching records in the retained range are shown.",
@@ -962,16 +1393,34 @@
       "out_of_retention": "The selected range starts before the retained window. Older records were rotated away (7 days / 100 MiB).",
       "debug_not_recorded": "No DEBUG records exist for this range because debug recording was not active. Filtering cannot retrieve what was never recorded.",
       "collector_failed": "The log collector failed; business processing continues but logs may be incomplete.",
-      "rotated": "Rotation happened during this read; reconnect from the latest cursor."
+      "rotated": "Rotation happened during this read; reconnect from the latest cursor.",
+      "healthy": "No records match these filters in the retained range."
     },
-    "columns": { "time": "Time", "level": "Level", "component": "Component", "event": "Event", "message": "Message", "scope": "Scope", "connection": "connection" },
+    "columns": {
+      "time": "Time",
+      "level": "Level",
+      "component": "Component",
+      "event": "Event",
+      "message": "Message",
+      "scope": "Scope",
+      "connection": "connection"
+    },
     "openRecord": "Open record {{id}}",
     "recordEyebrow": "Log record",
     "rawMessage": "Raw message",
     "record": {
-      "recordId": "Record ID", "occurredAt": "Occurred", "observedAt": "Observed", "serviceVersion": "Service / instance", "scope": "Scope",
-      "duration": "Duration", "recordCount": "Record count", "errorCode": "Error code", "retryable": "Retryable", "nextRetry": "Next retry",
-      "action": "Action", "truncated": "Truncated"
+      "recordId": "Record ID",
+      "occurredAt": "Occurred",
+      "observedAt": "Observed",
+      "serviceVersion": "Service / instance",
+      "scope": "Scope",
+      "duration": "Duration",
+      "recordCount": "Record count",
+      "errorCode": "Error code",
+      "retryable": "Retryable",
+      "nextRetry": "Next retry",
+      "action": "Action",
+      "truncated": "Truncated"
     },
     "copySafe": "Copy safe details",
     "traceSiblings_one": "Trace ({{count}} related record)",
@@ -1004,7 +1453,10 @@
       "used": "Used",
       "free": "Free",
       "state": "State",
-      "changeThresholds": "Change thresholds"
+      "changeThresholds": "Change thresholds",
+      "files": "{{count}} files",
+      "evidenceBytes": "Evidence storage",
+      "total": "Total"
     },
     "export": {
       "open": "Export diagnostics",
@@ -1020,14 +1472,29 @@
       "preview": "Preview bundle",
       "download": "Download bundle",
       "downloaded": "Downloaded {{name}} ({{size}}).",
-      "note": "The file lands in your browser's download folder and is a deliberate export, not a retained copy."
-    }
+      "note": "The file lands in your browser's download folder and is a deliberate export, not a retained copy.",
+      "records": "Log records"
+    },
+    "healthObserved": "Health observed",
+    "refreshEvery": "refresh every {{seconds}} s · stale after {{stale}} s"
   },
   "healthCards": {
-    "api": "API / backend", "worker": "Worker / import", "postgres": "PostgreSQL", "engine": "Query engine", "sources": "Sources", "mcp": "MCP", "diagnostics": "Diagnostics"
+    "api": "API / backend",
+    "worker": "Worker / import",
+    "postgres": "PostgreSQL",
+    "engine": "Query engine",
+    "sources": "Sources",
+    "mcp": "MCP",
+    "diagnostics": "Diagnostics"
   },
   "healthState": {
-    "healthy": "healthy", "working": "working / catching up", "degraded": "degraded", "unavailable": "unavailable", "unknown": "unknown", "stale": "stale (> 30 s)", "disconnected": "disconnected"
+    "healthy": "healthy",
+    "working": "working / catching up",
+    "degraded": "degraded",
+    "unavailable": "unavailable",
+    "unknown": "unknown",
+    "stale": "stale (> 30 s)",
+    "disconnected": "disconnected"
   },
   "healthReasons": {
     "probe_ok": "Last probe answered.",
@@ -1040,15 +1507,51 @@
     "collector_ok": "Collector and store are healthy."
   },
   "healthDetails": {
-    "version": "Version", "uptime_seconds": "Uptime (s)", "last_probe_at": "Last probe", "response_available": "Responding",
-    "heartbeat_at": "Heartbeat", "running": "Running", "queued": "Queued", "failed": "Failed", "oldest_pending_age_seconds": "Oldest pending (s)", "last_progress_at": "Last progress",
-    "connect": "Connect", "read": "Read", "write": "Write", "latency_ms": "Latency (ms)",
-    "phase": "Phase", "committed_cursor": "Committed cursor", "applied_cursor": "Applied cursor", "pending": "Pending", "lag_ms": "Lag (ms)",
-    "connections": "Connections", "delayed": "Delayed", "errored": "Errored", "last_new_event_at": "Last new event",
-    "bridge_ready": "Bridge ready", "last_client_request_at": "Last client request",
-    "retained_from": "Retained from", "retained_to": "Retained to", "used_bytes": "Used", "cap_bytes": "Cap", "dropped_count": "Dropped", "debug_expires_at": "Debug expires"
+    "version": "Version",
+    "uptime_seconds": "Uptime (s)",
+    "last_probe_at": "Last probe",
+    "response_available": "Responding",
+    "heartbeat_at": "Heartbeat",
+    "running": "Running",
+    "queued": "Queued",
+    "failed": "Failed",
+    "oldest_pending_age_seconds": "Oldest pending (s)",
+    "last_progress_at": "Last progress",
+    "connect": "Connect",
+    "read": "Read",
+    "write": "Write",
+    "latency_ms": "Latency (ms)",
+    "phase": "Phase",
+    "committed_cursor": "Committed cursor",
+    "applied_cursor": "Applied cursor",
+    "pending": "Pending",
+    "lag_ms": "Lag (ms)",
+    "connections": "Connections",
+    "delayed": "Delayed",
+    "errored": "Errored",
+    "last_new_event_at": "Last new event",
+    "bridge_ready": "Bridge ready",
+    "last_client_request_at": "Last client request",
+    "retained_from": "Retained from",
+    "retained_to": "Retained to",
+    "used_bytes": "Used",
+    "cap_bytes": "Cap",
+    "dropped_count": "Dropped",
+    "debug_expires_at": "Debug expires"
   },
-  "components": { "api": "API", "worker": "Worker", "engine": "Engine", "postgres": "PostgreSQL", "mcp": "MCP bridge", "wrapper": "Wrapper", "diagnostics": "Diagnostics" },
+  "components": {
+    "api": "API",
+    "worker": "Worker",
+    "engine": "Engine",
+    "postgres": "PostgreSQL",
+    "mcp": "MCP bridge",
+    "wrapper": "Wrapper",
+    "diagnostics": "Diagnostics",
+    "auth": "Authentication",
+    "ingestion": "Ingestion",
+    "query": "Queries",
+    "cli": "CLI"
+  },
   "logEvents": {
     "import.batch_progress": "Import page processed ({{count}} records, {{ms}} ms)",
     "journal.batch_committed": "Journal batch committed ({{count}} records)",
@@ -1062,16 +1565,47 @@
     "logs.records_dropped": "Log records dropped under overload ({{count}})",
     "runtime.started": "Runtime started"
   },
-  "actionCodes": { "wait_for_retry": "Wait for the scheduled retry", "reconnect_source": "Reconnect the source in Sources" },
-  "exportCategories": {
-    "versions": "Versions", "runtime": "Runtime (coarse)", "configuration": "Configuration (allowlisted)", "health": "Health observations",
-    "error_counts": "Error codes & counts", "log_excerpts": "Sanitized log excerpts", "engine_heap": "Engine heap statistics"
+  "actionCodes": {
+    "wait_for_retry": "Wait for the scheduled retry",
+    "reconnect_source": "Reconnect the source in Sources"
   },
-  "volumes": { "pgdata": "PostgreSQL data", "evidence": "Evidence", "logs": "Logs", "backups": "Backups", "snapshots": "Snapshots" },
-  "storageState": { "ok": "ok", "warning": "warning", "critical": "critical", "unknown": "unknown" },
-  "maintenancePhase": { "upgrade": "upgrade", "rebuild": "projection rebuild", "backup": "backup" },
+  "exportCategories": {
+    "versions": "Versions",
+    "runtime": "Runtime (coarse)",
+    "configuration": "Configuration (allowlisted)",
+    "health": "Health observations",
+    "error_counts": "Error codes & counts",
+    "log_excerpts": "Sanitized log excerpts",
+    "engine_heap": "Engine heap statistics",
+    "errors": "Error counts",
+    "logs": "Log excerpts (sanitized)"
+  },
+  "volumes": {
+    "pgdata": "PostgreSQL data",
+    "evidence": "Evidence",
+    "logs": "Logs",
+    "backups": "Backups",
+    "snapshots": "Snapshots"
+  },
+  "storageState": {
+    "ok": "ok",
+    "warning": "warning",
+    "critical": "critical",
+    "unknown": "unknown"
+  },
+  "maintenancePhase": {
+    "upgrade": "upgrade",
+    "rebuild": "projection rebuild",
+    "backup": "backup"
+  },
   "backups": {
-    "status": { "not_configured": "not configured", "scheduled": "scheduled", "running": "running", "failed": "failed", "overdue": "overdue" }
+    "status": {
+      "not_configured": "not configured",
+      "scheduled": "scheduled",
+      "running": "running",
+      "failed": "failed",
+      "overdue": "overdue"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -1113,7 +1647,12 @@
       "intro": "Days of raw evidence kept per class, counted from local receipt. Typed facts remain queryable after the original expires.",
       "bounds": "{{min}}–{{max}} days",
       "providerLimit": "provider limit {{days}} days",
-      "note": "A stricter provider restriction always wins. This is a product default, not a claim of statutory compliance."
+      "note": "A stricter provider restriction always wins. This is a product default, not a claim of statutory compliance.",
+      "source": {
+        "default": "default",
+        "owner": "set by owner"
+      },
+      "defaultDays": "Default retention: {{days}} days."
     },
     "storage": {
       "title": "Storage thresholds",
@@ -1123,7 +1662,10 @@
       "criticalPercent": "Critical below %",
       "criticalGib": "Critical below GiB",
       "used": "used",
-      "note": "No component ever frees space by deleting the journal or unrelated files."
+      "note": "No component ever frees space by deleting the journal or unrelated files.",
+      "logCapMib": "Log cap (MiB)",
+      "logRetentionDays": "Log retention (days, max 7)",
+      "free": "free"
     },
     "security": {
       "title": "Security audit",
@@ -1156,49 +1698,286 @@
     "provider_json": "Provider JSON records",
     "bank_csv": "Bank CSV files",
     "customer_communication": "Customer communication",
-    "documents": "Invoice/credit documents"
+    "documents": "Invoice/credit documents",
+    "provider_payload": "Provider payloads",
+    "document": "Documents",
+    "communication": "Customer communication"
   },
   "securityCounts": {
-    "owner_logins": "Owner logins", "failed_logins": "Failed logins (15 min)", "key_rotations": "Key rotations",
-    "agent_keys_created": "Agent keys created", "agent_keys_revoked": "Agent keys revoked", "resets": "Host resets"
+    "owner_logins": "Owner logins",
+    "failed_logins": "Failed logins (15 min)",
+    "key_rotations": "Key rotations",
+    "agent_keys_created": "Agent keys created",
+    "agent_keys_revoked": "Agent keys revoked",
+    "resets": "Host resets"
   },
-  "securityEvents": { "owner.login": "Owner login", "setup.owner_created": "Owner created at setup", "key.rotated": "Key rotated", "agent.created": "Agent key created", "agent.revoked": "Agent key revoked" },
+  "securityEvents": {
+    "owner.login": "Owner login",
+    "setup.owner_created": "Owner created at setup",
+    "key.rotated": "Key rotated",
+    "agent.created": "Agent key created",
+    "agent.revoked": "Agent key revoked",
+    "owner.setup": "Owner created at setup",
+    "owner.logout": "Owner sign-out",
+    "owner.key_rotated": "Owner key rotated",
+    "owner.access_reset": "Host access reset",
+    "agent.key_created": "Agent key created",
+    "agent.key_revoked": "Agent key revoked",
+    "debug.enabled": "Debug recording enabled",
+    "workspace.updated": "Workspace settings updated",
+    "diagnostics.exported": "Diagnostics exported",
+    "retention.updated": "Retention changed"
+  },
   "questionsCatalog": {
     "groups": {
-      "order": { "number": "01", "label": "Order", "title": "Order & availability", "agent": "Order checker", "team": "Sales · Operations", "benefit": "Make realistic promises and identify overselling earlier.", "scope": "What can we reliably promise the customer?", "tracks": ["fact", "commitment", "reservation"], "sources": "Shopify / Shopware · inventory data · commitments" },
-      "delivery": { "number": "02", "label": "Delivery", "title": "Delivery & customer communication", "agent": "Delivery assistant", "team": "Customer Success · Operations", "benefit": "Identify delivery problems earlier and help customers with evidence-backed information.", "scope": "What is happening to the goods on their way to the customer?", "tracks": ["source", "fact", "commitment", "movement"], "sources": "Shop · DHL / DPD / UPS · customer communication" },
-      "invoice": { "number": "03", "label": "Invoice", "title": "Invoice & receivables", "agent": "Invoice checker", "team": "Finance · Backoffice", "benefit": "Find missing documents and understand the current receivables balance.", "scope": "What has the customer been invoiced for?", "tracks": ["source", "fact", "commitment"], "sources": "Shop · invoicing tool · document links" },
-      "collection": { "number": "04", "label": "Customer payment", "title": "Customer payment & resolution", "agent": "Payment investigator", "team": "Finance · Customer Success", "benefit": "Resolve payment issues precisely and avoid unnecessary payment reminders.", "scope": "Has the customer made their payment?", "tracks": ["fact", "commitment", "movement"], "sources": "Shop / invoice · payment provider · payment evidence" },
-      "settlement": { "number": "05", "label": "Payout", "title": "Payout & bank reconciliation", "agent": "Cash reconciler", "team": "Finance · Founder", "benefit": "Understand where the money is and which differences still need clarification.", "scope": "Has the collected money arrived in our bank account?", "tracks": ["fact", "movement", "reservation", "commitment"], "sources": "Payment provider · payout report · bank record" },
-      "reversal": { "number": "06", "label": "Reversal", "title": "Cancellation, return & refund", "agent": "Returns assistant", "team": "Customer Success · Finance", "benefit": "Close open reversals and avoid double refunds.", "scope": "What must happen after a cancellation or return?", "tracks": ["fact", "commitment", "movement", "reservation"], "sources": "Shop · returns system · invoicing tool · provider" }
+      "order": {
+        "number": "01",
+        "label": "Order",
+        "title": "Order & availability",
+        "agent": "Order checker",
+        "team": "Sales · Operations",
+        "benefit": "Make realistic promises and identify overselling earlier.",
+        "scope": "What can we reliably promise the customer?",
+        "tracks": [
+          "fact",
+          "commitment",
+          "reservation"
+        ],
+        "sources": "Shopify / Shopware · inventory data · commitments"
+      },
+      "delivery": {
+        "number": "02",
+        "label": "Delivery",
+        "title": "Delivery & customer communication",
+        "agent": "Delivery assistant",
+        "team": "Customer Success · Operations",
+        "benefit": "Identify delivery problems earlier and help customers with evidence-backed information.",
+        "scope": "What is happening to the goods on their way to the customer?",
+        "tracks": [
+          "source",
+          "fact",
+          "commitment",
+          "movement"
+        ],
+        "sources": "Shop · DHL / DPD / UPS · customer communication"
+      },
+      "invoice": {
+        "number": "03",
+        "label": "Invoice",
+        "title": "Invoice & receivables",
+        "agent": "Invoice checker",
+        "team": "Finance · Backoffice",
+        "benefit": "Find missing documents and understand the current receivables balance.",
+        "scope": "What has the customer been invoiced for?",
+        "tracks": [
+          "source",
+          "fact",
+          "commitment"
+        ],
+        "sources": "Shop · invoicing tool · document links"
+      },
+      "collection": {
+        "number": "04",
+        "label": "Customer payment",
+        "title": "Customer payment & resolution",
+        "agent": "Payment investigator",
+        "team": "Finance · Customer Success",
+        "benefit": "Resolve payment issues precisely and avoid unnecessary payment reminders.",
+        "scope": "Has the customer made their payment?",
+        "tracks": [
+          "fact",
+          "commitment",
+          "movement"
+        ],
+        "sources": "Shop / invoice · payment provider · payment evidence"
+      },
+      "settlement": {
+        "number": "05",
+        "label": "Payout",
+        "title": "Payout & bank reconciliation",
+        "agent": "Cash reconciler",
+        "team": "Finance · Founder",
+        "benefit": "Understand where the money is and which differences still need clarification.",
+        "scope": "Has the collected money arrived in our bank account?",
+        "tracks": [
+          "fact",
+          "movement",
+          "reservation",
+          "commitment"
+        ],
+        "sources": "Payment provider · payout report · bank record"
+      },
+      "reversal": {
+        "number": "06",
+        "label": "Reversal",
+        "title": "Cancellation, return & refund",
+        "agent": "Returns assistant",
+        "team": "Customer Success · Finance",
+        "benefit": "Close open reversals and avoid double refunds.",
+        "scope": "What must happen after a cancellation or return?",
+        "tracks": [
+          "fact",
+          "commitment",
+          "movement",
+          "reservation"
+        ],
+        "sources": "Shop · returns system · invoicing tool · provider"
+      }
     },
-    "order-01": { "q": "Can I still sell 100 Olive Cups?", "method": "Subtract active reservations from physical stock. Show promised receipts separately until goods have actually been received.", "need": "Item ID, stock snapshot, active reservations and open supply commitments.", "result": "Available quantity, shortfall and evidence for the current state." },
-    "order-02": { "q": "Which open orders can be fulfilled entirely from available stock?", "method": "Check each open line against stock and allocated reservations. Allocate the same units to only one order.", "need": "Open order lines, reservation allocations and current stock per warehouse.", "result": "Orders classified as fully fulfillable, partially fulfillable or blocked, with reasons." },
-    "order-03": { "q": "Which orders have a mismatch between promised and reserved quantities?", "method": "Compare the current order quantity with active reservations per line. Account for canceled and shipped quantities.", "need": "Order changes, lines, reservations, cancellations and recorded shipments.", "result": "Variance per order and line, including missing or excess quantities." },
-    "order-04": { "q": "Which open orders are affected by a delayed incoming delivery?", "method": "Link the changed receipt commitment to open customer orders through items and allocations. Mark the impact as unresolved where allocations are missing.", "need": "Versioned receipt commitment, item links, order allocations and customer deadlines.", "result": "Affected orders and commitments at risk, for manual review." },
-    "delivery-01": { "q": "Where are my parcels, and which need attention?", "method": "Combine the latest carrier status with the order, scan time and reported forecast. Keep older scans visible in history.", "need": "Order-to-shipment links, carrier scans and available delivery forecasts.", "result": "Shipment overview with last known status and issues requiring attention." },
-    "delivery-02": { "q": "Which customer delivery commitments are overdue or at risk?", "method": "Compare the customer commitment with actual shipping or delivery status. Label carrier forecasts as estimates.", "need": "Explicit customer commitment, time zone, shipment status and any carrier forecast.", "result": "Prioritized cases with the promised date, current state and explanation." },
-    "delivery-03": { "q": "Which partial deliveries still have missing items?", "method": "Compare ordered quantities per line with confirmed partial deliveries. Handle canceled lines and shipping labels without shipment confirmation separately.", "need": "Order lines, partial deliveries, included quantities and handover/delivery events.", "result": "Outstanding quantities per order and the associated shipments." },
-    "delivery-04": { "q": "What can I reliably tell this customer about their delivery status?", "method": "Use the order, latest scans and prior promises to draft a reply. Explicitly leave unknown arrival dates unresolved.", "need": "Customer-to-order links, carrier history and prior communication.", "result": "Customer-friendly draft with internal evidence; sending remains a separate action." },
-    "invoice-01": { "q": "Which invoices are still outstanding?", "method": "Calculate each invoice state from its original amount, corrections and reported payments. Do not sum superseded states again.", "need": "Invoice, correction documents, reported payment status and due date.", "result": "Outstanding amounts and due dates with an evidence chain; payment markers are not bank evidence." },
-    "invoice-02": { "q": "Which orders still need an invoice under our invoicing rule?", "method": "Evaluate orders against the configured invoicing rule, for example after shipment. Reconcile linked invoices and cancellations.", "need": "Invoicing rule, order/delivery status, invoice links and complete import coverage.", "result": "Review list of potentially missing invoices; status remains unknown when data is incomplete." },
-    "invoice-03": { "q": "Where does the invoice amount differ from the agreed order amount?", "method": "Compare lines, quantities, discounts, shipping charges, currency and stated taxes. Account for partial invoices.", "need": "Versioned order and invoice lines, including partial-invoice references.", "result": "Amount difference per line with a traceable reconciliation explanation." },
-    "invoice-04": { "q": "Which invoices were created but have no evidence of being sent?", "method": "Link created documents to the invoicing tool's sending event. With incomplete sending data, report missing evidence only.", "need": "Invoice ID, creation time, sending status and last synchronization time.", "result": "Documents without sending evidence, including data freshness rather than an unsupported conclusion that they were not sent." },
-    "collection-01": { "q": "Which orders are only authorized, actually paid or still awaiting payment?", "method": "Derive the payment state from authorization and capture events; a marker in the shop is not a capture.", "need": "Order, payment transactions with kind and status, currency.", "result": "Orders grouped by paid, authorized only and awaiting, with evidence per transaction." },
-    "collection-02": { "q": "Which failed payments have since been completed successfully?", "method": "Group payment attempts per order and detect a later successful capture after a failure.", "need": "All payment attempts per order with time, status and amount.", "result": "Recovered orders versus still-failed orders, without double counting attempts." },
-    "collection-03": { "q": "Which invoices have a mismatch between partial payments and the remaining amount?", "method": "Allocate payments to invoices explicitly and compare allocated sums with the current invoice state.", "need": "Invoices, payments, payment allocations and corrections.", "result": "Invoices with over- or under-allocation and the unexplained difference." },
-    "collection-04": { "q": "Which due receivables should Finance review today?", "method": "Rank due receivables by age, amount and open clarification cases; exclude cases already in review.", "need": "Due dates, outstanding amounts, allocations, open cases and the reminder policy.", "result": "Prioritized review queue; items with unresolved ambiguity are flagged, not auto-reminded." },
-    "settlement-01": { "q": "Where is my money across payment providers?", "method": "Derive provider positions from the provider ledger: available, in transit and bank-matched are separate scopes.", "need": "Provider ledger, payouts, bank entries and holds.", "result": "Money positions per provider account with evidence; a payout is not revenue." },
-    "settlement-02": { "q": "Why is the payout lower than captured customer payments?", "method": "Reconcile captured amounts minus fees, refunds, holds and adjustments to the payout amount.", "need": "Provider ledger entries belonging to the payout.", "result": "Gross-to-net explanation per payout with unexplained remainder, if any." },
-    "settlement-03": { "q": "Which announced or sent payouts still lack bank evidence?", "method": "Match payouts to booked bank entries by amount, reference and date window; unmatched payouts stay open.", "need": "Payouts with status and independent booked bank data.", "result": "Payouts without bank confirmation and their age." },
-    "settlement-04": { "q": "Which amounts are held, and which releases are only announced?", "method": "List provider holds and distinguish announced releases from completed ones.", "need": "Holds, positions and release events.", "result": "Held amounts and announced-but-not-completed releases." },
-    "reversal-01": { "q": "Which returns are announced, received or already refunded?", "method": "Follow each return through announcement, receipt, restock decision and refund.", "need": "Returns, receipts, refunds and optional invoices/tracking.", "result": "Returns per lifecycle stage; a receipt is not an automatic restock." },
-    "reversal-02": { "q": "Which credit notes are missing their corresponding refund?", "method": "Link credit notes to refund entitlements and completed refunds; a credit note is not a refund.", "need": "Invoices, credit notes, payments, entitlements and refunds.", "result": "Credit notes without a completed refund and their age." },
-    "reversal-03": { "q": "What still needs correcting in stock, invoicing and payment after a cancellation?", "method": "Compare the cancellation with reservations, invoices, payments, refunds and receipts to list open steps.", "need": "Order, allocations, invoices, payments, refunds, entitlements and receipts.", "result": "Open correction steps per area with evidence." },
-    "reversal-04": { "q": "Is there a risk of duplicate repayment through both a refund and a chargeback?", "method": "Overlap refunds with disputes per transaction and amount; missing dispute coverage keeps the answer partial.", "need": "Payments, refunds and disputes.", "result": "Transactions with potential double repayment, or a partial answer when dispute data is missing." }
+    "order-01": {
+      "q": "Can I still sell 100 Olive Cups?",
+      "method": "Subtract active reservations from physical stock. Show promised receipts separately until goods have actually been received.",
+      "need": "Item ID, stock snapshot, active reservations and open supply commitments.",
+      "result": "Available quantity, shortfall and evidence for the current state."
+    },
+    "order-02": {
+      "q": "Which open orders can be fulfilled entirely from available stock?",
+      "method": "Check each open line against stock and allocated reservations. Allocate the same units to only one order.",
+      "need": "Open order lines, reservation allocations and current stock per warehouse.",
+      "result": "Orders classified as fully fulfillable, partially fulfillable or blocked, with reasons."
+    },
+    "order-03": {
+      "q": "Which orders have a mismatch between promised and reserved quantities?",
+      "method": "Compare the current order quantity with active reservations per line. Account for canceled and shipped quantities.",
+      "need": "Order changes, lines, reservations, cancellations and recorded shipments.",
+      "result": "Variance per order and line, including missing or excess quantities."
+    },
+    "order-04": {
+      "q": "Which open orders are affected by a delayed incoming delivery?",
+      "method": "Link the changed receipt commitment to open customer orders through items and allocations. Mark the impact as unresolved where allocations are missing.",
+      "need": "Versioned receipt commitment, item links, order allocations and customer deadlines.",
+      "result": "Affected orders and commitments at risk, for manual review."
+    },
+    "delivery-01": {
+      "q": "Where are my parcels, and which need attention?",
+      "method": "Combine the latest carrier status with the order, scan time and reported forecast. Keep older scans visible in history.",
+      "need": "Order-to-shipment links, carrier scans and available delivery forecasts.",
+      "result": "Shipment overview with last known status and issues requiring attention."
+    },
+    "delivery-02": {
+      "q": "Which customer delivery commitments are overdue or at risk?",
+      "method": "Compare the customer commitment with actual shipping or delivery status. Label carrier forecasts as estimates.",
+      "need": "Explicit customer commitment, time zone, shipment status and any carrier forecast.",
+      "result": "Prioritized cases with the promised date, current state and explanation."
+    },
+    "delivery-03": {
+      "q": "Which partial deliveries still have missing items?",
+      "method": "Compare ordered quantities per line with confirmed partial deliveries. Handle canceled lines and shipping labels without shipment confirmation separately.",
+      "need": "Order lines, partial deliveries, included quantities and handover/delivery events.",
+      "result": "Outstanding quantities per order and the associated shipments."
+    },
+    "delivery-04": {
+      "q": "What can I reliably tell this customer about their delivery status?",
+      "method": "Use the order, latest scans and prior promises to draft a reply. Explicitly leave unknown arrival dates unresolved.",
+      "need": "Customer-to-order links, carrier history and prior communication.",
+      "result": "Customer-friendly draft with internal evidence; sending remains a separate action."
+    },
+    "invoice-01": {
+      "q": "Which invoices are still outstanding?",
+      "method": "Calculate each invoice state from its original amount, corrections and reported payments. Do not sum superseded states again.",
+      "need": "Invoice, correction documents, reported payment status and due date.",
+      "result": "Outstanding amounts and due dates with an evidence chain; payment markers are not bank evidence."
+    },
+    "invoice-02": {
+      "q": "Which orders still need an invoice under our invoicing rule?",
+      "method": "Evaluate orders against the configured invoicing rule, for example after shipment. Reconcile linked invoices and cancellations.",
+      "need": "Invoicing rule, order/delivery status, invoice links and complete import coverage.",
+      "result": "Review list of potentially missing invoices; status remains unknown when data is incomplete."
+    },
+    "invoice-03": {
+      "q": "Where does the invoice amount differ from the agreed order amount?",
+      "method": "Compare lines, quantities, discounts, shipping charges, currency and stated taxes. Account for partial invoices.",
+      "need": "Versioned order and invoice lines, including partial-invoice references.",
+      "result": "Amount difference per line with a traceable reconciliation explanation."
+    },
+    "invoice-04": {
+      "q": "Which invoices were created but have no evidence of being sent?",
+      "method": "Link created documents to the invoicing tool's sending event. With incomplete sending data, report missing evidence only.",
+      "need": "Invoice ID, creation time, sending status and last synchronization time.",
+      "result": "Documents without sending evidence, including data freshness rather than an unsupported conclusion that they were not sent."
+    },
+    "collection-01": {
+      "q": "Which orders are only authorized, actually paid or still awaiting payment?",
+      "method": "Derive the payment state from authorization and capture events; a marker in the shop is not a capture.",
+      "need": "Order, payment transactions with kind and status, currency.",
+      "result": "Orders grouped by paid, authorized only and awaiting, with evidence per transaction."
+    },
+    "collection-02": {
+      "q": "Which failed payments have since been completed successfully?",
+      "method": "Group payment attempts per order and detect a later successful capture after a failure.",
+      "need": "All payment attempts per order with time, status and amount.",
+      "result": "Recovered orders versus still-failed orders, without double counting attempts."
+    },
+    "collection-03": {
+      "q": "Which invoices have a mismatch between partial payments and the remaining amount?",
+      "method": "Allocate payments to invoices explicitly and compare allocated sums with the current invoice state.",
+      "need": "Invoices, payments, payment allocations and corrections.",
+      "result": "Invoices with over- or under-allocation and the unexplained difference."
+    },
+    "collection-04": {
+      "q": "Which due receivables should Finance review today?",
+      "method": "Rank due receivables by age, amount and open clarification cases; exclude cases already in review.",
+      "need": "Due dates, outstanding amounts, allocations, open cases and the reminder policy.",
+      "result": "Prioritized review queue; items with unresolved ambiguity are flagged, not auto-reminded."
+    },
+    "settlement-01": {
+      "q": "Where is my money across payment providers?",
+      "method": "Derive provider positions from the provider ledger: available, in transit and bank-matched are separate scopes.",
+      "need": "Provider ledger, payouts, bank entries and holds.",
+      "result": "Money positions per provider account with evidence; a payout is not revenue."
+    },
+    "settlement-02": {
+      "q": "Why is the payout lower than captured customer payments?",
+      "method": "Reconcile captured amounts minus fees, refunds, holds and adjustments to the payout amount.",
+      "need": "Provider ledger entries belonging to the payout.",
+      "result": "Gross-to-net explanation per payout with unexplained remainder, if any."
+    },
+    "settlement-03": {
+      "q": "Which announced or sent payouts still lack bank evidence?",
+      "method": "Match payouts to booked bank entries by amount, reference and date window; unmatched payouts stay open.",
+      "need": "Payouts with status and independent booked bank data.",
+      "result": "Payouts without bank confirmation and their age."
+    },
+    "settlement-04": {
+      "q": "Which amounts are held, and which releases are only announced?",
+      "method": "List provider holds and distinguish announced releases from completed ones.",
+      "need": "Holds, positions and release events.",
+      "result": "Held amounts and announced-but-not-completed releases."
+    },
+    "reversal-01": {
+      "q": "Which returns are announced, received or already refunded?",
+      "method": "Follow each return through announcement, receipt, restock decision and refund.",
+      "need": "Returns, receipts, refunds and optional invoices/tracking.",
+      "result": "Returns per lifecycle stage; a receipt is not an automatic restock."
+    },
+    "reversal-02": {
+      "q": "Which credit notes are missing their corresponding refund?",
+      "method": "Link credit notes to refund entitlements and completed refunds; a credit note is not a refund.",
+      "need": "Invoices, credit notes, payments, entitlements and refunds.",
+      "result": "Credit notes without a completed refund and their age."
+    },
+    "reversal-03": {
+      "q": "What still needs correcting in stock, invoicing and payment after a cancellation?",
+      "method": "Compare the cancellation with reservations, invoices, payments, refunds and receipts to list open steps.",
+      "need": "Order, allocations, invoices, payments, refunds, entitlements and receipts.",
+      "result": "Open correction steps per area with evidence."
+    },
+    "reversal-04": {
+      "q": "Is there a risk of duplicate repayment through both a refund and a chargeback?",
+      "method": "Overlap refunds with disputes per transaction and amount; missing dispute coverage keeps the answer partial.",
+      "need": "Payments, refunds and disputes.",
+      "result": "Transactions with potential double repayment, or a partial answer when dispute data is missing."
+    }
   },
   "landing": {
-    "nav": { "principle": "The principle", "recorder": "The flight recorder", "agents": "For agents", "install": "Installation guide", "download": "Download for Mac", "demo": "Open the demo" },
+    "nav": {
+      "principle": "The principle",
+      "recorder": "The flight recorder",
+      "agents": "For agents",
+      "install": "Installation guide",
+      "download": "Download for Mac",
+      "demo": "Open the demo"
+    },
     "hero": {
       "eyebrow": "The memory for your commerce business · private preview",
       "title1": "Your business runs.",
@@ -1247,7 +2026,10 @@
       "footer2": "Every event stays. Every answer has a source.",
       "now": "NOW"
     },
-    "band": { "label": "Your tools. One shared memory.", "more": "+ any signed API" },
+    "band": {
+      "label": "Your tools. One shared memory.",
+      "more": "+ any signed API"
+    },
     "principle": {
       "eyebrow": "Search less. Know more.",
       "title": "One business. Finally one context.",

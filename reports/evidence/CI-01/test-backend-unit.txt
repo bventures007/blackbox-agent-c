@@ -1,0 +1,13 @@
+# command: pnpm test:backend
+# started: 2026-11-01T12:01:23Z commit 482bdf592a599102a5ddcc18cf4e48f176241177
+$ vitest run --config tests/backend/vitest.unit.config.ts
+
+ RUN  v4.1.12 /Users/benediktsauter/GitHub/blackbox-agent-c
+
+
+ Test Files  3 passed (3)
+      Tests  138 passed (138)
+   Start at  13:01:28
+   Duration  28.42s (transform 14.81s, setup 0ms, import 38.65s, tests 11.54s, environment 11ms)
+
+# exit: 0 finished: 2026-11-01T12:01:57Z

@@ -147,7 +147,12 @@ Smoke corpus (`PILOT-09` dataset) into a prepared database (migrations applied, 
 ```sh
 PGHOST=127.0.0.1 PGPORT=19184 PGDATABASE=corpus PGUSER=bb_api PGPASSWORD=... \
   cargo run --release -p blackbox-engine --bin corpus -- --seed 42 --tenants 50 \
-  --min-entries 250000 --min-orders 10000 --manifest reports/corpus-manifest.json
+  --min-entries 250000 --min-orders 10000 --parallel 6 --manifest reports/corpus-manifest.json
 ```
+
+`corpus-v2` generates tenants concurrently (`--parallel`, default 6) from per-tenant RNGs derived from the seed;
+sequence allocation stays serialized per tenant by the journal's tenant row lock, so the largest tenant bounds the
+wall time (~50 entries/s per connection on this Mac, PostgreSQL CPU-bound in `append_journal_entries`). If the
+generator is stopped early, `tests/perf/manifest-from-db.mjs` reconstructs a labeled manifest from the database.
 
 The manifest records seed, generator version, per-tenant order/entry counts, order-history percentiles, the largest-tenant fraction, the designated hot set (2,000 orders of the largest tenant) and a cold sample.

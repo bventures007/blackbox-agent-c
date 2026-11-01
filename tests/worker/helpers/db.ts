@@ -11,6 +11,8 @@ import pg from 'pg';
 import { createWorkerPool, withTenant, sealSecret, type SecretKeyring } from '@blackbox/connectors';
 
 export const SUPERUSER_URL = process.env.WORKER_TEST_SUPERUSER_URL ?? 'postgres://postgres:workerpg@127.0.0.1:19185/postgres';
+/** host:port of the throwaway container (WORKER_TEST_SUPERUSER_URL may move it to another loopback port). */
+const PG_HOSTPORT = `${new URL(SUPERUSER_URL).hostname}:${new URL(SUPERUSER_URL).port || '5432'}`;
 export const WORKER_PASSWORD = 'workerpg_worker_test_password';
 export const MIGRATIONS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'packages', 'database', 'migrations');
 export const KEYRING: SecretKeyring = { version: 1, key: Buffer.from('0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', 'hex'), path: 'test://data.key' };
@@ -38,7 +40,7 @@ export async function createTestDatabase(prefix = 'bb_worker_test'): Promise<Tes
     try { await dbSuper.query(sql); } catch (err) { throw new Error(`migration ${f} failed: ${(err as Error).message}`); }
   }
   await dbSuper.query('RESET ROLE');
-  const workerUrl = `postgres://bb_worker:${WORKER_PASSWORD}@127.0.0.1:19185/${name}`;
+  const workerUrl = `postgres://bb_worker:${WORKER_PASSWORD}@${PG_HOSTPORT}/${name}`;
   const pool = createWorkerPool(workerUrl, 4);
   return {
     name, workerUrl, pool,
@@ -56,7 +58,7 @@ export async function createTenant(db: TestDb, display_name: string): Promise<st
   return tenant_id;
 }
 
-export interface ConnectionSpec { provider: 'shopify' | 'shopify_payments'; base_url: string; shop_domain?: string; secret?: Record<string, unknown>; account_ref?: string | null; page_size?: number }
+export interface ConnectionSpec { provider: string; base_url?: string; shop_domain?: string; secret?: Record<string, unknown>; account_ref?: string | null; page_size?: number }
 
 export async function createConnection(db: TestDb, tenant_id: string, spec: ConnectionSpec): Promise<string> {
   const sealed = sealSecret(spec.secret ?? { access_token: 'shpat_fixture_0123456789abcdef' }, KEYRING, tenant_id);

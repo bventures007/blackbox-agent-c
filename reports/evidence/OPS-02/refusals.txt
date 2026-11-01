@@ -1,0 +1,24 @@
+# OPS-02/PILOT-03 refusals on the populated ops install (2026-11-01T13:27:53Z)
+## same version (rc6 archive)
+upgrade: installed 0.1.0-rc6 → release 0.1.0-rc6
+blackbox: ERROR: release 0.1.0-rc6 is already installed
+exit 1
+## nonexistent source
+blackbox: ERROR: release source not found: /nonexistent/blackbox-9.9.9.tar.gz
+exit 2
+## unknown release requiring PostgreSQL 17 (version 0.2.0)
+upgrade: installed 0.1.0-rc6 → release 0.2.0
+blackbox: ERROR: release 0.2.0 requires PostgreSQL major 17; this installation runs 16 — a major upgrade needs the documented dump/restore route
+exit 2
+## release.json without journal_schema_version (0.1.1)
+upgrade: installed 0.1.0-rc6 → release 0.1.1
+exit 1
+## state after refusals (no upgrade.json, no lock, no fence)
+install.json
+installed-release.json
+upgrade-stage
+ls: data/state/maintenance.lock: No such file or directory
+ls: data/state/upgrade.json: No such file or directory
+ls: data/state/writers.paused.json: No such file or directory
+project: blackbox-agent-c-ops   version: installed=0.1.0-rc6 release=0.1.0-rc6   url: http://127.0.0.1:19185/
+api health: unreachable

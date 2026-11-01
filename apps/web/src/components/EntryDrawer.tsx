@@ -1,12 +1,16 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { journal as journalApi } from '../api/endpoints';
-import type { EvidenceMeta, JournalEntryDetail } from '../api/types';
+import type { JournalEntry } from '../api/types';
 import { useAsync } from '../hooks';
 import { useFormat } from '../format';
 import { DefinitionList, Drawer, ErrorNote, Loading, StatusBadge } from './ui';
 import { Icon } from './Icon';
+
+/** Short human label for an entry: event type plus the entity it is about. */
+export function entrySummary(e: Pick<JournalEntry, 'record_id' | 'event_type'>): string {
+  return `${e.event_type} · ${e.record_id}`;
+}
 
 /** Journal entry drawer: payload, evidence (original excerpt), links to supersedes/superseded/derived entries and entities. */
 export function EntryDrawer({ entryId, onClose, onOpenEntry }: { entryId: string; onClose: () => void; onOpenEntry: (id: string) => void }) {
@@ -15,7 +19,7 @@ export function EntryDrawer({ entryId, onClose, onOpenEntry }: { entryId: string
   const entry = useAsync(() => journalApi.entry(entryId), [entryId]);
   const e = entry.data;
   return (
-    <Drawer onClose={onClose} eyebrow={<><Icon name="wave" /> {t('journal.entryEyebrow')}</>} title={e ? e.summary ?? e.record_id : t('common.loading')}>
+    <Drawer onClose={onClose} eyebrow={<><Icon name="wave" /> {t('journal.entryEyebrow')}</>} title={e ? e.record_id : t('common.loading')}>
       {entry.loading && <Loading />}
       <ErrorNote error={entry.error} onRetry={entry.reload} />
       {e && (
@@ -25,7 +29,8 @@ export function EntryDrawer({ entryId, onClose, onOpenEntry }: { entryId: string
               {t(`tracks.${e.track}`)}
             </span>{' '}
             <code className="mono">{e.event_type}</code>
-            {e.history_kind && <> · <StatusBadge kind={e.history_kind} tone="neutral" label={t(`journal.historyKind.${e.history_kind}`)} /></>}
+            {e.supersedes_entry_id && <> · <StatusBadge tone="info" label={t('journal.supersedesShort')} /></>}
+            {e.superseded_by.length > 0 && <> · <StatusBadge tone="warn" label={t('journal.supersededBy')} /></>}
           </p>
           <DefinitionList
             rows={[
@@ -37,7 +42,9 @@ export function EntryDrawer({ entryId, onClose, onOpenEntry }: { entryId: string
               { label: t('journal.fields.connection'), value: e.connection_id ? <Link to={`/app/sources/${e.connection_id}`}>{t('journal.openConnection')}</Link> : t('common.none') },
               { label: t('journal.fields.providerEventId'), value: e.provider_event_id ?? t('common.none') },
               { label: t('journal.fields.schemaVersion'), value: e.schema_version },
+              ...(e.correlation_id ? [{ label: t('journal.fields.correlation'), value: <code className="mono">{e.correlation_id}</code> }] : []),
               ...(e.derivation_rule ? [{ label: t('journal.fields.derivation'), value: <code>{e.derivation_rule} v{e.derivation_version}</code> }] : []),
+              ...(e.payload_hash ? [{ label: t('journal.fields.payloadHash'), value: <code className="mono">{e.payload_hash.slice(0, 16)}…</code> }] : []),
             ]}
           />
           <h3 className="drawer-subtitle">{t('journal.entities')}</h3>
@@ -52,37 +59,39 @@ export function EntryDrawer({ entryId, onClose, onOpenEntry }: { entryId: string
           <h3 className="drawer-subtitle">{t('journal.payload')}</h3>
           <pre className="config-code payload-code">{JSON.stringify(e.payload, null, 2)}</pre>
           <h3 className="drawer-subtitle">{t('journal.evidence')}</h3>
-          {e.evidence.length === 0 && <p className="muted">{t('journal.noEvidence')}</p>}
-          {e.evidence.map((ev) => (
-            <EvidenceBox key={ev.evidence_id} evidence={ev} />
+          {e.evidence_refs.length === 0 && <p className="muted">{t('journal.noEvidence')}</p>}
+          {e.evidence_refs.map((id) => (
+            <EvidenceBox key={id} evidenceId={id} />
           ))}
           <h3 className="drawer-subtitle">{t('journal.links')}</h3>
           <div className="link-list">
-            {e.supersedes_entry_id && (
-              <button type="button" className="detail-link" onClick={() => onOpenEntry(e.supersedes_entry_id as string)}>
-                <span>{t('journal.supersedes')}</span>
+            {e.supersedes && (
+              <button type="button" className="detail-link" onClick={() => onOpenEntry(e.supersedes!.entry_id)}>
+                <span>{t('journal.supersedes')} <code className="mono">{entrySummary(e.supersedes)}</code></span>
                 <Icon name="chevron" />
               </button>
             )}
-            {e.superseded_by_entry_id && (
-              <button type="button" className="detail-link" onClick={() => onOpenEntry(e.superseded_by_entry_id as string)}>
-                <span>{t('journal.supersededBy')}</span>
-                <Icon name="chevron" />
-              </button>
-            )}
-            {e.input_entry_ids.map((id) => (
-              <button key={id} type="button" className="detail-link" onClick={() => onOpenEntry(id)}>
-                <span>{t('journal.inputEntry')} <code className="mono">{id.slice(-6)}</code></span>
+            {e.superseded_by.map((s) => (
+              <button key={s.entry_id} type="button" className="detail-link" onClick={() => onOpenEntry(s.entry_id)}>
+                <span>{t('journal.supersededBy')} <code className="mono">{entrySummary(s)}</code></span>
                 <Icon name="chevron" />
               </button>
             ))}
-            {e.derived_entry_ids.map((id) => (
-              <button key={id} type="button" className="detail-link" onClick={() => onOpenEntry(id)}>
-                <span>{t('journal.derivedEntry')} <code className="mono">{id.slice(-6)}</code></span>
+            {e.derived_from.map((s) => (
+              <button key={s.entry_id} type="button" className="detail-link" onClick={() => onOpenEntry(s.entry_id)}>
+                <span>{t('journal.inputEntry')} <code className="mono">{entrySummary(s)}</code></span>
                 <Icon name="chevron" />
               </button>
             ))}
-            {!e.supersedes_entry_id && !e.superseded_by_entry_id && !e.input_entry_ids.length && !e.derived_entry_ids.length && <p className="muted">{t('common.none')}</p>}
+            {e.derivations.map((s) => (
+              <button key={s.entry_id} type="button" className="detail-link" onClick={() => onOpenEntry(s.entry_id)}>
+                <span>
+                  {t('journal.derivedEntry')} <span className="type-tag" data-track={s.track}>{t(`tracks.${s.track}`)}</span> <code className="mono">{entrySummary(s)}</code>
+                </span>
+                <Icon name="chevron" />
+              </button>
+            ))}
+            {!e.supersedes && !e.superseded_by.length && !e.derived_from.length && !e.derivations.length && <p className="muted">{t('common.none')}</p>}
           </div>
           <p className="demo-callout">{t('journal.appendOnlyNote')}</p>
         </>
@@ -91,39 +100,31 @@ export function EntryDrawer({ entryId, onClose, onOpenEntry }: { entryId: string
   );
 }
 
-export function EvidenceBox({ evidence }: { evidence: EvidenceMeta }) {
+/** One raw evidence object (GET /api/evidence/:id): status, metadata and the inline excerpt when the policy allows it. */
+export function EvidenceBox({ evidenceId }: { evidenceId: string }) {
   const { t } = useTranslation();
   const f = useFormat();
-  const [content, setContent] = useState<string | null>(evidence.excerpt ?? null);
-  const [error, setError] = useState<unknown>(null);
-  const load = async () => {
-    try {
-      const r = await journalApi.evidence(evidence.evidence_id);
-      setContent(r.content ?? r.excerpt ?? null);
-    } catch (e) {
-      setError(e);
-    }
-  };
+  const ev = useAsync(() => journalApi.evidence(evidenceId), [evidenceId]);
+  const d = ev.data;
+  const meta = d?.evidence;
+  const content = d?.content === undefined || d.content === null ? null : typeof d.content === 'string' ? d.content : JSON.stringify(d.content, null, 2);
   return (
     <div className="evidence-box">
       <h3>
-        {t('journal.originalExcerpt')} · <code className="mono">{evidence.evidence_id}</code> <StatusBadge kind={evidence.status} label={t(`evidenceStatus.${evidence.status}`)} />
+        {t('journal.originalExcerpt')} · <code className="mono">{evidenceId}</code> {d && <StatusBadge kind={d.status} label={t(`evidenceStatus.${d.status}`, { defaultValue: d.status })} />}
       </h3>
-      {evidence.status === 'available' ? (
+      {ev.loading && !d && <Loading />}
+      <ErrorNote error={ev.error} onRetry={ev.reload} />
+      {d && d.status === 'available' && (
         <>
-          {content ? <blockquote>{content}</blockquote> : <button type="button" className="btn small secondary" onClick={() => void load()}>{t('journal.loadEvidence')}</button>}
+          {content ? <blockquote>{content.length > 4000 ? `${content.slice(0, 4000)}…` : content}</blockquote> : <p className="micro">{t('journal.binaryEvidence')}</p>}
           <p className="micro">
-            {evidence.provider ? t(`providers.${evidence.provider}.name`, { defaultValue: evidence.provider }) : ''} · {evidence.content_type} · {f.dateTimeSeconds(evidence.received_at)} · {f.bytes(evidence.size_bytes ?? null)}
+            {meta?.kind ?? ''} · {meta?.media_type ?? ''} · {f.dateTimeSeconds(meta?.received_at)} · {f.bytes(meta?.byte_size ?? null)}
+            {meta?.evidence_class ? ` · ${t(`evidenceClasses.${meta.evidence_class}`, { defaultValue: meta.evidence_class })}` : ''}
           </p>
         </>
-      ) : (
-        <p className="micro">{t(`evidenceReason.${evidence.reason ?? 'unknown'}`, { defaultValue: evidence.reason ?? t('common.unknown') })}</p>
       )}
-      <ErrorNote error={error} />
+      {d && d.status !== 'available' && <p className="micro">{t(`evidenceReason.${d.reason ?? 'unknown'}`, { defaultValue: d.reason ?? t('common.unknown') })}</p>}
     </div>
   );
-}
-
-export function EntryPreview({ entry }: { entry: JournalEntryDetail }) {
-  return <pre className="config-code payload-code">{JSON.stringify(entry.payload, null, 2)}</pre>;
 }

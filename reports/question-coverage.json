@@ -1,8 +1,8 @@
 {
-  "version": "1.0",
-  "reviewed_date": "2026-10-31",
-  "review_kind": "specification_and_public_documentation_audit",
-  "product_tests_run": false,
+  "version": "1.1",
+  "reviewed_date": "2026-11-01",
+  "review_kind": "engine_boundary_suite_plus_api_parameter_boundary",
+  "product_tests_run": true,
   "source_api_schema_notes": {
     "shopify": "Official pages reviewed with latest displayed as 2026-10; implementation must pin and validate actual queries.",
     "easybill": "Public REST v1 OpenAPI schema info.version 1.103.1; SHA256 6d532f96a7fe82fcbd556178f8bd2a11f364061690f67ccb932d3722ac2b1e86.",
@@ -12,7 +12,10 @@
     "documented_provider_path": 9,
     "supplemental_data_required": 11,
     "provider_detail_unverified": 3,
-    "bank_import_required": 1
+    "bank_import_required": 1,
+    "engine_boundary_positive_passed": 24,
+    "engine_boundary_missing_passed": 24,
+    "installed_api_mcp_runs": 0
   },
   "questions": [
     {
@@ -20,361 +23,561 @@
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "passed_slice01_order_state_only",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Validate inventory state basis and scope; optional incoming supply is separately unknown if absent."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt",
+        "reports/evidence/SLICE-01/results.json"
+      ],
+      "open_dependency": "Validate inventory state basis and scope; optional incoming supply is separately unknown if absent.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent inventory.available_to_sell passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "order-02",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "passed_slice01_order_state_only",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Explicit reservations or declared derived allocation and merchant priority policy."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt",
+        "reports/evidence/SLICE-01/results.json"
+      ],
+      "open_dependency": "Explicit reservations or declared derived allocation and merchant priority policy.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent orders.fulfillable passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "order-03",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "passed_slice01_order_state_only",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Line-level reservation ownership cannot be inferred from an aggregate stock number."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt",
+        "reports/evidence/SLICE-01/results.json"
+      ],
+      "open_dependency": "Line-level reservation ownership cannot be inferred from an aggregate stock number.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent orders.reservation_variance passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "order-04",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "passed_slice01_order_state_only",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Supplier/PO promise revisions and supply-to-order dependencies require a supplemental feed."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt",
+        "reports/evidence/SLICE-01/results.json"
+      ],
+      "open_dependency": "Supplier/PO promise revisions and supply-to-order dependencies require a supplemental feed.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent orders.inbound_delay_impact passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "delivery-01",
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "DHL entitlement/retention and exact shop shipment link; merchant stale-scan threshold is configurable."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "DHL entitlement/retention and exact shop shipment link; merchant stale-scan threshold is configurable.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent shipments.attention passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "delivery-02",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Explicit customer deadline and timezone; carrier ETA is not that promise."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Explicit customer deadline and timezone; carrier ETA is not that promise.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent shipments.promise_risk passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "delivery-03",
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Per-line shipment association and handover/delivery evidence; packing gaps remain explicit."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Per-line shipment association and handover/delivery evidence; packing gaps remain explicit.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent orders.partial_delivery_gaps passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "delivery-04",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Prior communication needs a reviewed feed or later mailbox/helpdesk integration."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Prior communication needs a reviewed feed or later mailbox/helpdesk integration.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent customer.delivery_reply passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "invoice-01",
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Correction chain, payment markers and invoice/order links must be validated per account."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Correction chain, payment markers and invoice/order links must be validated per account.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent invoices.outstanding passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "invoice-02",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Merchant invoicing trigger plus complete invoice population and confirmed cross-system links."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Merchant invoicing trigger plus complete invoice population and confirmed cross-system links.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent orders.missing_invoice passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "invoice-03",
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Version-aligned line equivalence and currency basis; unmatched shipping/tax/discount allocation stays unresolved."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Version-aligned line equivalence and currency basis; unmatched shipping/tax/discount allocation stays unresolved.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent invoices.order_amount_variance passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "invoice-04",
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "easybill postbox coverage must include external-send limitations; sending is not receipt."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "easybill postbox coverage must include external-send limitations; sending is not receipt.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent invoices.dispatch_evidence passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "collection-01",
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Successful transaction amounts and gateway/account identity, not just order financial labels."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Successful transaction amounts and gateway/account identity, not just order financial labels.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent orders.payment_state passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "collection-02",
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Complete attempt history and same-order identity; later success can still be only partial."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Complete attempt history and same-order identity; later success can still be only partial.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent payments.recovered_attempts passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "collection-03",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Proven invoice-to-payment allocation; multiple invoices and manual payments need explicit association."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Proven invoice-to-payment allocation; multiple invoices and manual payments need explicit association.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent invoices.payment_variance passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "collection-04",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Reminder policy, investigations and agreed extensions require explicit business context."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Reminder policy, investigations and agreed extensions require explicit business context.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent receivables.review_queue passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "settlement-01",
       "assessment": "provider_detail_unverified",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Detailed held/processing/available breakdown and independent bank coverage are not implied by the default finance API."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Detailed held/processing/available breakdown and independent bank coverage are not implied by the default finance API.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent providers.money_positions passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "settlement-02",
       "assessment": "documented_provider_path",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Complete payout member postings and signed adjustments; do not explain using all payments in a date window."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Complete payout member postings and signed adjustments; do not explain using all payments in a date window.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent payouts.gross_to_net passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "settlement-03",
       "assessment": "bank_import_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "A real validated bank-statement import is required; provider payout status alone is insufficient."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "A real validated bank-statement import is required; provider payout status alone is insufficient.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent payouts.missing_bank_confirmation passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "settlement-04",
       "assessment": "provider_detail_unverified",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "A verified source for hold identity/reason/amount and release promise is still needed."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "A verified source for hold identity/reason/amount and release promise is still needed.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent providers.holds_and_releases passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "reversal-01",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Actual line-level warehouse receipt/disposition and refund links; a return request is only intent."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Actual line-level warehouse receipt/disposition and refund links; a return request is only intent.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent returns.lifecycle passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "reversal-02",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Explicit refund entitlement, original payment and destination; an unpaid invoice credit may only reduce debt."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Explicit refund entitlement, original payment and destination; an unpaid invoice credit may only reduce debt.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent credits.refund_gaps passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "reversal-03",
       "assessment": "supplemental_data_required",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Reservation ownership and financial/warehouse reconciliation context must be available, including explicit not-applicable states."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Reservation ownership and financial/warehouse reconciliation context must be available, including explicit not-applicable states.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent cancellations.outstanding_steps passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     },
     {
       "id": "reversal-04",
       "assessment": "provider_detail_unverified",
       "design_mapping": "reviewed",
       "adapter_mapping": "pending_contract_and_account_verification",
-      "implementation": "not_started",
-      "positive_path_test": "not_started",
-      "missing_data_test": "not_started",
-      "api_mcp_parity_test": "not_started",
-      "restart_cold_path_test": "not_started",
+      "implementation": "implemented",
+      "positive_path_test": "passed_engine_boundary",
+      "missing_data_test": "passed_engine_boundary",
+      "api_mcp_parity_test": "not_run",
+      "restart_cold_path_test": "not_run",
       "live_verification": "not_verified",
-      "tested_commit": null,
-      "evidence_paths": [],
-      "open_dependency": "Exact original-transaction linkage plus booked chargeback debit/reversal evidence is still unproven for the default adapter."
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "evidence_paths": [
+        "reports/evidence/CI-01/cargo-test-release.txt",
+        "reports/evidence/CI-01/test-backend-integration.txt"
+      ],
+      "open_dependency": "Exact original-transaction linkage plus booked chargeback debit/reversal evidence is still unproven for the default adapter.",
+      "observed": {
+        "engine_boundary": "apps/engine/tests/intents_http.rs: positive (sufficient) case and explicit missing-data case for intent refunds.chargeback_overlap passed through PostgreSQL append -> Rust engine -> /v1/query (cargo test --workspace --release)",
+        "api_boundary": "tests/backend/integration/sources.test.ts: parameters validated for all 24 intents, readiness attached, no fabricated result without the engine (engine stub)",
+        "installed_stack": "NOT RUN: tests/questions/coverage.mjs (positive scenario ported with -Q ids, sparse synthetic tenant, API vs stdio MCP parity, as_of re-check after restart) is written but could not be executed: the ops install api was unreachable on its published port (LOCAL-05 defect, fixed in rc6b) and the rc6b upgrade was still running on the saturated host at wrap-up"
+      }
     }
   ],
-  "live_business_data_calls_made": false
+  "live_business_data_calls_made": false,
+  "run": {
+    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+    "note": "Engine-boundary evidence only (24/24 intents positive + missing-data in intents_http.rs; API parameter boundary in sources.test.ts); the installed-stack API/MCP run per intent, API/MCP parity per intent and as_of-after-restart per group were not executed (tests/questions/coverage.mjs + report.mjs are prepared). SLICE-01 proves API/MCP parity and restart/cutoff stability for the order state route only."
+  }
 }

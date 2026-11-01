@@ -4,6 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const KEY = process.env.BLACKBOX_E2E_KEY ?? 'bbk_demo_0000000000000000000000000000000000000000000';
+/** Upper bound for the sign-in round trip (slow key hash + first render) — well above the default 10 s expect timeout. */
+export const LOGIN_TIMEOUT = 180_000;
 export type Locale = 'en' | 'de';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -77,14 +79,20 @@ export async function login(page: Page, locale: Locale = 'en', remember = true):
   await page.getByLabel(locale === 'en' ? 'Personal access key' : 'Persönlicher Zugangsschlüssel').fill(KEY);
   if (remember) await page.getByLabel(T[locale].remember).check();
   await page.getByRole('button', { name: locale === 'en' ? 'Sign in' : 'Anmelden', exact: true }).click();
+  // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
-  await expect(page.locator('.app-layout')).toBeVisible();
+  await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
   const currentLang = await page.locator('html').getAttribute('lang');
-  if (currentLang !== locale) {
-    await page.locator('.app-topbar select').selectOption(locale);
-  }
+  if (currentLang !== locale) await switchLocale(page, locale);
   await expect(page.locator('html')).toHaveAttribute('lang', locale);
   await expect(page.getByRole('heading', { name: T[locale].recorder })).toBeVisible();
+}
+
+/** Switches the shell language and waits until the preference is persisted (PATCH /api/workspace) so later document loads keep it. */
+export async function switchLocale(page: Page, locale: Locale): Promise<void> {
+  const saved = page.waitForResponse((r) => r.url().includes('/api/workspace') && r.request().method() === 'PATCH', { timeout: LOGIN_TIMEOUT });
+  await page.locator('.app-topbar select').selectOption(locale);
+  await saved;
 }
 
 export async function screenshot(page: Page, testInfo: TestInfo, locale: Locale, name: string): Promise<void> {

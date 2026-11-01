@@ -181,7 +181,7 @@ export function JournalView() {
                     </span>
                   </td>
                   <td>
-                    {e.summary ?? e.event_type}
+                    {e.event_type}
                     {e.supersedes_entry_id && <> <StatusBadge tone="info" label={t('journal.supersedesShort')} /></>}
                   </td>
                   <td>{e.provider ? t(`providers.${e.provider}.name`, { defaultValue: e.provider }) : '–'}</td>
@@ -215,7 +215,7 @@ export function JournalView() {
       {page.data && (
         <p className="context-note">
           <span>
-            {t('journal.consistencyNote', { cursor: page.data.consistency.committed_cursor ?? t('common.unknown'), status: t(`readiness.consistency.${page.data.consistency.status}`) })}
+            {t('journal.consistencyNote', { cursor: page.data.consistency.committed_cursor ?? t('common.unknown'), snapshot: page.data.page.snapshot_cursor })}
             {page.data.page.truncated ? ` · ${t('journal.truncated')}` : ''}
           </span>
           <span>{t('journal.historyNote')}</span>

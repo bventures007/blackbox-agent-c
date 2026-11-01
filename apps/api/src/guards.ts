@@ -31,7 +31,7 @@ export function createGuards(ctx: AppContext) {
   }
 
   function checkHost(request: FastifyRequest): void {
-    if (!hostAllowed(request.headers.host, ctx.config.port)) {
+    if (!hostAllowed(request.headers.host, [ctx.config.port, ctx.config.publicPort])) {
       ctx.logger.warn("auth.host_rejected", "Request rejected: Host header is not the loopback origin", { error_code: "host_not_allowed", trace_id: request.traceId });
       throw forbidden("Host header is not allowed");
     }
@@ -42,7 +42,7 @@ export function createGuards(ctx: AppContext) {
     if (request.auth?.kind !== "owner") return;
     if (request.method === "GET" || request.method === "HEAD" || request.method === "OPTIONS") return;
     const origin = request.headers.origin;
-    if (!originAllowed(typeof origin === "string" ? origin : undefined, ctx.config.port)) {
+    if (!originAllowed(typeof origin === "string" ? origin : undefined, [ctx.config.port, ctx.config.publicPort])) {
       ctx.logger.warn("auth.origin_rejected", "State-changing request rejected: Origin missing or not allowlisted", { error_code: "origin_not_allowed", tenant_id: request.auth.session.principal.tenant_id, trace_id: request.traceId });
       throw forbidden("Origin is not allowed");
     }

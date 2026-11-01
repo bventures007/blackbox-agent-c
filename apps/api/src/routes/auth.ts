@@ -1,3 +1,4 @@
+import { originAllowed } from "@blackbox/auth";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { AGENT_GRANT, AuthError, SESSION_COOKIE, clientThrottleKey, REMEMBERED_ABSOLUTE_MS } from "@blackbox/auth";
@@ -21,7 +22,7 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext, guards
     if (!body.success) throw validation("key (string) and optional remember (boolean) are required");
     // Origin check for the login form too (cross-origin forms cannot log the browser in).
     const origin = request.headers.origin;
-    if (typeof origin === "string" && !originOk(origin, ctx.config.port)) throw new HttpError(403, "forbidden", "Origin is not allowed");
+    if (typeof origin === "string" && !originOk(origin, [ctx.config.port, ctx.config.publicPort])) throw new HttpError(403, "forbidden", "Origin is not allowed");
     const clientKey = clientThrottleKey(request.ip, request.headers["user-agent"]);
     try {
       const { session_id, session } = await ctx.auth.login({ key: body.data.key, remember: body.data.remember, clientKey });
@@ -116,8 +117,8 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext, guards
     transport: "stdio",
     command: "node",
     args: ["packages/mcp/dist/server.js"],
-    env: { BLACKBOX_API_URL: `http://127.0.0.1:${ctx.config.port}`, BLACKBOX_AGENT_KEY: "<paste the agent key here or use BLACKBOX_AGENT_KEY_FILE=/path/to/key-file>" },
-    snippet: JSON.stringify({ mcpServers: { blackbox: { command: "node", args: ["packages/mcp/dist/server.js"], env: { BLACKBOX_API_URL: `http://127.0.0.1:${ctx.config.port}`, BLACKBOX_AGENT_KEY_FILE: "/absolute/path/to/agent.key" } } } }, null, 2),
+    env: { BLACKBOX_API_URL: `http://127.0.0.1:${ctx.config.publicPort}`, BLACKBOX_AGENT_KEY: "<paste the agent key here or use BLACKBOX_AGENT_KEY_FILE=/path/to/key-file>" },
+    snippet: JSON.stringify({ mcpServers: { blackbox: { command: "node", args: ["packages/mcp/dist/server.js"], env: { BLACKBOX_API_URL: `http://127.0.0.1:${ctx.config.publicPort}`, BLACKBOX_AGENT_KEY_FILE: "/absolute/path/to/agent.key" } } } }, null, 2),
     notes: ["The key is read from the environment or a 0600 file, never from command-line arguments.", "Cloud-hosted clients cannot reach the loopback API; use a local MCP-capable client.", "The grant is read-only business access for this workspace; it cannot ingest, administer or read technical logs."],
   }));
 
@@ -168,8 +169,8 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext, guards
   app.get("/api/settings/security", { preHandler: [guards.requireOwner] }, async (request) => ctx.auth.securitySummary(guards.tenantOf(request)));
 }
 
-function originOk(origin: string, port: number): boolean {
-  return origin === `http://127.0.0.1:${port}` || origin === `http://localhost:${port}`;
+function originOk(origin: string, ports: number | readonly number[]): boolean {
+  return originAllowed(origin, ports);
 }
 
 export async function readBackups(ctx: AppContext, tenantId: string): Promise<Record<string, unknown> & { status: string }> {

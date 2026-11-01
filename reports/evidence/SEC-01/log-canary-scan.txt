@@ -1,0 +1,46 @@
+# command: grep -rEc 'bbk_[A-Za-z0-9_-]{30,}|bba_[A-Za-z0-9_-]{30,}|shpat_|AGE-SECRET-KEY-1|bb_session=' <install>/data/logs <install>/logs; plus the actual owner key value and the actual recovery key value as canaries   (2026-11-01T15:08:12Z)
+# install ~/blackbox-pilot-ops after setup (owner key issued via the setup channel), demo load, verify, backup-config (recovery key shown once), pre-upgrade backup; agent-key creation through the API could not be exercised (API unreachable on rc6 at port 19185, see LOCAL-05)
+## retained log files
+~/blackbox-pilot-ops/data/logs:
+total 33328
+drwx------@ 13 benediktsauter  staff      416 Nov  1 16:00 .
+drwx------@  8 benediktsauter  staff      256 Nov  1 13:04 ..
+-rw-r--r--   1 benediktsauter  staff      739 Nov  1 15:32 index.json
+-rw-r--r--   1 benediktsauter  staff  2258143 Nov  1 13:59 records-20261101-12-engine.jsonl
+-rw-r--r--   1 benediktsauter  staff   149933 Nov  1 13:59 records-20261101-12-worker.jsonl
+-rw-r--r--   1 benediktsauter  staff    86068 Nov  1 13:16 records-20261101-12.jsonl
+-rw-r--r--   1 benediktsauter  staff  5681258 Nov  1 15:00 records-20261101-13-engine.jsonl
+-rw-r--r--   1 benediktsauter  staff   528680 Nov  1 15:30 records-20261101-13-worker.jsonl
+-rw-r--r--   1 benediktsauter  staff     1341 Nov  1 14:43 records-20261101-13.jsonl
+-rw-r--r--   1 benediktsauter  staff  5803452 Nov  1 15:59 records-20261101-14-engine.jsonl
+-rw-r--r--   1 benediktsauter  staff    25647 Nov  1 15:32 records-20261101-14-worker.jsonl
+-rw-r--r--   1 benediktsauter  staff      395 Nov  1 15:32 records-20261101-14.jsonl
+-rw-r--r--   1 benediktsauter  staff   800749 Nov  1 16:08 records-20261101-15-engine.jsonl
+
+~/blackbox-pilot-ops/logs:
+total 8
+drwx------@  3 benediktsauter  staff   96 Nov  1 13:04 .
+drwxr-xr-x@ 15 benediktsauter  staff  480 Nov  1 15:33 ..
+-rw-------@  1 benediktsauter  staff  824 Nov  1 15:40 setup.log
+## pattern matches (count per file)
+~/blackbox-pilot-ops/data/logs/records-20261101-15-engine.jsonl:0
+~/blackbox-pilot-ops/data/logs/records-20261101-12-worker.jsonl:0
+~/blackbox-pilot-ops/data/logs/records-20261101-12.jsonl:0
+~/blackbox-pilot-ops/data/logs/records-20261101-12-engine.jsonl:0
+~/blackbox-pilot-ops/data/logs/records-20261101-13.jsonl:0
+~/blackbox-pilot-ops/logs/setup.log:0
+~/blackbox-pilot-ops/data/logs/records-20261101-13-worker.jsonl:0
+~/blackbox-pilot-ops/data/logs/records-20261101-14-worker.jsonl:0
+~/blackbox-pilot-ops/data/logs/records-20261101-14-engine.jsonl:0
+~/blackbox-pilot-ops/data/logs/index.json:0
+~/blackbox-pilot-ops/data/logs/records-20261101-13-engine.jsonl:0
+~/blackbox-pilot-ops/data/logs/records-20261101-14.jsonl:0
+## exact owner key value present in any log/state file? (expect none)
+(matches: 0)
+## exact recovery key value present in the install or backup destination? (expect none)
+(matches: 0)
+## docker inspect env of api/worker/engine/backup-scheduler containers: credential-looking strings
+api: 0
+worker: 0
+engine: 0
+backup-scheduler: 0

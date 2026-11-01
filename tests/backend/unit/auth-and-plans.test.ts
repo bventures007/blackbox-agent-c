@@ -109,6 +109,17 @@ describe("origin/host allowlist (LOCAL-05)", () => {
     expect(hostAllowed("evil.example", 19180)).toBe(false);
     expect(hostAllowed("127.0.0.1:19181", 19180)).toBe(false);
   });
+  it("accepts the published host port next to the container listener port (setup --port N)", () => {
+    // Regression: an installation created with `./blackbox setup --port 19185` answered 403 to every
+    // request because only the container-internal port 19180 was allowlisted.
+    expect(hostAllowed("127.0.0.1:19185", [19180, 19185])).toBe(true);
+    expect(hostAllowed("localhost:19185", [19180, 19185])).toBe(true);
+    expect(hostAllowed("127.0.0.1:19180", [19180, 19185])).toBe(true);
+    expect(hostAllowed("127.0.0.1:19186", [19180, 19185])).toBe(false);
+    expect(originAllowed("http://127.0.0.1:19185", [19180, 19185])).toBe(true);
+    expect(originAllowed("http://192.168.1.5:19185", [19180, 19185])).toBe(false);
+    expect([...buildAllowedOrigins([19180, 19180])]).toEqual(["http://127.0.0.1:19180", "http://localhost:19180"]);
+  });
 });
 
 describe("import plans (IMPORT-01)", () => {

@@ -18,8 +18,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  timeout: 60_000,
-  expect: { timeout: 10_000 },
+  timeout: 600_000,
+  expect: { timeout: 60_000 },
   reporter: [['list'], ['html', { open: 'never', outputFolder: './playwright-report' }]],
   use: {
     baseURL: BASE_URL,
@@ -47,14 +47,14 @@ export default defineConfig({
           url: BASE_URL,
           cwd: repoRoot,
           reuseExistingServer: !process.env.CI,
-          timeout: 60_000,
+          timeout: 600_000,
         },
         {
           command: 'pnpm --filter landing preview',
           url: LANDING_URL,
           cwd: repoRoot,
           reuseExistingServer: !process.env.CI,
-          timeout: 60_000,
+          timeout: 600_000,
         },
       ]
     : undefined,

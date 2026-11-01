@@ -6,6 +6,8 @@ export interface ApiConfig {
   /** 127.0.0.1 on a host; 0.0.0.0 only inside the Compose container whose port Docker publishes on the host loopback alone. */
   host: "127.0.0.1" | "0.0.0.0";
   port: number;
+  /** Port the browser/MCP client uses on the host loopback (Compose publishes 127.0.0.1:<publicPort> → container port). Equals `port` outside Compose. */
+  publicPort: number;
   databaseUrl: string;
   /** bb_migrate connection string (CLI migrate / doctor); null when not configured. */
   migrateDatabaseUrl: string | null;
@@ -99,6 +101,8 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): ApiConfig {
   }
   const port = Number(env.PORT ?? "19180");
   if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new ConfigError("PORT must be an integer between 1024 and 65535");
+  const publicPort = Number(env.BLACKBOX_PUBLIC_PORT ?? String(port));
+  if (!Number.isInteger(publicPort) || publicPort < 1024 || publicPort > 65535) throw new ConfigError("BLACKBOX_PUBLIC_PORT must be an integer between 1024 and 65535");
   const databaseUrl = env.DATABASE_URL;
   if (!databaseUrl) throw new ConfigError("DATABASE_URL (bb_api role) or PGHOST/PGUSER/PGPASSWORD_FILE is required");
   const secretsDir = env.SECRETS_DIR;
@@ -119,6 +123,7 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): ApiConfig {
   return {
     host: containerBind ? "0.0.0.0" : "127.0.0.1",
     port,
+    publicPort,
     databaseUrl,
     migrateDatabaseUrl: env.MIGRATE_DATABASE_URL ?? null,
     fenceDir: env.FENCE_DIR ?? null,

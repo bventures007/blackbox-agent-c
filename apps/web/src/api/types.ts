@@ -1,5 +1,6 @@
-// Contract-shaped types mirroring docs/api-contract.md. The UI never computes business values;
-// it renders what these envelopes carry.
+// Types of the real HTTP API (apps/api, docs/api-contract.md) plus the few view-model fields the
+// adapters in ./adapters.ts derive from them (marked "derived"). The UI never computes business
+// values; it renders what these envelopes carry.
 
 export type Locale = 'en' | 'de';
 
@@ -26,31 +27,53 @@ export interface Workspace {
 export type Track = 'source' | 'fact' | 'commitment' | 'movement' | 'reservation';
 export const TRACKS: Track[] = ['source', 'fact', 'commitment', 'movement', 'reservation'];
 
+/** Engine consistency block (question/state envelopes). The journal list carries only cursors. */
 export interface Consistency {
-  applied_cursor: number | null;
-  committed_cursor: number | null;
-  required_cursor: number | null;
-  status: 'current' | 'behind' | 'unknown';
-  recorded_cutoff: string | null;
-  effective_cutoff: string | null;
-  reducer_version: string | null;
+  applied_cursor?: number | null;
+  committed_cursor?: number | null;
+  required_cursor?: number | null;
+  snapshot_cursor?: number | null;
+  status?: 'current' | 'behind' | 'unknown';
+  recorded_cutoff?: string | null;
+  effective_cutoff?: string | null;
+  reducer_version?: string | number | null;
+  mode?: string;
 }
 
-export type SourceStatus = 'current' | 'delayed' | 'paused' | 'error' | 'initial_import' | 'disconnected' | 'unknown';
+/** Capability/connection status vocabulary of the real API (connections.status, capability_health.status). */
+export type SourceStatus = 'healthy' | 'working' | 'degraded' | 'unavailable' | 'unknown' | 'paused' | 'configured' | 'validating' | 'backfilling' | 'catching_up' | 'disconnected' | string;
 
 export interface ReadinessSource {
   connection_id: string;
   provider: string;
+  capability_id?: string;
+  status: SourceStatus;
   last_successful_check_at: string | null;
   last_new_event_at: string | null;
+  next_check_at?: string | null;
+  next_check_reason?: string | null;
   coverage_from: string | null;
   coverage_to: string | null;
-  status: SourceStatus;
+  coverage_state?: string;
+  history_kind?: string;
+  limitations?: string[];
 }
 
 export interface Readiness {
   datasets_present: string[];
   datasets_missing: string[];
+  sources: ReadinessSource[];
+}
+
+export interface QuestionReadiness {
+  question_id: string;
+  intent: string;
+  status: 'ready' | 'partial' | 'blocked' | 'not_applicable';
+  required?: string[];
+  optional?: string[];
+  missing: string[];
+  missing_optional?: string[];
+  reasons?: string[];
   sources: ReadinessSource[];
 }
 
@@ -71,6 +94,7 @@ export interface JournalEntry {
   recorded_at: string;
   entity_refs: Record<string, string>;
   payload: Record<string, unknown>;
+  payload_hash?: string;
   evidence_refs: string[];
   input_entry_ids: string[];
   derivation_rule: string | null;
@@ -79,14 +103,14 @@ export interface JournalEntry {
   correlation_id: string | null;
   causation_id: string | null;
   source_time: string | null;
-  summary?: string;
-  history_kind?: 'backfill' | 'live';
 }
 
+/** GET /api/journal/:id — the entry plus its link neighbourhood. */
 export interface JournalEntryDetail extends JournalEntry {
-  superseded_by_entry_id: string | null;
-  derived_entry_ids: string[];
-  evidence: EvidenceMeta[];
+  supersedes: JournalEntry | null;
+  superseded_by: JournalEntry[];
+  derived_from: JournalEntry[];
+  derivations: JournalEntry[];
 }
 
 export interface JournalPage {
@@ -95,38 +119,45 @@ export interface JournalPage {
   consistency: Consistency;
 }
 
-export interface EvidenceMeta {
-  evidence_id: string;
-  status: 'available' | 'redacted' | 'expired' | 'unavailable';
+/** GET /api/evidence/:id */
+export interface EvidenceResponse {
+  status: 'available' | 'redacted' | 'expired' | 'unavailable' | 'restricted' | string;
   reason?: string;
-  provider?: string;
-  content_type?: string;
-  received_at?: string;
-  excerpt?: string;
-  size_bytes?: number;
+  since?: string;
+  evidence: {
+    evidence_id: string;
+    connection_id?: string | null;
+    kind?: string;
+    media_type?: string;
+    byte_size?: number;
+    content_hash?: string;
+    received_at?: string;
+    evidence_class?: string;
+  } | null;
+  content?: unknown;
+  content_encoding?: 'inline' | 'binary_use_content_endpoint';
 }
 
+export interface EntityTrackSummary {
+  entries: Array<{ entry_id: string; journal_sequence: number; track: Track; record_id: string; event_type: string; occurred_at: string; recorded_at: string; supersedes_entry_id: string | null; superseded_by: string | null; effect: string }>;
+  total: number;
+  truncated: boolean;
+}
+
+/** GET /api/entities/:type/:id/state — engine state envelope. `state` holds the typed projection fields. */
 export interface EntityState {
   entity: { type: string; id: string };
-  status: 'complete' | 'partial' | 'insufficient_data' | 'conflict' | 'unsupported';
-  lifecycle: { state: string; label_key?: string };
-  positions: Array<{ key: string; amount_minor?: number; currency?: string; quantity?: string; unit?: string; note_key?: string }>;
-  fields: Array<{ key: string; value: string | number | null; kind?: 'money' | 'quantity' | 'date' | 'text'; currency?: string; unit?: string }>;
+  state: (Record<string, unknown> & { status?: string; currency?: string; unit?: string; links?: Array<{ type: string; id: string }>; last_sequence?: number }) | null;
+  tracks?: Record<Track, EntityTrackSummary>;
+  evidence_refs: string[];
+  entry_ids: string[];
+  coverage: { datasets_present: string[]; datasets_missing: string[] };
+  conflicts: Array<Record<string, unknown>>;
+  status: AnswerStatus;
+  missing_inputs: string[];
   consistency: Consistency;
   readiness: Readiness;
-  missing_inputs: string[];
-  conflicts: Array<{ code: string; description: string; entry_ids: string[] }>;
-  evidence: EvidenceRef[];
-  effective_at: string | null;
-  recorded_cutoff: string | null;
-}
-
-export interface EvidenceRef {
-  evidence_id: string;
-  entry_id: string;
-  record_id: string;
-  track: Track;
-  label: string;
+  duration_ms?: number;
 }
 
 // Sources
@@ -135,7 +166,7 @@ export type SourceCategory = 'shops' | 'payment' | 'billing' | 'shipping' | 'oth
 
 export interface Capability {
   id: string;
-  state: 'active' | 'partial' | 'unsupported' | 'planned' | 'paused';
+  state: SourceStatus;
   schedule: string | null;
   last_successful_check_at: string | null;
   last_new_event_at: string | null;
@@ -143,39 +174,50 @@ export interface Capability {
   next_check_reason: string | null;
   coverage_from: string | null;
   coverage_to: string | null;
+  coverage_state?: string;
   limitations: string[];
+  connection_id?: string;
 }
 
+/** connections row as returned by the API, plus derived presentation fields. */
 export interface ConnectionSummary {
   connection_id: string;
   provider: string;
   display_name: string;
+  account_ref: string | null;
+  status: SourceStatus;
+  config: Record<string, unknown>;
+  has_secret: boolean;
+  created_at: string;
+  updated_at: string;
+  disconnected_at: string | null;
+  // derived (adapters.ts)
   account_label: string | null;
   demo: boolean;
   state: SourceStatus;
-  mode: 'local_standalone';
-  created_at: string;
-  last_import_completed_at: string | null;
-  last_import_outcome: 'complete' | 'complete_with_gaps' | 'failed' | 'canceled' | 'paused' | null;
   last_successful_check_at: string | null;
   last_new_event_at: string | null;
   next_check_at: string | null;
   next_check_reason: string | null;
-  pending_count: number;
-  failed_count: number;
+  degraded: boolean;
 }
 
 export interface CatalogueItem {
   provider: string;
+  name: string;
   category: SourceCategory;
+  api_category?: 'connector' | 'producer' | string;
   state: ProviderState;
   capabilities: Capability[];
   connections: ConnectionSummary[];
   connect_kind: 'shopify' | 'shopify_payments' | 'generic' | 'bank_csv' | 'replay' | null;
+  /** false when the provider is only part of the UI's planned-provider list (not returned by the API). */
+  from_api: boolean;
 }
 
 export interface Catalogue {
   catalogue: CatalogueItem[];
+  readiness_observed_at?: string;
 }
 
 export type ImportPreset = 'last_30_days' | 'this_year' | 'last_12_months' | 'custom' | 'from_now';
@@ -183,6 +225,7 @@ export type ImportPreset = 'last_30_days' | 'this_year' | 'last_12_months' | 'cu
 export interface ImportPlan {
   plan_id: string;
   plan_revision: number;
+  connection_id: string;
   preset: ImportPreset;
   timezone: string;
   requested_from: string | null;
@@ -190,129 +233,178 @@ export interface ImportPlan {
   include_open_context: boolean;
   include_opening_state: boolean;
   strict_from_now: boolean;
-  selected_by: string;
-  selected_at: string;
+  local_from_label?: string | null;
+  local_cutoff_label?: string | null;
   restrictions: string[];
-  inherited_from_workspace: boolean;
+  created_by: string;
+  created_at: string;
+  superseded_at: string | null;
 }
 
 export interface ImportRun {
   run_id: string;
-  run_kind: 'initial' | 'history_expansion' | 'incremental' | 'reconciliation' | 'check';
-  state: 'queued' | 'running' | 'paused' | 'completed' | 'completed_with_gaps' | 'failed' | 'canceled';
-  phase: 'check_connection' | 'import_records' | 'link_and_process' | 'ready_for_queries';
-  counters: { requested: number | null; loaded: number; committed: number; applied: number; failed: number };
+  connection_id: string;
+  plan_id: string | null;
+  kind: 'backfill' | 'incremental' | 'reconcile' | 'check' | string;
+  phase: 'check_connection' | 'import_records' | 'link_and_process' | 'ready_for_queries' | string;
+  state: 'queued' | 'running' | 'paused' | 'completed' | 'completed_with_gaps' | 'failed' | 'canceled' | string;
+  counters: { requested: number | null; loaded: number; committed: number; applied: number; failed: number; duplicates?: number; conflicts?: number; rejected?: number };
   totals_known: boolean;
+  pages?: number;
+  poll_group?: string | null;
+  capability_scope?: string[];
+  coverage_from?: string | null;
+  coverage_to?: string | null;
   percent: number | null;
+  attempt?: number;
   started_at: string;
   updated_at: string;
   finished_at: string | null;
   outcome: string | null;
-  cohort: string;
   error_code?: string | null;
   next_action?: string | null;
+  committed_cursor?: number | null;
 }
 
-export interface ConnectionHealth {
+/** capability_health row (GET /api/sources/connections/:id → health[]). */
+export interface CapabilityHealth {
+  connection_id: string;
+  capability_id: string;
   observed_at: string;
-  state: SourceStatus;
+  status: SourceStatus;
   last_attempt_at: string | null;
-  last_import_completed_at: string | null;
   last_successful_check_at: string | null;
   last_new_event_at: string | null;
   last_journal_commit_at: string | null;
-  last_applied_at: string | null;
   next_check_at: string | null;
   next_check_reason: string | null;
-  coverage: Array<{ capability_id: string; from: string | null; to: string | null; completeness: 'complete_for_declared_scope' | 'partial' | 'unknown' | 'unavailable'; history_kind: 'event_history' | 'snapshot_only' | 'mixed' | 'unknown' }>;
+  coverage_from: string | null;
+  coverage_to: string | null;
+  history_kind: string;
+  coverage_state: string;
+  limitations: string[];
+  schedule_seconds: number | null;
+  pending_count: number;
+  failed_count: number;
+  poll_group: string | null;
+  mode: string;
+  method: string | null;
+  incremental_cursor: string | null;
+  backfill_cursor: string | null;
+  backfill_run_id: string | null;
+  last_reconciliation_at: string | null;
+  next_reconciliation_at: string | null;
+  consecutive_failures: number;
+  last_error_code: string | null;
+  last_error_at: string | null;
+  retry_after_until: string | null;
+  throttle_status: string | null;
+  missing_grants: string[];
+  next_action: string | null;
+  updated_at: string;
+}
+
+/** Aggregate over the capability rows (derived, adapters.ts). */
+export interface ConnectionHealth {
+  observed_at: string | null;
+  state: SourceStatus;
+  last_attempt_at: string | null;
+  last_successful_check_at: string | null;
+  last_new_event_at: string | null;
+  last_journal_commit_at: string | null;
+  next_check_at: string | null;
+  next_check_reason: string | null;
+  coverage: Array<{ capability_id: string; from: string | null; to: string | null; completeness: string; history_kind: string }>;
   limitations: string[];
   pending_count: number;
   failed_count: number;
-  oldest_pending_age_seconds: number | null;
-  committed_cursor: number | null;
-  applied_cursor: number | null;
+  consecutive_failures: number;
+  last_error_code: string | null;
+  missing_grants: string[];
+  next_action: string | null;
 }
 
 export interface ConnectionDetail {
-  connection: ConnectionSummary & { config_summary: Record<string, string> };
+  connection: ConnectionSummary;
+  capabilities: CapabilityHealth[];
   health: ConnectionHealth;
   import_plan: ImportPlan | null;
+  import_plan_proposal: { history_start: string; timezone: string } | null;
   runs: ImportRun[];
-  readiness: Readiness;
-}
-
-export interface QuestionReadiness {
-  question_id: string;
-  intent: string;
-  status: 'ready' | 'partial' | 'blocked' | 'not_applicable';
-  missing: string[];
-  sources: ReadinessSource[];
+  readiness: QuestionReadiness[];
 }
 
 // Questions
 export interface ParamSchemaProperty {
-  type: 'string' | 'integer' | 'number' | 'boolean';
+  type: 'string' | 'integer' | 'number' | 'boolean' | 'array';
+  required?: boolean;
   title?: string;
   description?: string;
   enum?: string[];
   default?: unknown;
   minimum?: number;
   format?: 'date' | 'date-time';
-  'x-entity'?: 'item' | 'order' | 'customer' | 'invoice' | 'shipment' | 'provider';
+  items?: { type: string; enum?: string[] };
 }
 
 export interface ParamsSchema {
   type: 'object';
   properties: Record<string, ParamSchemaProperty>;
   required?: string[];
+  additionalProperties?: boolean;
 }
 
 export interface QuestionTemplate {
   id: string;
   intent: string;
   group: string;
+  question: string;
+  required_datasets: string[];
+  optional_datasets: string[];
   params_schema: ParamsSchema;
   supported: boolean;
+  query_rule?: string;
   readiness: QuestionReadiness;
 }
 
+export type AnswerStatus = 'complete' | 'partial' | 'unknown' | 'conflict' | 'unsupported' | 'insufficient_data';
+
 export interface CalculationStep {
-  label_key: string;
-  label: string;
-  value: string | number | null;
-  unit?: string;
-  currency?: string;
-  operator?: '-' | '+' | '=' | '×' | '÷' | null;
+  step: string;
+  formula: string;
+  values: Record<string, unknown>;
 }
 
-export interface ResultRow {
-  id: string;
-  cells: Array<{ key: string; value: string | number | null; kind?: 'money' | 'quantity' | 'date' | 'text' | 'status'; currency?: string; unit?: string }>;
-  evidence_ids: string[];
+export interface AnswerCoverage {
+  datasets_present: string[];
+  datasets_missing: string[];
+  population?: { records_considered?: number; returned?: number };
+  evidence_truncated?: boolean;
+  coverage_assertions?: Array<Record<string, unknown>>;
+  incoming_supply_known?: boolean;
 }
 
+/** POST /api/questions/:intent — engine /v1/query envelope. */
 export interface QuestionResult {
   intent: string;
-  status: 'complete' | 'partial' | 'insufficient_data' | 'conflict' | 'unsupported';
-  headline: { value: string | number | null; unit?: string; currency?: string; kind?: 'money' | 'quantity' | 'count' | 'text' } | null;
-  summary_key: string | null;
-  summary_params?: Record<string, string | number>;
-  result: { columns?: string[]; rows: ResultRow[]; truncated: boolean; page?: { next_cursor: string | null } } | null;
-  calculation: { rule: string; version: string; steps: CalculationStep[] };
-  evidence: EvidenceRef[];
-  effective_at: string | null;
-  recorded_cutoff: string | null;
-  consistency: Consistency;
-  readiness: Readiness;
-  coverage: Array<{ capability_id: string; population: string; interval_from: string | null; interval_to: string | null; completeness: string }>;
+  question_id: string;
+  params: Record<string, unknown>;
+  status: AnswerStatus;
+  result: Record<string, unknown> | null;
+  calculation: CalculationStep[];
+  evidence_refs: string[];
+  entry_ids: string[];
   missing_inputs: string[];
-  conflicts: Array<{ code: string; description: string; entry_ids: string[] }>;
-  warnings: string[];
-  scope: { params: Record<string, unknown>; period_from: string | null; period_to: string | null; entity?: { type: string; id: string; label: string } };
+  conflicts: Array<Record<string, unknown>>;
+  coverage: AnswerCoverage;
+  consistency: Consistency;
+  readiness: QuestionReadiness;
+  page?: { next_cursor: string | null; truncated: boolean; returned?: number; total?: number; snapshot_cursor?: number };
+  warnings?: string[];
 }
 
 export interface SearchResult {
-  templates: Array<{ id: string; intent: string }>;
+  templates: Array<{ id: string; intent: string; question?: string }>;
   entities: Array<{ type: string; id: string; label: string; secondary?: string }>;
 }
 
@@ -330,35 +422,34 @@ export interface AgentCredential {
 
 export interface McpConfig {
   transport: 'stdio';
-  key_placeholder: string;
-  env_var: string;
-  key_file_env_var: string;
-  config_json: string;
-  bridge_command: string;
-  tested_clients: Array<{ name: string; version: string; transport: string }>;
+  command: string;
+  args: string[];
+  env: Record<string, string>;
+  snippet: string;
+  notes: string[];
 }
 
 // Review
 export type ReviewAction = 'retry' | 'confirm_link' | 'reject_link' | 'append_correction' | 'leave_open';
 export interface ReviewCase {
   case_id: string;
-  type: 'quarantined_input' | 'unresolved_link' | 'content_conflict' | 'failed_derivation' | 'contradictory_assertion';
+  tenant_id: string;
+  connection_id: string | null;
+  run_id: string | null;
+  type: string;
   state: 'open' | 'in_progress' | 'resolved';
   revision: number;
   reason: string;
-  stage: string;
-  source: { connection_id: string; provider: string; account_label: string | null };
-  run_id: string | null;
-  affected: { records: string[]; questions: string[] };
-  evidence_ref: string | null;
-  proposed_link?: { from: string; to: string } | null;
-  available_actions: ReviewAction[];
-  recalculating: boolean;
-  required_cursor: number | null;
-  applied_cursor: number | null;
-  history: Array<{ actor: string; at: string; action: string; reason?: string }>;
+  refs: Record<string, unknown>;
+  history: Array<{ at: string; actor: string; action: string; reason?: string; entry_id?: string | null }>;
+  resolution_entry_id: string | null;
   created_at: string;
   updated_at: string;
+  resolved_at: string | null;
+  // derived
+  available_actions: ReviewAction[];
+  affected_records: string[];
+  proposed_link: { from: string; to: string } | null;
 }
 
 // Settings
@@ -372,43 +463,63 @@ export interface BackupSettings {
   next_due_at: string | null;
   recoverable_age_seconds: number | null;
   retention: { daily: number; weekly: number };
-  same_device: boolean;
+  same_device: boolean | null;
   last_restore_test_at: string | null;
   last_error?: string | null;
+  protection?: string;
 }
 
 export interface RetentionSettings {
-  classes: Array<{ id: string; days: number; min_days: number; max_days: number; provider_limit_days: number | null }>;
+  default_days: number;
+  classes: Record<string, { days: number; source: string }>;
 }
 
-export interface StorageSettings {
-  thresholds: { warning_percent: number; warning_bytes: number; critical_percent: number; critical_bytes: number };
-  volumes: Array<{ id: string; used_bytes: number; free_bytes: number; total_bytes: number; state: 'ok' | 'warning' | 'critical' | 'unknown' }>;
+export interface StorageThresholds {
+  warn_percent: number;
+  warn_min_bytes: number;
+  critical_percent: number;
+  critical_min_bytes: number;
+  log_cap_bytes: number;
+  log_retention_days: number;
+}
+
+export interface StorageVolume {
+  total_bytes?: number;
+  free_bytes?: number;
+  state: 'ok' | 'warning' | 'critical' | 'unavailable' | 'unknown' | string;
+  reason?: string;
+}
+
+/** GET /api/settings/storage and GET /api/diagnostics/storage share this shape. */
+export interface StorageInfo {
+  thresholds: StorageThresholds | null;
+  volumes: Record<string, StorageVolume>;
+  evidence: { bytes: number; available: boolean };
+  logs: { bytes: number; cap_bytes: number; retained_from: string | null; retained_to: string | null; files: number; dropped_count: number; state: string };
 }
 
 export interface SecurityAudit {
   counts: Record<string, number>;
-  last_events: Array<{ at: string; event: string; actor: string }>;
-  owner_sessions_active: number;
-  agent_keys_active: number;
+  last_events: Array<{ occurred_at: string; event: string; actor_kind: string; channel: string }>;
 }
 
 // Diagnostics
 export type HealthState = 'healthy' | 'working' | 'degraded' | 'unavailable' | 'unknown';
+export type HealthArea = 'api' | 'worker' | 'postgres' | 'engine' | 'sources' | 'mcp' | 'diagnostics';
 export interface HealthCard {
-  id: 'api' | 'worker' | 'postgres' | 'engine' | 'sources' | 'mcp' | 'diagnostics';
+  area: HealthArea;
   state: HealthState;
   observed_at: string;
   reason: string;
   next_action: string | null;
-  details: Record<string, string | number | null>;
+  details: Record<string, string | number | boolean | null>;
 }
 
 export interface HealthResponse {
   cards: HealthCard[];
-  backups: { status: BackupStatus; last_completed_at: string | null; recoverable_age_seconds: number | null };
-  unresolved_review_count: number;
-  maintenance: { phase: string | null };
+  observed_at: string;
+  refresh_interval_seconds: number;
+  stale_after_seconds: number;
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
@@ -448,11 +559,12 @@ export interface LogRecord {
 
 export interface LogsPage {
   records: LogRecord[];
-  page: { next_cursor: string | null };
+  page: { next_cursor: string | null; truncated?: boolean };
   retained_from: string | null;
   retained_to: string | null;
   dropped_count: number;
-  state: 'ok' | 'empty' | 'out_of_retention' | 'debug_not_recorded' | 'collector_failed' | 'rotated';
+  state: string;
+  debug_active?: Array<{ component: string; connection_id: string | null; run_id: string | null; expires_at: string }>;
 }
 
 export interface DebugState {
@@ -462,11 +574,5 @@ export interface DebugState {
 }
 
 export interface ExportPreview {
-  preview: { size_bytes: number; truncated: boolean; unavailable: string[]; categories: string[]; since: string; until: string };
-}
-
-export interface DiagnosticsStorage {
-  volumes: Array<{ id: string; used_bytes: number; free_bytes: number; total_bytes: number; state: 'ok' | 'warning' | 'critical' | 'unknown' }>;
-  logs: { retained_from: string | null; retained_to: string | null; retained_bytes: number; cap_bytes: number; cap_days: number; dropped_count: number; index_bytes: number };
-  thresholds: { warning_percent: number; warning_bytes: number; critical_percent: number; critical_bytes: number };
+  preview: { size_bytes: number; truncated: boolean; unavailable: string[]; categories: string[]; since: string; until: string; records?: number };
 }

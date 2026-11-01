@@ -32,7 +32,8 @@ export function SourcesView() {
 
   const items = catalogue.data?.catalogue ?? [];
   const connected = items.flatMap((i) => i.connections);
-  const degraded = connected.filter((c) => ['delayed', 'error', 'disconnected', 'paused'].includes(c.state));
+  const degraded = connected.filter((c) => c.degraded);
+  const reasonText = (reason: string | null) => (reason ? t(`nextCheckReason.${reason.split(':')[0].trim()}`, { defaultValue: reason, detail: reason.split(':').slice(1).join(':').trim() }) : '');
 
   return (
     <>
@@ -64,11 +65,10 @@ export function SourcesView() {
                 <tr>
                   <th>{t('sources.columns.connection')}</th>
                   <th>{t('sources.columns.state')}</th>
-                  <th>{t('sources.columns.lastImport')}</th>
                   <th>{t('sources.columns.lastCheck')}</th>
                   <th>{t('sources.columns.lastNewEvent')}</th>
                   <th>{t('sources.columns.nextCheck')}</th>
-                  <th>{t('sources.columns.pending')}</th>
+                  <th>{t('sources.columns.created')}</th>
                   <th>
                     <span className="sr-only">{t('common.open')}</span>
                   </th>
@@ -90,17 +90,6 @@ export function SourcesView() {
                       <StatusBadge kind={c.state} label={t(`sourceState.${c.state}`)} />
                     </td>
                     <td>
-                      {c.last_import_completed_at ? (
-                        <>
-                          <time dateTime={c.last_import_completed_at} title={f.dateTimeSeconds(c.last_import_completed_at)}>{f.relative(c.last_import_completed_at)}</time>
-                          <br />
-                          <small>{c.last_import_outcome ? t(`runOutcome.${c.last_import_outcome}`) : ''}</small>
-                        </>
-                      ) : (
-                        t('common.never')
-                      )}
-                    </td>
-                    <td>
                       <time dateTime={c.last_successful_check_at ?? undefined} title={f.dateTimeSeconds(c.last_successful_check_at)}>{c.last_successful_check_at ? f.relative(c.last_successful_check_at) : t('common.never')}</time>
                     </td>
                     <td>
@@ -109,10 +98,10 @@ export function SourcesView() {
                     <td>
                       {c.next_check_at ? f.dateTime(c.next_check_at) : t('sources.noNextCheck')}
                       <br />
-                      <small className="muted">{c.next_check_reason ? t(`nextCheckReason.${c.next_check_reason.split(':')[0]}`, { defaultValue: c.next_check_reason, detail: c.next_check_reason.split(':').slice(1).join(':') }) : ''}</small>
+                      <small className="muted">{reasonText(c.next_check_reason)}</small>
                     </td>
                     <td>
-                      {f.number(c.pending_count)} / <span className={c.failed_count ? 'form-error inline' : ''}>{f.number(c.failed_count)} {t('sources.failedShort')}</span>
+                      <time dateTime={c.created_at} title={f.dateTimeSeconds(c.created_at)}>{f.date(c.created_at)}</time>
                     </td>
                     <td>
                       <Link className="icon-btn" to={`/app/sources/${c.connection_id}`} aria-label={t('sources.openConnection', { name: c.display_name })} onClick={(e) => e.stopPropagation()}>
@@ -147,16 +136,16 @@ export function SourcesView() {
                     </span>
                     <StatusBadge kind={item.state} label={t(`providerState.${item.state}`)} />
                   </div>
-                  <h2 id={`prov-${item.provider}`}>{t(`providers.${item.provider}.name`, { defaultValue: item.provider })}</h2>
-                  <p>{t(`providers.${item.provider}.description`)}</p>
+                  <h2 id={`prov-${item.provider}`}>{t(`providers.${item.provider}.name`, { defaultValue: item.name })}</h2>
+                  <p>{t(`providers.${item.provider}.description`, { defaultValue: item.name })}</p>
                   <div className="integration-info">
                     {item.capabilities.map((c) => (
-                      <span key={c.id} className="capability-pill" title={c.limitations.join('; ')}>
-                        {t(`capabilities.${c.id}`, { defaultValue: c.id })}
-                        {c.schedule ? ` · ${t('sources.schedule', { schedule: c.schedule.replace('poll:', '') })}` : ''}
+                      <span key={c.id} className="capability-pill" title={`${t(`sourceState.${c.state}`, { defaultValue: c.state })}${c.next_check_reason ? ` · ${reasonText(c.next_check_reason)}` : ''}${c.limitations.length ? ` · ${c.limitations.join('; ')}` : ''}`}>
+                        {t(`capabilities.${c.id}`, { defaultValue: c.id })} · <StatusBadge kind={c.state} label={t(`sourceState.${c.state}`, { defaultValue: c.state })} />
                         {c.limitations.length ? ' *' : ''}
                       </span>
                     ))}
+                    {item.from_api && item.state !== 'planned' && item.state !== 'unsupported' && item.capabilities.length === 0 && <span className="capability-pill muted">{t('sources.noCapabilitiesYet')}</span>}
                   </div>
                   {item.capabilities.some((c) => c.limitations.length > 0) && (
                     <ul className="limitations">
@@ -172,9 +161,13 @@ export function SourcesView() {
                     <button type="button" className={`btn ${item.connections.length ? 'secondary' : 'primary'}`} onClick={() => setConnecting(item)}>
                       <Icon name={item.connections.length ? 'plus' : 'plug'} /> {item.connections.length ? t('sources.connectAnother') : t('sources.connect')}
                     </button>
-                  ) : (
+                  ) : item.state === 'planned' || item.state === 'unsupported' ? (
                     <button type="button" className="btn secondary" disabled aria-disabled="true" title={t(item.state === 'unsupported' ? 'providerState.unsupportedHint' : 'providerState.plannedHint')}>
                       <Icon name="clock" /> {t(item.state === 'unsupported' ? 'providerState.unsupported' : 'providerState.planned')}
+                    </button>
+                  ) : (
+                    <button type="button" className="btn secondary" disabled aria-disabled="true" title={t('providerState.apiOnlyHint')}>
+                      <Icon name="code" /> {t('providerState.apiOnly')}
                     </button>
                   )}
                   {item.connections.map((c) => (
@@ -193,7 +186,10 @@ export function SourcesView() {
 
       <div className="info-strip">
         <Icon name="info" />
-        <span>{t('sources.modeNote')}</span>
+        <span>
+          {t('sources.modeNote')} {t('sources.plannedNote')}
+          {catalogue.data?.readiness_observed_at ? ` ${t('sources.observedAt', { time: f.dateTimeSeconds(catalogue.data.readiness_observed_at) })}` : ''}
+        </span>
       </div>
 
       <ReviewList />

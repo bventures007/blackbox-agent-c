@@ -1,0 +1,43 @@
+# interruption at 2026-11-01T14:34:06Z: the wrapper process was killed while in phase 'images' (after files-staged; the archive's new wrapper had already taken over via exec)
+## state files
+{"phase":"images","from":"0.1.0-rc6","to":"0.1.0-rc6b","source":"/Users/benediktsauter/GitHub/blackbox-agent-c/release/dist-rc6b/blackbox-0.1.0-rc6b-mac-arm64.tar.gz","started_at":"2026-11-01T13:36:00Z","updated_at":"2026-11-01T14:33:46Z"}
+
+{"reason":"upgrade_0.1.0-rc6b","since":"2026-11-01T14:30:41Z","owner":"wrapper"}
+
+data/state/maintenance.lock/:
+lease.json
+
+data/state/upgrade-stage:
+INSTALL.de.md
+## installed wrapper is now the rc6b wrapper (release.json version):
+  "version": "0.1.0-rc6b",
+BLACKBOX_VERSION=0.1.0-rc6b
+## ./blackbox doctor during the interrupted upgrade (2026-11-01T14:34:19Z)
+blackbox doctor (release mode, install: ~/blackbox-pilot-ops)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 27.3.1 (arm64)
+[OK  ] DOC-COMPOSE  Compose v2.30.3-desktop.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 211 GiB (22%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[OK  ] DOC-PORT     port 19185 free
+[OK  ] DOC-SETUP    configured (project blackbox-agent-c-ops, version 0.1.0-rc6)
+[OK  ] DOC-SECRETS  secrets directory mode 0700
+[OK  ] DOC-SECRETF  secret files mode 0600
+[OK  ] DOC-DATA     data directories writable
+[OK  ] DOC-IMAGES   release images present (blackbox/api:0.1.0-rc6b, ...)
+[OK  ] DOC-SERVICES backup-scheduler=running engine=running postgres=running 
+[WARN] DOC-SVC-api  api not running () → ./blackbox logs --component api
+[WARN] DOC-SVC-worker worker not running () → ./blackbox logs --component worker
+[WARN] DOC-API      api health probe failed (live checks unavailable) → ./blackbox logs --component api
+[WARN] DOC-FENCE    writers fenced: {"reason":"upgrade_0.1.0-rc6b","since":"2026-11-01T14:30:41Z","owner":"wrapper"} → finish the running operation or ./blackbox resume-sources
+[WARN] DOC-BACKUP   backups not configured — this installation is unprotected → ./blackbox backup-config <dir>
+[WARN] DOC-VERSION  release files 0.1.0-rc6b differ from installed 0.1.0-rc6 → ./blackbox upgrade
+[WARN] DOC-UPGRADE  upgrade in progress/interrupted (phase images) → ./blackbox upgrade --resume
+doctor: degraded (exit 1)
+doctor exit 1
+## ./blackbox up refuses while an upgrade is recorded
+blackbox: ERROR: an upgrade is in progress/interrupted; run ./blackbox upgrade --resume
+up exit 1

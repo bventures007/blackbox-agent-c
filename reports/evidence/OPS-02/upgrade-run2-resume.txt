@@ -1,0 +1,5 @@
+# command: ./blackbox upgrade --resume   (after the interruption in phase images)
+# started 2026-11-01T14:40:28Z
+resuming upgrade 0.1.0-rc6 → 0.1.0-rc6b from phase 'images'
+  [images-load]
+  loading api.tar

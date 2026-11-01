@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { PageHeading, toast } from '../components/AppShell';
 import { Icon } from '../components/Icon';
 import { DefinitionList, ErrorNote, Field, Loading, Modal, StatusBadge } from '../components/ui';
-import { ReadinessSummary } from '../components/ReadinessSummary';
 import { sources as sourcesApi } from '../api/endpoints';
-import type { ImportPlan, ImportPreset, ImportRun } from '../api/types';
+import type { CapabilityHealth, ImportPlan, ImportPreset, ImportRun, QuestionReadiness } from '../api/types';
 import { useAsync } from '../hooks';
 import { useFormat } from '../format';
 
@@ -29,6 +28,7 @@ export function ConnectionView() {
   }, [detail.data, t]);
 
   const d = detail.data;
+  const reasonText = (reason: string | null) => (reason ? t(`nextCheckReason.${reason.split(':')[0].trim()}`, { defaultValue: reason, detail: reason.split(':').slice(1).join(':').trim() }) : t('common.none'));
   const act = async (kind: 'pause' | 'resume' | 'disconnect') => {
     setBusy(true);
     setActionError(null);
@@ -61,7 +61,7 @@ export function ConnectionView() {
     <>
       <PageHeading
         title={d ? d.connection.display_name : t('common.loading')}
-        subtitle={d ? `${t(`providers.${d.connection.provider}.name`, { defaultValue: d.connection.provider })}${d.connection.account_label ? ` · ${d.connection.account_label}` : ''} · ${t('connection.mode')}` : ''}
+        subtitle={d ? `${t(`providers.${d.connection.provider}.name`, { defaultValue: d.connection.provider })}${d.connection.account_label ? ` · ${d.connection.account_label}` : ''}${d.connection.demo ? ` · ${t('sources.demoLabel')}` : ''} · ${t('connection.mode')}` : ''}
         actions={
           d && (
             <>
@@ -96,25 +96,72 @@ export function ConnectionView() {
         <div className="connection-layout">
           <section className="white-panel">
             <h2>
-              {t('connection.health')} <StatusBadge kind={d.health.state} label={t(`sourceState.${d.health.state}`)} />
+              {t('connection.health')} <StatusBadge kind={d.health.state} label={t(`sourceState.${d.health.state}`, { defaultValue: d.health.state })} />
             </h2>
-            <p>{t('connection.observedAt', { time: f.dateTimeSeconds(d.health.observed_at) })}</p>
+            <p>{d.health.observed_at ? t('connection.observedAt', { time: f.dateTimeSeconds(d.health.observed_at) }) : t('connection.noObservation')}</p>
             <DefinitionList
               rows={[
                 { label: t('connection.fields.lastAttempt'), value: f.dateTimeSeconds(d.health.last_attempt_at) },
-                { label: t('connection.fields.lastImportCompleted'), value: d.health.last_import_completed_at ? `${f.dateTimeSeconds(d.health.last_import_completed_at)} · ${d.connection.last_import_outcome ? t(`runOutcome.${d.connection.last_import_outcome}`) : ''}` : t('common.never') },
+                { label: t('connection.fields.lastImportCompleted'), value: lastCompleted(d.runs) ? `${f.dateTimeSeconds(lastCompleted(d.runs)!.finished_at)} · ${t(`runOutcome.${lastCompleted(d.runs)!.outcome}`, { defaultValue: lastCompleted(d.runs)!.outcome ?? '' })}` : t('common.never') },
                 { label: t('connection.fields.lastSuccessfulCheck'), value: f.dateTimeSeconds(d.health.last_successful_check_at) },
                 { label: t('connection.fields.lastNewEvent'), value: d.health.last_new_event_at ? f.dateTimeSeconds(d.health.last_new_event_at) : t('common.never') },
                 { label: t('connection.fields.lastJournalCommit'), value: f.dateTimeSeconds(d.health.last_journal_commit_at) },
-                { label: t('connection.fields.lastApplied'), value: f.dateTimeSeconds(d.health.last_applied_at) },
                 { label: t('connection.fields.nextCheck'), value: d.health.next_check_at ? f.dateTimeSeconds(d.health.next_check_at) : t('sources.noNextCheck') },
-                { label: t('connection.fields.nextCheckReason'), value: d.health.next_check_reason ? t(`nextCheckReason.${d.health.next_check_reason.split(':')[0]}`, { defaultValue: d.health.next_check_reason, detail: d.health.next_check_reason.split(':').slice(1).join(':') }) : t('common.none') },
-                { label: t('connection.fields.pending'), value: `${f.number(d.health.pending_count)} (${t('connection.fields.oldestPending')}: ${d.health.oldest_pending_age_seconds === null ? t('common.none') : f.duration(d.health.oldest_pending_age_seconds)})` },
-                { label: t('connection.fields.failed'), value: f.number(d.health.failed_count) },
-                { label: t('connection.fields.cursors'), value: `${t('readiness.committed')} ${d.health.committed_cursor ?? '–'} · ${t('readiness.applied')} ${d.health.applied_cursor ?? '–'}` },
+                { label: t('connection.fields.nextCheckReason'), value: reasonText(d.health.next_check_reason) },
+                { label: t('connection.fields.pending'), value: f.number(d.health.pending_count) },
+                { label: t('connection.fields.failed'), value: `${f.number(d.health.failed_count)}${d.health.consecutive_failures ? ` · ${t('connection.fields.consecutiveFailures', { count: d.health.consecutive_failures })}` : ''}${d.health.last_error_code ? ` · ${t(`errors.${d.health.last_error_code}`, { defaultValue: d.health.last_error_code })}` : ''}` },
+                ...(d.health.missing_grants.length ? [{ label: t('connection.fields.missingGrants'), value: d.health.missing_grants.join(', ') }] : []),
+                ...(d.health.next_action ? [{ label: t('connection.fields.nextAction'), value: t(`nextAction.${d.health.next_action}`, { defaultValue: d.health.next_action }) }] : []),
               ]}
             />
             <p className="micro">{t('connection.checkVsEventNote')}</p>
+            <h3 className="drawer-subtitle">{t('connection.capabilitiesTitle')}</h3>
+            {d.capabilities.length === 0 && <p className="muted">{t('connection.noCapabilities')}</p>}
+            {d.capabilities.length > 0 && (
+              <div className="ledger-table-wrap">
+                <table className="mini-table">
+                  <thead>
+                    <tr>
+                      <th>{t('connection.capability')}</th>
+                      <th>{t('readiness.status')}</th>
+                      <th>{t('readiness.lastSuccessfulCheck')}</th>
+                      <th>{t('readiness.lastNewEvent')}</th>
+                      <th>{t('connection.fields.nextCheck')}</th>
+                      <th>{t('connection.fields.failed')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {d.capabilities.map((c: CapabilityHealth) => (
+                      <tr key={c.capability_id}>
+                        <td>
+                          {t(`capabilities.${c.capability_id}`, { defaultValue: c.capability_id })}
+                          {c.poll_group ? <small className="muted mono"> {c.poll_group}</small> : ''}
+                        </td>
+                        <td>
+                          <StatusBadge kind={c.status} label={t(`sourceState.${c.status}`, { defaultValue: c.status })} />
+                        </td>
+                        <td>
+                          <time dateTime={c.last_successful_check_at ?? undefined} title={f.dateTimeSeconds(c.last_successful_check_at)}>{c.last_successful_check_at ? f.relative(c.last_successful_check_at) : t('common.never')}</time>
+                        </td>
+                        <td>
+                          <time dateTime={c.last_new_event_at ?? undefined} title={f.dateTimeSeconds(c.last_new_event_at)}>{c.last_new_event_at ? f.relative(c.last_new_event_at) : t('common.never')}</time>
+                        </td>
+                        <td>
+                          {c.next_check_at ? f.dateTime(c.next_check_at) : t('sources.noNextCheck')}
+                          <br />
+                          <small className="muted">{reasonText(c.next_check_reason)}</small>
+                        </td>
+                        <td>
+                          {f.number(c.failed_count)}
+                          {c.last_error_code && <> · <code className="mono">{c.last_error_code}</code></>}
+                          {c.retry_after_until && <> · {t('connection.retryAfter', { time: f.dateTimeSeconds(c.retry_after_until) })}</>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
             <h3 className="drawer-subtitle">{t('connection.coverage')}</h3>
             {d.health.coverage.length === 0 && <p className="muted">{t('connection.noCoverage')}</p>}
             {d.health.coverage.length > 0 && (
@@ -133,9 +180,9 @@ export function ConnectionView() {
                       <td>{t(`capabilities.${c.capability_id}`, { defaultValue: c.capability_id })}</td>
                       <td>{c.from ? `${f.dateTime(c.from)} – ${f.dateTime(c.to)}` : t('common.unknown')}</td>
                       <td>
-                        <StatusBadge kind={c.completeness === 'complete_for_declared_scope' ? 'complete' : c.completeness} label={t(`completeness.${c.completeness}`)} />
+                        <StatusBadge kind={c.completeness === 'complete_for_declared_scope' ? 'complete' : c.completeness} label={t(`completeness.${c.completeness}`, { defaultValue: c.completeness })} />
                       </td>
-                      <td>{t(`historyKind.${c.history_kind}`)}</td>
+                      <td>{t(`historyKind.${c.history_kind}`, { defaultValue: c.history_kind })}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -152,7 +199,7 @@ export function ConnectionView() {
               </>
             )}
             <h3 className="drawer-subtitle">{t('connection.config')}</h3>
-            <DefinitionList rows={Object.entries(d.connection.config_summary).map(([k, v]) => ({ label: k, value: v }))} />
+            <DefinitionList rows={[...Object.entries(d.connection.config).filter(([k]) => k !== 'secret').map(([k, v]) => ({ label: k, value: typeof v === 'object' ? JSON.stringify(v) : String(v) })), { label: t('connection.hasSecret'), value: d.connection.has_secret ? t('common.yes') : t('common.no') }]} />
             <p className="micro">{t('connection.secretsNote')}</p>
           </section>
 
@@ -161,7 +208,10 @@ export function ConnectionView() {
             {d.import_plan ? (
               <PlanSummary plan={d.import_plan} />
             ) : (
-              <p className="answer-warning">{t('connection.noPlan')}</p>
+              <p className="answer-warning">
+                {t('connection.noPlan')}
+                {d.import_plan_proposal ? ` ${t('connection.planProposal', { from: f.inZone(d.import_plan_proposal.history_start, d.import_plan_proposal.timezone), tz: d.import_plan_proposal.timezone })}` : ''}
+              </p>
             )}
             <div className="onboard-actions">
               <button type="button" className="btn primary" onClick={() => setPlanOpen(true)}>
@@ -186,7 +236,19 @@ export function ConnectionView() {
             {d.runs.map((r) => (
               <RunCard key={r.run_id} run={r} connectionId={connectionId} />
             ))}
-            <ReadinessSummary readiness={d.readiness} compact />
+            <h2 className="section-gap">{t('connection.questionsTitle')}</h2>
+            <p className="micro">{t('connection.questionsIntro')}</p>
+            {d.readiness.length === 0 && <p className="muted">{t('connection.noQuestions')}</p>}
+            {d.readiness.length > 0 && (
+              <ul className="plain-list readiness-list">
+                {d.readiness.map((q: QuestionReadiness) => (
+                  <li key={q.question_id}>
+                    <Link to={`/app/questions?q=${q.question_id}`}>{t(`questionsCatalog.${q.question_id}.q`, { defaultValue: q.intent })}</Link> <StatusBadge kind={q.status} label={t(`readinessState.${q.status}`)} />
+                    {q.missing.length > 0 && <small className="muted"> · {t('questions.missingDatasets')}: {q.missing.map((m) => t(`datasets.${m}`, { defaultValue: m })).join(', ')}</small>}
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         </div>
       )}
@@ -220,6 +282,10 @@ export function ConnectionView() {
   );
 }
 
+function lastCompleted(runs: ImportRun[]): ImportRun | null {
+  return runs.filter((r) => r.finished_at).sort((a, b) => String(b.finished_at).localeCompare(String(a.finished_at)))[0] ?? null;
+}
+
 function PlanSummary({ plan }: { plan: ImportPlan }) {
   const { t } = useTranslation();
   const f = useFormat();
@@ -233,7 +299,7 @@ function PlanSummary({ plan }: { plan: ImportPlan }) {
         { label: t('plan.openContext'), value: plan.include_open_context ? t('common.yes') : t('common.no') },
         { label: t('plan.openingState'), value: plan.include_opening_state ? t('common.yes') : t('common.no') },
         { label: t('plan.strictFromNow'), value: plan.strict_from_now ? t('common.yes') : t('common.no') },
-        { label: t('plan.selectedBy'), value: `${plan.selected_by} · ${f.dateTimeSeconds(plan.selected_at)}${plan.inherited_from_workspace ? ` · ${t('plan.inherited')}` : ''}` },
+        { label: t('plan.selectedBy'), value: `${t('plan.owner')} · ${f.dateTimeSeconds(plan.created_at)}` },
         { label: t('plan.restrictions'), value: plan.restrictions.length ? plan.restrictions.map((r) => t(`limitations.${r}`, { defaultValue: r })).join('; ') : t('common.none') },
       ]}
     />
@@ -243,12 +309,14 @@ function PlanSummary({ plan }: { plan: ImportPlan }) {
 function RunCard({ run, connectionId }: { run: ImportRun; connectionId: string }) {
   const { t } = useTranslation();
   const f = useFormat();
-  const phaseIndex = PHASES.indexOf(run.phase);
+  const phaseIndex = PHASES.indexOf(run.phase as (typeof PHASES)[number]);
+  const cohort = run.poll_group ?? (run.capability_scope ?? []).join(', ');
   return (
-    <article className="run-card" aria-label={`${t(`runKind.${run.run_kind}`)} ${run.run_id}`}>
+    <article className="run-card" aria-label={`${t(`runKind.${run.kind}`, { defaultValue: run.kind })} ${run.run_id}`}>
       <div className="run-head">
-        <strong>{t(`runKind.${run.run_kind}`)}</strong>
-        <StatusBadge kind={run.state} label={t(`runState.${run.state}`)} />
+        <strong>{t(`runKind.${run.kind}`, { defaultValue: run.kind })}</strong>
+        <StatusBadge kind={run.state} label={t(`runState.${run.state}`, { defaultValue: run.state })} />
+        {run.attempt && run.attempt > 1 ? <small className="muted">{t('connection.attempt', { count: run.attempt })}</small> : null}
         <span className="muted mono">{run.run_id.slice(0, 8)}</span>
         <Link to={`/app/system?connection_id=${connectionId}&run_id=${run.run_id}`} className="text-link small">
           {t('sources.viewLogs')} →
@@ -257,7 +325,7 @@ function RunCard({ run, connectionId }: { run: ImportRun; connectionId: string }
       <ol className="phase-steps" aria-label={t('connection.phases')}>
         {PHASES.map((p, i) => (
           <li key={p} className={i < phaseIndex ? 'done' : i === phaseIndex ? 'current' : ''} aria-current={i === phaseIndex ? 'step' : undefined}>
-            {t(`phases.${p}`)}
+            {t(`phases.${p}`, { defaultValue: p })}
           </li>
         ))}
       </ol>
@@ -277,12 +345,17 @@ function RunCard({ run, connectionId }: { run: ImportRun; connectionId: string }
         <span>
           {t('connection.counters.failed')}: <strong>{f.number(run.counters.failed)}</strong>
         </span>
-        <span className="muted">{t('connection.cohort', { cohort: t(`capabilities.${run.cohort}`, { defaultValue: run.cohort }) })}</span>
+        {run.counters.duplicates !== undefined && (
+          <span>
+            {t('connection.counters.duplicates')}: <strong>{f.number(run.counters.duplicates)}</strong>
+          </span>
+        )}
+        {cohort && <span className="muted">{t('connection.cohort', { cohort })}</span>}
       </div>
       {run.totals_known && run.percent !== null ? (
-        <div className="progress" role="progressbar" aria-valuenow={run.percent} aria-valuemin={0} aria-valuemax={100} aria-label={t('connection.progressLabel', { phase: t(`phases.${run.phase}`) })}>
+        <div className="progress" role="progressbar" aria-valuenow={run.percent} aria-valuemin={0} aria-valuemax={100} aria-label={t('connection.progressLabel', { phase: t(`phases.${run.phase}`, { defaultValue: run.phase }) })}>
           <span style={{ width: `${run.percent}%` }} />
-          <small>{t('connection.percentOfPhase', { percent: f.number(run.percent), phase: t(`phases.${run.phase}`) })}</small>
+          <small>{t('connection.percentOfPhase', { percent: f.number(run.percent), phase: t(`phases.${run.phase}`, { defaultValue: run.phase }) })}</small>
         </div>
       ) : (
         <p className="micro">{t('connection.noPercent')}</p>

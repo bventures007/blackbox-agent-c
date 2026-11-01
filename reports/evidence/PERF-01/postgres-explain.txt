@@ -1,0 +1,127 @@
+# PERF-01 — PostgreSQL side of the hot/cold lookups on the ops install (corpus being generated; row counts below), plus an indexed reference read path computing the same business numbers in SQL
+# command: docker exec blackbox-agent-c-ops-postgres psql -U postgres -d blackbox -c 'EXPLAIN (ANALYZE, BUFFERS) ...'   at 2026-11-01T12:46:49Z
+# tenant0=3226e00e-e815-4bfc-828f-04bcf1c303a5 order=#1001-34e7-1000-b73c63
+ journal_entries | tenants 
+-----------------+---------
+          370092 |      52
+(1 row)
+
+ journal_total_size | entity_gin_idx 
+--------------------+----------------
+ 508 MB             | 9624 kB
+(1 row)
+
+                                  List of relations
+ Schema |                Name                 | Type  |   Owner    |      Table      
+--------+-------------------------------------+-------+------------+-----------------
+ public | journal_entries_entity_idx          | index | bb_migrate | journal_entries
+ public | journal_entries_event_idx           | index | bb_migrate | journal_entries
+ public | journal_entries_occurred_idx        | index | bb_migrate | journal_entries
+ public | journal_entries_pkey                | index | bb_migrate | journal_entries
+ public | journal_entries_provider_idx        | index | bb_migrate | journal_entries
+ public | journal_entries_record_idx          | index | bb_migrate | journal_entries
+ public | journal_entries_record_key          | index | bb_migrate | journal_entries
+ public | journal_entries_recorded_idx        | index | bb_migrate | journal_entries
+ public | journal_entries_supersedes_idx      | index | bb_migrate | journal_entries
+ public | journal_entries_tenant_scope_key    | index | bb_migrate | journal_entries
+ public | journal_entries_tenant_sequence_key | index | bb_migrate | journal_entries
+(11 rows)
+
+## (a) engine tail read (journal_entries_tenant_sequence_key)
+                                                                         QUERY PLAN                                                                          
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.42..24.18 rows=5 width=40) (actual time=1.244..1.245 rows=0 loops=1)
+   Buffers: shared hit=6
+   ->  Index Scan using journal_entries_tenant_sequence_key on journal_entries  (cost=0.42..24.18 rows=5 width=40) (actual time=1.241..1.241 rows=0 loops=1)
+         Index Cond: ((tenant_id = '3226e00e-e815-4bfc-828f-04bcf1c303a5'::uuid) AND (journal_sequence > 100000))
+         Buffers: shared hit=6
+ Planning:
+   Buffers: shared hit=279
+ Planning Time: 340.232 ms
+ Execution Time: 1.901 ms
+(9 rows)
+
+## (b) committed high-water mark point read (latest_committed barrier)
+                                                QUERY PLAN                                                
+----------------------------------------------------------------------------------------------------------
+ Seq Scan on tenant_sequences  (cost=0.00..1.65 rows=1 width=8) (actual time=0.044..0.045 rows=1 loops=1)
+   Filter: (tenant_id = '3226e00e-e815-4bfc-828f-04bcf1c303a5'::uuid)
+   Rows Removed by Filter: 51
+   Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=64
+ Planning Time: 1.067 ms
+ Execution Time: 0.156 ms
+(8 rows)
+
+## (c) cold/as_of entity read through the entity_refs GIN index (all entries of one order)
+                                                                 QUERY PLAN                                                                 
+--------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=196.15..196.17 rows=5 width=181) (actual time=1.702..1.704 rows=11 loops=1)
+   Sort Key: journal_sequence
+   Sort Method: quicksort  Memory: 27kB
+   Buffers: shared hit=20
+   ->  Bitmap Heap Scan on journal_entries  (cost=51.27..196.10 rows=5 width=181) (actual time=1.555..1.641 rows=11 loops=1)
+         Recheck Cond: (entity_refs @> '{"order": "#1001-34e7-1000-b73c63"}'::jsonb)
+         Filter: (tenant_id = '3226e00e-e815-4bfc-828f-04bcf1c303a5'::uuid)
+         Heap Blocks: exact=5
+         Buffers: shared hit=17
+         ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..51.27 rows=37 width=0) (actual time=1.510..1.510 rows=33 loops=1)
+               Index Cond: (entity_refs @> '{"order": "#1001-34e7-1000-b73c63"}'::jsonb)
+               Buffers: shared hit=12
+ Planning:
+   Buffers: shared hit=330
+ Planning Time: 185.430 ms
+ Execution Time: 1.851 ms
+(16 rows)
+
+## (d) indexed PostgreSQL reference read path: captured/fees/refunded for the same order computed in SQL from source entries (identical business outputs to /v1/state money slots for a simple order; no corrections/holds handled)
+Timing is on.
+ captured_minor | fees_minor | refunded_minor | entries 
+----------------+------------+----------------+---------
+        1537724 |      29216 |              0 |      11
+(1 row)
+
+Time: 855.943 ms
+                                                                 QUERY PLAN                                                                 
+--------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=196.27..196.28 rows=1 width=96) (actual time=0.710..0.711 rows=1 loops=1)
+   Buffers: shared hit=17
+   ->  Bitmap Heap Scan on journal_entries  (cost=51.27..196.19 rows=2 width=153) (actual time=0.669..0.690 rows=11 loops=1)
+         Recheck Cond: (entity_refs @> '{"order": "#1001-34e7-1000-b73c63"}'::jsonb)
+         Filter: ((tenant_id = '3226e00e-e815-4bfc-828f-04bcf1c303a5'::uuid) AND (track = 'source'::journal_track))
+         Heap Blocks: exact=5
+         Buffers: shared hit=17
+         ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..51.27 rows=37 width=0) (actual time=0.647..0.648 rows=33 loops=1)
+               Index Cond: (entity_refs @> '{"order": "#1001-34e7-1000-b73c63"}'::jsonb)
+               Buffers: shared hit=12
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.522 ms
+ Execution Time: 0.814 ms
+(14 rows)
+
+Time: 11.404 ms
+## (e) what a full-journal scan would cost for the same order (seq scan forced; NOT the product path)
+SET
+SET
+                                                                           QUERY PLAN                                                                            
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=36425.02..36425.03 rows=1 width=8) (actual time=42221.790..42259.700 rows=1 loops=1)
+   Buffers: shared hit=13032 read=19702
+   ->  Gather  (cost=36424.81..36425.02 rows=2 width=8) (actual time=42219.822..42259.676 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=13032 read=19702
+         ->  Partial Aggregate  (cost=35424.81..35424.82 rows=1 width=8) (actual time=41799.346..41799.350 rows=1 loops=3)
+               Buffers: shared hit=13032 read=19702
+               ->  Parallel Seq Scan on journal_entries  (cost=0.00..35424.55 rows=103 width=0) (actual time=41796.440..41799.289 rows=4 loops=3)
+                     Filter: ((tenant_id = '3226e00e-e815-4bfc-828f-04bcf1c303a5'::uuid) AND ((entity_refs ->> 'order'::text) = '#1001-34e7-1000-b73c63'::text))
+                     Rows Removed by Filter: 123360
+                     Buffers: shared hit=13032 read=19702
+ Planning:
+   Buffers: shared hit=253
+ Planning Time: 2.676 ms
+ Execution Time: 42259.958 ms
+(16 rows)
+

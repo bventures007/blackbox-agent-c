@@ -1,0 +1,124 @@
+# command: ls -la <install>/secrets <install>/data <install>/data/state <install>/.env; stat -f '%Sp %u:%g %N'; docker inspect user/mounts of api/worker/engine/backup containers
+# host: benediktsauter uid 501; install /Users/benediktsauter/blackbox-pilot-ops; 2026-11-01T12:36:28Z
+.:
+total 176
+drwxr-xr-x@ 15 benediktsauter  staff    480 Nov  1 13:11 .
+drwxr-x---+ 78 benediktsauter  staff   2496 Nov  1 13:26 ..
+-rw-------@  1 benediktsauter  staff    872 Nov  1 13:04 .env
+-rw-r--r--@  1 benediktsauter  staff   9247 Nov  1 12:41 INSTALL.de.md
+-rw-r--r--@  1 benediktsauter  staff   8154 Nov  1 12:41 INSTALL.en.md
+-rwxr-xr-x@  1 benediktsauter  staff  55069 Nov  1 12:41 blackbox
+drwx------@  8 benediktsauter  staff    256 Nov  1 13:04 data
+drwxr-xr-x@  3 benediktsauter  staff     96 Nov  1 12:41 examples
+drwxr-xr-x@  7 benediktsauter  staff    224 Nov  1 12:47 images
+drwxr-xr-x@  3 benediktsauter  staff     96 Nov  1 12:41 infra
+drwx------@  3 benediktsauter  staff     96 Nov  1 13:04 logs
+drwxr-xr-x@  9 benediktsauter  staff    288 Nov  1 12:41 migrations
+-rw-------@  1 benediktsauter  staff     48 Nov  1 13:11 owner.key
+-rw-r--r--@  1 benediktsauter  staff   1534 Nov  1 12:47 release.json
+drwx------@  9 benediktsauter  staff    288 Nov  1 13:04 secrets
+
+data:
+total 0
+drwx------@  8 benediktsauter  staff  256 Nov  1 13:04 .
+drwxr-xr-x@ 15 benediktsauter  staff  480 Nov  1 13:11 ..
+drwx------@  4 benediktsauter  staff  128 Nov  1 13:28 backups
+drwx------@  3 benediktsauter  staff   96 Nov  1 13:15 evidence
+drwx------@  6 benediktsauter  staff  192 Nov  1 13:16 logs
+drwx------@  2 benediktsauter  staff   64 Nov  1 13:04 restore
+drwx------@  2 benediktsauter  staff   64 Nov  1 13:04 snapshots
+drwx------@  4 benediktsauter  staff  128 Nov  1 13:11 state
+
+data/restore:
+total 0
+drwx------@ 2 benediktsauter  staff   64 Nov  1 13:04 .
+drwx------@ 8 benediktsauter  staff  256 Nov  1 13:04 ..
+
+data/state:
+total 16
+drwx------@ 4 benediktsauter  staff  128 Nov  1 13:11 .
+drwx------@ 8 benediktsauter  staff  256 Nov  1 13:04 ..
+-rw-------@ 1 benediktsauter  staff   86 Nov  1 13:04 install.json
+-rw-------@ 1 benediktsauter  staff  550 Nov  1 13:11 installed-release.json
+
+secrets:
+total 56
+drwx------@  9 benediktsauter  staff  288 Nov  1 13:04 .
+drwxr-xr-x@ 15 benediktsauter  staff  480 Nov  1 13:11 ..
+-rw-------@  1 benediktsauter  staff   32 Nov  1 13:04 data.key
+-rw-------@  1 benediktsauter  staff   64 Nov  1 13:04 engine_token
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_api_password
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_engine_password
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_migrate_password
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_superuser_password
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_worker_password
+## stat
+drwx------ 501:20 secrets
+-rw------- 501:20 secrets/data.key
+-rw------- 501:20 secrets/engine_token
+-rw------- 501:20 secrets/pg_api_password
+-rw------- 501:20 secrets/pg_engine_password
+-rw------- 501:20 secrets/pg_migrate_password
+-rw------- 501:20 secrets/pg_superuser_password
+-rw------- 501:20 secrets/pg_worker_password
+drwx------ 501:20 data
+drwx------ 501:20 data/backups
+drwx------ 501:20 data/evidence
+drwx------ 501:20 data/logs
+drwx------ 501:20 data/restore
+drwx------ 501:20 data/snapshots
+drwx------ 501:20 data/state
+-rw------- 501:20 .env
+-rw------- 501:20 owner.key
+## container users and secret mounts
+api: user=10001:10001 readonly_rootfs=true
+  bind ~/blackbox-pilot-ops/data/evidence -> /data/evidence rw=true
+  bind ~/blackbox-pilot-ops/data/snapshots -> /data/snapshots rw=false
+  bind ~/blackbox-pilot-ops/secrets/engine_token -> /run/secrets/engine_token rw=false
+  bind ~/blackbox-pilot-ops/secrets/pg_migrate_password -> /run/secrets/pg_migrate_password rw=false
+  bind ~/blackbox-pilot-ops/data/logs -> /data/logs rw=true
+  bind ~/blackbox-pilot-ops/data/state -> /data/state rw=false
+  bind ~/blackbox-pilot-ops/migrations -> /migrations rw=false
+  bind ~/blackbox-pilot-ops/secrets/data.key -> /run/secrets/data.key rw=false
+  bind ~/blackbox-pilot-ops/secrets/pg_api_password -> /run/secrets/pg_api_password rw=false
+  bind ~/blackbox-pilot-ops/data/backups -> /data/backups rw=false
+
+worker: user=10001:10001 readonly_rootfs=true
+  bind ~/blackbox-pilot-ops/secrets/data.key -> /run/secrets/data.key rw=false
+  bind ~/blackbox-pilot-ops/secrets/pg_worker_password -> /run/secrets/pg_worker_password rw=false
+  bind ~/blackbox-pilot-ops/data/logs -> /data/logs rw=true
+  bind ~/blackbox-pilot-ops/data/evidence -> /data/evidence rw=true
+  bind ~/blackbox-pilot-ops/data/backups -> /data/backups rw=false
+  bind ~/blackbox-pilot-ops/data/state -> /data/state rw=false
+  bind ~/blackbox-pilot-ops/secrets/engine_token -> /run/secrets/engine_token rw=false
+
+engine: user=10001:10001 readonly_rootfs=true
+  bind ~/blackbox-pilot-ops/data/snapshots -> /data/snapshots rw=true
+  bind ~/blackbox-pilot-ops/data/logs -> /data/logs rw=true
+  bind ~/blackbox-pilot-ops/secrets/engine_token -> /run/secrets/engine_token rw=false
+  bind ~/blackbox-pilot-ops/secrets/pg_engine_password -> /run/secrets/pg_engine_password rw=false
+
+backup-scheduler: user=10001:10001 readonly_rootfs=false
+  bind ~/blackbox-pilot-ops/data/state -> /data/state rw=true
+  bind ~/blackbox-pilot-ops/secrets -> /secrets rw=false
+  bind ~/blackbox-pilot-ops -> /release rw=false
+  bind ~/blackbox-pilot-ops/data/evidence -> /data/evidence rw=false
+  bind ~/blackbox-pilot-ops/data/backups -> /data/backups rw=true
+  volume /var/lib/docker/volumes/8efa0ac2381e36f11aedc808db017b4f1ba85eb77828f2b72809486d56199927/_data -> /var/lib/postgresql/data rw=true
+  bind ~/blackbox-pilot-ops/data/backups/unconfigured -> /backup-dest rw=true
+  bind ~/blackbox-pilot-ops/data/snapshots -> /data/snapshots rw=false
+  bind ~/blackbox-pilot-ops/secrets/pg_superuser_password -> /run/secrets/pg_superuser_password rw=false
+
+## inside the api container: secret files as seen by uid 10001
+uid=10001(blackbox) gid=10001(blackbox) groups=10001(blackbox)
+total 24
+drwxr-xr-x 2 root     root     4096 Nov  1 12:08 .
+drwxr-xr-x 1 root     root     4096 Nov  1 12:08 ..
+-rw------- 1 blackbox blackbox   32 Nov  1 12:04 data.key
+-rw------- 1 blackbox blackbox   64 Nov  1 12:04 engine_token
+-rw------- 1 blackbox blackbox   45 Nov  1 12:04 pg_api_password
+-rw------- 1 blackbox blackbox   45 Nov  1 12:04 pg_migrate_password
+32 /run/secrets/data.key
+## no secret values in container env dumps (names only)
+BACKUP_STATUS_FILE BLACKBOX_BIND BLACKBOX_COMMIT BLACKBOX_CONTAINER_BIND BLACKBOX_PORT BLACKBOX_REPO_ROOT BLACKBOX_VERSION DATA_KEY_FILE ENGINE_TOKEN_FILE ENGINE_URL EVIDENCE_DIR FENCE_DIR HOME HOST HOSTNAME LANDING_DIST_DIR LOGS_DIR LOG_DIR LOG_LEVEL MIGRATIONS_DIR NODE_ENV NODE_VERSION PATH PGDATABASE PGHOST PGMIGRATE_PASSWORD_FILE PGMIGRATE_USER PGPASSWORD_FILE PGPORT PGUSER PWD SECRETS_DIR SNAPSHOT_DIR TZ WEB_DIST_DIR YARN_VERSION 
+(no credential-looking strings in inspect env: 0 matches)

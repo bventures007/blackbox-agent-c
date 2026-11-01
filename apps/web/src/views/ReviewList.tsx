@@ -79,33 +79,33 @@ export function ReviewList() {
           <article className="review-card" key={c.case_id} aria-labelledby={`case-${c.case_id}`}>
             <div className="review-card-head">
               <StatusBadge kind={c.state} label={t(`review.states.${c.state}`)} />
-              <span className="type-tag">{t(`review.types.${c.type}`)}</span>
+              <span className="type-tag">{t(`review.types.${c.type}`, { defaultValue: c.type })}</span>
               <span className="muted mono">{c.case_id} · rev {c.revision}</span>
-              {c.recalculating && <StatusBadge kind="working" label={t('review.recalculating', { required: c.required_cursor ?? '?', applied: c.applied_cursor ?? '?' })} />}
+              {c.state === 'in_progress' && <StatusBadge kind="working" label={t('review.inProgressNote')} />}
             </div>
             <h3 id={`case-${c.case_id}`}>{c.reason}</h3>
             <dl className="detail-meta compact-meta">
               <div>
                 <dt>{t('review.source')}</dt>
-                <dd>
-                  <Link to={`/app/sources/${c.source.connection_id}`}>{t(`providers.${c.source.provider}.name`, { defaultValue: c.source.provider })}</Link> {c.source.account_label ? `· ${c.source.account_label}` : ''}
-                </dd>
-              </div>
-              <div>
-                <dt>{t('review.stage')}</dt>
-                <dd>{t(`phases.${c.stage}`, { defaultValue: c.stage })}</dd>
+                <dd>{c.connection_id ? <Link to={`/app/sources/${c.connection_id}`}>{t('journal.openConnection')}</Link> : t('common.unknown')}</dd>
               </div>
               <div>
                 <dt>{t('review.affectedRecords')}</dt>
-                <dd>{c.affected.records.join(', ') || t('common.none')}</dd>
-              </div>
-              <div>
-                <dt>{t('review.affectedQuestions')}</dt>
-                <dd>{c.affected.questions.map((q) => <Link key={q} to={`/app/questions?q=${q}`} className="entity-link">{t(`questionsCatalog.${q}.q`)}</Link>)}</dd>
+                <dd>{c.affected_records.join(', ') || t('common.none')}</dd>
               </div>
               <div>
                 <dt>{t('review.evidence')}</dt>
-                <dd>{c.evidence_ref ? <code className="mono">{c.evidence_ref}</code> : t('review.noEvidenceRetained')}</dd>
+                <dd>{typeof c.refs.original_entry_id === 'string' ? <code className="mono">{c.refs.original_entry_id}</code> : c.resolution_entry_id ? <code className="mono">{c.resolution_entry_id}</code> : t('review.noEvidenceRetained')}</dd>
+              </div>
+              <div>
+                <dt>{t('review.refs')}</dt>
+                <dd>
+                  <code className="mono small">{JSON.stringify(c.refs)}</code>
+                </dd>
+              </div>
+              <div>
+                <dt>{t('review.updated')}</dt>
+                <dd>{f.dateTimeSeconds(c.updated_at)}</dd>
               </div>
               {c.proposed_link && (
                 <div>
@@ -118,7 +118,7 @@ export function ReviewList() {
               <div>
                 <dt>{t('review.logs')}</dt>
                 <dd>
-                  <Link to={`/app/system?connection_id=${c.source.connection_id}${c.run_id ? `&run_id=${c.run_id}` : ''}`}>{t('sources.viewLogs')}</Link>
+                  <Link to={`/app/system?${c.connection_id ? `connection_id=${c.connection_id}` : ''}${c.run_id ? `&run_id=${c.run_id}` : ''}`}>{t('sources.viewLogs')}</Link>
                 </dd>
               </div>
             </dl>
@@ -127,13 +127,13 @@ export function ReviewList() {
               <ul className="plain-list">
                 {c.history.map((h, i) => (
                   <li key={i}>
-                    <time dateTime={h.at}>{f.dateTimeSeconds(h.at)}</time> · {h.actor} · {t(`review.actions.${h.action}`, { defaultValue: h.action })}
+                    <time dateTime={h.at}>{f.dateTimeSeconds(h.at)}</time> · {h.actor === 'system' || h.actor === 'worker' ? h.actor : t('review.ownerActor')} · {t(`review.actions.${h.action}`, { defaultValue: h.action })}
                     {h.reason ? ` — ${h.reason}` : ''}
                   </li>
                 ))}
               </ul>
             </details>
-            {c.state !== 'resolved' && !c.recalculating && (
+            {c.state !== 'resolved' && (
               <div className="review-actions">
                 {c.available_actions.map((a) => (
                   <button key={a} type="button" className={`btn small ${a === 'leave_open' ? 'secondary' : 'primary'}`} onClick={() => setActing({ c, action: a })}>

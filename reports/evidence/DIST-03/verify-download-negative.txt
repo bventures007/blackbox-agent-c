@@ -1,0 +1,22 @@
+## verify-download.sh negative cases (2026-11-01T12:56:13Z, tested commit 482bdf592a599102a5ddcc18cf4e48f176241177, archive 0.1.0-rc6)
+Hosts: scripts/release/serve-landing.sh copies of the landing build with a manipulated release-manifest.json (pending template; sha256 replaced by a non-hex string; sha256 replaced by 64 zeros next to the real archive) plus a non-existent manifest path on the real host.
+
+### pending: scripts/release/verify-download.sh http://127.0.0.1:19188 --manifest-path release-manifest.json
+verify-download: FAIL manifest status is 'pending' (no released artifact advertised; the landing must show 'Download not available yet')
+exit code: 2
+
+### corrupted-sha256: scripts/release/verify-download.sh http://127.0.0.1:19187 --manifest-path release-manifest.json
+artifact: blackbox-0.1.0-rc6-mac-arm64.tar.gz (594309750 bytes) from http://127.0.0.1:19187/./blackbox-0.1.0-rc6-mac-arm64.tar.gz
+curl: (22) The requested URL returned error: 404
+verify-download: FAIL artifact download failed
+exit code: 2
+
+### wrong-sha256: scripts/release/verify-download.sh http://127.0.0.1:19190 --manifest-path release-manifest.json
+artifact: blackbox-0.1.0-rc6-mac-arm64.tar.gz (594309750 bytes) from http://127.0.0.1:19190/./blackbox-0.1.0-rc6-mac-arm64.tar.gz
+verify-download: FAIL sha256 mismatch (b2068460b8c4cc32624a35687d22ad9b4f8e06509e47de4bb3eeb644aa486432 != 0000000000000000000000000000000000000000000000000000000000000000)
+exit code: 2
+
+### missing-manifest-404: scripts/release/verify-download.sh http://127.0.0.1:19181 --manifest-path does-not-exist/release-manifest.json
+curl: (22) The requested URL returned error: 404
+verify-download: FAIL manifest not downloadable from http://127.0.0.1:19181/does-not-exist/release-manifest.json
+exit code: 2

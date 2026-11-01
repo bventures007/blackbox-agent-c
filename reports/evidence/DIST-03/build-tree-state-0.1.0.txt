@@ -1,0 +1,70 @@
+build started 2026-11-01T14:24:40Z on HEAD 482bdf592a599102a5ddcc18cf4e48f176241177
+uncommitted working-tree changes included in the archive (to be committed by the orchestrator):
+ M INTEGRATIONS.md
+ M apps/api/src/cli.ts
+ M apps/api/src/config.ts
+ M apps/api/src/guards.ts
+ M apps/api/src/routes/auth.ts
+ M apps/engine/src/bin/corpus.rs
+ M apps/landing/src/main.ts
+ M apps/web/src/api/endpoints.ts
+ M apps/web/src/api/types.ts
+ M apps/web/src/components/EntryDrawer.tsx
+ M apps/web/src/hooks.ts
+ M apps/web/src/views/AgentsView.tsx
+ M apps/web/src/views/ConnectDialog.tsx
+ M apps/web/src/views/ConnectionView.tsx
+ M apps/web/src/views/EntityView.tsx
+ M apps/web/src/views/JournalView.tsx
+ M apps/web/src/views/QuestionsView.tsx
+ M apps/web/src/views/RecorderView.tsx
+ M apps/web/src/views/ReviewList.tsx
+ M apps/web/src/views/SettingsView.tsx
+ M apps/web/src/views/SourcesView.tsx
+ M apps/web/src/views/SystemView.tsx
+ M docs/release.md
+ M docs/ui.md
+ M infra/compose/docker-compose.yml
+ M integrations/history.jsonl
+ M packages/auth/src/origin.ts
+ M packages/i18n/src/de.json
+ M packages/i18n/src/en.json
+ M packages/testing/src/index.ts
+ M packages/ui/styles/extensions.css
+ M scripts/blackbox
+ M scripts/release/serve-landing.sh
+ M tests/backend/unit/auth-and-plans.test.ts
+ M tests/e2e/playwright.config.ts
+ M tests/e2e/tests/01-auth.spec.ts
+RM tests/e2e/tests/03-demo-question.spec.ts -> tests/e2e/tests/02-demo-question.spec.ts
+RM tests/e2e/tests/02-views.spec.ts -> tests/e2e/tests/03-views.spec.ts
+ M tests/e2e/tests/04-diagnostics.spec.ts
+ M tests/e2e/tests/helpers.ts
+ M tests/worker/helpers/db.ts
+?? apps/web/src/api/adapters.ts
+?? docs/tester-guide.md
+?? release/dist-rc6b/
+?? reports/evidence/CI-01/
+?? reports/evidence/DIST-01/
+?? reports/evidence/DIST-03/
+?? reports/evidence/EXTEND-01/
+?? reports/evidence/LOCAL-06/
+?? reports/evidence/LOCAL-10/
+?? reports/evidence/OPS-02/
+?? reports/evidence/PERF-01/
+?? reports/evidence/PILOT-01/
+?? reports/evidence/PILOT-07/
+?? reports/evidence/PILOT-09/
+?? reports/evidence/SEC-01/
+?? reports/evidence/SEC-03/
+?? reports/evidence/UI-01/
+?? reports/integrations/
+?? scripts/release/answer-snapshot.sh
+?? scripts/release/setup-with-key-capture.py
+?? tests/diag/
+?? tests/perf/
+?? tests/questions/
+?? tests/worker/extend.test.ts
+
+host: 27.2 arm64, Docker version 27.3.1, build ce12230, 2.30.3-desktop.1
+15:24  up 6 days,  6:04, 2 users, load averages: 721.46 777.66 775.67

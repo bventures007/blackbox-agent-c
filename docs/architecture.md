@@ -176,14 +176,16 @@ answer `restricted`/423 until the owner reconciles a restore). CLI (`apps/api/di
 stock 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170 match), `maintenance-lease
 acquire|release|status` (`maintenance_lease` table, migration 0101) and the test-only `create-tenant
 --name [--seed-order <id>]` (second synthetic workspace created directly in the database, never
-reachable over HTTP). Health cards and the export bundle are built in `src/diagnostics.ts`.
+reachable over HTTP) and `create-tenant-agent-key --tenant <uuid> --name <n>` (read-only agent key for such a
+synthetic workspace; performance/isolation drivers only). Health cards and the export bundle are built in `src/diagnostics.ts`.
 
 ### Environment
 
 | Variable | Meaning |
 | --- | --- |
 | `HOST` | must be `127.0.0.1` (default). Single exception: `0.0.0.0` together with `BLACKBOX_CONTAINER_BIND=1`, set only by the Compose service whose port Docker publishes on the host loopback alone (`127.0.0.1:19180`; the wrapper refuses any other bind) — inside the container the interface is the only route from that publish. |
-| `PORT` | default `19180` |
+| `PORT` | default `19180` (container listener) |
+| `BLACKBOX_PUBLIC_PORT` | the port Docker publishes on the host loopback (`./blackbox setup --port N`; Compose passes `${BLACKBOX_PORT}`); defaults to `PORT`. The Host/Origin allowlists accept both ports — without it an install on a non-default port answered 403 to every request (found 2026-11-01) |
 | `DATABASE_URL` | `bb_api` connection string; the Compose release instead sets `PGHOST`/`PGPORT`/`PGDATABASE`/`PGUSER` + `PGPASSWORD_FILE` (password as a secret file, never in env/argv) |
 | `MIGRATE_DATABASE_URL` | `bb_migrate` connection string (CLI `migrate`, doctor migration check); Compose: `PGMIGRATE_USER` + `PGMIGRATE_PASSWORD_FILE`; `MIGRATIONS_DIR` overrides the migration directory |
 | `FENCE_DIR` | host-wrapper fence directory (`/data/state`) |

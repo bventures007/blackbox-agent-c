@@ -1,0 +1,4 @@
+# command: python3 scripts/integration-register.py check
+# started: 2026-11-01T12:02:06Z commit 482bdf592a599102a5ddcc18cf4e48f176241177
+Register valid: 127 rows, 382 history records. This is not connector-test evidence.
+# exit: 0 finished: 2026-11-01T12:02:07Z

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../components/Icon';
-import { ErrorNote, Field, Modal } from '../components/ui';
+import { CopyButton, ErrorNote, Field, Modal } from '../components/ui';
 import { ingest, sources as sourcesApi } from '../api/endpoints';
 import type { CatalogueItem, ConnectionSummary } from '../api/types';
 
@@ -15,18 +15,20 @@ export function ConnectDialog({ item, onClose, onConnected }: { item: CatalogueI
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const [csv, setCsv] = useState('');
-  const [preview, setPreview] = useState<{ rows: number; parsed: Array<Record<string, string>>; ambiguous: number; errors: string[] } | null>(null);
+  const [preview, setPreview] = useState<{ rows: number; parsed: Array<Record<string, unknown>>; ambiguous: number; errors: string[] } | null>(null);
   const [created, setCreated] = useState<ConnectionSummary | null>(null);
   const [replayJson, setReplayJson] = useState('');
   const [replayResult, setReplayResult] = useState<{ accepted: number; duplicate: number; conflict: number; rejected: number } | null>(null);
+  const [producer, setProducer] = useState<{ producer_id: string; secret: string; notice: string } | null>(null);
 
   const set = (k: string, v: string) => setConfig((c) => ({ ...c, [k]: v }));
   const setS = (k: string, v: string) => setSecret((c) => ({ ...c, [k]: v }));
   const providerName = t(`providers.${item.provider}.name`, { defaultValue: item.provider });
 
-  const createConnection = async (): Promise<ConnectionSummary> => {
+  const createConnection = async (): Promise<ConnectionSummary & { producer?: { producer_id: string; secret: string; notice: string } }> => {
     const c = await sourcesApi.createConnection({ provider: item.provider, display_name: displayName.trim(), config, secret: Object.keys(secret).length ? secret : undefined });
     setCreated(c);
+    if (c.producer) setProducer(c.producer);
     return c;
   };
 
@@ -57,6 +59,8 @@ export function ConnectDialog({ item, onClose, onConnected }: { item: CatalogueI
         return;
       }
       const conn = await createConnection();
+      // A generic producer gets its signing secret exactly once; keep the dialog open until it was saved.
+      if (kind === 'generic' && conn.producer) return;
       onConnected(conn);
     } catch (err) {
       setError(err);
@@ -109,19 +113,29 @@ export function ConnectDialog({ item, onClose, onConnected }: { item: CatalogueI
             <div className="demo-callout">{t('connect.shopifyPayments.limits')}</div>
           </>
         )}
-        {kind === 'generic' && (
+        {kind === 'generic' && !producer && (
           <>
             <Field label={t('connect.generic.producerId')} htmlFor="gen-producer" hint={t('connect.generic.producerHint')}>
-              <input id="gen-producer" className="field" value={config.producer_id ?? ''} onChange={(e) => set('producer_id', e.target.value)} />
-            </Field>
-            <Field label={t('connect.generic.secret')} htmlFor="gen-secret" hint={t('connect.generic.secretHint')}>
-              <input id="gen-secret" className="field" type="password" autoComplete="off" value={secret.hmac_secret ?? ''} onChange={(e) => setS('hmac_secret', e.target.value)} />
+              <input id="gen-producer" className="field" value={config.producer_label ?? ''} onChange={(e) => set('producer_label', e.target.value)} />
             </Field>
             <div className="demo-callout">
               {t('connect.generic.howTo')}
-              <pre className="config-code">{`POST http://127.0.0.1:19180/api/ingest/generic\nX-Producer-Id: <producer_id>\nX-Producer-Timestamp: <unix seconds>\nX-Producer-Signature: HMAC-SHA256(timestamp + body)`}</pre>
+              <pre className="config-code">{`POST http://127.0.0.1:19180/api/ingest/generic\nX-Producer-Id: <producer_id>\nX-Producer-Timestamp: <unix seconds>\nX-Producer-Signature: HMAC-SHA256(timestamp + "." + body)`}</pre>
             </div>
           </>
+        )}
+        {kind === 'generic' && producer && created && (
+          <div className="evidence-box">
+            <h3>{t('connect.generic.secretTitle')}</h3>
+            <p>{t('connect.generic.secretOnce')}</p>
+            <pre className="config-code key-display">{`X-Producer-Id: ${producer.producer_id}\nsecret: ${producer.secret}`}</pre>
+            <div className="onboard-actions">
+              <CopyButton text={producer.secret} label={t('connect.generic.copySecret')} />
+              <button type="button" className="btn primary" onClick={() => onConnected(created)}>
+                {t('agents.keySaved')}
+              </button>
+            </div>
+          </div>
         )}
         {kind === 'bank_csv' && (
           <>
@@ -159,7 +173,7 @@ export function ConnectDialog({ item, onClose, onConnected }: { item: CatalogueI
                       {preview.parsed.map((row, i) => (
                         <tr key={i}>
                           {Object.values(row).map((v, j) => (
-                            <td key={j}>{v}</td>
+                            <td key={j}>{typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v ?? '')}</td>
                           ))}
                         </tr>
                       ))}
@@ -191,7 +205,7 @@ export function ConnectDialog({ item, onClose, onConnected }: { item: CatalogueI
         {kind === null && <div className="demo-callout">{t(item.state === 'unsupported' ? 'connect.unsupported' : 'connect.planned', { provider: providerName })}</div>}
         <div className="demo-callout">{t('connect.secretNote')}</div>
         <ErrorNote error={error} />
-        {kind !== null && (
+        {kind !== null && !producer && (
           <button type="submit" className="btn primary full" disabled={busy || (kind === 'bank_csv' && !csv.trim())}>
             {busy ? t('common.working') : kind === 'bank_csv' ? (preview ? t('connect.bank.commit') : t('connect.bank.preview')) : kind === 'replay' ? t('connect.replay.submit') : t('connect.submit')}
             <Icon name="arrow" />

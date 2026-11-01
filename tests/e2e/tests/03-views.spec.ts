@@ -40,23 +40,28 @@ for (const locale of ['en', 'de'] as Locale[]) {
       await expect(dialog).toBeHidden();
     });
 
-    test('connection detail: import plan with timezone/UTC boundaries, runs, health, view logs link', async ({ page }, testInfo) => {
+    test('connection detail: import plan with timezone/UTC boundaries, capability health, view logs link', async ({ page }, testInfo) => {
       await page.goto('/app/sources');
+      // The demo spec (02) created the demo connections; open the first connected row.
       await page.locator('.ledger-table tr[data-action]').first().click();
       await expect(page.getByRole('heading', { name: locale === 'en' ? 'Import plan' : 'Importplan' })).toBeVisible();
-      await expect(page.getByText('UTC').first()).toBeVisible();
       await expect(page.getByText(locale === 'en' ? 'Last successful check' : 'Letzte erfolgreiche Prüfung').first()).toBeVisible();
       await expect(page.getByText(locale === 'en' ? 'Last new event' : 'Letztes neues Ereignis').first()).toBeVisible();
+      await expect(page.getByText(locale === 'en' ? 'Capabilities' : 'Fähigkeiten').first()).toBeVisible();
       await expect(page.getByRole('link', { name: T[locale].navSources === 'Sources' ? 'View logs' : 'Logs anzeigen' }).first()).toBeVisible();
-      await expect(page.locator('.run-card').first()).toBeVisible();
-      await screenshot(page, testInfo, locale, '61-connection-detail');
-      // import plan dialog shows the five presets
+      // import plan dialog shows the five presets; a producer-driven demo connection may have no plan yet, so choose one
+      // (a real persisted date choice with server-resolved boundaries shown in the plan timezone and UTC).
       await page.getByRole('button', { name: locale === 'en' ? /import period/i : /Importzeitraum/ }).click();
       const dialog = page.getByRole('dialog');
       await expect(dialog.getByRole('radio')).toHaveCount(5);
       await expect(dialog.getByText(locale === 'en' ? 'From now on (advanced)' : 'Ab jetzt (erweitert)')).toBeVisible();
       await screenshot(page, testInfo, locale, '65-import-plan');
-      await page.keyboard.press('Escape');
+      await dialog.getByRole('radio').first().check();
+      await dialog.getByRole('button', { name: locale === 'en' ? 'Save plan and start' : 'Plan speichern und starten' }).click();
+      await expect(page.locator('.toast.show')).toBeVisible();
+      await expect(page.getByText('UTC').first()).toBeVisible();
+      await expect(page.getByText(locale === 'en' ? 'Last 30 days' : 'Letzte 30 Tage').first()).toBeVisible();
+      await screenshot(page, testInfo, locale, '61-connection-detail');
     });
 
     test('questions: six groups, 24 templates, labeled search box, typed parameter form', async ({ page }, testInfo) => {

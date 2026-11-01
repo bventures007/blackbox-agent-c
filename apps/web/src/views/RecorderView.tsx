@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { PageHeading, toast } from '../components/AppShell';
 import { Icon } from '../components/Icon';
 import { ErrorNote, Loading, Modal, StatusBadge } from '../components/ui';
-import { EntryDrawer } from '../components/EntryDrawer';
+import { EntryDrawer, entrySummary } from '../components/EntryDrawer';
+import { HttpError } from '../api/client';
 import { ingest, journal as journalApi, sources as sourcesApi, questions as questionsApi } from '../api/endpoints';
 import { TRACKS, type JournalEntry, type Track } from '../api/types';
 import { useAsync } from '../hooks';
@@ -25,17 +26,22 @@ export function RecorderView() {
   const [demoDialog, setDemoDialog] = useState(false);
   const [demoBusy, setDemoBusy] = useState(false);
   const [demoError, setDemoError] = useState<unknown>(null);
+  const [demoNeedsConfirm, setDemoNeedsConfirm] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [frozen, setFrozen] = useState<JournalEntry[] | null>(null);
 
   useEffect(() => {
     document.title = `${t('nav.recorder')} — ${t('meta.title')}`;
   }, [t]);
 
-  const entries = journal.data?.entries ?? [];
+  const liveEntries = journal.data?.entries ?? [];
+  // "Pause view" freezes the displayed position only; collection continues on the server.
+  const entries = paused && frozen ? frozen : liveEntries;
   const byTrack = (track: Track) => entries.filter((e) => e.track === track).slice(0, 4);
   const connections = catalogue.data?.catalogue.flatMap((c) => c.connections) ?? [];
-  const degraded = connections.filter((c) => c.state === 'delayed' || c.state === 'error' || c.state === 'disconnected');
-  const latestRecorded = entries[0]?.recorded_at ?? null;
+  const degraded = connections.filter((c) => c.degraded);
+  const latestRecorded = liveEntries[0]?.recorded_at ?? null;
+  const committed = journal.data?.consistency.committed_cursor ?? journal.data?.page.snapshot_cursor ?? null;
   const lastNewEvent = connections.reduce<string | null>((acc, c) => (c.last_new_event_at && (!acc || c.last_new_event_at > acc) ? c.last_new_event_at : acc), null);
   const readyQuestions = templates.data?.filter((q) => q.readiness.status === 'ready').length ?? 0;
 
@@ -44,14 +50,17 @@ export function RecorderView() {
     setDemoError(null);
     try {
       const r = await ingest.demoRun(confirm);
-      toast(r.already_loaded ? t('recorder.demoAlready') : t('recorder.demoLoaded', { count: r.loaded }));
+      toast(r.accepted === 0 && r.duplicate > 0 ? t('recorder.demoAlready') : t('recorder.demoLoaded', { count: r.accepted }));
       setDemoDialog(false);
+      setDemoNeedsConfirm(false);
       journal.reload();
       catalogue.reload();
       templates.reload();
       void refreshWorkspace();
     } catch (e) {
-      setDemoError(e);
+      // The API refuses to add demo data next to real connections without an explicit second confirmation.
+      if (e instanceof HttpError && e.code === 'confirmation_required') setDemoNeedsConfirm(true);
+      else setDemoError(e);
     } finally {
       setDemoBusy(false);
     }
@@ -90,7 +99,7 @@ export function RecorderView() {
             {t('recorder.stats.entries')} <Icon name="wave" />
           </div>
           <div className="stat-value">
-            {journal.data ? f.number(journal.data.page.snapshot_cursor > 0 ? journal.data.page.snapshot_cursor - 1000 : entries.length) : '–'} <small>{t('recorder.stats.entriesUnit')}</small>
+            {committed !== null ? f.number(committed) : '–'} <small>{t('recorder.stats.entriesUnit')}</small>
           </div>
           <div className="stat-foot">
             <Icon name="clock" /> {t('recorder.stats.lastRecorded')}: {latestRecorded ? f.relative(latestRecorded) : t('common.never')}
@@ -129,8 +138,8 @@ export function RecorderView() {
             </span>
           </div>
           <div className="recorder-tools">
-            <span className="recording-status">{t('recorder.sourcesActive', { count: connections.filter((c) => c.state === 'current' || c.state === 'initial_import').length })}</span>
-            <button type="button" className="icon-btn" onClick={() => setPaused((p) => !p)} aria-pressed={paused} aria-label={paused ? t('recorder.resumeView') : t('recorder.pauseView')} title={paused ? t('recorder.resumeView') : t('recorder.pauseView')}>
+            <span className="recording-status">{t('recorder.sourcesActive', { count: connections.filter((c) => !c.degraded && c.state !== 'disconnected').length })}</span>
+            <button type="button" className="icon-btn" onClick={() => { setFrozen(paused ? null : liveEntries); setPaused((p) => !p); }} aria-pressed={paused} aria-label={paused ? t('recorder.resumeView') : t('recorder.pauseView')} title={paused ? t('recorder.resumeView') : t('recorder.pauseView')}>
               <Icon name={paused ? 'play' : 'pause'} />
             </button>
             <button type="button" className="btn secondary small" onClick={() => journal.reload()}>
@@ -157,10 +166,10 @@ export function RecorderView() {
             </div>
             <div className="track-lane">
               {byTrack(track).length === 0 && <span className="lane-empty">{journal.data ? t('recorder.laneEmpty') : ''}</span>}
-              {(paused ? byTrack(track) : byTrack(track)).map((e: JournalEntry) => (
-                <button type="button" className="event-chip" key={e.entry_id} onClick={() => setOpenEntry(e.entry_id)} title={e.summary ?? e.record_id}>
+              {byTrack(track).map((e: JournalEntry) => (
+                <button type="button" className="event-chip" key={e.entry_id} onClick={() => setOpenEntry(e.entry_id)} title={entrySummary(e)}>
                   <Icon name={track === 'source' ? 'plug' : track === 'fact' ? 'check' : track === 'commitment' ? 'clock' : track === 'movement' ? 'arrow' : 'lock'} />
-                  <span>{e.summary ?? e.record_id}</span>
+                  <span>{e.record_id}</span>
                   <time dateTime={e.occurred_at}>{f.time(e.occurred_at)}</time>
                 </button>
               ))}
@@ -212,7 +221,7 @@ export function RecorderView() {
                 <Icon name="wave" />
               </span>
               <div>
-                <strong>{e.summary ?? e.record_id}</strong>
+                <strong>{e.record_id}</strong>
                 <p>
                   {t(`tracks.${e.track}`)} · <code className="mono">{e.event_type}</code>
                 </p>
@@ -250,7 +259,7 @@ export function RecorderView() {
 
       {openEntry && <EntryDrawer entryId={openEntry} onClose={() => setOpenEntry(null)} onOpenEntry={setOpenEntry} />}
       {demoDialog && (
-        <Modal title={t('recorder.demoTitle')} onClose={() => setDemoDialog(false)}>
+        <Modal title={t('recorder.demoTitle')} onClose={() => { setDemoDialog(false); setDemoNeedsConfirm(false); }}>
           <p>{t('recorder.demoBody')}</p>
           <ul className="plain-list">
             <li>{t('recorder.demoPoint1')}</li>
@@ -258,9 +267,14 @@ export function RecorderView() {
             <li>{t('recorder.demoPoint3')}</li>
           </ul>
           <ErrorNote error={demoError} />
+          {demoNeedsConfirm && (
+            <div className="answer-warning" role="alert">
+              {t('recorder.demoAlongside')}
+            </div>
+          )}
           <div className="onboard-actions">
-            <button type="button" className="btn primary" disabled={demoBusy} onClick={() => void runDemo(false)}>
-              <Icon name="play" /> {demoBusy ? t('common.working') : t('recorder.demoConfirm')}
+            <button type="button" className="btn primary" disabled={demoBusy} onClick={() => void runDemo(demoNeedsConfirm)}>
+              <Icon name="play" /> {demoBusy ? t('common.working') : demoNeedsConfirm ? t('recorder.demoConfirmAlongside') : t('recorder.demoConfirm')}
             </button>
             <button type="button" className="btn secondary" onClick={() => setDemoDialog(false)}>
               {t('common.cancel')}

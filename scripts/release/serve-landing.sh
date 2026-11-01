@@ -2,8 +2,11 @@
 # Serve the static landing build plus the release output on 127.0.0.1:19181 for independent landing /
 # download testing (DIST-01..03). No Blackbox backend, database or login is involved.
 #   serve-landing.sh [--port 19181] [--landing apps/landing/dist] [--release release/dist]
-# Layout served:  /            → landing build (index.html, assets)
-#                 /release/    → release-manifest.json, archive, .sha256, INSTALL.*.md
+# Layout served:  /            → landing build (index.html, assets) plus, when release/dist exists, the
+#                                release-manifest.json, archive, .sha256 and guides next to index.html
+#                                (the landing fetches ./release-manifest.json and resolves the relative
+#                                download_url against it, so the real manifest replaces the pending one)
+#                 /release/    → the same release files under a fixed sub-path
 #                 /INSTALL.en.md, /INSTALL.de.md → guides from the repository root
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
@@ -16,7 +19,15 @@ if [ -d "$LANDING" ]; then cp -R "$LANDING"/. "$SITE/"; else
   printf '<!doctype html><meta charset="utf-8"><title>Blackbox landing placeholder</title><p>Landing build missing. Release manifest: <a href="release/release-manifest.json">release/release-manifest.json</a></p>\n' > "$SITE/index.html"
 fi
 mkdir -p "$SITE/release"
-if [ -d "$RELEASE" ]; then cp -R "$RELEASE"/. "$SITE/release/"; else cp "$ROOT/release/release-manifest.template.json" "$SITE/release/release-manifest.json"; echo "no release/dist: serving the pending manifest (Download not available yet)" >&2; fi
+if [ -d "$RELEASE" ] && [ -f "$RELEASE/release-manifest.json" ]; then
+  cp -R "$RELEASE"/. "$SITE/release/"
+  # the released manifest + artifact next to index.html (relative download_url resolves against the manifest)
+  for f in "$RELEASE"/*; do case "$(basename "$f")" in stage) ;; *) cp -R "$f" "$SITE/";; esac; done
+else
+  cp "$ROOT/release/release-manifest.template.json" "$SITE/release/release-manifest.json"
+  cp "$ROOT/release/release-manifest.template.json" "$SITE/release-manifest.json"
+  echo "no release/dist: serving the pending manifest (Download not available yet)" >&2
+fi
 cp "$ROOT/INSTALL.en.md" "$ROOT/INSTALL.de.md" "$SITE/" 2>/dev/null || true
 echo "serving $SITE on http://127.0.0.1:$PORT/ (Ctrl-C stops; nothing else runs)"
 cd "$SITE" && exec python3 -I -m http.server "$PORT" --bind 127.0.0.1

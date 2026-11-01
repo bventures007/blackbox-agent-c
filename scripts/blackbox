@@ -67,7 +67,9 @@ confirm_typed() { # confirm_typed <expected phrase>
 }
 json_get() { # json_get <file> <key>  — first flat string/number/bool value for the key (no jq dependency on the host)
   [ -f "$1" ] || return 0
-  grep -o -E "\"$2\"[[:space:]]*:[[:space:]]*(\"[^\"]*\"|[^,}[:space:]]+)" "$1" | head -n1 | sed -E 's/^"[^"]*"[[:space:]]*:[[:space:]]*//; s/^"//; s/"$//'
+  # `|| true`: a missing key must yield an empty value, not abort the wrapper under `set -eo pipefail`
+  # (a release.json without journal_schema_version used to exit 1 silently instead of printing the refusal).
+  grep -o -E "\"$2\"[[:space:]]*:[[:space:]]*(\"[^\"]*\"|[^,}[:space:]]+)" "$1" | head -n1 | sed -E 's/^"[^"]*"[[:space:]]*:[[:space:]]*//; s/^"//; s/"$//' || true
 }
 env_get() { [ -f "$ENV_FILE" ] && sed -n -E "s/^$1=(.*)$/\1/p" "$ENV_FILE" | head -n1 || true; }
 env_set() { # env_set KEY VALUE (creates or replaces)

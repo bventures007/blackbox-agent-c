@@ -4,16 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { PageHeading, toast } from '../components/AppShell';
 import { Icon } from '../components/Icon';
 import { CopyButton, DefinitionList, Drawer, ErrorNote, Field, Loading, Modal, StatusBadge } from '../components/ui';
-import { diagnostics as diagApi } from '../api/endpoints';
+import { diagnostics as diagApi, settings as settingsApi } from '../api/endpoints';
 import { buildQuery } from '../api/client';
 import type { HealthCard, LogLevel, LogRecord, LogsPage } from '../api/types';
 import { useAsync } from '../hooks';
 import { fromLocalDateTimeInput, toLocalDateTimeInput, useFormat } from '../format';
+import { useSession } from '../auth/SessionContext';
 
 const LEVELS: LogLevel[] = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
-const COMPONENTS = ['api', 'worker', 'engine', 'postgres', 'mcp', 'wrapper', 'diagnostics'];
+const COMPONENTS = ['api', 'auth', 'ingestion', 'query', 'worker', 'engine', 'postgres', 'mcp', 'cli', 'wrapper', 'diagnostics'];
 const PROVIDERS = ['shopify', 'shopify_payments', 'bank_csv', 'generic', 'replay'];
-const EXPORT_CATEGORIES = ['versions', 'runtime', 'configuration', 'health', 'error_counts', 'log_excerpts', 'engine_heap'];
+// Categories accepted by POST /api/diagnostics/export (apps/api EXPORT_CATEGORIES).
+const EXPORT_CATEGORIES = ['versions', 'health', 'errors', 'logs'];
 const STALE_MS = 30_000;
 
 interface Filters {
@@ -70,6 +72,8 @@ export function SystemView() {
   const health = useAsync(() => diagApi.health(), [], 5000);
   const storage = useAsync(() => diagApi.storage(), [], 15000);
   const debug = useAsync(() => diagApi.debug(), [], 5000);
+  const backups = useAsync(() => settingsApi.backups(), [], 15000);
+  const { workspace } = useSession();
 
   const queryFor = useCallback(
     (fl: Filters, cursor?: string | null) => ({
@@ -188,6 +192,7 @@ export function SystemView() {
 
   const transportFailed = Boolean(health.error);
   const cards = health.data?.cards ?? [];
+  const staleMs = (health.data?.stale_after_seconds ?? 30) * 1000 || STALE_MS;
 
   return (
     <>
@@ -213,7 +218,7 @@ export function SystemView() {
         <ErrorNote error={health.error} onRetry={health.reload} />
         <div className="health-grid">
           {cards.map((c) => (
-            <HealthCardView key={c.id} card={c} now={now} transportFailed={transportFailed} />
+            <HealthCardView key={c.area} card={c} now={now} transportFailed={transportFailed} staleMs={staleMs} />
           ))}
         </div>
         {health.data && (
@@ -221,22 +226,23 @@ export function SystemView() {
             <div className="stat">
               <div className="stat-label">{t('system.backupsSummary')}</div>
               <div className="stat-value">
-                <StatusBadge kind={health.data.backups.status} label={t(`backups.status.${health.data.backups.status}`)} />
+                {backups.data ? <StatusBadge kind={backups.data.status} label={t(`backups.status.${backups.data.status}`)} /> : <StatusBadge kind="unknown" label={t('common.unknown')} />}
               </div>
               <div className="stat-foot">
-                {health.data.backups.recoverable_age_seconds !== null ? t('system.recoverableAge', { age: f.duration(health.data.backups.recoverable_age_seconds) }) : t('system.noBackupYet')} · <Link to="/app/settings#backups">{t('system.openBackups')}</Link>
+                {backups.data?.recoverable_age_seconds !== null && backups.data?.recoverable_age_seconds !== undefined ? t('system.recoverableAge', { age: f.duration(backups.data.recoverable_age_seconds) }) : t('system.noBackupYet')} · <Link to="/app/settings#backups">{t('system.openBackups')}</Link>
               </div>
             </div>
             <div className="stat">
               <div className="stat-label">{t('system.reviewSummary')}</div>
-              <div className="stat-value">{health.data.unresolved_review_count}</div>
+              <div className="stat-value">{workspace ? workspace.unresolved_review_count : '–'}</div>
               <div className="stat-foot">
                 <Link to="/app/sources#review">{t('system.openReview')}</Link>
               </div>
             </div>
             <div className="stat">
-              <div className="stat-label">{t('system.maintenance')}</div>
-              <div className="stat-value">{health.data.maintenance.phase ? t(`maintenancePhase.${health.data.maintenance.phase}`, { defaultValue: health.data.maintenance.phase }) : t('system.noMaintenance')}</div>
+              <div className="stat-label">{t('system.healthObserved')}</div>
+              <div className="stat-value small">{f.time(health.data.observed_at)}</div>
+              <div className="stat-foot">{t('system.refreshEvery', { seconds: health.data.refresh_interval_seconds, stale: health.data.stale_after_seconds })}</div>
             </div>
             <div className="stat">
               <div className="stat-label">{t('system.debugTitle')}</div>
@@ -353,12 +359,13 @@ export function SystemView() {
         </p>
         {page && (
           <p className="micro">
-            {t('system.retained', { from: f.dateTimeSeconds(page.retained_from), to: f.dateTimeSeconds(page.retained_to) })} · {t('system.dropped', { count: page.dropped_count })} · {t(`system.logState.${page.state}`)}
+            {t('system.retained', { from: f.dateTimeSeconds(page.retained_from), to: f.dateTimeSeconds(page.retained_to) })} · {t('system.dropped', { count: page.dropped_count })} · {t(`system.logState.${page.state}`, { defaultValue: page.state })}
+            {page.debug_active?.length ? ` · ${t('system.debugActiveShort')}: ${page.debug_active.map((d) => d.component).join(', ')}` : ''}
           </p>
         )}
         {loading && records.length === 0 && <Loading />}
         <ErrorNote error={error} onRetry={() => void load(applied)} />
-        {!loading && !error && records.length === 0 && page && <p className="empty-state">{t(`system.logStateHelp.${page.state}`)}</p>}
+        {!loading && !error && records.length === 0 && page && <p className="empty-state">{t(`system.logStateHelp.${page.state}`, { defaultValue: t('system.logStateHelp.empty') })}</p>}
         {records.length > 0 && (
           <div className="ledger-table-wrap">
             <table className="ledger-table log-table">
@@ -432,29 +439,30 @@ export function SystemView() {
               <DefinitionList
                 rows={[
                   { label: t('system.storage.retainedRange'), value: `${f.dateTimeSeconds(storage.data.logs.retained_from)} – ${f.dateTimeSeconds(storage.data.logs.retained_to)}` },
-                  { label: t('system.storage.retainedBytes'), value: `${f.bytes(storage.data.logs.retained_bytes)} / ${f.bytes(storage.data.logs.cap_bytes)} · ${t('system.storage.capDays', { days: storage.data.logs.cap_days })}` },
-                  { label: t('system.storage.indexBytes'), value: f.bytes(storage.data.logs.index_bytes) },
-                  { label: t('system.storage.dropped'), value: f.number(storage.data.logs.dropped_count) },
-                  { label: t('system.storage.thresholds'), value: t('system.storage.thresholdText', { wp: storage.data.thresholds.warning_percent, wb: f.bytes(storage.data.thresholds.warning_bytes), cp: storage.data.thresholds.critical_percent, cb: f.bytes(storage.data.thresholds.critical_bytes) }) },
+                  { label: t('system.storage.retainedBytes'), value: `${f.bytes(storage.data.logs.bytes)} / ${f.bytes(storage.data.logs.cap_bytes)} · ${t('system.storage.capDays', { days: storage.data.thresholds?.log_retention_days ?? 7 })} · ${t('system.storage.files', { count: storage.data.logs.files })}` },
+                  { label: t('system.storage.evidenceBytes'), value: `${f.bytes(storage.data.evidence.bytes)}${storage.data.evidence.available ? '' : ` · ${t('storageState.unavailable')}`}` },
+                  { label: t('system.storage.dropped'), value: `${f.number(storage.data.logs.dropped_count)} · ${t(`system.logState.${storage.data.logs.state}`, { defaultValue: storage.data.logs.state })}` },
+                  ...(storage.data.thresholds ? [{ label: t('system.storage.thresholds'), value: t('system.storage.thresholdText', { wp: storage.data.thresholds.warn_percent, wb: f.bytes(storage.data.thresholds.warn_min_bytes), cp: storage.data.thresholds.critical_percent, cb: f.bytes(storage.data.thresholds.critical_min_bytes) }) }] : []),
                 ]}
               />
               <table className="mini-table">
                 <thead>
                   <tr>
                     <th>{t('system.storage.volume')}</th>
-                    <th>{t('system.storage.used')}</th>
+                    <th>{t('system.storage.total')}</th>
                     <th>{t('system.storage.free')}</th>
                     <th>{t('system.storage.state')}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {storage.data.volumes.map((v) => (
-                    <tr key={v.id}>
-                      <td>{t(`volumes.${v.id}`, { defaultValue: v.id })}</td>
-                      <td>{f.bytes(v.used_bytes)}</td>
-                      <td>{v.total_bytes ? f.bytes(v.free_bytes) : t('common.unknown')}</td>
+                  {Object.entries(storage.data.volumes).map(([id, v]) => (
+                    <tr key={id}>
+                      <td>{t(`volumes.${id}`, { defaultValue: id })}</td>
+                      <td>{v.total_bytes ? f.bytes(v.total_bytes) : t('common.unknown')}</td>
+                      <td>{v.free_bytes !== undefined ? f.bytes(v.free_bytes) : t('common.unknown')}</td>
                       <td>
-                        <StatusBadge kind={v.state} label={t(`storageState.${v.state}`)} />
+                        <StatusBadge kind={v.state} label={t(`storageState.${v.state}`, { defaultValue: v.state })} />
+                        {v.reason ? <small className="muted"> {v.reason}</small> : null}
                       </td>
                     </tr>
                   ))}
@@ -474,17 +482,17 @@ export function SystemView() {
   );
 }
 
-function HealthCardView({ card, now, transportFailed }: { card: HealthCard; now: number; transportFailed: boolean }) {
+function HealthCardView({ card, now, transportFailed, staleMs }: { card: HealthCard; now: number; transportFailed: boolean; staleMs: number }) {
   const { t } = useTranslation();
   const f = useFormat();
   const ageMs = now - new Date(card.observed_at).getTime();
-  const stale = transportFailed || ageMs > STALE_MS;
+  const stale = transportFailed || ageMs > staleMs;
   const state = transportFailed ? 'disconnected' : stale ? 'stale' : card.state;
   return (
-    <article className={`stat health-card tone-${state}`} aria-labelledby={`health-${card.id}`}>
+    <article className={`stat health-card tone-${state}`} aria-labelledby={`health-${card.area}`} data-area={card.area} data-state={state}>
       <div className="stat-label">
-        <span id={`health-${card.id}`}>{t(`healthCards.${card.id}`)}</span>
-        <Icon name={{ api: 'wave', worker: 'refresh', postgres: 'database', engine: 'spark', sources: 'plug', mcp: 'code', diagnostics: 'pulse' }[card.id]} />
+        <span id={`health-${card.area}`}>{t(`healthCards.${card.area}`, { defaultValue: card.area })}</span>
+        <Icon name={{ api: 'wave', worker: 'refresh', postgres: 'database', engine: 'spark', sources: 'plug', mcp: 'code', diagnostics: 'pulse' }[card.area] ?? 'pulse'} />
       </div>
       <div className="stat-value small">
         <StatusBadge kind={state} label={t(`healthState.${state}`)} />
@@ -497,13 +505,13 @@ function HealthCardView({ card, now, transportFailed }: { card: HealthCard; now:
         {Object.entries(card.details).map(([k, v]) => (
           <div key={k}>
             <dt>{t(`healthDetails.${k}`, { defaultValue: k })}</dt>
-            <dd>{v === null || v === undefined ? t('common.unknown') : typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v) ? f.dateTimeSeconds(v) : k.endsWith('_bytes') ? f.bytes(Number(v)) : String(v)}</dd>
+            <dd>{v === null || v === undefined ? t('common.unknown') : typeof v === 'boolean' ? (v ? t('common.yes') : t('common.no')) : typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v) ? f.dateTimeSeconds(v) : k.endsWith('_bytes') ? f.bytes(Number(v)) : String(v)}</dd>
           </div>
         ))}
       </dl>
       {card.next_action && (
         <p className="health-action">
-          {card.next_action === 'open_sources' ? <Link to="/app/sources">{t(`nextAction.${card.next_action}`)} →</Link> : card.next_action === 'connect_agent' ? <Link to="/app/agents">{t(`nextAction.${card.next_action}`)} →</Link> : t(`nextAction.${card.next_action}`, { defaultValue: card.next_action })}
+          {card.area === 'sources' ? <Link to="/app/sources">{t(`nextAction.${card.next_action}`, { defaultValue: card.next_action })} →</Link> : card.area === 'mcp' ? <Link to="/app/agents">{t(`nextAction.${card.next_action}`, { defaultValue: card.next_action })} →</Link> : t(`nextAction.${card.next_action}`, { defaultValue: card.next_action })}
         </p>
       )}
     </article>
@@ -637,8 +645,8 @@ function RecordDrawer({ recordId, onClose, onOpen, onFilterTrace }: { recordId: 
             ]}
           />
           <CopyButton text={safeText} label={t('system.copySafe')} />
-          <h3 className="drawer-subtitle">{t('system.traceSiblings', { count: rec.data?.trace_siblings.length ?? 0 })}</h3>
-          {rec.data?.trace_siblings.map((s) => (
+          <h3 className="drawer-subtitle">{t('system.traceSiblings', { count: rec.data?.siblings.length ?? 0 })}</h3>
+          {rec.data?.siblings.map((s) => (
             <button key={s.record_id} type="button" className="detail-link" onClick={() => onOpen(s.record_id)}>
               <span>
                 {f.time(s.occurred_at)} · {t(`components.${s.component}`, { defaultValue: s.component })} · <code className="mono">{s.event_name}</code>
@@ -658,7 +666,7 @@ function ExportDialog({ onClose }: { onClose: () => void }) {
   const f = useFormat();
   const [since, setSince] = useState(toLocalDateTimeInput(new Date(Date.now() - 3600_000).toISOString()));
   const [until, setUntil] = useState(toLocalDateTimeInput(new Date().toISOString()));
-  const [categories, setCategories] = useState<string[]>(EXPORT_CATEGORIES.filter((c) => c !== 'engine_heap'));
+  const [categories, setCategories] = useState<string[]>(EXPORT_CATEGORIES.filter((c) => c !== 'logs'));
   const [preview, setPreview] = useState<import('../api/types').ExportPreview['preview'] | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -724,6 +732,7 @@ function ExportDialog({ onClose }: { onClose: () => void }) {
             rows={[
               { label: t('system.export.range'), value: `${f.dateTimeSeconds(preview.since)} – ${f.dateTimeSeconds(preview.until)}` },
               { label: t('system.export.size'), value: `${f.bytes(preview.size_bytes)} / 10 MiB` },
+              { label: t('system.export.records'), value: f.number(preview.records ?? 0) },
               { label: t('system.export.truncated'), value: preview.truncated ? t('common.yes') : t('common.no') },
               { label: t('system.export.categories'), value: preview.categories.map((c) => t(`exportCategories.${c}`)).join(', ') },
               { label: t('system.export.unavailable'), value: preview.unavailable.length ? preview.unavailable.map((c) => t(`exportCategories.${c}`)).join(', ') : t('common.none') },

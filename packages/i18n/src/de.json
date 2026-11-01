@@ -170,7 +170,9 @@
     "demoPoint3": "Alle Antworten kommen weiterhin aus derselben deterministischen Engine wie bei echten Daten.",
     "demoConfirm": "Demo-Szenario laden",
     "demoLoaded": "Demo-Szenario geladen: {{count}} Journaleinträge festgeschrieben.",
-    "demoAlready": "Das Demo-Szenario war bereits geladen; nichts wurde geändert."
+    "demoAlready": "Das Demo-Szenario war bereits geladen; nichts wurde geändert.",
+    "demoAlongside": "Dein Workspace enthält bereits Daten aus Nicht-Demo-Quellen. Das Demo-Szenario wird in separat gekennzeichnete Demo-Verbindungen geladen und ändert deine eigenen Daten nie. Bestätige erneut, um es daneben zu laden.",
+    "demoConfirmAlongside": "Demo-Daten neben meinen Daten laden"
   },
   "sources": {
     "title": "Dein Business hat viele Quellen.",
@@ -188,7 +190,8 @@
       "lastCheck": "Letzte erfolgreiche Prüfung",
       "lastNewEvent": "Letztes neues Ereignis",
       "nextCheck": "Nächste Prüfung",
-      "pending": "Ausstehend / fehlgeschlagen"
+      "pending": "Ausstehend / fehlgeschlagen",
+      "created": "Verbunden seit"
     },
     "failedShort": "fehlgeschlagen",
     "noNextCheck": "keine geplante Prüfung",
@@ -205,12 +208,30 @@
     "billingNote": "Rechnungstools sind geplant. Rechnungs-, Gutschrift- und Versandfakten können in der Zwischenzeit über die signierte generische Eingabe geliefert werden.",
     "modeNote": "Konnektivitätsmodus: local_standalone — nur ausgehender Import, Polling und Abgleich. Es wird kein Webhook-Callback, Tunnel oder öffentliches Relay registriert. Anbieterkonten können weiterhin eigene Autorisierungsvoraussetzungen haben.",
     "categories": {
-      "shops": { "title": "Shops & Business", "description": "Aufträge, Artikel, Belege und Zusagen aus deinen Systemen." },
-      "payment": { "title": "Zahlungen & Auszahlungen", "description": "Vom Checkout bis zum Bankbeleg. Jeder Status hat einen Betrag, einen Auftrag und eine Herkunft." },
-      "billing": { "title": "Rechnungen & Buchhaltung", "description": "Rechnung, Mahnung, Korrektur und Zahlungsstatus. Jede Änderung wird Teil der Geschichte." },
-      "shipping": { "title": "Versandquellen", "description": "Carrier-Scans ergänzen den tatsächlichen Transportverlauf einer Sendung." },
-      "other": { "title": "Typisierte Eingabe & Replay", "description": "Signierte Produzenten, Fixture-Replay und interne Regeln speisen dasselbe Journal." }
-    }
+      "shops": {
+        "title": "Shops & Business",
+        "description": "Aufträge, Artikel, Belege und Zusagen aus deinen Systemen."
+      },
+      "payment": {
+        "title": "Zahlungen & Auszahlungen",
+        "description": "Vom Checkout bis zum Bankbeleg. Jeder Status hat einen Betrag, einen Auftrag und eine Herkunft."
+      },
+      "billing": {
+        "title": "Rechnungen & Buchhaltung",
+        "description": "Rechnung, Mahnung, Korrektur und Zahlungsstatus. Jede Änderung wird Teil der Geschichte."
+      },
+      "shipping": {
+        "title": "Versandquellen",
+        "description": "Carrier-Scans ergänzen den tatsächlichen Transportverlauf einer Sendung."
+      },
+      "other": {
+        "title": "Typisierte Eingabe & Replay",
+        "description": "Signierte Produzenten, Fixture-Replay und interne Regeln speisen dasselbe Journal."
+      }
+    },
+    "noCapabilitiesYet": "noch keine Fähigkeit beobachtet",
+    "plannedNote": "Anbieter mit „geplant“ stammen aus dem Integrationsregister und haben in diesem Pilot keinen Datenpfad.",
+    "observedAt": "Bereitschaft beobachtet {{time}}."
   },
   "providerState": {
     "implemented": "Verfügbar",
@@ -220,7 +241,9 @@
     "unsupported": "Nicht unterstützt",
     "planned": "Geplant",
     "plannedHint": "Dieser Anbieter ist für eine spätere Version geplant. Eine sichtbare Karte liefert keine Daten.",
-    "unsupportedHint": "Im lokalen Pilot nicht unterstützt."
+    "unsupportedHint": "Im lokalen Pilot nicht unterstützt.",
+    "apiOnly": "Per API",
+    "apiOnlyHint": "Dieser Produzent wird über die lokale HTTP-API gespeist (kein Browser-Dialog in diesem Pilot)."
   },
   "sourceState": {
     "current": "Aktuell",
@@ -229,7 +252,15 @@
     "error": "Fehler",
     "initial_import": "Erstimport",
     "disconnected": "Getrennt",
-    "unknown": "Unbekannt"
+    "unknown": "Unbekannt",
+    "healthy": "gesund",
+    "working": "arbeitet",
+    "degraded": "eingeschränkt",
+    "unavailable": "nicht verfügbar",
+    "configured": "konfiguriert",
+    "catching_up": "holt auf",
+    "backfilling": "Historie wird importiert",
+    "validating": "wird geprüft"
   },
   "nextCheckReason": {
     "schedule": "geplant ({{detail}})",
@@ -238,28 +269,91 @@
     "push_only_signed_input": "nur signierte Push-Eingabe — kein Polling",
     "awaiting_import_plan": "wartet auf einen Importplan",
     "disconnected_history_preserved": "getrennt — Historie erhalten, Abdeckung eingefroren",
-    "paused": "vom Inhaber pausiert"
+    "paused": "vom Inhaber pausiert",
+    "backoff": "Wiederholung mit Backoff",
+    "producer_driven": "produzentengesteuert: kein geplanter Abruf",
+    "resumed": "fortgesetzt: nächste Prüfung ausstehend",
+    "pause": "pausiert: keine weiteren Prüfungen",
+    "disconnect": "getrennt: keine weiteren Prüfungen",
+    "scheduled poll": "geplanter Abruf"
   },
   "providers": {
-    "shopify": { "name": "Shopify", "description": "Jede Bestellung wird zum Ereignis. Bestand und Reservierungen bleiben getrennt nachvollziehbar. Nur lesender Admin-API-Token, ausgehendes Polling." },
-    "shopify_payments": { "name": "Shopify Payments", "description": "Verknüpft Bestellungen mit Zahlung, Gebühren und Auszahlung. Eine Autorisierung bleibt von einer eingezogenen Zahlung unterscheidbar." },
-    "generic": { "name": "API (signierte typisierte Eingabe)", "description": "Verbinde weitere Systeme über ein typisiertes Ereignisformat mit HMAC-signierter Produzentenidentität. Regeln, Zusagen, Zuteilungen und Lagerbelege kommen hier an." },
-    "replay": { "name": "Replay (Fixtures)", "description": "Spielt gekennzeichnete Fixture-Ereignisse durch die echte Ingestion-Pipeline. Nur für Tests und die Demo." },
-    "bank_csv": { "name": "Bank-CSV", "description": "Lade gebuchte Kontoauszüge hoch. Vorschau vor dem Festschreiben; eine Bankbestätigung braucht unabhängige gebuchte Daten." },
-    "woocommerce": { "name": "WooCommerce", "description": "Auch ein anderer Shop kann denselben Flugschreiber versorgen. Geplant." },
-    "shopware": { "name": "Shopware 6", "description": "Shopware-Aufträge mit Lieferungen und Sendungsnummern. Geplant." },
-    "email": { "name": "E-Mail", "description": "Lieferzusagen und Änderungen aus Nachrichten. Automatische Extraktion ist nicht Teil des lokalen Pilots." },
-    "stripe": { "name": "Stripe", "description": "Erfolgreiche und fehlgeschlagene Zahlungen, Gebühren und Erstattungen bis zur Auszahlung. Geplant." },
-    "paypal": { "name": "PayPal", "description": "Welcher Auftrag bezahlt wurde und welcher Betrag wegen eines Streitfalls gebunden ist. Geplant." },
-    "mollie": { "name": "Mollie", "description": "Zahlung, Erstattung, Gebühren und Abrechnung zusammen. Geplant." },
-    "easybill": { "name": "easybill", "description": "Rechnungen, offene Posten und Zahlungsstatus. Geplant." },
-    "lexware": { "name": "Lexware Office", "description": "Rechnungsbelege, Fälligkeiten und gemeldete Zahlungen. Geplant." },
-    "sevdesk": { "name": "sevdesk", "description": "Vom offenen Beleg bis zur Zahlung: Rechnungen und Mahnungen. Geplant." },
-    "billbee": { "name": "Billbee", "description": "Auftrag, Rechnungsbeleg und Gutschrift im selben Verlauf. Geplant." },
-    "sufio": { "name": "Sufio", "description": "Shopify-Bestellungen mit ihren Rechnungen bis zum Versand- und Zahlungsstatus. Geplant." },
-    "dhl": { "name": "DHL", "description": "Paket-Scans vom Label bis zur Zustellung. Geplant; Aufbewahrungs- und Nutzungsbeschränkungen müssen zuerst geklärt werden." },
-    "dpd": { "name": "DPD", "description": "Sendungsstatus und Zustellklärungen. Geplant." },
-    "ups": { "name": "UPS", "description": "Label, Transport-Scans und Zustellbestätigung. Geplant." }
+    "shopify": {
+      "name": "Shopify",
+      "description": "Jede Bestellung wird zum Ereignis. Bestand und Reservierungen bleiben getrennt nachvollziehbar. Nur lesender Admin-API-Token, ausgehendes Polling."
+    },
+    "shopify_payments": {
+      "name": "Shopify Payments",
+      "description": "Verknüpft Bestellungen mit Zahlung, Gebühren und Auszahlung. Eine Autorisierung bleibt von einer eingezogenen Zahlung unterscheidbar."
+    },
+    "generic": {
+      "name": "API (signierte typisierte Eingabe)",
+      "description": "Verbinde weitere Systeme über ein typisiertes Ereignisformat mit HMAC-signierter Produzentenidentität. Regeln, Zusagen, Zuteilungen und Lagerbelege kommen hier an."
+    },
+    "replay": {
+      "name": "Replay (Fixtures)",
+      "description": "Spielt gekennzeichnete Fixture-Ereignisse durch die echte Ingestion-Pipeline. Nur für Tests und die Demo."
+    },
+    "bank_csv": {
+      "name": "Bank-CSV",
+      "description": "Lade gebuchte Kontoauszüge hoch. Vorschau vor dem Festschreiben; eine Bankbestätigung braucht unabhängige gebuchte Daten."
+    },
+    "woocommerce": {
+      "name": "WooCommerce",
+      "description": "Auch ein anderer Shop kann denselben Flugschreiber versorgen. Geplant."
+    },
+    "shopware": {
+      "name": "Shopware 6",
+      "description": "Shopware-Aufträge mit Lieferungen und Sendungsnummern. Geplant."
+    },
+    "email": {
+      "name": "E-Mail",
+      "description": "Lieferzusagen und Änderungen aus Nachrichten. Automatische Extraktion ist nicht Teil des lokalen Pilots."
+    },
+    "stripe": {
+      "name": "Stripe",
+      "description": "Erfolgreiche und fehlgeschlagene Zahlungen, Gebühren und Erstattungen bis zur Auszahlung. Geplant."
+    },
+    "paypal": {
+      "name": "PayPal",
+      "description": "Welcher Auftrag bezahlt wurde und welcher Betrag wegen eines Streitfalls gebunden ist. Geplant."
+    },
+    "mollie": {
+      "name": "Mollie",
+      "description": "Zahlung, Erstattung, Gebühren und Abrechnung zusammen. Geplant."
+    },
+    "easybill": {
+      "name": "easybill",
+      "description": "Rechnungen, offene Posten und Zahlungsstatus. Geplant."
+    },
+    "lexware": {
+      "name": "Lexware Office",
+      "description": "Rechnungsbelege, Fälligkeiten und gemeldete Zahlungen. Geplant."
+    },
+    "sevdesk": {
+      "name": "sevdesk",
+      "description": "Vom offenen Beleg bis zur Zahlung: Rechnungen und Mahnungen. Geplant."
+    },
+    "billbee": {
+      "name": "Billbee",
+      "description": "Auftrag, Rechnungsbeleg und Gutschrift im selben Verlauf. Geplant."
+    },
+    "sufio": {
+      "name": "Sufio",
+      "description": "Shopify-Bestellungen mit ihren Rechnungen bis zum Versand- und Zahlungsstatus. Geplant."
+    },
+    "dhl": {
+      "name": "DHL",
+      "description": "Paket-Scans vom Label bis zur Zustellung. Geplant; Aufbewahrungs- und Nutzungsbeschränkungen müssen zuerst geklärt werden."
+    },
+    "dpd": {
+      "name": "DPD",
+      "description": "Sendungsstatus und Zustellklärungen. Geplant."
+    },
+    "ups": {
+      "name": "UPS",
+      "description": "Label, Transport-Scans und Zustellbestätigung. Geplant."
+    }
   },
   "capabilities": {
     "orders": "Aufträge",
@@ -281,7 +375,16 @@
     "invoice": "Rechnungen",
     "collection": "Kundenzahlungen",
     "settlement": "Auszahlungen",
-    "reversal": "Retouren & Erstattungen"
+    "reversal": "Retouren & Erstattungen",
+    "stock": "Bestand",
+    "allocations": "Zuteilungen",
+    "fulfillments": "Lieferungen",
+    "returns": "Retouren",
+    "receipts": "Wareneingänge",
+    "provider_ledger": "Anbieter-Ledger",
+    "refunds": "Erstattungen",
+    "bank": "Bank",
+    "tracking": "Sendungsverfolgung"
   },
   "limitations": {
     "historical orders older than 60 days require read_all_orders": "Historische Bestellungen älter als 60 Tage benötigen den Scope read_all_orders.",
@@ -301,9 +404,18 @@
     "planned": "{{provider}} ist für eine spätere Version geplant. Aus einer geplanten Karte können keine Daten importiert werden.",
     "unsupported": "{{provider}} wird im lokalen Pilot nicht unterstützt.",
     "steps": {
-      "recognize": { "title": "Quelle erkennen", "detail": "Kontoidentität, Berechtigungen und verfügbare Historie werden zuerst geprüft." },
-      "append": { "title": "Ereignisse dem Flugschreiber hinzufügen", "detail": "Mit Quellen-ID, Zeitpunkt und Originalbeleg." },
-      "context": { "title": "Belegbaren Kontext gewinnen", "detail": "Fakten, Zusagen, Bewegungen und Reservierungen." }
+      "recognize": {
+        "title": "Quelle erkennen",
+        "detail": "Kontoidentität, Berechtigungen und verfügbare Historie werden zuerst geprüft."
+      },
+      "append": {
+        "title": "Ereignisse dem Flugschreiber hinzufügen",
+        "detail": "Mit Quellen-ID, Zeitpunkt und Originalbeleg."
+      },
+      "context": {
+        "title": "Belegbaren Kontext gewinnen",
+        "detail": "Fakten, Zusagen, Bewegungen und Reservierungen."
+      }
     },
     "shopify": {
       "domain": "Shop-Domain",
@@ -322,7 +434,10 @@
       "producerHint": "Stabile Kennung des Systems, das Datensätze signiert.",
       "secret": "HMAC-Geheimnis",
       "secretHint": "Gemeinsames Geheimnis zum Signieren von X-Producer-Signature. Rotation erfolgt auf Produzentenseite.",
-      "howTo": "Sende typisierte Datensätze an den lokalen Ingestion-Endpunkt:"
+      "howTo": "Sende typisierte Datensätze an den lokalen Ingestion-Endpunkt:",
+      "secretTitle": "Produzent angelegt — Signiergeheimnis wird einmal angezeigt",
+      "secretOnce": "Gib dieses Geheimnis dem System, das Datensätze sendet. Es wird verschlüsselt gespeichert und kann nicht erneut angezeigt werden; lege bei Verlust einen neuen Produzenten an.",
+      "copySecret": "Geheimnis kopieren"
     },
     "bank": {
       "file": "CSV-Datei",
@@ -357,7 +472,10 @@
       "pending": "Ausstehend",
       "oldestPending": "ältester",
       "failed": "Fehlgeschlagen",
-      "cursors": "Cursor"
+      "cursors": "Cursor",
+      "consecutiveFailures": "{{count}} Fehler in Folge",
+      "missingGrants": "Fehlende Berechtigungen",
+      "nextAction": "Nächster Schritt"
     },
     "checkVsEventNote": "Eine erfolgreiche leere Prüfung rückt „letzte erfolgreiche Prüfung“ vor, nicht „letztes neues Ereignis“. Keines von beiden belegt vollständige Historie.",
     "coverage": "Abdeckung",
@@ -387,7 +505,8 @@
       "committed": "Festgeschrieben",
       "applied": "Abfragebereit",
       "failed": "Fehlgeschlagen",
-      "unknownTotal": "Gesamtzahl unbekannt"
+      "unknownTotal": "Gesamtzahl unbekannt",
+      "duplicates": "Duplikate"
     },
     "cohort": "Kohorte: {{cohort}}",
     "progressLabel": "Fortschritt {{phase}}",
@@ -406,7 +525,17 @@
       "disconnect": "Trennen",
       "disconnectHelp": "Beendet die Erfassung und erhält die gesamte Historie mit eingefrorener Abdeckung. Nichts wird gelöscht.",
       "disconnectDone": "Verbindung getrennt; Historie erhalten."
-    }
+    },
+    "noObservation": "Noch keine Beobachtung einer Fähigkeit.",
+    "capabilitiesTitle": "Fähigkeiten",
+    "noCapabilities": "Noch kein Gesundheitszustand je Fähigkeit aufgezeichnet.",
+    "retryAfter": "erneut ab {{time}}",
+    "hasSecret": "Geheimnis gespeichert (verschlüsselt)",
+    "planProposal": "Vorgeschlagener Historienbeginn: {{from}} ({{tz}}).",
+    "questionsTitle": "Fragen, die diese Quelle speist",
+    "questionsIntro": "Die Bereitschaft wird aus den tatsächlich gelieferten Datensätzen dieser Verbindung berechnet, nicht aus dem Kartenstatus.",
+    "noQuestions": "Diese Verbindung speist noch keine Frage.",
+    "attempt": "Versuch {{count}}"
   },
   "plan": {
     "title": "Importzeitraum",
@@ -448,14 +577,17 @@
     "inherited": "vom Workspace-Start übernommen",
     "restrictions": "Bekannte Einschränkungen",
     "noHistory": "keine Historie (ab jetzt)",
-    "save": "Plan speichern und starten"
+    "save": "Plan speichern und starten",
+    "owner": "Inhaber"
   },
   "runKind": {
     "initial": "Erstimport",
     "history_expansion": "Historienerweiterung",
     "incremental": "Inkrementell",
     "reconciliation": "Abgleich",
-    "check": "Zugangsprüfung"
+    "check": "Zugangsprüfung",
+    "backfill": "Historienimport",
+    "reconcile": "Abgleich"
   },
   "runState": {
     "queued": "Eingereiht",
@@ -504,13 +636,19 @@
     "countLabel_one": "{{count}} offener Prüffall",
     "countLabel_other": "{{count}} offene Prüffälle",
     "filterState": "Status",
-    "states": { "all": "Alle", "open": "Offen", "in_progress": "In Bearbeitung", "resolved": "Gelöst" },
+    "states": {
+      "all": "Alle",
+      "open": "Offen",
+      "in_progress": "In Bearbeitung",
+      "resolved": "Gelöst"
+    },
     "types": {
       "quarantined_input": "Quarantänierte Eingabe",
       "unresolved_link": "Ungelöste Verknüpfung",
       "content_conflict": "Inhaltskonflikt",
       "failed_derivation": "Fehlgeschlagene Ableitung",
-      "contradictory_assertion": "Widersprüchliche Aussagen"
+      "contradictory_assertion": "Widersprüchliche Aussagen",
+      "ambiguous_bank_match": "Mehrdeutige Bankzuordnung"
     },
     "empty": "Keine passenden Prüffälle.",
     "source": "Quelle",
@@ -548,7 +686,11 @@
     "decisionSaved": "Entscheidung gespeichert; betroffene Antworten werden neu berechnet.",
     "leftOpen": "Fall bleibt offen.",
     "staleRevision": "Dieser Fall hat sich seit dem Laden geändert (andere Entscheidung oder Neuberechnung). Er wurde neu geladen — bitte erneut entscheiden.",
-    "invalidJson": "Die Korrektur-Nutzlast ist kein gültiges JSON."
+    "invalidJson": "Die Korrektur-Nutzlast ist kein gültiges JSON.",
+    "inProgressNote": "Wiederholung angefordert — wartet auf den Worker",
+    "refs": "Referenzen",
+    "updated": "Aktualisiert",
+    "ownerActor": "Inhaber"
   },
   "questions": {
     "title": "Gute Fragen. Belegbare Antworten.",
@@ -602,14 +744,18 @@
     "evidenceDrawerTitle": "Belege für diese Antwort",
     "evidenceEyebrow": "Originaldatensätze",
     "evidenceIntro_one": "{{count}} Journaleintrag stützt diese Antwort.",
-    "evidenceIntro_other": "{{count}} Journaleinträge stützen diese Antwort."
+    "evidenceIntro_other": "{{count}} Journaleinträge stützen diese Antwort.",
+    "unsupportedHeadline": "Diese Frage wird für die aktuellen Daten nicht unterstützt.",
+    "noBasis": "keine Basisbeobachtung",
+    "populationLine": "{{considered}} Datensätze betrachtet · {{returned}} zurückgegeben"
   },
   "answerStatus": {
     "complete": "Vollständig",
     "partial": "Partiell",
     "insufficient_data": "Unbekannt — zu wenig Daten",
     "conflict": "Konflikt",
-    "unsupported": "Nicht unterstützt"
+    "unsupported": "Nicht unterstützt",
+    "unknown": "Unbekannt — unzureichende Daten"
   },
   "answerSummaries": {
     "no_data_yet": "Es sind noch keine Journaldaten vorhanden. Verbinde eine Quelle oder führe das Beispielszenario aus.",
@@ -622,7 +768,9 @@
     "no_overlap_found_partial": "In den verifizierten Daten keine Überschneidung gefunden, aber die Streitfall-Abdeckung fehlt — das ist partiell, keine Entwarnung.",
     "delay_impact_conflict": "Die Lieferzusage hat sich geändert, aber Zuteilungen zu offenen Aufträgen fehlen. Die Auswirkung kann nicht automatisch aufgelöst werden.",
     "missing_datasets": "Für diese Frage fehlen erforderliche Datensätze.",
-    "empty_with_coverage": "Innerhalb der verifizierten Abdeckung passt kein Datensatz."
+    "empty_with_coverage": "Innerhalb der verifizierten Abdeckung passt kein Datensatz.",
+    "can_fulfill_yes": "Ja — {{available}} verfügbar, {{requested}} angefragt (Fehlmenge {{shortfall}}).",
+    "can_fulfill_no": "Nein — nur {{available}} verfügbar, {{requested}} angefragt (Fehlmenge {{shortfall}})."
   },
   "answerWarnings": {
     "incoming_supply_not_counted": "Der Zulauf (PO-208, zugesagt für 5. Nov.) ist eine Zusage. Er zählt erst nach Wareneingang zum Bestand.",
@@ -635,11 +783,32 @@
     "identity": "Entitätsidentität"
   },
   "datasets": {
-    "orders": "Aufträge", "stock": "Bestand", "allocations": "Zuteilungen", "policy": "Regeln", "coverage": "Abdeckung", "identity": "Identität",
-    "fulfillments": "Lieferungen", "supply": "Zulauf", "promises": "Zusagen", "tracking": "Tracking", "communications": "Kommunikation",
-    "invoices": "Rechnungen", "invoice_dispatch": "Rechnungsversand", "payments": "Zahlungen", "payment_allocations": "Zahlungszuordnungen", "cases": "Fälle",
-    "provider_ledger": "Anbieter-Ledger", "positions": "Positionen", "payouts": "Auszahlungen", "bank": "Bank", "holds": "Einbehalte",
-    "returns": "Retouren", "receipts": "Wareneingänge", "refunds": "Erstattungen", "entitlements": "Erstattungsansprüche", "disputes": "Streitfälle"
+    "orders": "Aufträge",
+    "stock": "Bestand",
+    "allocations": "Zuteilungen",
+    "policy": "Regeln",
+    "coverage": "Abdeckung",
+    "identity": "Identität",
+    "fulfillments": "Lieferungen",
+    "supply": "Zulauf",
+    "promises": "Zusagen",
+    "tracking": "Tracking",
+    "communications": "Kommunikation",
+    "invoices": "Rechnungen",
+    "invoice_dispatch": "Rechnungsversand",
+    "payments": "Zahlungen",
+    "payment_allocations": "Zahlungszuordnungen",
+    "cases": "Fälle",
+    "provider_ledger": "Anbieter-Ledger",
+    "positions": "Positionen",
+    "payouts": "Auszahlungen",
+    "bank": "Bank",
+    "holds": "Einbehalte",
+    "returns": "Retouren",
+    "receipts": "Wareneingänge",
+    "refunds": "Erstattungen",
+    "entitlements": "Erstattungsansprüche",
+    "disputes": "Streitfälle"
   },
   "readiness": {
     "title": "Datenstatus",
@@ -651,7 +820,11 @@
     "committed": "festgeschrieben",
     "applied": "angewendet",
     "reducerVersion": "Reducer-Version",
-    "consistency": { "current": "aktuell", "behind": "im Rückstand", "unknown": "unbekannt" },
+    "consistency": {
+      "current": "aktuell",
+      "behind": "im Rückstand",
+      "unknown": "unbekannt"
+    },
     "source": "Quelle",
     "status": "Status",
     "lastSuccessfulCheck": "Letzte erfolgreiche Prüfung",
@@ -696,7 +869,7 @@
     },
     "openEntry": "Eintrag {{id}} öffnen",
     "supersedesShort": "ersetzt früheren",
-    "consistencyNote": "Festgeschriebener Cursor {{cursor}} · Konsistenz {{status}}",
+    "consistencyNote": "Bestätigter Cursor {{cursor}} · Snapshot-Cursor {{snapshot}}",
     "truncated": "Seite gekürzt",
     "historyNote": "Ersetzte Einträge bleiben sichtbar. Eine Antwort nutzt den letzten bekannten Stand; das Original bleibt.",
     "entryEyebrow": "Journaleintrag",
@@ -709,9 +882,14 @@
       "connection": "Verbindung",
       "providerEventId": "Anbieter-Ereignis-ID",
       "schemaVersion": "Schemaversion",
-      "derivation": "Ableitungsregel"
+      "derivation": "Ableitungsregel",
+      "correlation": "Korrelations-ID",
+      "payloadHash": "Nutzlast-Hash"
     },
-    "historyKind": { "backfill": "nachgeladene Historie", "live": "live beobachtet" },
+    "historyKind": {
+      "backfill": "nachgeladene Historie",
+      "live": "live beobachtet"
+    },
     "openConnection": "Verbindung öffnen",
     "entities": "Verknüpfte Entitäten",
     "payload": "Typisierte Nutzlast",
@@ -724,13 +902,15 @@
     "supersededBy": "Ersetzt durch späteren Eintrag",
     "inputEntry": "Eingangseintrag",
     "derivedEntry": "Abgeleiteter Eintrag",
-    "appendOnlyNote": "Journaleinträge werden nie bearbeitet oder gelöscht. Korrekturen hängen neue Einträge an, die auf das Ersetzte verweisen."
+    "appendOnlyNote": "Journaleinträge werden nie bearbeitet oder gelöscht. Korrekturen hängen neue Einträge an, die auf das Ersetzte verweisen.",
+    "binaryEvidence": "Binärinhalt — nur über den Beleg-Inhaltsendpunkt verfügbar."
   },
   "evidenceStatus": {
     "available": "verfügbar",
     "redacted": "geschwärzt",
     "expired": "abgelaufen",
-    "unavailable": "nicht verfügbar"
+    "unavailable": "nicht verfügbar",
+    "restricted": "eingeschränkt"
   },
   "evidenceReason": {
     "policy:customer_communication_redacted": "Per Richtlinie geschwärzt: Inhalte der Kundenkommunikation werden nicht im Journal aufbewahrt.",
@@ -738,9 +918,28 @@
     "unknown": "Originalinhalt nicht verfügbar."
   },
   "entityTypes": {
-    "order": "Auftrag", "line": "Auftragsposition", "customer": "Kunde", "item": "Artikel", "invoice": "Rechnung", "shipment": "Sendung",
-    "transaction": "Zahlung", "refund": "Erstattung", "payout": "Auszahlung", "return": "Retoure", "reservation": "Reservierung", "bank_entry": "Bankbuchung",
-    "location": "Lagerort", "credit_note": "Gutschrift", "supplier_order": "Lieferantenbestellung", "provider_account": "Anbieterkonto", "provider": "Anbieter"
+    "order": "Auftrag",
+    "line": "Auftragsposition",
+    "customer": "Kunde",
+    "item": "Artikel",
+    "invoice": "Rechnung",
+    "shipment": "Sendung",
+    "transaction": "Zahlung",
+    "refund": "Erstattung",
+    "payout": "Auszahlung",
+    "return": "Retoure",
+    "reservation": "Reservierung",
+    "bank_entry": "Bankbuchung",
+    "location": "Lagerort",
+    "credit_note": "Gutschrift",
+    "supplier_order": "Lieferantenbestellung",
+    "provider_account": "Anbieterkonto",
+    "provider": "Anbieter",
+    "dispute": "Streitfall",
+    "hold": "Einbehalt",
+    "case": "Fall",
+    "promise": "Zusage",
+    "entitlement": "Anspruch"
   },
   "entityPlaceholder": {
     "item": "SKU, z. B. CUP-OLV",
@@ -748,7 +947,9 @@
     "customer": "Kunden-ID",
     "invoice": "Rechnung, z. B. INV-1001",
     "shipment": "Sendung, z. B. SHP-1001",
-    "provider": "Anbieter"
+    "provider": "Anbieter",
+    "transaction": "z. B. TX-1001",
+    "payout": "z. B. PO-1001"
   },
   "entity": {
     "subtitle": "Aktueller Stand und vollständige Historie aus dem Journal.",
@@ -765,6 +966,17 @@
       "order": "Bestellte, versendete und retournierte Mengen sind getrennt. Eine Retoure ist keine automatische Wiedereinlagerung.",
       "item": "Verfügbar = physisch − zugesagt − reserviert − beschädigt − Sicherheitsbestand − Qualitätsprüfung. Zulauf füllt nie den aktuellen Bestand.",
       "default": "Werte stammen aus der deterministischen Engine zum angezeigten Stichtag."
+    },
+    "noState": "Für diese Entität existiert noch keine Projektion (kein Journaleintrag verweist darauf).",
+    "tracksTitle": "Einträge je Spur",
+    "trackEntries_one": "{{count}} Eintrag",
+    "trackEntries_other": "{{count}} Einträge",
+    "effect": {
+      "applied": "angewendet",
+      "deduplicated": "dedupliziert",
+      "reverted": "zurückgenommen",
+      "superseded": "ersetzt",
+      "ignored": "ignoriert"
     }
   },
   "lifecycle": {
@@ -772,7 +984,29 @@
     "corrected_open": "gestellt, korrigiert, noch offen",
     "captured_refunded_partially": "eingezogen, teilweise erstattet, ausgezahlt",
     "shipped_partially_returned": "versendet, teilweise retourniert",
-    "in_stock": "auf Lager"
+    "in_stock": "auf Lager",
+    "issued": "ausgestellt",
+    "captured": "eingezogen",
+    "authorized": "autorisiert",
+    "delivered": "zugestellt",
+    "paid": "bezahlt",
+    "open": "offen",
+    "corrected": "korrigiert",
+    "cancelled": "storniert",
+    "canceled": "storniert",
+    "refunded": "erstattet",
+    "in_transit": "unterwegs",
+    "bank_matched": "bankabgeglichen",
+    "announced": "angekündigt",
+    "pending": "ausstehend",
+    "completed": "abgeschlossen",
+    "shipped": "versandt",
+    "returned": "retourniert",
+    "accepted": "angenommen",
+    "fulfilled": "erfüllt",
+    "closed": "geschlossen",
+    "voided": "annulliert",
+    "failed": "fehlgeschlagen"
   },
   "positions": {
     "outstanding": "Aktuell offen",
@@ -785,7 +1019,25 @@
     "physical": "Physisch",
     "committed": "Zugesagt",
     "available": "Verfügbar",
-    "due_on": "fällig"
+    "due_on": "fällig",
+    "reported_open_minor": "Aktuell offen (gemeldet)",
+    "credit_balance_minor": "Gutschriftsaldo",
+    "net_minor": "Netto nach Gutschriften",
+    "allocated_paid_minor": "Zugeordnete Zahlungen",
+    "captured_minor": "Eingezogen",
+    "authorized_minor": "Autorisiert",
+    "fees_minor": "Gebühren",
+    "refunded_minor": "Erstattet",
+    "held_minor": "Einbehalten",
+    "announced_minor": "Angekündigt",
+    "in_transit_minor": "Unterwegs zur Bank",
+    "bank_confirmed_minor": "Bank abgeglichen",
+    "open_receivable_minor": "Offene Forderung",
+    "available_stock": "Verfügbar",
+    "quarantined": "Gesperrt",
+    "requested_minor": "Angefragt",
+    "completed_minor": "Abgeschlossen",
+    "pending_minor": "Ausstehend"
   },
   "fields": {
     "original_net": "Ursprünglich netto",
@@ -804,7 +1056,76 @@
     "promised_date": "Zugesagtes Lieferdatum",
     "invoice": "Rechnung",
     "payment": "Zahlung",
-    "incoming": "Zulauf (Zusage)"
+    "incoming": "Zulauf (Zusage)",
+    "item_id": "Artikel",
+    "requested_quantity": "Angefragte Menge",
+    "incoming_counted_as_stock": "Eingänge als Bestand gezählt",
+    "unit": "Einheit",
+    "basis_at": "Basis beobachtet am",
+    "basis": "Basis",
+    "physical": "Physisch",
+    "quarantined": "Gesperrt",
+    "reserved": "Reserviert",
+    "committed": "Zugesagt",
+    "available": "Verfügbar",
+    "shortfall": "Fehlmenge",
+    "can_fulfill": "Erfüllbar",
+    "incoming_supply": "Eingehende Lieferungen",
+    "invoice_id": "Rechnung",
+    "status": "Status",
+    "order_id": "Auftrag",
+    "customer_id": "Kunde",
+    "gross_minor": "Brutto",
+    "credit_minor": "Gutschriften",
+    "net_minor": "Netto nach Gutschriften",
+    "reported_paid_minor": "Gemeldet bezahlt (Markierung)",
+    "allocated_paid_minor": "Zugeordnete Zahlungen",
+    "reported_open_minor": "Gemeldet offen",
+    "credit_balance_minor": "Gutschriftsaldo",
+    "issued_at": "Ausgestellt am",
+    "transaction_id": "Transaktion",
+    "account_id": "Anbieterkonto",
+    "original_transaction_id": "Ursprungstransaktion",
+    "gateway": "Gateway",
+    "refund_pending_minor": "Erstattung ausstehend",
+    "held_minor": "Vom Anbieter einbehalten",
+    "chargeback_debit_minor": "Rückbuchung belastet",
+    "chargeback_fee_minor": "Rückbuchungsgebühr",
+    "chargeback_reversed_minor": "Rückbuchung aufgehoben",
+    "voided_minor": "Storniert",
+    "failed_attempts": "Fehlgeschlagene Versuche",
+    "occurred_at": "Zeitpunkt",
+    "captured_at": "Eingezogen am",
+    "location_id": "Lagerort",
+    "stock_basis": "Bestandsbasis vorhanden",
+    "reserved_active_after_basis": "Aktive Reservierungen nach Basis",
+    "damaged": "Beschädigt",
+    "safety_stock": "Sicherheitsbestand",
+    "quality_control": "Qualitätskontrolle",
+    "incoming_reported": "Eingänge (gemeldet)",
+    "provider_available": "Vom Anbieter gemeldet verfügbar",
+    "physical_stock": "Physischer Bestand",
+    "reserved_stock": "Reservierter Bestand",
+    "quarantined_stock": "Gesperrter Bestand",
+    "available_stock": "Verfügbarer Bestand",
+    "authorized_minor": "Autorisiert",
+    "captured_minor": "Eingezogen",
+    "fees_minor": "Gebühren",
+    "refunded_minor": "Erstattet",
+    "refund_payable_minor": "Erstattung fällig",
+    "invoice_original_minor": "Rechnung ursprünglich",
+    "invoice_credit_minor": "Rechnungsgutschriften",
+    "invoice_net_minor": "Rechnung netto",
+    "open_receivable_minor": "Offene Forderung",
+    "customer_net_paid_minor": "Kunde netto bezahlt",
+    "provider_balance_minor": "Anbietersaldo",
+    "provider_held_minor": "Vom Anbieter einbehalten",
+    "provider_available_minor": "Beim Anbieter verfügbar",
+    "payout_announced_minor": "Auszahlung angekündigt",
+    "in_transit_minor": "Unterwegs zur Bank",
+    "bank_confirmed_minor": "Bankbestätigt",
+    "shipment_status": "Sendungsstatus",
+    "currency": "Währung"
   },
   "calcLabels": {
     "physical": "physisch",
@@ -816,31 +1137,117 @@
     "captured": "eingezogen",
     "fees": "Gebühren",
     "refunds": "Erstattungen",
-    "paid_out": "ausgezahlt"
+    "paid_out": "ausgezahlt",
+    "shortfall": "Fehlmenge",
+    "basis": "Basis",
+    "quarantined": "gesperrt",
+    "damaged": "beschädigt",
+    "safety_stock": "Sicherheitsbestand",
+    "quality_control": "Qualitätskontrolle",
+    "snapshot_reserved": "im Snapshot reserviert",
+    "reservations_after_basis": "Reservierungen nach Basis",
+    "requested": "angefragt",
+    "item_id": "Artikel"
   },
-  "operators": { "-": "minus", "+": "plus", "=": "gleich", "×": "mal", "÷": "geteilt durch" },
+  "operators": {
+    "-": "minus",
+    "+": "plus",
+    "=": "gleich",
+    "×": "mal",
+    "÷": "geteilt durch"
+  },
   "columns": {
-    "item": "Artikel", "physical": "Physisch", "committed": "Zugesagt", "available": "Verfügbar", "incoming": "Zulauf",
-    "invoice": "Rechnung", "order": "Auftrag", "original": "Ursprünglich", "corrections": "Korrekturen", "outstanding": "Offen", "due": "Fällig",
-    "scope": "Bereich", "amount": "Betrag", "state": "Status", "authorized": "Autorisiert", "captured": "Eingezogen",
-    "transaction": "Transaktion", "refund": "Erstattung", "chargeback": "Rückbuchung", "promised": "Zugesagt", "supply": "Zulauf"
+    "item": "Artikel",
+    "physical": "Physisch",
+    "committed": "Zugesagt",
+    "available": "Verfügbar",
+    "incoming": "Zulauf",
+    "invoice": "Rechnung",
+    "order": "Auftrag",
+    "original": "Ursprünglich",
+    "corrections": "Korrekturen",
+    "outstanding": "Offen",
+    "due": "Fällig",
+    "scope": "Bereich",
+    "amount": "Betrag",
+    "state": "Status",
+    "authorized": "Autorisiert",
+    "captured": "Eingezogen",
+    "transaction": "Transaktion",
+    "refund": "Erstattung",
+    "chargeback": "Rückbuchung",
+    "promised": "Zugesagt",
+    "supply": "Zulauf"
   },
   "values": {
-    "paid": "bezahlt", "authorized": "nur autorisiert", "awaiting": "Zahlung ausstehend",
-    "provider_available": "beim Anbieter verfügbar", "in_transit": "unterwegs", "bank_matched": "mit Bankbeleg abgeglichen"
+    "paid": "bezahlt",
+    "authorized": "nur autorisiert",
+    "awaiting": "Zahlung ausstehend",
+    "provider_available": "beim Anbieter verfügbar",
+    "in_transit": "unterwegs",
+    "bank_matched": "mit Bankbeleg abgeglichen"
   },
   "params": {
-    "item_id": "Artikel", "quantity": "Menge", "location_id": "Lagerort", "period_from": "Zeitraum von", "period_to": "Zeitraum bis",
-    "order_id": "Auftrag", "supplier_order_id": "Lieferantenbestellung", "attention_only": "Nur mit Handlungsbedarf", "risk_days": "Risikofenster (Tage)",
-    "overdue_only": "Nur überfällige", "rule": "Rechnungsregel", "state": "Status", "invoice_id": "Rechnung", "as_of": "Stand",
-    "provider": "Anbieter", "payout_id": "Auszahlung"
+    "item_id": "Artikel",
+    "quantity": "Menge",
+    "location_id": "Lagerort",
+    "period_from": "Zeitraum von",
+    "period_to": "Zeitraum bis",
+    "order_id": "Auftrag",
+    "supplier_order_id": "Lieferantenbestellung",
+    "attention_only": "Nur mit Handlungsbedarf",
+    "risk_days": "Risikofenster (Tage)",
+    "overdue_only": "Nur überfällige",
+    "rule": "Rechnungsregel",
+    "state": "Status",
+    "invoice_id": "Rechnung",
+    "as_of": "Stand",
+    "provider": "Anbieter",
+    "payout_id": "Auszahlung",
+    "requested_quantity": "Menge",
+    "account_ref": "Anbieterkonto",
+    "bank_entry_id": "Bankbuchung",
+    "bank_import_complete_through": "Bankimport vollständig bis",
+    "case_id": "Fall",
+    "currency": "Währung",
+    "cursor": "Cursor",
+    "customer_id": "Kunde",
+    "dispute_id": "Streitfall",
+    "entitlement_id": "Anspruch",
+    "from": "Von",
+    "hold_id": "Einbehalt",
+    "limit": "Limit",
+    "now": "Jetzt (Zeitvorgabe)",
+    "priority": "Priorität (kommagetrennt)",
+    "promise_id": "Zusage",
+    "refund_id": "Erstattung",
+    "reservation_id": "Reservierung",
+    "return_id": "Retoure",
+    "shipment_id": "Sendung",
+    "supply_id": "Lieferantenbestellung",
+    "to": "Bis",
+    "today": "Heute (Datumsvorgabe)",
+    "transaction_id": "Transaktion",
+    "unit": "Einheit"
   },
   "paramOptions": {
-    "all": "alle", "WH-1": "WH-1", "after_shipment": "nach Versand", "at_order": "bei Auftrag", "any": "beliebig",
-    "authorized": "autorisiert", "paid": "bezahlt", "awaiting": "ausstehend", "shopify_payments": "Shopify Payments",
-    "announced": "angekündigt", "received": "eingegangen", "refunded": "erstattet"
+    "all": "alle",
+    "WH-1": "WH-1",
+    "after_shipment": "nach Versand",
+    "at_order": "bei Auftrag",
+    "any": "beliebig",
+    "authorized": "autorisiert",
+    "paid": "bezahlt",
+    "awaiting": "ausstehend",
+    "shopify_payments": "Shopify Payments",
+    "announced": "angekündigt",
+    "received": "eingegangen",
+    "refunded": "erstattet"
   },
-  "units": { "piece": "Stk.", "kg": "kg" },
+  "units": {
+    "piece": "Stk.",
+    "kg": "kg"
+  },
   "agents": {
     "title": "Dein Agent. Mit Business-Gedächtnis.",
     "subtitle": "Benannte, nur lesende Schlüssel geben einem lokalen MCP-Client denselben belegbaren Kontext — nie den Inhaberschlüssel.",
@@ -852,8 +1259,19 @@
     "grantExcluded": "Ausgeschlossen: Geheimnisse, Sitzungen, Quellenkonfiguration, Journalschreibzugriff, Ingestion, Diagnose, Verwaltung",
     "grantShort": "workspace.read_business",
     "none": "Noch keine Agentenschlüssel.",
-    "columns": { "name": "Name", "status": "Status", "created": "Angelegt", "lastUsed": "Letzte tatsächliche Nutzung", "expires": "Läuft ab", "actions": "Aktionen" },
-    "status": { "active": "aktiv", "revoked": "widerrufen", "expired": "abgelaufen" },
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "created": "Angelegt",
+      "lastUsed": "Letzte tatsächliche Nutzung",
+      "expires": "Läuft ab",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "active": "aktiv",
+      "revoked": "widerrufen",
+      "expired": "abgelaufen"
+    },
     "neverUsed": "nie genutzt",
     "noExpiry": "kein Ablauf",
     "revoke": "Widerrufen",
@@ -883,7 +1301,11 @@
     "connectTitle": "Lokalen Client verbinden",
     "connectIntro": "Die Bridge läuft als stdio-Prozess auf diesem Mac und spricht mit dem Agentenschlüssel mit der lokalen API. Wähle einen Client, um Hinweise zu sehen.",
     "clientChoice": "Client",
-    "clients": { "claude": "Claude Desktop / Code", "inspector": "MCP Inspector", "custom": "Eigener Agent" },
+    "clients": {
+      "claude": "Claude Desktop / Code",
+      "inspector": "MCP Inspector",
+      "custom": "Eigener Agent"
+    },
     "clientNote": {
       "claude": "Funktioniert mit lokalen MCP-fähigen Desktop-Clients, die stdio-Server starten. Das Modell des Clients spricht mit dessen Anbieter; die Bridge selbst sendet nichts über diesen Mac hinaus.",
       "inspector": "Die MCP-Inspector-CLI ist der dokumentierte Protokoll-Testclient; kein Modellabonnement nötig.",
@@ -902,7 +1324,10 @@
       "get_entity_history": "Vollständige autorisierte Historie einer Entität, seitenweise.",
       "get_evidence": "Metadaten und Inhalt des Originalbelegs, sofern erlaubt."
     },
-    "untrustedNote": "Tool-Ergebnisse kennzeichnen externe Inhalte als nicht vertrauenswürdige Daten. Blackbox kann die Formulierung eines Drittanbieter-Modells nicht garantieren; es garantiert korrekte, begrenzte Daten, Belege und explizite Einschränkungen."
+    "untrustedNote": "Tool-Ergebnisse kennzeichnen externe Inhalte als nicht vertrauenswürdige Daten. Blackbox kann die Formulierung eines Drittanbieter-Modells nicht garantieren; es garantiert korrekte, begrenzte Daten, Belege und explizite Einschränkungen.",
+    "bridgeCommand": "Bridge-Befehl",
+    "apiUrl": "Lokale API",
+    "testedClientsNote": "siehe docs/tester-guide.md (MCP Inspector CLI über stdio); Claude Desktop selbst wurde vom Projekt nicht gestartet."
   },
   "system": {
     "title": "System & Diagnose",
@@ -923,7 +1348,12 @@
     "logsTitle": "Logs",
     "logsIntro": "Aufbewahrte bereinigte Datensätze (Standard: letzte Stunde, ab INFO, neueste zuerst). Technische Meldungen bleiben englisch; bekannte Ereignisse werden erklärt.",
     "liveOff": "Live",
-    "live": { "connecting": "Live · verbinde", "open": "Live · an", "reconnecting": "Live · verbinde neu", "closed": "Live" },
+    "live": {
+      "connecting": "Live · verbinde",
+      "open": "Live · an",
+      "reconnecting": "Live · verbinde neu",
+      "closed": "Live"
+    },
     "pause": "Pausieren",
     "resume_one": "Fortsetzen ({{count}} neu)",
     "resume_other": "Fortsetzen ({{count}} neu)",
@@ -954,7 +1384,8 @@
       "out_of_retention": "Bereich vor der Aufbewahrung",
       "debug_not_recorded": "DEBUG nicht aufgezeichnet",
       "collector_failed": "Sammler ausgefallen",
-      "rotated": "während des Lesens rotiert"
+      "rotated": "während des Lesens rotiert",
+      "healthy": "Sammler gesund"
     },
     "logStateHelp": {
       "ok": "Alle passenden Datensätze im aufbewahrten Bereich werden angezeigt.",
@@ -962,16 +1393,34 @@
       "out_of_retention": "Der gewählte Bereich beginnt vor dem aufbewahrten Fenster. Ältere Datensätze wurden rotiert (7 Tage / 100 MiB).",
       "debug_not_recorded": "Für diesen Bereich existieren keine DEBUG-Datensätze, weil die Debug-Aufzeichnung nicht aktiv war. Filter können nicht abrufen, was nie aufgezeichnet wurde.",
       "collector_failed": "Der Log-Sammler ist ausgefallen; die Geschäftsverarbeitung läuft weiter, Logs können aber unvollständig sein.",
-      "rotated": "Während dieses Lesens fand eine Rotation statt; ab dem neuesten Cursor neu verbinden."
+      "rotated": "Während dieses Lesens fand eine Rotation statt; ab dem neuesten Cursor neu verbinden.",
+      "healthy": "Keine Einträge passen zu diesen Filtern im aufbewahrten Zeitraum."
     },
-    "columns": { "time": "Zeit", "level": "Stufe", "component": "Komponente", "event": "Ereignis", "message": "Meldung", "scope": "Bezug", "connection": "Verbindung" },
+    "columns": {
+      "time": "Zeit",
+      "level": "Stufe",
+      "component": "Komponente",
+      "event": "Ereignis",
+      "message": "Meldung",
+      "scope": "Bezug",
+      "connection": "Verbindung"
+    },
     "openRecord": "Datensatz {{id}} öffnen",
     "recordEyebrow": "Log-Datensatz",
     "rawMessage": "Rohmeldung",
     "record": {
-      "recordId": "Datensatz-ID", "occurredAt": "Eingetreten", "observedAt": "Beobachtet", "serviceVersion": "Dienst / Instanz", "scope": "Bezug",
-      "duration": "Dauer", "recordCount": "Anzahl Datensätze", "errorCode": "Fehlercode", "retryable": "Wiederholbar", "nextRetry": "Nächste Wiederholung",
-      "action": "Aktion", "truncated": "Gekürzt"
+      "recordId": "Datensatz-ID",
+      "occurredAt": "Eingetreten",
+      "observedAt": "Beobachtet",
+      "serviceVersion": "Dienst / Instanz",
+      "scope": "Bezug",
+      "duration": "Dauer",
+      "recordCount": "Anzahl Datensätze",
+      "errorCode": "Fehlercode",
+      "retryable": "Wiederholbar",
+      "nextRetry": "Nächste Wiederholung",
+      "action": "Aktion",
+      "truncated": "Gekürzt"
     },
     "copySafe": "Sichere Details kopieren",
     "traceSiblings_one": "Trace ({{count}} zugehöriger Datensatz)",
@@ -1004,7 +1453,10 @@
       "used": "Belegt",
       "free": "Frei",
       "state": "Status",
-      "changeThresholds": "Schwellen ändern"
+      "changeThresholds": "Schwellen ändern",
+      "files": "{{count}} Dateien",
+      "evidenceBytes": "Belegspeicher",
+      "total": "Gesamt"
     },
     "export": {
       "open": "Diagnose exportieren",
@@ -1020,14 +1472,29 @@
       "preview": "Bündel prüfen (Vorschau)",
       "download": "Bündel herunterladen",
       "downloaded": "{{name}} heruntergeladen ({{size}}).",
-      "note": "Die Datei landet im Download-Ordner deines Browsers und ist ein bewusster Export, keine aufbewahrte Kopie."
-    }
+      "note": "Die Datei landet im Download-Ordner deines Browsers und ist ein bewusster Export, keine aufbewahrte Kopie.",
+      "records": "Log-Einträge"
+    },
+    "healthObserved": "Gesundheit beobachtet",
+    "refreshEvery": "Aktualisierung alle {{seconds}} s · veraltet nach {{stale}} s"
   },
   "healthCards": {
-    "api": "API / Backend", "worker": "Worker / Import", "postgres": "PostgreSQL", "engine": "Abfrage-Engine", "sources": "Quellen", "mcp": "MCP", "diagnostics": "Diagnose"
+    "api": "API / Backend",
+    "worker": "Worker / Import",
+    "postgres": "PostgreSQL",
+    "engine": "Abfrage-Engine",
+    "sources": "Quellen",
+    "mcp": "MCP",
+    "diagnostics": "Diagnose"
   },
   "healthState": {
-    "healthy": "gesund", "working": "arbeitet / holt auf", "degraded": "eingeschränkt", "unavailable": "nicht verfügbar", "unknown": "unbekannt", "stale": "veraltet (> 30 s)", "disconnected": "getrennt"
+    "healthy": "gesund",
+    "working": "arbeitet / holt auf",
+    "degraded": "eingeschränkt",
+    "unavailable": "nicht verfügbar",
+    "unknown": "unbekannt",
+    "stale": "veraltet (> 30 s)",
+    "disconnected": "getrennt"
   },
   "healthReasons": {
     "probe_ok": "Letzte Prüfung beantwortet.",
@@ -1040,15 +1507,51 @@
     "collector_ok": "Sammler und Speicher sind gesund."
   },
   "healthDetails": {
-    "version": "Version", "uptime_seconds": "Laufzeit (s)", "last_probe_at": "Letzte Prüfung", "response_available": "Antwortet",
-    "heartbeat_at": "Heartbeat", "running": "Laufend", "queued": "Eingereiht", "failed": "Fehlgeschlagen", "oldest_pending_age_seconds": "Ältestes ausstehend (s)", "last_progress_at": "Letzter Fortschritt",
-    "connect": "Verbinden", "read": "Lesen", "write": "Schreiben", "latency_ms": "Latenz (ms)",
-    "phase": "Phase", "committed_cursor": "Festgeschriebener Cursor", "applied_cursor": "Angewendeter Cursor", "pending": "Ausstehend", "lag_ms": "Rückstand (ms)",
-    "connections": "Verbindungen", "delayed": "Verzögert", "errored": "Fehlerhaft", "last_new_event_at": "Letztes neues Ereignis",
-    "bridge_ready": "Bridge bereit", "last_client_request_at": "Letzte Client-Anfrage",
-    "retained_from": "Aufbewahrt ab", "retained_to": "Aufbewahrt bis", "used_bytes": "Belegt", "cap_bytes": "Obergrenze", "dropped_count": "Verworfen", "debug_expires_at": "Debug läuft ab"
+    "version": "Version",
+    "uptime_seconds": "Laufzeit (s)",
+    "last_probe_at": "Letzte Prüfung",
+    "response_available": "Antwortet",
+    "heartbeat_at": "Heartbeat",
+    "running": "Laufend",
+    "queued": "Eingereiht",
+    "failed": "Fehlgeschlagen",
+    "oldest_pending_age_seconds": "Ältestes ausstehend (s)",
+    "last_progress_at": "Letzter Fortschritt",
+    "connect": "Verbinden",
+    "read": "Lesen",
+    "write": "Schreiben",
+    "latency_ms": "Latenz (ms)",
+    "phase": "Phase",
+    "committed_cursor": "Festgeschriebener Cursor",
+    "applied_cursor": "Angewendeter Cursor",
+    "pending": "Ausstehend",
+    "lag_ms": "Rückstand (ms)",
+    "connections": "Verbindungen",
+    "delayed": "Verzögert",
+    "errored": "Fehlerhaft",
+    "last_new_event_at": "Letztes neues Ereignis",
+    "bridge_ready": "Bridge bereit",
+    "last_client_request_at": "Letzte Client-Anfrage",
+    "retained_from": "Aufbewahrt ab",
+    "retained_to": "Aufbewahrt bis",
+    "used_bytes": "Belegt",
+    "cap_bytes": "Obergrenze",
+    "dropped_count": "Verworfen",
+    "debug_expires_at": "Debug läuft ab"
   },
-  "components": { "api": "API", "worker": "Worker", "engine": "Engine", "postgres": "PostgreSQL", "mcp": "MCP-Bridge", "wrapper": "Wrapper", "diagnostics": "Diagnose" },
+  "components": {
+    "api": "API",
+    "worker": "Worker",
+    "engine": "Engine",
+    "postgres": "PostgreSQL",
+    "mcp": "MCP-Bridge",
+    "wrapper": "Wrapper",
+    "diagnostics": "Diagnose",
+    "auth": "Anmeldung",
+    "ingestion": "Aufnahme",
+    "query": "Abfragen",
+    "cli": "CLI"
+  },
   "logEvents": {
     "import.batch_progress": "Importseite verarbeitet ({{count}} Datensätze, {{ms}} ms)",
     "journal.batch_committed": "Journal-Batch festgeschrieben ({{count}} Datensätze)",
@@ -1062,16 +1565,47 @@
     "logs.records_dropped": "Log-Datensätze unter Überlast verworfen ({{count}})",
     "runtime.started": "Laufzeit gestartet"
   },
-  "actionCodes": { "wait_for_retry": "Auf die geplante Wiederholung warten", "reconnect_source": "Quelle unter Quellen neu verbinden" },
-  "exportCategories": {
-    "versions": "Versionen", "runtime": "Laufzeit (grob)", "configuration": "Konfiguration (freigegeben)", "health": "Zustandsbeobachtungen",
-    "error_counts": "Fehlercodes & Zähler", "log_excerpts": "Bereinigte Log-Auszüge", "engine_heap": "Engine-Heap-Statistik"
+  "actionCodes": {
+    "wait_for_retry": "Auf die geplante Wiederholung warten",
+    "reconnect_source": "Quelle unter Quellen neu verbinden"
   },
-  "volumes": { "pgdata": "PostgreSQL-Daten", "evidence": "Belege", "logs": "Logs", "backups": "Sicherungen", "snapshots": "Snapshots" },
-  "storageState": { "ok": "ok", "warning": "Warnung", "critical": "kritisch", "unknown": "unbekannt" },
-  "maintenancePhase": { "upgrade": "Upgrade", "rebuild": "Projektions-Neuaufbau", "backup": "Sicherung" },
+  "exportCategories": {
+    "versions": "Versionen",
+    "runtime": "Laufzeit (grob)",
+    "configuration": "Konfiguration (freigegeben)",
+    "health": "Zustandsbeobachtungen",
+    "error_counts": "Fehlercodes & Zähler",
+    "log_excerpts": "Bereinigte Log-Auszüge",
+    "engine_heap": "Engine-Heap-Statistik",
+    "errors": "Fehlerzähler",
+    "logs": "Log-Auszüge (bereinigt)"
+  },
+  "volumes": {
+    "pgdata": "PostgreSQL-Daten",
+    "evidence": "Belege",
+    "logs": "Logs",
+    "backups": "Sicherungen",
+    "snapshots": "Snapshots"
+  },
+  "storageState": {
+    "ok": "ok",
+    "warning": "Warnung",
+    "critical": "kritisch",
+    "unknown": "unbekannt"
+  },
+  "maintenancePhase": {
+    "upgrade": "Upgrade",
+    "rebuild": "Projektions-Neuaufbau",
+    "backup": "Sicherung"
+  },
   "backups": {
-    "status": { "not_configured": "nicht eingerichtet", "scheduled": "geplant", "running": "läuft", "failed": "fehlgeschlagen", "overdue": "überfällig" }
+    "status": {
+      "not_configured": "nicht eingerichtet",
+      "scheduled": "geplant",
+      "running": "läuft",
+      "failed": "fehlgeschlagen",
+      "overdue": "überfällig"
+    }
   },
   "settings": {
     "title": "Einstellungen",
@@ -1113,7 +1647,12 @@
       "intro": "Tage, die Rohbelege je Klasse aufbewahrt werden, gezählt ab lokalem Eingang. Typisierte Fakten bleiben abfragbar, nachdem das Original abgelaufen ist.",
       "bounds": "{{min}}–{{max}} Tage",
       "providerLimit": "Anbieterlimit {{days}} Tage",
-      "note": "Eine strengere Anbieterbeschränkung gewinnt immer. Dies ist ein Produktstandard, kein Anspruch auf gesetzliche Konformität."
+      "note": "Eine strengere Anbieterbeschränkung gewinnt immer. Dies ist ein Produktstandard, kein Anspruch auf gesetzliche Konformität.",
+      "source": {
+        "default": "Standard",
+        "owner": "vom Inhaber gesetzt"
+      },
+      "defaultDays": "Standardaufbewahrung: {{days}} Tage."
     },
     "storage": {
       "title": "Speicherschwellen",
@@ -1123,7 +1662,10 @@
       "criticalPercent": "Kritisch unter %",
       "criticalGib": "Kritisch unter GiB",
       "used": "belegt",
-      "note": "Keine Komponente schafft jemals Platz, indem sie das Journal oder fremde Dateien löscht."
+      "note": "Keine Komponente schafft jemals Platz, indem sie das Journal oder fremde Dateien löscht.",
+      "logCapMib": "Log-Obergrenze (MiB)",
+      "logRetentionDays": "Log-Aufbewahrung (Tage, max. 7)",
+      "free": "frei"
     },
     "security": {
       "title": "Sicherheits-Audit",
@@ -1156,49 +1698,286 @@
     "provider_json": "Anbieter-JSON-Datensätze",
     "bank_csv": "Bank-CSV-Dateien",
     "customer_communication": "Kundenkommunikation",
-    "documents": "Rechnungs-/Gutschriftbelege"
+    "documents": "Rechnungs-/Gutschriftbelege",
+    "provider_payload": "Anbieter-Nutzlasten",
+    "document": "Dokumente",
+    "communication": "Kundenkommunikation"
   },
   "securityCounts": {
-    "owner_logins": "Inhaber-Anmeldungen", "failed_logins": "Fehlanmeldungen (15 min)", "key_rotations": "Schlüsselerneuerungen",
-    "agent_keys_created": "Agentenschlüssel angelegt", "agent_keys_revoked": "Agentenschlüssel widerrufen", "resets": "Host-Resets"
+    "owner_logins": "Inhaber-Anmeldungen",
+    "failed_logins": "Fehlanmeldungen (15 min)",
+    "key_rotations": "Schlüsselerneuerungen",
+    "agent_keys_created": "Agentenschlüssel angelegt",
+    "agent_keys_revoked": "Agentenschlüssel widerrufen",
+    "resets": "Host-Resets"
   },
-  "securityEvents": { "owner.login": "Inhaber-Anmeldung", "setup.owner_created": "Inhaber bei Einrichtung angelegt", "key.rotated": "Schlüssel erneuert", "agent.created": "Agentenschlüssel angelegt", "agent.revoked": "Agentenschlüssel widerrufen" },
+  "securityEvents": {
+    "owner.login": "Inhaber-Anmeldung",
+    "setup.owner_created": "Inhaber bei Einrichtung angelegt",
+    "key.rotated": "Schlüssel erneuert",
+    "agent.created": "Agentenschlüssel angelegt",
+    "agent.revoked": "Agentenschlüssel widerrufen",
+    "owner.setup": "Inhaber bei Einrichtung angelegt",
+    "owner.logout": "Inhaber-Abmeldung",
+    "owner.key_rotated": "Inhaberschlüssel erneuert",
+    "owner.access_reset": "Host-Zugriffsreset",
+    "agent.key_created": "Agentenschlüssel angelegt",
+    "agent.key_revoked": "Agentenschlüssel widerrufen",
+    "debug.enabled": "Debug-Aufzeichnung aktiviert",
+    "workspace.updated": "Workspace-Einstellungen geändert",
+    "diagnostics.exported": "Diagnose exportiert",
+    "retention.updated": "Aufbewahrung geändert"
+  },
   "questionsCatalog": {
     "groups": {
-      "order": { "number": "01", "label": "Auftrag", "title": "Auftrag & Verfügbarkeit", "agent": "Auftragscheck", "team": "Sales · Operations", "benefit": "Realistische Zusagen geben und Überverkäufe früher erkennen.", "scope": "Was können wir dem Kunden verbindlich zusagen?", "tracks": ["fact", "commitment", "reservation"], "sources": "Shopify / Shopware · Bestandsdaten · Zusagen" },
-      "delivery": { "number": "02", "label": "Lieferung", "title": "Lieferung & Kundeninformation", "agent": "Lieferbegleiter", "team": "Customer Success · Operations", "benefit": "Lieferprobleme früher sehen und Kunden mit belegbaren Angaben helfen.", "scope": "Was passiert mit der Ware auf dem Weg zum Kunden?", "tracks": ["source", "fact", "commitment", "movement"], "sources": "Shop · DHL / DPD / UPS · Kundenkommunikation" },
-      "invoice": { "number": "03", "label": "Rechnung", "title": "Rechnung & Forderung", "agent": "Rechnungsprüfer", "team": "Finance · Backoffice", "benefit": "Fehlende Belege finden und den aktuellen Forderungsstand nachvollziehen.", "scope": "Was wurde dem Kunden in Rechnung gestellt?", "tracks": ["source", "fact", "commitment"], "sources": "Shop · Rechnungstool · Belegzuordnung" },
-      "collection": { "number": "04", "label": "Kundenzahlung", "title": "Kundenzahlung & Klärung", "agent": "Zahlungsklärer", "team": "Finance · Customer Success", "benefit": "Zahlungsprobleme gezielt klären und unnötige Zahlungserinnerungen vermeiden.", "scope": "Hat der Kunde seine Zahlung geleistet?", "tracks": ["fact", "commitment", "movement"], "sources": "Shop / Rechnung · Payment-Provider · Zahlungsbelege" },
-      "settlement": { "number": "05", "label": "Auszahlung", "title": "Auszahlung & Bankabgleich", "agent": "Cash-Abgleich", "team": "Finance · Founder", "benefit": "Verstehen, wo das Geld liegt und welche Differenzen noch zu klären sind.", "scope": "Ist das eingezogene Geld auf unserem Bankkonto angekommen?", "tracks": ["fact", "movement", "reservation", "commitment"], "sources": "Payment-Provider · Auszahlungsbericht · Bankbeleg" },
-      "reversal": { "number": "06", "label": "Rückabwicklung", "title": "Storno, Retoure & Erstattung", "agent": "Retourenbegleiter", "team": "Customer Success · Finance", "benefit": "Offene Rückabwicklungen schließen und doppelte Erstattungen vermeiden.", "scope": "Was muss nach einem Storno oder einer Rückgabe noch passieren?", "tracks": ["fact", "commitment", "movement", "reservation"], "sources": "Shop · Retourensystem · Rechnungstool · Provider" }
+      "order": {
+        "number": "01",
+        "label": "Auftrag",
+        "title": "Auftrag & Verfügbarkeit",
+        "agent": "Auftragscheck",
+        "team": "Sales · Operations",
+        "benefit": "Realistische Zusagen geben und Überverkäufe früher erkennen.",
+        "scope": "Was können wir dem Kunden verbindlich zusagen?",
+        "tracks": [
+          "fact",
+          "commitment",
+          "reservation"
+        ],
+        "sources": "Shopify / Shopware · Bestandsdaten · Zusagen"
+      },
+      "delivery": {
+        "number": "02",
+        "label": "Lieferung",
+        "title": "Lieferung & Kundeninformation",
+        "agent": "Lieferbegleiter",
+        "team": "Customer Success · Operations",
+        "benefit": "Lieferprobleme früher sehen und Kunden mit belegbaren Angaben helfen.",
+        "scope": "Was passiert mit der Ware auf dem Weg zum Kunden?",
+        "tracks": [
+          "source",
+          "fact",
+          "commitment",
+          "movement"
+        ],
+        "sources": "Shop · DHL / DPD / UPS · Kundenkommunikation"
+      },
+      "invoice": {
+        "number": "03",
+        "label": "Rechnung",
+        "title": "Rechnung & Forderung",
+        "agent": "Rechnungsprüfer",
+        "team": "Finance · Backoffice",
+        "benefit": "Fehlende Belege finden und den aktuellen Forderungsstand nachvollziehen.",
+        "scope": "Was wurde dem Kunden in Rechnung gestellt?",
+        "tracks": [
+          "source",
+          "fact",
+          "commitment"
+        ],
+        "sources": "Shop · Rechnungstool · Belegzuordnung"
+      },
+      "collection": {
+        "number": "04",
+        "label": "Kundenzahlung",
+        "title": "Kundenzahlung & Klärung",
+        "agent": "Zahlungsklärer",
+        "team": "Finance · Customer Success",
+        "benefit": "Zahlungsprobleme gezielt klären und unnötige Zahlungserinnerungen vermeiden.",
+        "scope": "Hat der Kunde seine Zahlung geleistet?",
+        "tracks": [
+          "fact",
+          "commitment",
+          "movement"
+        ],
+        "sources": "Shop / Rechnung · Payment-Provider · Zahlungsbelege"
+      },
+      "settlement": {
+        "number": "05",
+        "label": "Auszahlung",
+        "title": "Auszahlung & Bankabgleich",
+        "agent": "Cash-Abgleich",
+        "team": "Finance · Founder",
+        "benefit": "Verstehen, wo das Geld liegt und welche Differenzen noch zu klären sind.",
+        "scope": "Ist das eingezogene Geld auf unserem Bankkonto angekommen?",
+        "tracks": [
+          "fact",
+          "movement",
+          "reservation",
+          "commitment"
+        ],
+        "sources": "Payment-Provider · Auszahlungsbericht · Bankbeleg"
+      },
+      "reversal": {
+        "number": "06",
+        "label": "Rückabwicklung",
+        "title": "Storno, Retoure & Erstattung",
+        "agent": "Retourenbegleiter",
+        "team": "Customer Success · Finance",
+        "benefit": "Offene Rückabwicklungen schließen und doppelte Erstattungen vermeiden.",
+        "scope": "Was muss nach einem Storno oder einer Rückgabe noch passieren?",
+        "tracks": [
+          "fact",
+          "commitment",
+          "movement",
+          "reservation"
+        ],
+        "sources": "Shop · Retourensystem · Rechnungstool · Provider"
+      }
     },
-    "order-01": { "q": "Kann ich noch 100 Olive Cups verkaufen?", "method": "Aktive Reservierungen vom physischen Bestand abziehen. Zugesagte Wareneingänge separat zeigen, bis die Ware tatsächlich eingegangen ist.", "need": "Artikel-ID, Bestandsmomentaufnahme, aktive Reservierungen und offene Lieferzusagen.", "result": "Verfügbare Menge, Fehlmenge und Belege für den aktuellen Stand." },
-    "order-02": { "q": "Welche offenen Aufträge sind vollständig aus verfügbarem Bestand erfüllbar?", "method": "Jede offene Position gegen Bestand und zugeteilte Reservierungen prüfen. Dieselben Einheiten nur einem Auftrag zuteilen.", "need": "Offene Auftragspositionen, Reservierungszuteilungen und aktueller Bestand je Lager.", "result": "Aufträge als vollständig, teilweise erfüllbar oder blockiert klassifiziert, mit Gründen." },
-    "order-03": { "q": "Bei welchen Aufträgen passt die zugesagte Menge nicht zur Reservierung?", "method": "Aktuelle Auftragsmenge mit aktiven Reservierungen je Position vergleichen. Stornierte und versendete Mengen berücksichtigen.", "need": "Auftragsänderungen, Positionen, Reservierungen, Stornos und erfasste Sendungen.", "result": "Abweichung je Auftrag und Position, inklusive fehlender oder überschüssiger Mengen." },
-    "order-04": { "q": "Welche offenen Aufträge werden von einer verschobenen Warenankunft betroffen?", "method": "Die geänderte Eingangszusage über Artikel und Zuteilungen mit offenen Kundenaufträgen verknüpfen. Auswirkung als ungelöst markieren, wo Zuteilungen fehlen.", "need": "Versionierte Eingangszusage, Artikelverknüpfungen, Auftragszuteilungen und Kundenfristen.", "result": "Betroffene Aufträge und gefährdete Zusagen zur manuellen Prüfung." },
-    "delivery-01": { "q": "Wo sind meine Pakete – und welche brauchen Aufmerksamkeit?", "method": "Letzten Carrier-Status mit Auftrag, Scanzeit und gemeldeter Prognose kombinieren. Ältere Scans im Verlauf sichtbar halten.", "need": "Auftrag-zu-Sendung-Verknüpfungen, Carrier-Scans und verfügbare Lieferprognosen.", "result": "Sendungsübersicht mit letztem bekanntem Status und Fällen mit Handlungsbedarf." },
-    "delivery-02": { "q": "Welche Lieferzusagen an Kunden sind überschritten oder gefährdet?", "method": "Kundenzusage mit tatsächlichem Versand- oder Zustellstatus vergleichen. Carrier-Prognosen als Schätzung kennzeichnen.", "need": "Explizite Kundenzusage, Zeitzone, Sendungsstatus und etwaige Carrier-Prognose.", "result": "Priorisierte Fälle mit zugesagtem Datum, aktuellem Stand und Erklärung." },
-    "delivery-03": { "q": "Bei welchen Teillieferungen fehlt noch Ware?", "method": "Bestellte Mengen je Position mit bestätigten Teillieferungen vergleichen. Stornierte Positionen und Versandlabels ohne Versandbestätigung separat behandeln.", "need": "Auftragspositionen, Teillieferungen, enthaltene Mengen und Übergabe-/Zustellereignisse.", "result": "Offene Mengen je Auftrag und die zugehörigen Sendungen." },
-    "delivery-04": { "q": "Was kann ich diesem Kunden zum Lieferstatus verlässlich antworten?", "method": "Auftrag, letzte Scans und frühere Zusagen für einen Antwortentwurf nutzen. Unbekannte Ankunftsdaten ausdrücklich offen lassen.", "need": "Kunde-zu-Auftrag-Verknüpfungen, Carrier-Verlauf und frühere Kommunikation.", "result": "Kundenfreundlicher Entwurf mit internen Belegen; das Senden bleibt ein separater Schritt." },
-    "invoice-01": { "q": "Welche Rechnungen sind noch offen?", "method": "Jeden Rechnungsstand aus Ursprungsbetrag, Korrekturen und gemeldeten Zahlungen berechnen. Ersetzte Stände nicht erneut summieren.", "need": "Rechnung, Korrekturbelege, gemeldeter Zahlungsstatus und Fälligkeit.", "result": "Offene Beträge und Fälligkeiten mit Belegkette; Zahlungsmarkierungen sind keine Bankbelege." },
-    "invoice-02": { "q": "Für welche Aufträge fehlt nach unserer Regel noch eine Rechnung?", "method": "Aufträge gegen die konfigurierte Rechnungsregel prüfen, z. B. nach Versand. Verknüpfte Rechnungen und Stornos abgleichen.", "need": "Rechnungsregel, Auftrags-/Lieferstatus, Rechnungsverknüpfungen und vollständige Importabdeckung.", "result": "Prüfliste potenziell fehlender Rechnungen; bei unvollständigen Daten bleibt der Status unbekannt." },
-    "invoice-03": { "q": "Wo weicht der Rechnungsbetrag vom vereinbarten Auftragsbetrag ab?", "method": "Positionen, Mengen, Rabatte, Versandkosten, Währung und ausgewiesene Steuern vergleichen. Teilrechnungen berücksichtigen.", "need": "Versionierte Auftrags- und Rechnungspositionen inklusive Teilrechnungsreferenzen.", "result": "Betragsdifferenz je Position mit nachvollziehbarer Abgleichserklärung." },
-    "invoice-04": { "q": "Welche Rechnungen wurden erstellt, aber nicht nachweislich versendet?", "method": "Erstellte Belege mit dem Versandereignis des Rechnungstools verknüpfen. Bei unvollständigen Versanddaten nur fehlende Belege melden.", "need": "Rechnungs-ID, Erstellzeit, Versandstatus und letzte Synchronisationszeit.", "result": "Belege ohne Versandnachweis, inklusive Datenaktualität statt einer unbelegten Schlussfolgerung, sie seien nicht versendet." },
-    "collection-01": { "q": "Welche Aufträge sind nur autorisiert, tatsächlich bezahlt oder noch ausstehend?", "method": "Zahlungsstatus aus Autorisierungs- und Einzugsereignissen ableiten; eine Markierung im Shop ist kein Einzug.", "need": "Auftrag, Zahlungstransaktionen mit Art und Status, Währung.", "result": "Aufträge gruppiert nach bezahlt, nur autorisiert und ausstehend, mit Belegen je Transaktion." },
-    "collection-02": { "q": "Welche fehlgeschlagenen Zahlungen wurden inzwischen erfolgreich nachgeholt?", "method": "Zahlungsversuche je Auftrag gruppieren und einen späteren erfolgreichen Einzug nach einem Fehlschlag erkennen.", "need": "Alle Zahlungsversuche je Auftrag mit Zeit, Status und Betrag.", "result": "Nachgeholte gegenüber weiterhin fehlgeschlagenen Aufträgen, ohne Doppelzählung von Versuchen." },
-    "collection-03": { "q": "Bei welchen Rechnungen passen Teilzahlungen und Restbetrag nicht zusammen?", "method": "Zahlungen explizit Rechnungen zuordnen und zugeordnete Summen mit dem aktuellen Rechnungsstand vergleichen.", "need": "Rechnungen, Zahlungen, Zahlungszuordnungen und Korrekturen.", "result": "Rechnungen mit Über- oder Unterzuordnung und der unerklärten Differenz." },
-    "collection-04": { "q": "Welche fälligen Forderungen sollte Finance heute prüfen?", "method": "Fällige Forderungen nach Alter, Betrag und offenen Klärfällen priorisieren; bereits in Prüfung befindliche Fälle ausschließen.", "need": "Fälligkeiten, offene Beträge, Zuordnungen, offene Fälle und die Mahnregel.", "result": "Priorisierte Prüfliste; Posten mit ungelöster Mehrdeutigkeit werden markiert, nicht automatisch gemahnt." },
-    "settlement-01": { "q": "Wo steckt mein Geld bei den Payment-Providern?", "method": "Anbieterpositionen aus dem Anbieter-Ledger ableiten: verfügbar, unterwegs und mit Bankbeleg abgeglichen sind getrennte Bereiche.", "need": "Anbieter-Ledger, Auszahlungen, Bankbuchungen und Einbehalte.", "result": "Geldpositionen je Anbieterkonto mit Belegen; eine Auszahlung ist kein Umsatz." },
-    "settlement-02": { "q": "Warum ist die Auszahlung niedriger als die eingezogenen Kundenzahlungen?", "method": "Eingezogene Beträge abzüglich Gebühren, Erstattungen, Einbehalten und Anpassungen mit dem Auszahlungsbetrag abgleichen.", "need": "Anbieter-Ledger-Einträge, die zur Auszahlung gehören.", "result": "Brutto-zu-netto-Erklärung je Auszahlung mit etwaigem unerklärtem Rest." },
-    "settlement-03": { "q": "Welche angekündigten oder abgegangenen Auszahlungen haben noch keinen Banknachweis?", "method": "Auszahlungen über Betrag, Referenz und Zeitfenster mit gebuchten Bankbuchungen abgleichen; nicht zugeordnete Auszahlungen bleiben offen.", "need": "Auszahlungen mit Status und unabhängige gebuchte Bankdaten.", "result": "Auszahlungen ohne Bankbestätigung und ihr Alter." },
-    "settlement-04": { "q": "Welche Beträge sind einbehalten und welche Freigabe ist nur angekündigt?", "method": "Anbieter-Einbehalte auflisten und angekündigte von abgeschlossenen Freigaben unterscheiden.", "need": "Einbehalte, Positionen und Freigabeereignisse.", "result": "Einbehaltene Beträge und angekündigte, aber nicht abgeschlossene Freigaben." },
-    "reversal-01": { "q": "Welche Rückgaben sind angekündigt, eingegangen oder bereits erstattet?", "method": "Jede Rückgabe über Ankündigung, Eingang, Wiedereinlagerungsentscheidung und Erstattung verfolgen.", "need": "Retouren, Wareneingänge, Erstattungen und optional Rechnungen/Tracking.", "result": "Retouren je Lebenszyklusphase; ein Eingang ist keine automatische Wiedereinlagerung." },
-    "reversal-02": { "q": "Bei welchen Gutschriften fehlt die zugehörige Erstattung?", "method": "Gutschriften mit Erstattungsansprüchen und abgeschlossenen Erstattungen verknüpfen; eine Gutschrift ist keine Erstattung.", "need": "Rechnungen, Gutschriften, Zahlungen, Ansprüche und Erstattungen.", "result": "Gutschriften ohne abgeschlossene Erstattung und ihr Alter." },
-    "reversal-03": { "q": "Was muss nach einem Storno bei Bestand, Rechnung und Zahlung noch korrigiert werden?", "method": "Den Storno mit Reservierungen, Rechnungen, Zahlungen, Erstattungen und Eingängen vergleichen, um offene Schritte aufzulisten.", "need": "Auftrag, Zuteilungen, Rechnungen, Zahlungen, Erstattungen, Ansprüche und Eingänge.", "result": "Offene Korrekturschritte je Bereich mit Belegen." },
-    "reversal-04": { "q": "Droht eine doppelte Rückzahlung durch Erstattung und Chargeback?", "method": "Erstattungen und Streitfälle je Transaktion und Betrag überlagern; fehlende Streitfall-Abdeckung hält die Antwort partiell.", "need": "Zahlungen, Erstattungen und Streitfälle.", "result": "Transaktionen mit potenzieller Doppelrückzahlung oder eine partielle Antwort, wenn Streitfalldaten fehlen." }
+    "order-01": {
+      "q": "Kann ich noch 100 Olive Cups verkaufen?",
+      "method": "Aktive Reservierungen vom physischen Bestand abziehen. Zugesagte Wareneingänge separat zeigen, bis die Ware tatsächlich eingegangen ist.",
+      "need": "Artikel-ID, Bestandsmomentaufnahme, aktive Reservierungen und offene Lieferzusagen.",
+      "result": "Verfügbare Menge, Fehlmenge und Belege für den aktuellen Stand."
+    },
+    "order-02": {
+      "q": "Welche offenen Aufträge sind vollständig aus verfügbarem Bestand erfüllbar?",
+      "method": "Jede offene Position gegen Bestand und zugeteilte Reservierungen prüfen. Dieselben Einheiten nur einem Auftrag zuteilen.",
+      "need": "Offene Auftragspositionen, Reservierungszuteilungen und aktueller Bestand je Lager.",
+      "result": "Aufträge als vollständig, teilweise erfüllbar oder blockiert klassifiziert, mit Gründen."
+    },
+    "order-03": {
+      "q": "Bei welchen Aufträgen passt die zugesagte Menge nicht zur Reservierung?",
+      "method": "Aktuelle Auftragsmenge mit aktiven Reservierungen je Position vergleichen. Stornierte und versendete Mengen berücksichtigen.",
+      "need": "Auftragsänderungen, Positionen, Reservierungen, Stornos und erfasste Sendungen.",
+      "result": "Abweichung je Auftrag und Position, inklusive fehlender oder überschüssiger Mengen."
+    },
+    "order-04": {
+      "q": "Welche offenen Aufträge werden von einer verschobenen Warenankunft betroffen?",
+      "method": "Die geänderte Eingangszusage über Artikel und Zuteilungen mit offenen Kundenaufträgen verknüpfen. Auswirkung als ungelöst markieren, wo Zuteilungen fehlen.",
+      "need": "Versionierte Eingangszusage, Artikelverknüpfungen, Auftragszuteilungen und Kundenfristen.",
+      "result": "Betroffene Aufträge und gefährdete Zusagen zur manuellen Prüfung."
+    },
+    "delivery-01": {
+      "q": "Wo sind meine Pakete – und welche brauchen Aufmerksamkeit?",
+      "method": "Letzten Carrier-Status mit Auftrag, Scanzeit und gemeldeter Prognose kombinieren. Ältere Scans im Verlauf sichtbar halten.",
+      "need": "Auftrag-zu-Sendung-Verknüpfungen, Carrier-Scans und verfügbare Lieferprognosen.",
+      "result": "Sendungsübersicht mit letztem bekanntem Status und Fällen mit Handlungsbedarf."
+    },
+    "delivery-02": {
+      "q": "Welche Lieferzusagen an Kunden sind überschritten oder gefährdet?",
+      "method": "Kundenzusage mit tatsächlichem Versand- oder Zustellstatus vergleichen. Carrier-Prognosen als Schätzung kennzeichnen.",
+      "need": "Explizite Kundenzusage, Zeitzone, Sendungsstatus und etwaige Carrier-Prognose.",
+      "result": "Priorisierte Fälle mit zugesagtem Datum, aktuellem Stand und Erklärung."
+    },
+    "delivery-03": {
+      "q": "Bei welchen Teillieferungen fehlt noch Ware?",
+      "method": "Bestellte Mengen je Position mit bestätigten Teillieferungen vergleichen. Stornierte Positionen und Versandlabels ohne Versandbestätigung separat behandeln.",
+      "need": "Auftragspositionen, Teillieferungen, enthaltene Mengen und Übergabe-/Zustellereignisse.",
+      "result": "Offene Mengen je Auftrag und die zugehörigen Sendungen."
+    },
+    "delivery-04": {
+      "q": "Was kann ich diesem Kunden zum Lieferstatus verlässlich antworten?",
+      "method": "Auftrag, letzte Scans und frühere Zusagen für einen Antwortentwurf nutzen. Unbekannte Ankunftsdaten ausdrücklich offen lassen.",
+      "need": "Kunde-zu-Auftrag-Verknüpfungen, Carrier-Verlauf und frühere Kommunikation.",
+      "result": "Kundenfreundlicher Entwurf mit internen Belegen; das Senden bleibt ein separater Schritt."
+    },
+    "invoice-01": {
+      "q": "Welche Rechnungen sind noch offen?",
+      "method": "Jeden Rechnungsstand aus Ursprungsbetrag, Korrekturen und gemeldeten Zahlungen berechnen. Ersetzte Stände nicht erneut summieren.",
+      "need": "Rechnung, Korrekturbelege, gemeldeter Zahlungsstatus und Fälligkeit.",
+      "result": "Offene Beträge und Fälligkeiten mit Belegkette; Zahlungsmarkierungen sind keine Bankbelege."
+    },
+    "invoice-02": {
+      "q": "Für welche Aufträge fehlt nach unserer Regel noch eine Rechnung?",
+      "method": "Aufträge gegen die konfigurierte Rechnungsregel prüfen, z. B. nach Versand. Verknüpfte Rechnungen und Stornos abgleichen.",
+      "need": "Rechnungsregel, Auftrags-/Lieferstatus, Rechnungsverknüpfungen und vollständige Importabdeckung.",
+      "result": "Prüfliste potenziell fehlender Rechnungen; bei unvollständigen Daten bleibt der Status unbekannt."
+    },
+    "invoice-03": {
+      "q": "Wo weicht der Rechnungsbetrag vom vereinbarten Auftragsbetrag ab?",
+      "method": "Positionen, Mengen, Rabatte, Versandkosten, Währung und ausgewiesene Steuern vergleichen. Teilrechnungen berücksichtigen.",
+      "need": "Versionierte Auftrags- und Rechnungspositionen inklusive Teilrechnungsreferenzen.",
+      "result": "Betragsdifferenz je Position mit nachvollziehbarer Abgleichserklärung."
+    },
+    "invoice-04": {
+      "q": "Welche Rechnungen wurden erstellt, aber nicht nachweislich versendet?",
+      "method": "Erstellte Belege mit dem Versandereignis des Rechnungstools verknüpfen. Bei unvollständigen Versanddaten nur fehlende Belege melden.",
+      "need": "Rechnungs-ID, Erstellzeit, Versandstatus und letzte Synchronisationszeit.",
+      "result": "Belege ohne Versandnachweis, inklusive Datenaktualität statt einer unbelegten Schlussfolgerung, sie seien nicht versendet."
+    },
+    "collection-01": {
+      "q": "Welche Aufträge sind nur autorisiert, tatsächlich bezahlt oder noch ausstehend?",
+      "method": "Zahlungsstatus aus Autorisierungs- und Einzugsereignissen ableiten; eine Markierung im Shop ist kein Einzug.",
+      "need": "Auftrag, Zahlungstransaktionen mit Art und Status, Währung.",
+      "result": "Aufträge gruppiert nach bezahlt, nur autorisiert und ausstehend, mit Belegen je Transaktion."
+    },
+    "collection-02": {
+      "q": "Welche fehlgeschlagenen Zahlungen wurden inzwischen erfolgreich nachgeholt?",
+      "method": "Zahlungsversuche je Auftrag gruppieren und einen späteren erfolgreichen Einzug nach einem Fehlschlag erkennen.",
+      "need": "Alle Zahlungsversuche je Auftrag mit Zeit, Status und Betrag.",
+      "result": "Nachgeholte gegenüber weiterhin fehlgeschlagenen Aufträgen, ohne Doppelzählung von Versuchen."
+    },
+    "collection-03": {
+      "q": "Bei welchen Rechnungen passen Teilzahlungen und Restbetrag nicht zusammen?",
+      "method": "Zahlungen explizit Rechnungen zuordnen und zugeordnete Summen mit dem aktuellen Rechnungsstand vergleichen.",
+      "need": "Rechnungen, Zahlungen, Zahlungszuordnungen und Korrekturen.",
+      "result": "Rechnungen mit Über- oder Unterzuordnung und der unerklärten Differenz."
+    },
+    "collection-04": {
+      "q": "Welche fälligen Forderungen sollte Finance heute prüfen?",
+      "method": "Fällige Forderungen nach Alter, Betrag und offenen Klärfällen priorisieren; bereits in Prüfung befindliche Fälle ausschließen.",
+      "need": "Fälligkeiten, offene Beträge, Zuordnungen, offene Fälle und die Mahnregel.",
+      "result": "Priorisierte Prüfliste; Posten mit ungelöster Mehrdeutigkeit werden markiert, nicht automatisch gemahnt."
+    },
+    "settlement-01": {
+      "q": "Wo steckt mein Geld bei den Payment-Providern?",
+      "method": "Anbieterpositionen aus dem Anbieter-Ledger ableiten: verfügbar, unterwegs und mit Bankbeleg abgeglichen sind getrennte Bereiche.",
+      "need": "Anbieter-Ledger, Auszahlungen, Bankbuchungen und Einbehalte.",
+      "result": "Geldpositionen je Anbieterkonto mit Belegen; eine Auszahlung ist kein Umsatz."
+    },
+    "settlement-02": {
+      "q": "Warum ist die Auszahlung niedriger als die eingezogenen Kundenzahlungen?",
+      "method": "Eingezogene Beträge abzüglich Gebühren, Erstattungen, Einbehalten und Anpassungen mit dem Auszahlungsbetrag abgleichen.",
+      "need": "Anbieter-Ledger-Einträge, die zur Auszahlung gehören.",
+      "result": "Brutto-zu-netto-Erklärung je Auszahlung mit etwaigem unerklärtem Rest."
+    },
+    "settlement-03": {
+      "q": "Welche angekündigten oder abgegangenen Auszahlungen haben noch keinen Banknachweis?",
+      "method": "Auszahlungen über Betrag, Referenz und Zeitfenster mit gebuchten Bankbuchungen abgleichen; nicht zugeordnete Auszahlungen bleiben offen.",
+      "need": "Auszahlungen mit Status und unabhängige gebuchte Bankdaten.",
+      "result": "Auszahlungen ohne Bankbestätigung und ihr Alter."
+    },
+    "settlement-04": {
+      "q": "Welche Beträge sind einbehalten und welche Freigabe ist nur angekündigt?",
+      "method": "Anbieter-Einbehalte auflisten und angekündigte von abgeschlossenen Freigaben unterscheiden.",
+      "need": "Einbehalte, Positionen und Freigabeereignisse.",
+      "result": "Einbehaltene Beträge und angekündigte, aber nicht abgeschlossene Freigaben."
+    },
+    "reversal-01": {
+      "q": "Welche Rückgaben sind angekündigt, eingegangen oder bereits erstattet?",
+      "method": "Jede Rückgabe über Ankündigung, Eingang, Wiedereinlagerungsentscheidung und Erstattung verfolgen.",
+      "need": "Retouren, Wareneingänge, Erstattungen und optional Rechnungen/Tracking.",
+      "result": "Retouren je Lebenszyklusphase; ein Eingang ist keine automatische Wiedereinlagerung."
+    },
+    "reversal-02": {
+      "q": "Bei welchen Gutschriften fehlt die zugehörige Erstattung?",
+      "method": "Gutschriften mit Erstattungsansprüchen und abgeschlossenen Erstattungen verknüpfen; eine Gutschrift ist keine Erstattung.",
+      "need": "Rechnungen, Gutschriften, Zahlungen, Ansprüche und Erstattungen.",
+      "result": "Gutschriften ohne abgeschlossene Erstattung und ihr Alter."
+    },
+    "reversal-03": {
+      "q": "Was muss nach einem Storno bei Bestand, Rechnung und Zahlung noch korrigiert werden?",
+      "method": "Den Storno mit Reservierungen, Rechnungen, Zahlungen, Erstattungen und Eingängen vergleichen, um offene Schritte aufzulisten.",
+      "need": "Auftrag, Zuteilungen, Rechnungen, Zahlungen, Erstattungen, Ansprüche und Eingänge.",
+      "result": "Offene Korrekturschritte je Bereich mit Belegen."
+    },
+    "reversal-04": {
+      "q": "Droht eine doppelte Rückzahlung durch Erstattung und Chargeback?",
+      "method": "Erstattungen und Streitfälle je Transaktion und Betrag überlagern; fehlende Streitfall-Abdeckung hält die Antwort partiell.",
+      "need": "Zahlungen, Erstattungen und Streitfälle.",
+      "result": "Transaktionen mit potenzieller Doppelrückzahlung oder eine partielle Antwort, wenn Streitfalldaten fehlen."
+    }
   },
   "landing": {
-    "nav": { "principle": "Das Prinzip", "recorder": "Der Flugschreiber", "agents": "Für Agenten", "install": "Installationsanleitung", "download": "Für Mac herunterladen", "demo": "Demo öffnen" },
+    "nav": {
+      "principle": "Das Prinzip",
+      "recorder": "Der Flugschreiber",
+      "agents": "Für Agenten",
+      "install": "Installationsanleitung",
+      "download": "Für Mac herunterladen",
+      "demo": "Demo öffnen"
+    },
     "hero": {
       "eyebrow": "Das Gedächtnis für dein Handelsbusiness · Private Preview",
       "title1": "Dein Business läuft.",
@@ -1247,7 +2026,10 @@
       "footer2": "Jedes Ereignis bleibt. Jede Antwort hat eine Quelle.",
       "now": "JETZT"
     },
-    "band": { "label": "Deine Tools. Ein gemeinsames Gedächtnis.", "more": "+ jede signierte API" },
+    "band": {
+      "label": "Deine Tools. Ein gemeinsames Gedächtnis.",
+      "more": "+ jede signierte API"
+    },
     "principle": {
       "eyebrow": "Weniger suchen. Mehr wissen.",
       "title": "Ein Geschäft. Endlich ein Zusammenhang.",

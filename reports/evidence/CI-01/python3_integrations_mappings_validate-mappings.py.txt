@@ -1,0 +1,18 @@
+# command: python3 integrations/mappings/validate-mappings.py
+# started: 2026-11-01T12:02:09Z commit 482bdf592a599102a5ddcc18cf4e48f176241177
+ok   shopify.allocations.json: missing=- unsupported_events=['inventory.reserved', 'inventory.reservation_released'] modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify.fulfillments.json: missing=- unsupported_events=- modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify.orders.json: missing=- unsupported_events=- modes={'local_standalone': 'supported', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify.payments.json: missing=- unsupported_events=- modes={'local_standalone': 'supported', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify.receipts.json: missing=- unsupported_events=- modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify.refunds.json: missing=- unsupported_events=['refund.reversed'] modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify.returns.json: missing=['reverse_shipment_id'] unsupported_events=- modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify.stock.json: missing=- unsupported_events=['inventory.adjustment_observed'] modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify_payments.disputes.json: missing=['original_transaction_id'] unsupported_events=- modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify_payments.holds.json: missing=['account_id', 'amount_minor', 'currency', 'evidence_id', 'hold_id', 'reason', 'release_promised_at', 'released_at', 'state', 'transaction_id'] unsupported_events=['provider.hold_recorded', 'provider.hold_released', 'provider.release_promised'] modes={'local_standalone': 'unsupported', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify_payments.payouts.json: missing=['reversal_id', 'trace_reference'] unsupported_events=['payout.reversed'] modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify_payments.positions.json: missing=['available_minor', 'held_minor', 'processing_minor'] unsupported_events=- modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify_payments.provider_ledger.json: missing=- unsupported_events=- modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+ok   shopify_payments.refunds.json: missing=- unsupported_events=['refund.pending', 'refund.failed', 'refund.reversed'] modes={'local_standalone': 'partial', 'local_gateway': 'unsupported', 'public_server': 'unsupported'}
+all mapping artifacts valid
+# exit: 0 finished: 2026-11-01T12:02:10Z

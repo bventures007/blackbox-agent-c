@@ -1,0 +1,23 @@
+# LOCAL-05 / INSTALL — non-default published port defect found on the ops install (2026-11-01)
+
+Install: ~/blackbox-pilot-ops created with `./blackbox setup --port 19185 --project blackbox-agent-c-ops`
+(release 0.1.0-rc6, archive sha256 b2068460b8c4cc32624a35687d22ad9b4f8e06509e47de4bb3eeb644aa486432).
+Setup completed and the owner key was shown once, but every request to the published port was refused:
+
+    $ curl -sS -i --max-time 5 http://127.0.0.1:19185/api/health | head -1
+    HTTP/1.1 403 Forbidden                      (error code host_not_allowed; ./blackbox status: "api health: unreachable";
+                                                 ./blackbox verify: exit 2 although the golden answer check passed via the CLI)
+
+Cause: packages/auth/src/origin.ts allowlisted only `127.0.0.1:<PORT>`/`localhost:<PORT>` with PORT = the
+container-internal listener port (19180). Docker publishes 127.0.0.1:19185 -> 19180, so the browser/curl sends
+`Host: 127.0.0.1:19185`, which was never allowlisted. The same applied to the Origin check of state-changing
+owner requests and to the login route. The api CLI setup message also printed the internal port.
+
+Fix (uncommitted, in the rc6b api image): BLACKBOX_PUBLIC_PORT (Compose: ${BLACKBOX_PORT}) -> ApiConfig.publicPort;
+hostAllowed/originAllowed accept the listener port and the published port (both loopback by construction);
+regression test "accepts the published host port next to the container listener port (setup --port N)" in
+tests/backend/unit/auth-and-plans.test.ts (unit suite 139/139). The 19180 install of the UI verifier was not
+affected because the published port equals the internal one.
+
+Loopback-only publishing itself holds: `docker inspect` shows only the api container publishing 127.0.0.1:19185->19180;
+postgres/engine/worker/backup have no published ports; `BLACKBOX_BIND` other than 127.0.0.1 is refused (wrapper unit test).

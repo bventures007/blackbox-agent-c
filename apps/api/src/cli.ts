@@ -27,6 +27,7 @@ Commands
   verify [--json]                               Golden order state check through the shared query services (physical/available stock, captured, fees, refunded, bank-confirmed). Exit 0 only on an exact match.
   maintenance-lease acquire|release [--reason r] [--ttl-minutes n]   Installation maintenance lease for ./blackbox upgrade.
   create-tenant --name <name> [--seed-order <external order id>]     Test-only: second synthetic workspace (never reachable over HTTP); optionally seeds a colliding order observation.
+  create-tenant-agent-key --tenant <uuid> --name <name> [--json]       Test-only: read-only agent key for an existing synthetic workspace (performance/isolation drivers; host CLI only).
 
 Environment: DATABASE_URL (bb_api), MIGRATE_DATABASE_URL (bb_migrate), SECRETS_DIR, EVIDENCE_DIR, LOGS_DIR, SNAPSHOT_DIR, ENGINE_URL, ENGINE_TOKEN|ENGINE_TOKEN_FILE, PORT, HOST=127.0.0.1.
 Secrets are never accepted as command-line arguments. Keys are shown once on this terminal and never written to logs.
@@ -92,7 +93,7 @@ async function cmdSetup(args: string[]): Promise<number> {
     }
     ctx.logger.info("setup.completed", "Workspace and owner created", { tenant_id: r.tenant_id });
     if (values.json) out(JSON.stringify({ status: "created", tenant_id: r.tenant_id, principal_id: r.principal_id, key: r.key }));
-    else out(keyNotice("owner", r.key) + `\nWorkspace: ${r.tenant_id}\nOpen http://127.0.0.1:${config.port}/ and sign in with the key.`);
+    else out(keyNotice("owner", r.key) + `\nWorkspace: ${r.tenant_id}\nOpen http://127.0.0.1:${config.publicPort}/ and sign in with the key.`);
     return 0;
   });
 }
@@ -166,6 +167,28 @@ async function cmdCreateAgentKey(args: string[]): Promise<number> {
     }
     const r = await ctx.auth.createAgentKey(owner.tenant_id, owner.principal_id, { name: values.name!, expires_at: values.expires ?? null });
     if (values.json) out(JSON.stringify({ status: "created", credential_id: r.credential_id, key: r.key }));
+    else out(keyNotice("agent", r.key) + `\ncredential_id: ${r.credential_id}`);
+    return 0;
+  });
+}
+
+/** Test-only (PILOT-09 / tenant-isolation drivers): a read-only agent principal for a synthetic workspace created by create-tenant. Host CLI only; no HTTP route. */
+async function cmdCreateTenantAgentKey(args: string[]): Promise<number> {
+  const { values } = parseArgs({ args, options: { tenant: { type: "string" }, name: { type: "string" }, expires: { type: "string" }, json: { type: "boolean" } }, strict: true });
+  if (!values.tenant || !values.name) {
+    err("--tenant <uuid> and --name are required");
+    return 2;
+  }
+  return withContext(async (ctx) => {
+    const tenant = await withTenant(ctx.pool, values.tenant!, async (c) => (await c.query<{ tenant_id: string }>("SELECT tenant_id FROM tenants WHERE tenant_id = $1", [values.tenant])).rows[0] ?? null);
+    if (!tenant) {
+      err("unknown tenant");
+      return 2;
+    }
+    // Synthetic workspaces have no owner principal; the nil UUID marks "host CLI" as the creating actor in the audit row.
+    const r = await ctx.auth.createAgentKey(tenant.tenant_id, "00000000-0000-0000-0000-000000000000", { name: values.name!, expires_at: values.expires ?? null });
+    ctx.logger.info("agent.created_by_cli", "Agent key created by the host CLI for a synthetic workspace", { tenant_id: tenant.tenant_id, action_code: "create_tenant_agent_key" });
+    if (values.json) out(JSON.stringify({ status: "created", tenant_id: tenant.tenant_id, credential_id: r.credential_id, key: r.key }));
     else out(keyNotice("agent", r.key) + `\ncredential_id: ${r.credential_id}`);
     return 0;
   });
@@ -496,6 +519,8 @@ async function main(): Promise<number> {
       return cmdMaintenanceLease(rest);
     case "create-tenant":
       return cmdCreateTenant(rest);
+    case "create-tenant-agent-key":
+      return cmdCreateTenantAgentKey(rest);
     case "setup":
       return cmdSetup(rest);
     case "rotate-key":

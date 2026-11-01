@@ -39,7 +39,12 @@ export function useAsync<T>(loader: () => Promise<T>, deps: unknown[], pollMs?: 
       });
     let timer: ReturnType<typeof setInterval> | undefined;
     if (pollMs) {
+      // Bounded overhead: a poll tick is skipped while the previous poll is still in flight, so a slow
+      // backend never accumulates overlapping requests (which would starve the browser's per-origin connections).
+      let inFlight = false;
       timer = setInterval(() => {
+        if (inFlight || document.hidden) return;
+        inFlight = true;
         loader()
           .then((d) => {
             if (!cancelled && alive.current) {
@@ -49,6 +54,9 @@ export function useAsync<T>(loader: () => Promise<T>, deps: unknown[], pollMs?: 
           })
           .catch((e) => {
             if (!cancelled && alive.current) setError(e);
+          })
+          .finally(() => {
+            inFlight = false;
           });
       }, pollMs);
     }

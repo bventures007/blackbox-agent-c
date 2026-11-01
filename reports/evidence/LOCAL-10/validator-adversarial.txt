@@ -1,0 +1,50 @@
+# LOCAL-10 — profile validator: ordinary run, --release run and adversarial tampered copies (copy of the control files in a scratch dir; the repository is untouched)
+# commit 482bdf592a599102a5ddcc18cf4e48f176241177 at 2026-11-01T12:38:16Z
+
+## 1. ordinary validation on the real tree
+Profile valid: 83 active pilot cases, 37 deferred cases, 68 required capability rows.
+This validates scope/evidence records; it does not execute or certify product tests.
+exit 0  (ordinary)
+
+## 2. --release gate on the real tree (expected to FAIL at this stage: evidence not yet recorded, no independent capability approvals)
+ERROR: Commit the tested implementation and evidence before release verification
+exit 1  (release)
+
+## 3. tamper A: a deferred case (AUTH-01) moved into required_acceptance_ids
+ERROR: Scope drift: AUTH-01
+exit 1  (tamperA)
+
+## 4. tamper B: reports/acceptance.json marks PILOT-09 passed without evidence/command (ordinary validator does NOT catch this; only --release does, after the commit precondition)
+Profile valid: 83 active pilot cases, 37 deferred cases, 68 required capability rows.
+This validates scope/evidence records; it does not execute or certify product tests.
+exit 0  (tamperB-ordinary)
+ERROR: Pilot blocked: INSTALL-01 is not_started
+exit 1  (tamperB-release)
+
+## 5. tamper C: a required integration row removed from delivery-profile.json
+ERROR: Pilot provider selection must include every capability row
+exit 1  (tamperC)
+
+## 6. tamper D: a prior history record edited in integrations/history.jsonl (append-only check against the base commit)
+ERROR: History is append-only: existing records were edited/deleted
+exit 1  (tamperD)
+
+## 7. tamper E: smoke target loosened in benchmarks/performance-contract.json (profile validator vs tooling regression suite)
+Profile valid: 83 active pilot cases, 37 deferred cases, 68 required capability rows.
+This validates scope/evidence records; it does not execute or certify product tests.
+exit 0  (tamperE-validator)
+----------------------------------------------------------------------
+Ran 45 tests in 26.014s
+
+OK
+exit 0  (tamperE-unittest)
+
+## 8. tamper F: every active case marked passed with committed evidence EXCEPT PILOT-09 (evidence_paths empty) — the --release gate must name it
+ERROR: Evidence paths required: PILOT-09
+exit 1  (tamperF-release)
+
+## 9. tamper G: as F but with PILOT-09 evidence present and no capability approvals (shows the independent-approval precondition)
+ERROR: Pilot blocked: bank_csv.bank is not independently approved
+exit 1  (tamperG-release)
+
+## findings: the ordinary validator checks scope/selection consistency only (B and E pass it by design); --release catches a case without evidence (F) and stops at the first failed precondition; a loosened performance target (E) is caught by neither the validator nor scripts/tests — the smoke targets are protected only by review/diff of benchmarks/performance-contract.json

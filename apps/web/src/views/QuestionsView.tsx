@@ -4,10 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { PageHeading } from '../components/AppShell';
 import { Icon } from '../components/Icon';
 import { Drawer, EmptyState, ErrorNote, Loading, StatusBadge } from '../components/ui';
-import { EntryDrawer, EvidenceBox } from '../components/EntryDrawer';
+import { EntryDrawer, EvidenceBox, entrySummary } from '../components/EntryDrawer';
 import { ReadinessSummary } from '../components/ReadinessSummary';
+import { journalRefId } from '../api/adapters';
 import { journal as journalApi, questions as questionsApi } from '../api/endpoints';
-import type { EvidenceRef, ParamSchemaProperty, QuestionResult, QuestionTemplate, SearchResult } from '../api/types';
+import type { ParamSchemaProperty, QuestionResult, QuestionTemplate, SearchResult } from '../api/types';
+
+/** Which parameters name an entity (offers the literal journal search as disambiguation). Presentation only. */
+const ENTITY_PARAMS: Record<string, string> = { item_id: 'item', order_id: 'order', customer_id: 'customer', invoice_id: 'invoice', shipment_id: 'shipment', transaction_id: 'transaction', payout_id: 'payout', refund_id: 'refund', return_id: 'return', reservation_id: 'reservation', supply_id: 'supplier_order', location_id: 'location', bank_entry_id: 'bank_entry', dispute_id: 'dispute', hold_id: 'hold', case_id: 'case', promise_id: 'promise', entitlement_id: 'entitlement', account_ref: 'provider_account' };
+/** Headline field per intent (the API result field that answers the question; no computation). */
+const HEADLINE: Record<string, { field: string; kind: 'quantity' | 'money' | 'count' | 'text' | 'boolean' }> = {
+  'inventory.available_to_sell': { field: 'available', kind: 'quantity' },
+};
 import { useAsync } from '../hooks';
 import { useFormat } from '../format';
 
@@ -192,8 +200,8 @@ function AskForm({ template }: { template: QuestionTemplate }) {
     const params: Record<string, unknown> = {};
     for (const [k, p] of Object.entries(props)) {
       const v = values[k];
-      if (v === '' || v === undefined) continue;
-      params[k] = p.type === 'integer' || p.type === 'number' ? Number(v) : v;
+      if (v === '' || v === undefined || v === false) continue;
+      params[k] = p.type === 'integer' || p.type === 'number' ? Number(v) : p.type === 'array' ? String(v).split(',').map((x) => x.trim()).filter(Boolean) : v;
     }
     setBusy(true);
     try {
@@ -240,12 +248,21 @@ function ParamField({ name, schema, required, value, onChange, templateId }: { n
   const label = `${t(`params.${name}`, { defaultValue: name })}${required ? ' *' : ''}`;
   const [candidates, setCandidates] = useState<SearchResult['entities'] | null>(null);
   const [lookupError, setLookupError] = useState<unknown>(null);
-  if (schema['x-entity']) {
+  const entityType = ENTITY_PARAMS[name];
+  if (entityType) {
+    // Literal search over record ids / entity refs (GET /api/search); candidates are the distinct entity ids of the matching entries.
     const lookup = async () => {
       setLookupError(null);
       try {
         const r = await journalApi.search(String(value ?? ''));
-        setCandidates(r.entities.filter((e) => e.type === schema['x-entity']));
+        const seen = new Map<string, SearchResult['entities'][number]>();
+        for (const e of r.entries) {
+          const id = e.entity_refs[entityType] ?? (e.record_id.startsWith(`${entityType}:`) ? e.record_id.slice(entityType.length + 1) : null);
+          if (!id || seen.has(id)) continue;
+          const name = typeof e.payload.title === 'string' ? e.payload.title : typeof e.payload.name === 'string' ? e.payload.name : typeof e.payload.sku === 'string' ? e.payload.sku : null;
+          seen.set(id, { type: entityType, id, label: name && name !== id ? `${name} (${id})` : id, secondary: e.event_type });
+        }
+        setCandidates(Array.from(seen.values()));
       } catch (e) {
         setLookupError(e);
       }
@@ -254,13 +271,13 @@ function ParamField({ name, schema, required, value, onChange, templateId }: { n
       <div className="filter-field entity-field">
         <label htmlFor={id}>{label}</label>
         <div className="key-input-row">
-          <input id={id} className="field" value={String(value ?? '')} onChange={(e) => { onChange(e.target.value); setCandidates(null); }} placeholder={t(`entityPlaceholder.${schema['x-entity']}`)} aria-describedby={`${id}-hint`} />
+          <input id={id} className="field" value={String(value ?? '')} onChange={(e) => { onChange(e.target.value); setCandidates(null); }} placeholder={t(`entityPlaceholder.${entityType}`, { defaultValue: '' })} aria-describedby={`${id}-hint`} />
           <button type="button" className="btn small secondary" onClick={() => void lookup()}>
             <Icon name="search" /> {t('questions.lookup')}
           </button>
         </div>
         <small id={`${id}-hint`} className="muted">
-          {t('questions.entityHint', { type: t(`entityTypes.${schema['x-entity']}`) })}
+          {t('questions.entityHint', { type: t(`entityTypes.${entityType}`, { defaultValue: entityType }) })}
         </small>
         <ErrorNote error={lookupError} />
         {candidates && (
@@ -268,7 +285,7 @@ function ParamField({ name, schema, required, value, onChange, templateId }: { n
             {candidates.length === 0 && <span className="muted">{t('questions.noCandidates')}</span>}
             {candidates.map((c) => (
               <button key={c.id} type="button" role="option" aria-selected={value === c.id} onClick={() => { onChange(c.id); setCandidates(null); }}>
-                {c.label} <small>({c.id}{c.secondary ? ` · ${c.secondary}` : ''})</small>
+                {c.label} <small>{c.secondary ? `· ${c.secondary}` : ''}</small>
               </button>
             ))}
           </div>
@@ -311,74 +328,112 @@ export function AnswerPanel({ result, templateId }: { result: QuestionResult; te
   const f = useFormat();
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [openEntry, setOpenEntry] = useState<string | null>(null);
+  const res = result.result ?? {};
+  const unit = typeof res.unit === 'string' ? res.unit : undefined;
+  const currency = typeof res.currency === 'string' ? res.currency : undefined;
+  const fmt = (key: string, v: unknown): string => {
+    if (v === null || v === undefined) return t('common.unknown');
+    if (typeof v === 'boolean') return v ? t('common.yes') : t('common.no');
+    if (key.endsWith('_minor') && (typeof v === 'number' || typeof v === 'string')) return f.money(v, currency);
+    if (/_at$|^basis_at$|_date$/.test(key) && typeof v === 'string') return f.dateTimeSeconds(v);
+    if (typeof v === 'number') return f.number(v);
+    if (typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v) && unit && !key.endsWith('_id')) return f.quantity(v, unit);
+    if (typeof v === 'string') return t(`values.${v}`, { defaultValue: v });
+    return JSON.stringify(v);
+  };
   const headline = useMemo(() => {
-    if (!result.headline) return null;
-    const h = result.headline;
-    if (h.kind === 'money') return f.money(h.value as number, h.currency);
-    if (h.kind === 'quantity') return f.quantity(h.value, h.unit);
-    if (h.kind === 'count') return f.number(h.value as number);
-    return String(h.value ?? t('common.unknown'));
+    const h = HEADLINE[result.intent];
+    if (!h) return null;
+    const v = res[h.field];
+    if (v === null || v === undefined) return null;
+    return fmt(h.field, v);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, f, t]);
-  const summary = result.summary_key ? t(`answerSummaries.${result.summary_key}`, { ...(result.summary_params ?? {}), defaultValue: '' }) : '';
+  const scalarFields = Object.entries(res).filter(([, v]) => v === null || typeof v !== 'object');
+  const tables = Object.entries(res).filter(([, v]) => Array.isArray(v)) as Array<[string, unknown[]]>;
+  const evidenceEntries = result.evidence_refs.map(journalRefId).filter((x): x is string => Boolean(x));
+  const unknown = result.status === 'unknown' || result.status === 'insufficient_data';
+  const readinessBlock = { datasets_present: result.coverage?.datasets_present ?? [], datasets_missing: result.coverage?.datasets_missing ?? [], sources: result.readiness?.sources ?? [] };
 
   return (
     <section className="answer-output" aria-live="polite" aria-label={t('answer.title')}>
       <div className="eyebrow">
-        <Icon name="spark" /> {t('answer.eyebrow')} · <StatusBadge kind={result.status} label={t(`answerStatus.${result.status}`)} />
+        <Icon name="spark" /> {t('answer.eyebrow')} · <StatusBadge kind={result.status} label={t(`answerStatus.${result.status}`, { defaultValue: result.status })} />
+        {result.readiness && <> · <StatusBadge kind={result.readiness.status} label={`${t('readiness.title')}: ${t(`readinessState.${result.readiness.status}`)}`} /></>}
       </div>
-      <h3>{result.status === 'insufficient_data' ? t('answer.unknownHeadline') : result.status === 'conflict' ? t('answer.conflictHeadline') : headline ?? t(`questionsCatalog.${templateId}.q`)}</h3>
-      {summary && <p>{summary}</p>}
-      {result.scope.entity && (
-        <p className="micro">
-          {t('answer.entity')}: <Link to={`/app/entities/${result.scope.entity.type}/${encodeURIComponent(result.scope.entity.id)}`}>{result.scope.entity.label}</Link>
-        </p>
+      <h3>{unknown ? t('answer.unknownHeadline') : result.status === 'conflict' ? t('answer.conflictHeadline') : result.status === 'unsupported' ? t('answer.unsupportedHeadline') : headline ?? t(`questionsCatalog.${templateId}.q`)}</h3>
+      {headline && !unknown && result.intent === 'inventory.available_to_sell' && (
+        <p>{t(res.can_fulfill === true ? 'answerSummaries.can_fulfill_yes' : res.can_fulfill === false ? 'answerSummaries.can_fulfill_no' : 'answerSummaries.available_to_sell', { available: headline, requested: fmt('requested_quantity', res.requested_quantity), shortfall: fmt('shortfall', res.shortfall) })}</p>
       )}
-      {result.calculation.steps.length > 0 && (
-        <div className="math-row" aria-label={t('answer.calculation')}>
-          {result.calculation.steps.map((s, i) => (
-            <span key={i} className="math-pair">
-              <span className="math-item">
-                <strong>{s.currency ? f.money(s.value as number, s.currency) : s.unit ? f.quantity(s.value, s.unit) : String(s.value ?? '–')}</strong>
-                <small>{t(`calcLabels.${s.label_key}`, { defaultValue: s.label })}</small>
-              </span>
-              {s.operator && <span className="math-op" aria-label={t(`operators.${s.operator}`, { defaultValue: s.operator })}>{s.operator}</span>}
-            </span>
+      {Object.entries(result.params ?? {}).filter(([k]) => ENTITY_PARAMS[k]).map(([k, v]) => (
+        <p className="micro" key={k}>
+          {t('answer.entity')}: <Link to={`/app/entities/${ENTITY_PARAMS[k]}/${encodeURIComponent(String(v))}`}>{t(`entityTypes.${ENTITY_PARAMS[k]}`, { defaultValue: ENTITY_PARAMS[k] })} {String(v)}</Link>
+        </p>
+      ))}
+      {result.calculation.length > 0 && (
+        <div className="math-steps" aria-label={t('answer.calculation')}>
+          {result.calculation.map((s, i) => (
+            <div key={i} className="math-item">
+              <strong>{t(`calcLabels.${s.step}`, { defaultValue: s.step })}</strong>
+              <code className="mono formula">{s.formula}</code>
+              <small>
+                {Object.entries(s.values ?? {}).map(([k, v]) => (
+                  <span key={k} className="math-value">
+                    {t(`calcLabels.${k}`, { defaultValue: k })} = <b>{fmt(k, v)}</b>
+                  </span>
+                ))}
+              </small>
+            </div>
           ))}
         </div>
       )}
-      <p className="micro">
-        {t('answer.rule')}: <code>{result.calculation.rule} v{result.calculation.version}</code>
-      </p>
-      {result.result && result.result.rows.length > 0 && (
-        <div className="ledger-table-wrap">
-          <table className="ledger-table small">
-            <thead>
-              <tr>
-                {(result.result.columns ?? result.result.rows[0].cells.map((c) => c.key)).map((c) => (
-                  <th key={c}>{t(`columns.${c}`, { defaultValue: c })}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {result.result.rows.map((row) => (
-                <tr key={row.id}>
-                  {row.cells.map((c) => (
-                    <td key={c.key}>
-                      {c.kind === 'money' ? f.money(c.value as number, c.currency) : c.kind === 'quantity' ? f.quantity(c.value, c.unit) : c.kind === 'date' ? f.date(String(c.value)) : c.kind === 'status' ? <StatusBadge kind={String(c.value)} label={t(`values.${c.value}`, { defaultValue: String(c.value) })} /> : t(`values.${c.value}`, { defaultValue: String(c.value ?? '–') })}
-                    </td>
+      {scalarFields.length > 0 && (
+        <dl className="detail-meta answer-fields">
+          {scalarFields.map(([k, v]) => (
+            <div key={k}>
+              <dt>{t(`fields.${k}`, { defaultValue: k })}</dt>
+              <dd>{fmt(k, v)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {tables.map(([key, rows]) => (
+        <div className="ledger-table-wrap" key={key}>
+          <h4 className="drawer-subtitle">{t(`fields.${key}`, { defaultValue: key })}</h4>
+          {rows.length === 0 ? (
+            <p className="muted">{result.status === 'complete' ? t('answer.emptyWithCoverage') : t('common.none')}</p>
+          ) : (
+            <table className="ledger-table small">
+              <thead>
+                <tr>
+                  {Object.keys((rows[0] as Record<string, unknown>) ?? {}).map((c) => (
+                    <th key={c}>{t(`columns.${c}`, { defaultValue: c })}</th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {result.result.truncated && <p className="micro">{t('answer.truncated')}</p>}
+              </thead>
+              <tbody>
+                {rows.map((row, i) => (
+                  <tr key={i}>
+                    {Object.entries((row as Record<string, unknown>) ?? {}).map(([c, v]) => (
+                      <td key={c}>{typeof v === 'object' && v !== null ? JSON.stringify(v) : fmt(c, v)}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-      )}
-      {result.result && result.result.rows.length === 0 && result.status === 'complete' && <p className="muted">{t('answer.emptyWithCoverage')}</p>}
-      {result.warnings.map((w) => (
+      ))}
+      {result.page?.truncated && <p className="micro">{t('answer.truncated')}</p>}
+      {(result.warnings ?? []).map((w) => (
         <div className="answer-warning" key={w}>
           {t(`answerWarnings.${w}`, { defaultValue: w })}
         </div>
+      ))}
+      {(result.readiness?.reasons ?? []).map((r) => (
+        <p className="micro" key={r}>
+          {r}
+        </p>
       ))}
       {result.missing_inputs.length > 0 && (
         <div className="answer-warning">
@@ -387,61 +442,50 @@ export function AnswerPanel({ result, templateId }: { result: QuestionResult; te
           <Link to="/app/sources">{t('answer.connectMissing')} →</Link>
         </div>
       )}
-      {result.conflicts.map((c) => (
-        <div className="answer-warning" key={c.code}>
-          <strong>{t('answer.conflict')} ({c.code}):</strong> {c.description}{' '}
-          {c.entry_ids.map((id) => (
+      {unknown && result.missing_inputs.length === 0 && (
+        <div className="answer-warning">
+          <strong>{t('answer.missingInputs')}:</strong> {result.calculation.map((c) => c.formula).join('; ') || t('answer.noBasis')}
+        </div>
+      )}
+      {result.conflicts.map((c, i) => (
+        <div className="answer-warning" key={i}>
+          <strong>{t('answer.conflict')}{typeof c.code === 'string' ? ` (${c.code})` : ''}:</strong> {typeof c.description === 'string' ? c.description : JSON.stringify(c)}{' '}
+          {(Array.isArray(c.entry_ids) ? (c.entry_ids as string[]) : []).map((id) => (
             <button key={id} type="button" className="citation-btn" onClick={() => setOpenEntry(id)}>
-              {id.slice(-6)}
+              {id.slice(0, 8)}
             </button>
           ))}
         </div>
       ))}
       <div className="chip-row">
-        {result.evidence.map((ev: EvidenceRef) => (
-          <button key={ev.entry_id} type="button" className="citation-btn" onClick={() => setOpenEntry(ev.entry_id)}>
-            [{ev.record_id}] <Icon name="chevron" />
+        {evidenceEntries.slice(0, 12).map((id) => (
+          <button key={id} type="button" className="citation-btn" onClick={() => setOpenEntry(id)}>
+            [{id.slice(0, 8)}] <Icon name="chevron" />
           </button>
         ))}
-        {result.evidence.length > 0 && (
+        {evidenceEntries.length > 12 && <span className="muted">+{evidenceEntries.length - 12}</span>}
+        {evidenceEntries.length > 0 && (
           <button type="button" className="btn small secondary" onClick={() => setEvidenceOpen(true)}>
-            <Icon name="list" /> {t('answer.openEvidence', { count: result.evidence.length })}
+            <Icon name="list" /> {t('answer.openEvidence', { count: evidenceEntries.length })}
           </button>
         )}
       </div>
       <p className="proof-line">
-        <Icon name="clock" /> {t('answer.cutoffs', { effective: f.dateTimeSeconds(result.effective_at), recorded: f.dateTimeSeconds(result.recorded_cutoff), applied: result.consistency.applied_cursor ?? '–', count: result.evidence.length })}
+        <Icon name="clock" /> {t('answer.cutoffs', { effective: f.dateTimeSeconds(result.consistency?.effective_cutoff ?? null), recorded: f.dateTimeSeconds(result.consistency?.recorded_cutoff ?? null), applied: result.consistency?.applied_cursor ?? '–', count: evidenceEntries.length })}
       </p>
-      {result.coverage.length > 0 && (
-        <table className="mini-table">
-          <thead>
-            <tr>
-              <th>{t('connection.capability')}</th>
-              <th>{t('answer.population')}</th>
-              <th>{t('connection.coverageInterval')}</th>
-              <th>{t('connection.completeness')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.coverage.map((c, i) => (
-              <tr key={i}>
-                <td>{t(`capabilities.${c.capability_id}`, { defaultValue: c.capability_id })}</td>
-                <td>{c.population}</td>
-                <td>{c.interval_from ? `${f.dateTime(c.interval_from)} – ${f.dateTime(c.interval_to)}` : t('common.unknown')}</td>
-                <td>
-                  <StatusBadge kind={c.completeness === 'complete_for_declared_scope' ? 'complete' : c.completeness} label={t(`completeness.${c.completeness}`, { defaultValue: c.completeness })} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {result.coverage && (
+        <p className="micro">
+          {t('answer.populationLine', { considered: result.coverage.population?.records_considered ?? '–', returned: result.coverage.population?.returned ?? '–' })}
+          {result.coverage.evidence_truncated ? ` · ${t('answer.truncated')}` : ''}
+          {result.coverage.incoming_supply_known === false ? ` · ${t('answerWarnings.incoming_supply_not_counted')}` : ''}
+        </p>
       )}
-      <ReadinessSummary readiness={result.readiness} consistency={result.consistency} compact />
+      <ReadinessSummary readiness={readinessBlock} consistency={result.consistency} compact />
       {evidenceOpen && (
         <Drawer title={t('answer.evidenceDrawerTitle')} eyebrow={<><Icon name="shield" /> {t('answer.evidenceEyebrow')}</>} onClose={() => setEvidenceOpen(false)}>
-          <p>{t('answer.evidenceIntro', { count: result.evidence.length })}</p>
-          {result.evidence.map((ev) => (
-            <EvidenceEntry key={ev.entry_id} ev={ev} onOpen={() => { setEvidenceOpen(false); setOpenEntry(ev.entry_id); }} />
+          <p>{t('answer.evidenceIntro', { count: evidenceEntries.length })}</p>
+          {evidenceEntries.map((id) => (
+            <EvidenceEntry key={id} entryId={id} onOpen={() => { setEvidenceOpen(false); setOpenEntry(id); }} />
           ))}
         </Drawer>
       )}
@@ -450,22 +494,33 @@ export function AnswerPanel({ result, templateId }: { result: QuestionResult; te
   );
 }
 
-function EvidenceEntry({ ev, onOpen }: { ev: EvidenceRef; onOpen: () => void }) {
+/** One cited journal entry inside the evidence drawer: track, record, event and its raw evidence objects. */
+function EvidenceEntry({ entryId, onOpen }: { entryId: string; onOpen: () => void }) {
   const { t } = useTranslation();
-  const meta = useAsync(() => journalApi.evidence(ev.evidence_id), [ev.evidence_id]);
+  const f = useFormat();
+  const entry = useAsync(() => journalApi.entry(entryId), [entryId]);
+  const e = entry.data;
   return (
     <div className="evidence-entry">
       <button type="button" className="detail-link" onClick={onOpen}>
         <span>
-          <span className="type-tag" data-track={ev.track}>
-            {t(`tracks.${ev.track}`)}
-          </span>{' '}
-          <code className="mono">{ev.record_id}</code> · {ev.label}
+          {e ? (
+            <>
+              <span className="type-tag" data-track={e.track}>
+                {t(`tracks.${e.track}`)}
+              </span>{' '}
+              <code className="mono">{entrySummary(e)}</code> · {f.dateTimeSeconds(e.occurred_at)}
+            </>
+          ) : (
+            <code className="mono">{entryId}</code>
+          )}
         </span>
         <Icon name="chevron" />
       </button>
-      {meta.data && meta.data.evidence_id && <EvidenceBox evidence={meta.data} />}
-      {meta.data && !meta.data.evidence_id && <p className="micro">{t('evidenceStatus.unavailable')}</p>}
+      {e?.evidence_refs.map((id) => (
+        <EvidenceBox key={id} evidenceId={id} />
+      ))}
+      {e && e.evidence_refs.length === 0 && <p className="micro">{t('journal.noEvidence')}</p>}
     </div>
   );
 }

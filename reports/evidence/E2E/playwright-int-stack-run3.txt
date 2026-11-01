@@ -1,0 +1,1666 @@
+$ playwright test
+
+Running 68 tests using 1 worker
+
+  ✓   1 [desktop] › tests/01-auth.spec.ts:5:3 › access-key sign-in › rejects an invalid key with a localized error and never stores the key in localStorage (3.7s)
+  ✓   2 [desktop] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access (13.6s)
+  ✓   3 [desktop] › tests/01-auth.spec.ts:33:3 › access-key sign-in › German login copy (1.5s)
+  ✓   4 [desktop] › tests/01-auth.spec.ts:42:3 › access-key sign-in › logout ends the session (23.0s)
+  ✘   5 [desktop] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en (34.6s)
+  ✘   6 [desktop] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de (25.2s)
+  ✘   7 [desktop] › tests/02-demo-question.spec.ts:54:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero (1.2m)
+  ✘   8 [desktop] › tests/02-demo-question.spec.ts:69:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history (31.9s)
+  ✘   9 [desktop] › tests/02-demo-question.spec.ts:85:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it (1.1m)
+  ✓  10 [desktop] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action (15.7s)
+  ✘  11 [desktop] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (23.9s)
+  ✘  12 [desktop] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (49.9s)
+  ✘  13 [desktop] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form (2.2m)
+  ✓  14 [desktop] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence (42.6s)
+  ✓  15 [desktop] › tests/03-views.spec.ts:97:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config (11.7s)
+  ✓  16 [desktop] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls (33.3s)
+  ✓  17 [desktop] › tests/03-views.spec.ts:123:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle (32.7s)
+  ✓  18 [desktop] › tests/03-views.spec.ts:133:5 › views in en › keyboard navigation of the main nav and of a dialog (27.8s)
+  ✓  19 [desktop] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action (19.1s)
+  ✘  20 [desktop] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (28.7s)
+  ✓  21 [desktop] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (2.8m)
+  ✘  22 [desktop] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form (43.0s)
+  ✘  23 [desktop] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence (28.6s)
+  ✘  24 [desktop] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config (2.1m)
+  ✘  25 [desktop] › tests/03-views.spec.ts:113:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls (1.0m)
+  ✘  26 [desktop] › tests/03-views.spec.ts:123:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle (1.7m)
+  ✓  27 [desktop] › tests/03-views.spec.ts:133:5 › views in de › keyboard navigation of the main nav and of a dialog (1.6m)
+  ✘  28 [desktop] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings (1.8m)
+  ✘  29 [desktop] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges (42.1s)
+  ✓  30 [desktop] › tests/04-diagnostics.spec.ts:69:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download (2.2m)
+  ✘  31 [desktop] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter (3.2m)
+  ✓  32 [desktop] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in en (7.2s)
+  ✓  33 [desktop] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in de (2.1s)
+  ✓  34 [desktop] › tests/05-landing.spec.ts:52:3 › landing page (served from a separate static base URL) › the HTML contains no embedded credentials or private tokens (907ms)
+  ✓  35 [mobile] › tests/01-auth.spec.ts:5:3 › access-key sign-in › rejects an invalid key with a localized error and never stores the key in localStorage (17.5s)
+  ✘  36 [mobile] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access (1.7m)
+  ✓  37 [mobile] › tests/01-auth.spec.ts:33:3 › access-key sign-in › German login copy (37.9s)
+  ✘  38 [mobile] › tests/01-auth.spec.ts:42:3 › access-key sign-in › logout ends the session (2.4m)
+  ✘  39 [mobile] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en (3.2m)
+  ✘  40 [mobile] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de (2.2m)
+  ✘  41 [mobile] › tests/02-demo-question.spec.ts:54:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero (2.8m)
+  ✘  42 [mobile] › tests/02-demo-question.spec.ts:69:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history (2.5m)
+  ✘  43 [mobile] › tests/02-demo-question.spec.ts:85:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it (3.0m)
+  ✘  44 [mobile] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action (3.4m)
+  ✘  45 [mobile] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (5.7m)
+  ✘  46 [mobile] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (4.4m)
+  ✘  47 [mobile] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form (3.7m)
+  ✘  48 [mobile] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence (3.1m)
+  ✘  49 [mobile] › tests/03-views.spec.ts:97:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config (6.3m)
+  ✘  50 [mobile] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls (5.2m)
+  ✘  51 [mobile] › tests/03-views.spec.ts:123:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle (3.2m)
+  ✘  52 [mobile] › tests/03-views.spec.ts:133:5 › views in en › keyboard navigation of the main nav and of a dialog (3.6m)
+  ✘  53 [mobile] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action (3.5m)
+  ✘  54 [mobile] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (3.2m)
+  ✘  55 [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (4.2m)
+  ✘  56 [mobile] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form (4.6m)
+  ✘  57 [mobile] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence (3.0m)
+  ✘  58 [mobile] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config (6.2m)
+  ✓  59 [mobile] › tests/03-views.spec.ts:113:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls (1.4m)
+  ✓  60 [mobile] › tests/03-views.spec.ts:123:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle (34.5s)
+  ✓  61 [mobile] › tests/03-views.spec.ts:133:5 › views in de › keyboard navigation of the main nav and of a dialog (2.0m)
+  ✓  62 [mobile] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings (3.6m)
+  ✘  63 [mobile] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges (1.4m)
+  ✘  64 [mobile] › tests/04-diagnostics.spec.ts:69:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download (10.4m)
+  ✘  65 [mobile] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter (10.1m)
+  ✓  66 [mobile] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in en (1.7s)
+  ✓  67 [mobile] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in de (3.8s)
+  ✓  68 [mobile] › tests/05-landing.spec.ts:52:3 › landing page (served from a separate static base URL) › the HTML contains no embedded credentials or private tokens (732ms)
+
+
+  1) [desktop] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.toast.show')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.toast.show') with timeout 10000ms
+      - waiting for locator('.toast.show')
+
+
+      15 |       const alongside = dialog.getByRole('button', { name: locale === 'en' ? 'Add demo data alongside my data' : 'Demo-Daten neben meinen Daten laden' });
+      16 |       if (await alongside.isVisible({ timeout: 3000 }).catch(() => false)) await alongside.click();
+    > 17 |       await expect(page.locator('.toast.show')).toBeVisible();
+         |                                                 ^
+      18 |       await expect(page.locator('.track-row[data-track="source"] .event-chip').first()).toBeVisible();
+      19 |       await expect(page.locator('.track-row[data-track="fact"] .event-chip').first()).toBeVisible();
+      20 |       await page.goto('/app/questions?q=order-01');
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:17:49
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.toast.show')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.toast.show') with timeout 10000ms
+      - waiting for locator('.toast.show')
+
+
+      15 |       const alongside = dialog.getByRole('button', { name: locale === 'en' ? 'Add demo data alongside my data' : 'Demo-Daten neben meinen Daten laden' });
+      16 |       if (await alongside.isVisible({ timeout: 3000 }).catch(() => false)) await alongside.click();
+    > 17 |       await expect(page.locator('.toast.show')).toBeVisible();
+         |                                                 ^
+      18 |       await expect(page.locator('.track-row[data-track="source"] .event-chip').first()).toBeVisible();
+      19 |       await expect(page.locator('.track-row[data-track="fact"] .event-chip').first()).toBeVisible();
+      20 |       await page.goto('/app/questions?q=order-01');
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:17:49
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/02-demo-question.spec.ts:54:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.fill: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('form', { name: /Can I still sell/ }).getByLabel('Item *')
+
+
+      56 |     await page.goto('/app/questions?q=order-01');
+      57 |     const form = page.getByRole('form', { name: /Can I still sell/ });
+    > 58 |     await form.getByLabel('Item *').fill('CUP-UNKNOWN');
+         |                                     ^
+      59 |     await form.getByLabel('Quantity *').fill('100');
+      60 |     await form.getByRole('button', { name: 'Ask', exact: true }).click();
+      61 |     const answer = page.locator('.answer-output');
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:58:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › tests/02-demo-question.spec.ts:69:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 30000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) {
+      87 |     await page.locator('.app-topbar select').selectOption(locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:70:5
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-3/traces/3b29a265d3a46d4e6f1a-f77032925fe5caa800b8-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-3/traces/3b29a265d3a46d4e6f1a-f77032925fe5caa800b8-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-3/traces/3b29a265d3a46d4e6f1a-f77032925fe5caa800b8.network'
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-3/93ffeaee9ec81a1f5e3b102b467a76f5.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop] › tests/02-demo-question.spec.ts:85:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.integration-card').filter({ hasText: 'Replay (fixtures)' }).getByRole('button', { name: /Connect/ })
+
+
+       96 |     // 1. Two unmatched payouts with the same amount through the deterministic replay producer (owner-only UI dialog).
+       97 |     await page.goto('/app/sources');
+    >  98 |     await page.locator('.integration-card', { hasText: 'Replay (fixtures)' }).getByRole('button', { name: /Connect/ }).click();
+          |                                                                                                                        ^
+       99 |     const dialog = page.getByRole('dialog');
+      100 |     await dialog.getByLabel('Connection name').fill(`e2e replay ${stamp}`);
+      101 |     const events = ['A', 'B'].map((x) => ({ provider_event_id: `e2e-${stamp}-${x}`, kind: 'payout.sent', occurred_at: '2026-10-30T10:00:00Z', entity: { payout: `OUT-${stamp}-${x}` }, payload: { payout: `OUT-${stamp}-${x}`, amount_minor: 4242, currency: 'EUR' }, evidence_refs: [] }));
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:98:120
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.review-card').first()
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.review-card').first() with timeout 10000ms
+      - waiting for locator('.review-card').first()
+
+
+      28 |       await expect(page.locator('.status-badge[data-state="implemented"], .status-badge[data-state="syncing"], .status-badge[data-state="degraded"]').first()).toBeVisible();
+      29 |       await expect(page.getByRole('heading', { name: T[locale].review })).toBeVisible();
+    > 30 |       await expect(page.locator('.review-card').first()).toBeVisible();
+         |                                                          ^
+      31 |       await expectWithinViewport(page, [page.locator('.integration-card .btn').first(), page.locator('.source-jump-links a').first()]);
+      32 |       await screenshot(page, testInfo, locale, '11-sources');
+      33 |       // connect dialog (shopify) opens, has fields, Escape closes it
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:30:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [desktop] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Import plan' })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Import plan' }) with timeout 10000ms
+      - waiting for getByRole('heading', { name: 'Import plan' })
+
+
+      45 |       // The demo spec (02) created the demo connections; open the first connected row.
+      46 |       await page.locator('.ledger-table tr[data-action]').first().click();
+    > 47 |       await expect(page.getByRole('heading', { name: locale === 'en' ? 'Import plan' : 'Importplan' })).toBeVisible();
+         |                                                                                                         ^
+      48 |       await expect(page.getByText(locale === 'en' ? 'Last successful check' : 'Letzte erfolgreiche Prüfung').first()).toBeVisible();
+      49 |       await expect(page.getByText(locale === 'en' ? 'Last new event' : 'Letztes neues Ereignis').first()).toBeVisible();
+      50 |       await expect(page.getByText(locale === 'en' ? 'Capabilities' : 'Fähigkeiten').first()).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:47:105
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-6/traces/f909baf0fb732dc32957-530905ab3af84fc9a78c-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-6/traces/f909baf0fb732dc32957-530905ab3af84fc9a78c-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-6/traces/f909baf0fb732dc32957-530905ab3af84fc9a78c.network'
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-6/af9d720cbf407e5ea741cad4f73f80d9.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [desktop] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Good questions. Evidence-backed answers.' })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Good questions. Evidence-backed answers.' }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Good questions. Evidence-backed answers.' })
+
+
+      67 |     test('questions: six groups, 24 templates, labeled search box, typed parameter form', async ({ page }, testInfo) => {
+      68 |       await page.goto('/app/questions');
+    > 69 |       await expect(page.getByRole('heading', { name: T[locale].questions })).toBeVisible();
+         |                                                                              ^
+      70 |       await expect(page.locator('.otc-card')).toHaveCount(6);
+      71 |       await expect(page.locator('.otc-question')).toHaveCount(24);
+      72 |       await expect(page.getByText(locale === 'en' ? 'search only — not a chat' : 'nur Suche — kein Chat')).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:69:78
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [desktop] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Dein Business hat viele Quellen.' })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Dein Business hat viele Quellen.' }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Dein Business hat viele Quellen.' })
+
+
+      21 |     test('sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list', async ({ page }, testInfo) => {
+      22 |       await page.goto('/app/sources');
+    > 23 |       await expect(page.getByRole('heading', { name: T[locale].sources })).toBeVisible();
+         |                                                                            ^
+      24 |       const cats = locale === 'en' ? ['Shops & business', 'Payments & payouts', 'Invoices & accounting', 'Shipping sources'] : ['Shops & Business', 'Zahlungen & Auszahlungen', 'Rechnungen & Buchhaltung', 'Versandquellen'];
+      25 |       for (const c of cats) await expect(page.getByRole('heading', { name: c, exact: true })).toBeVisible();
+      26 |       await expect(page.getByText(/xentral/i)).toHaveCount(0);
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:23:76
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-8/traces/f909baf0fb732dc32957-5c596b80774e9f2b752b-recording13.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-8/traces/f909baf0fb732dc32957-5c596b80774e9f2b752b-recording13-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-8/traces/f909baf0fb732dc32957-5c596b80774e9f2b752b-recording12.trace'
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-8/d7c5e87a6af6291f986c11e92ec1b57f.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-sourc-7134a-al-absent-needs-review-list-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [desktop] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.otc-question')
+    Expected: 24
+    Received: 0
+    Timeout:  20000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.otc-question') with timeout 20000ms
+      - waiting for locator('.otc-question')
+        26 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      69 |       await expect(page.getByRole('heading', { name: T[locale].questions })).toBeVisible();
+      70 |       await expect(page.locator('.otc-card')).toHaveCount(6);
+    > 71 |       await expect(page.locator('.otc-question')).toHaveCount(24);
+         |                                                   ^
+      72 |       await expect(page.getByText(locale === 'en' ? 'search only — not a chat' : 'nur Suche — kein Chat')).toBeVisible();
+      73 |       await screenshot(page, testInfo, locale, '21-answers-empty');
+      74 |       await page.locator('.otc-question-button').first().click();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:71:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [desktop] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Jeder Eintrag hat eine Geschichte.' })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Jeder Eintrag hat eine Geschichte.' }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Jeder Eintrag hat eine Geschichte.' })
+
+
+      79 |     test('journal: filters, table, entry drawer with payload and evidence', async ({ page }, testInfo) => {
+      80 |       await page.goto('/app/journal');
+    > 81 |       await expect(page.getByRole('heading', { name: T[locale].journal })).toBeVisible();
+         |                                                                            ^
+      82 |       await expect(page.getByLabel(locale === 'en' ? 'Track' : 'Spur')).toBeVisible();
+      83 |       const rows = page.locator('.ledger-table tr[data-action]');
+      84 |       if ((await rows.count()) > 0) {
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:81:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [desktop] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) {
+      87 |     await page.locator('.app-topbar select').selectOption(locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [desktop] › tests/03-views.spec.ts:113:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'System & Diagnose', exact: true })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'System & Diagnose', exact: true }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'System & Diagnose', exact: true })
+
+
+      113 |     test('system & diagnostics: seven health cards, logs table, debug and export controls', async ({ page }, testInfo) => {
+      114 |       await page.goto('/app/system');
+    > 115 |       await expect(page.getByRole('heading', { name: T[locale].system, exact: true })).toBeVisible();
+          |                                                                                        ^
+      116 |       await expect(page.locator('.health-card')).toHaveCount(7);
+      117 |       await expect(page.locator('.log-table tbody tr').first()).toBeVisible();
+      118 |       await expect(page.getByRole('button', { name: T[locale].warnings })).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:115:88
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-syste-7c925-e-debug-and-export-controls-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-syste-7c925-e-debug-and-export-controls-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-syste-7c925-e-debug-and-export-controls-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-syste-7c925-e-debug-and-export-controls-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [desktop] › tests/03-views.spec.ts:123:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-13/traces/f909baf0fb732dc32957-2e09702063b97159f1a1-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-13/traces/f909baf0fb732dc32957-2e09702063b97159f1a1-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-13/traces/f909baf0fb732dc32957-2e09702063b97159f1a1.network'
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-13/e038bba6cc6770a9388cd1a349720b2e.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-setti-ed929-rage-key-rotation-lifecycle-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [desktop] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:6:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-038e6--drawer-with-trace-siblings-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-diagnostics-system-diag-038e6--drawer-with-trace-siblings-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-038e6--drawer-with-trace-siblings-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-038e6--drawer-with-trace-siblings-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [desktop] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.log-table tbody tr').first()
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.log-table tbody tr').first() with timeout 20000ms
+      - waiting for locator('.log-table tbody tr').first()
+
+
+      50 |     await page.goto('/app/system');
+      51 |     const rows = page.locator('.log-table tbody tr');
+    > 52 |     await expect(rows.first()).toBeVisible();
+         |                                ^
+      53 |     const firstBefore = await rows.first().innerText();
+      54 |     await page.getByRole('button', { name: 'Live', exact: true }).click();
+      55 |     await expect(page.getByRole('button', { name: /Live · on/ })).toBeVisible({ timeout: 10_000 });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:52:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [desktop] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.click: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for locator('.ledger-table tr[data-action]').first()
+
+
+      93 |     await login(page, 'en');
+      94 |     await page.goto('/app/sources');
+    > 95 |     await page.locator('.ledger-table tr[data-action]').first().click();
+         |                                                                 ^
+      96 |     await page.getByRole('link', { name: 'View logs' }).first().click();
+      97 |     await expect(page).toHaveURL(/\/app\/system\?connection_id=/);
+      98 |     await expect(page.locator('.active-filters')).toContainText('Connection ID:');
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:95:65
+
+    Error Context: test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [mobile] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+      25 |     // After sign-in the server-persisted workspace locale applies (it may be German from an earlier session);
+      26 |     // the shell switch persists the preference through PATCH /api/workspace.
+    > 27 |     await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                               ^
+      28 |     if ((await page.locator('html').getAttribute('lang')) !== 'en') await switchLocale(page, 'en');
+      29 |     await expect(page.getByRole('heading', { name: T.en.recorder })).toBeVisible();
+      30 |     await page.reload();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/01-auth.spec.ts:27:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/01-auth-access-key-sign-in-03a76-d-and-explains-owner-access-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/01-auth-access-key-sign-in-03a76-d-and-explains-owner-access-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/01-auth-access-key-sign-in-03a76-d-and-explains-owner-access-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/01-auth-access-key-sign-in-03a76-d-and-explains-owner-access-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [mobile] › tests/01-auth.spec.ts:42:3 › access-key sign-in › logout ends the session ─────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/01-auth.spec.ts:47:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/01-auth-access-key-sign-in-logout-ends-the-session-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/01-auth-access-key-sign-in-logout-ends-the-session-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/01-auth-access-key-sign-in-logout-ends-the-session-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/01-auth-access-key-sign-in-logout-ends-the-session-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [mobile] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.toast.show').or(getByRole('dialog').getByRole('button', { name: 'Add demo data alongside my data' }))
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.toast.show').or(getByRole('dialog').getByRole('button', { name: 'Add demo data alongside my data' })) with timeout 300000ms
+      - waiting for locator('.toast.show').or(getByRole('dialog').getByRole('button', { name: 'Add demo data alongside my data' }))
+      - Target page, context or browser has been closed
+
+
+      19 |       const toast = page.locator('.toast.show');
+      20 |       const alongside = dialog.getByRole('button', { name: locale === 'en' ? 'Add demo data alongside my data' : 'Demo-Daten neben meinen Daten laden' });
+    > 21 |       await expect(toast.or(alongside)).toBeVisible({ timeout: DEMO_TIMEOUT });
+         |                                         ^
+      22 |       if (await alongside.isVisible()) {
+      23 |         await alongside.click();
+      24 |         await expect(toast).toBeVisible({ timeout: DEMO_TIMEOUT });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:21:41
+
+    Error: apiRequestContext._wrapApiCall: Target page, context or browser has been closed
+
+    Error Context: test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [mobile] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:13:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [mobile] › tests/02-demo-question.spec.ts:54:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:63:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [mobile] › tests/02-demo-question.spec.ts:69:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:78:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [mobile] › tests/02-demo-question.spec.ts:85:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-24/traces/3b29a265d3a46d4e6f1a-20c51f83d5279fb1c71d-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-24/traces/3b29a265d3a46d4e6f1a-20c51f83d5279fb1c71d-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-24/traces/3b29a265d3a46d4e6f1a-20c51f83d5279fb1c71d.network'
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for locator('.integration-card').filter({ hasText: 'Replay (fixtures)' }).getByRole('button', { name: /Connect/ })
+
+
+       96 |     // 1. Two unmatched payouts with the same amount through the deterministic replay producer (owner-only UI dialog).
+       97 |     await page.goto('/app/sources');
+    >  98 |     await page.locator('.integration-card', { hasText: 'Replay (fixtures)' }).getByRole('button', { name: /Connect/ }).click();
+          |                                                                                                                        ^
+       99 |     const dialog = page.getByRole('dialog');
+      100 |     await dialog.getByLabel('Connection name').fill(`e2e replay ${stamp}`);
+      101 |     const events = ['A', 'B'].map((x) => ({ provider_event_id: `e2e-${stamp}-${x}`, kind: 'payout.sent', occurred_at: '2026-10-30T10:00:00Z', entity: { payout: `OUT-${stamp}-${x}` }, payload: { payout: `OUT-${stamp}-${x}`, amount_minor: 4242, currency: 'EUR' }, evidence_refs: [] }));
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:98:120
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-24/8ff1243d1656e3cabf80cf33cc5650c8.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [mobile] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-recor-2e32c-eadiness-and-example-action-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-recor-2e32c-eadiness-and-example-action-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-recor-2e32c-eadiness-and-example-action-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-recor-2e32c-eadiness-and-example-action-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) [mobile] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) [mobile] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+
+    Error: page.goto: Page crashed
+    Call log:
+      - navigating to "http://127.0.0.1:19180/app/sources", waiting until "load"
+
+
+      42 |
+      43 |     test('connection detail: import plan with timezone/UTC boundaries, capability health, view logs link', async ({ page }, testInfo) => {
+    > 44 |       await page.goto('/app/sources');
+         |                  ^
+      45 |       // The demo spec (02) created the demo connections; open the first connected row.
+      46 |       await page.locator('.ledger-table tr[data-action]').first().click();
+      47 |       await expect(page.getByRole('heading', { name: locale === 'en' ? 'Import plan' : 'Importplan' })).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:44:18
+
+    Error: apiRequestContext._wrapApiCall: Target page, context or browser has been closed
+
+    Error Context: test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) [mobile] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) [mobile] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('No entries match these filters.')
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('No entries match these filters.') with timeout 60000ms
+      - waiting for getByText('No entries match these filters.')
+
+
+      90 |         await page.keyboard.press('Escape');
+      91 |       } else {
+    > 92 |         await expect(page.getByText(locale === 'en' ? 'No entries match these filters.' : 'Keine Einträge passen zu diesen Filtern.')).toBeVisible();
+         |                                                                                                                                        ^
+      93 |       }
+      94 |       await screenshot(page, testInfo, locale, '56-journal');
+      95 |     });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:92:136
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) [mobile] › tests/03-views.spec.ts:97:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-agent-59ab4--once-copyable-stdio-config-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-agent-59ab4--once-copyable-stdio-config-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-agent-59ab4--once-copyable-stdio-config-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-agent-59ab4--once-copyable-stdio-config-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  31) [mobile] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  32) [mobile] › tests/03-views.spec.ts:123:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-setti-69008-rage-key-rotation-lifecycle-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-setti-69008-rage-key-rotation-lifecycle-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-setti-69008-rage-key-rotation-lifecycle-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-setti-69008-rage-key-rotation-lifecycle-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33) [mobile] › tests/03-views.spec.ts:133:5 › views in en › keyboard navigation of the main nav and of a dialog 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-keybo-da65f-he-main-nav-and-of-a-dialog-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-keybo-da65f-he-main-nav-and-of-a-dialog-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-keybo-da65f-he-main-nav-and-of-a-dialog-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-keybo-da65f-he-main-nav-and-of-a-dialog-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  34) [mobile] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  35) [mobile] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-sourc-7134a-al-absent-needs-review-list-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-sourc-7134a-al-absent-needs-review-list-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-sourc-7134a-al-absent-needs-review-list-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-sourc-7134a-al-absent-needs-review-list-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  36) [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  37) [mobile] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  38) [mobile] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Keine Einträge passen zu diesen Filtern.')
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Keine Einträge passen zu diesen Filtern.') with timeout 60000ms
+      - waiting for getByText('Keine Einträge passen zu diesen Filtern.')
+
+
+      90 |         await page.keyboard.press('Escape');
+      91 |       } else {
+    > 92 |         await expect(page.getByText(locale === 'en' ? 'No entries match these filters.' : 'Keine Einträge passen zu diesen Filtern.')).toBeVisible();
+         |                                                                                                                                        ^
+      93 |       }
+      94 |       await screenshot(page, testInfo, locale, '56-journal');
+      95 |     });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:92:136
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  39) [mobile] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Dein Agent. Mit Business-Gedächtnis.' })
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Dein Agent. Mit Business-Gedächtnis.' }) with timeout 60000ms
+      - waiting for getByRole('heading', { name: 'Dein Agent. Mit Business-Gedächtnis.' })
+
+
+       97 |     test('agents & MCP: grant explanation, create key shown once, copyable stdio config', async ({ page }, testInfo) => {
+       98 |       await page.goto('/app/agents');
+    >  99 |       await expect(page.getByRole('heading', { name: T[locale].agents })).toBeVisible();
+          |                                                                           ^
+      100 |       await expect(page.getByText('workspace.read_business').first()).toBeVisible();
+      101 |       await expect(page.locator('.config-code').first()).toContainText('mcpServers');
+      102 |       await expect(page.getByText('127.0.0.1').first()).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:99:75
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  40) [mobile] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /Resume \([1-9]\d* new\)/
+    Received string:  "Resume (0 new)"
+
+    Call Log:
+    - Timeout 20000ms exceeded while waiting on the predicate
+
+      59 |     await expect(page.getByRole('button', { name: /Resume \(\d+ new\)/ })).toBeVisible();
+      60 |     const frozenFirst = await rows.first().innerText();
+    > 61 |     await expect.poll(async () => page.getByRole('button', { name: /Resume \((\d+) new\)/ }).innerText(), { timeout: 20_000 }).toMatch(/Resume \([1-9]\d* new\)/);
+         |                                                                                                                                ^
+      62 |     expect(await rows.first().innerText()).toBe(frozenFirst);
+      63 |     await screenshot(page, testInfo, 'en', '67-diagnostics-live-paused');
+      64 |     await page.getByRole('button', { name: /Resume \(/ }).click();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:61:128
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  41) [mobile] › tests/04-diagnostics.spec.ts:69:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download 
+
+    Test timeout of 600000ms exceeded.
+
+    Error: locator.fill: Test timeout of 600000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Minutes (1–15)')
+
+
+      73 |     const stopExisting = page.getByRole('button', { name: 'Stop now' });
+      74 |     if (await stopExisting.isVisible({ timeout: 3000 }).catch(() => false)) await stopExisting.click();
+    > 75 |     await page.getByLabel('Minutes (1–15)').fill('30');
+         |                                             ^
+      76 |     await expect(page.getByLabel('Minutes (1–15)')).toHaveValue('15');
+      77 |     await page.getByRole('button', { name: /Start 15 min debug/ }).click();
+      78 |     await expect(page.getByText('Debug recording active')).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:75:45
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-0d1e6-og-previews-before-download-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-diagnostics-system-diag-0d1e6-og-previews-before-download-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-0d1e6-og-previews-before-download-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-0d1e6-og-previews-before-download-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  42) [mobile] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter 
+
+    Test timeout of 600000ms exceeded.
+
+    Error: locator.click: Test timeout of 600000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'View logs' }).first()
+
+
+      94 |     await page.goto('/app/sources');
+      95 |     await page.locator('.ledger-table tr[data-action]').first().click();
+    > 96 |     await page.getByRole('link', { name: 'View logs' }).first().click();
+         |                                                                 ^
+      97 |     await expect(page).toHaveURL(/\/app\/system\?connection_id=/);
+      98 |     await expect(page.locator('.active-filters')).toContainText('Connection ID:');
+      99 |   });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:96:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  42 failed
+    [desktop] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en 
+    [desktop] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de 
+    [desktop] › tests/02-demo-question.spec.ts:54:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero 
+    [desktop] › tests/02-demo-question.spec.ts:69:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history 
+    [desktop] › tests/02-demo-question.spec.ts:85:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it 
+    [desktop] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+    [desktop] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+    [desktop] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form 
+    [desktop] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+    [desktop] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form 
+    [desktop] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence 
+    [desktop] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+    [desktop] › tests/03-views.spec.ts:113:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls 
+    [desktop] › tests/03-views.spec.ts:123:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle 
+    [desktop] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings 
+    [desktop] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges 
+    [desktop] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter 
+    [mobile] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access 
+    [mobile] › tests/01-auth.spec.ts:42:3 › access-key sign-in › logout ends the session ───────────
+    [mobile] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en 
+    [mobile] › tests/02-demo-question.spec.ts:9:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de 
+    [mobile] › tests/02-demo-question.spec.ts:54:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero 
+    [mobile] › tests/02-demo-question.spec.ts:69:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history 
+    [mobile] › tests/02-demo-question.spec.ts:85:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it 
+    [mobile] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action 
+    [mobile] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+    [mobile] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+    [mobile] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form 
+    [mobile] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence 
+    [mobile] › tests/03-views.spec.ts:97:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+    [mobile] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls 
+    [mobile] › tests/03-views.spec.ts:123:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle 
+    [mobile] › tests/03-views.spec.ts:133:5 › views in en › keyboard navigation of the main nav and of a dialog 
+    [mobile] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action 
+    [mobile] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+    [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+    [mobile] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form 
+    [mobile] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence 
+    [mobile] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+    [mobile] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges 
+    [mobile] › tests/04-diagnostics.spec.ts:69:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download 
+    [mobile] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter 
+  26 passed (2.7h)
+/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] e2e@0.1.0 test: `playwright test`
+Exit status 1
+EXIT=1

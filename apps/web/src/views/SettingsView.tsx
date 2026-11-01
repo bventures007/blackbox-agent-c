@@ -4,7 +4,7 @@ import { PageHeading, toast } from '../components/AppShell';
 import { Icon } from '../components/Icon';
 import { CopyButton, DefinitionList, ErrorNote, Field, Loading, Modal, StatusBadge } from '../components/ui';
 import { auth as authApi, settings as settingsApi, workspace as workspaceApi } from '../api/endpoints';
-import type { Locale } from '../api/types';
+import type { Locale, StorageThresholds } from '../api/types';
 import { useAsync } from '../hooks';
 import { useFormat } from '../format';
 import { useSession } from '../auth/SessionContext';
@@ -28,7 +28,7 @@ export function SettingsView() {
   const [busy, setBusy] = useState(false);
   const [retentionDraft, setRetentionDraft] = useState<Record<string, number>>({});
   const [retentionError, setRetentionError] = useState<unknown>(null);
-  const [thresholds, setThresholds] = useState<{ warning_percent: number; warning_bytes: number; critical_percent: number; critical_bytes: number } | null>(null);
+  const [thresholds, setThresholds] = useState<StorageThresholds | null>(null);
   const [storageError, setStorageError] = useState<unknown>(null);
   const [backupError, setBackupError] = useState<unknown>(null);
 
@@ -39,10 +39,10 @@ export function SettingsView() {
     if (workspace) setName(workspace.display_name);
   }, [workspace]);
   useEffect(() => {
-    if (retention.data) setRetentionDraft(Object.fromEntries(retention.data.classes.map((c) => [c.id, c.days])));
+    if (retention.data) setRetentionDraft(Object.fromEntries(Object.entries(retention.data.classes).map(([id, c]) => [id, c.days])));
   }, [retention.data]);
   useEffect(() => {
-    if (storage.data) setThresholds(storage.data.thresholds);
+    if (storage.data?.thresholds) setThresholds(storage.data.thresholds);
   }, [storage.data]);
   useEffect(() => {
     if (window.location.hash) document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
@@ -79,7 +79,7 @@ export function SettingsView() {
   const saveRetention = async () => {
     setRetentionError(null);
     try {
-      retention.setData(await settingsApi.patchRetention(Object.entries(retentionDraft).map(([id, days]) => ({ id, days }))));
+      retention.setData(await settingsApi.patchRetention(retentionDraft));
       toast(t('settings.saved'));
     } catch (err) {
       setRetentionError(err);
@@ -89,7 +89,7 @@ export function SettingsView() {
     if (!thresholds) return;
     setStorageError(null);
     try {
-      storage.setData(await settingsApi.patchStorage(thresholds));
+      storage.setData(await settingsApi.patchStorage({ warn_percent: thresholds.warn_percent, warn_min_bytes: thresholds.warn_min_bytes, critical_percent: thresholds.critical_percent, critical_min_bytes: thresholds.critical_min_bytes, log_cap_bytes: thresholds.log_cap_bytes, log_retention_days: thresholds.log_retention_days }));
       toast(t('settings.saved'));
     } catch (err) {
       setStorageError(err);
@@ -165,7 +165,7 @@ export function SettingsView() {
               </div>
               <p className="demo-callout">
                 {t('settings.backups.enrolHint')}
-                <pre className="config-code">{'./blackbox backup setup\n./blackbox backup\n./blackbox restore <backup-path>'}</pre>
+                <pre className="config-code">{'./blackbox backup-config <destination-dir>\n./blackbox backup\n./blackbox restore <backup-file.tar.age>'}</pre>
               </p>
             </>
           )}
@@ -178,11 +178,12 @@ export function SettingsView() {
           <ErrorNote error={retention.error} onRetry={retention.reload} />
           {retention.data && (
             <>
-              {retention.data.classes.map((c) => (
-                <Field key={c.id} label={t(`evidenceClasses.${c.id}`, { defaultValue: c.id })} htmlFor={`ret-${c.id}`} hint={t('settings.retention.bounds', { min: c.min_days, max: c.provider_limit_days ? Math.min(c.max_days, c.provider_limit_days) : c.max_days }) + (c.provider_limit_days ? ` · ${t('settings.retention.providerLimit', { days: c.provider_limit_days })}` : '')}>
-                  <input id={`ret-${c.id}`} className="field" type="number" min={c.min_days} max={c.provider_limit_days ? Math.min(c.max_days, c.provider_limit_days) : c.max_days} value={retentionDraft[c.id] ?? c.days} onChange={(e) => setRetentionDraft((d) => ({ ...d, [c.id]: Number(e.target.value) }))} />
+              {Object.entries(retention.data.classes).map(([id, c]) => (
+                <Field key={id} label={t(`evidenceClasses.${id}`, { defaultValue: id })} htmlFor={`ret-${id}`} hint={`${t('settings.retention.bounds', { min: 1, max: 3650 })} · ${t(`settings.retention.source.${c.source}`, { defaultValue: c.source })}`}>
+                  <input id={`ret-${id}`} className="field" type="number" min={1} max={3650} value={retentionDraft[id] ?? c.days} onChange={(e) => setRetentionDraft((d) => ({ ...d, [id]: Number(e.target.value) }))} />
                 </Field>
               ))}
+              <p className="micro">{t('settings.retention.defaultDays', { days: retention.data.default_days })}</p>
               <ErrorNote error={retentionError} />
               <button type="button" className="btn primary" onClick={() => void saveRetention()}>
                 {t('common.save')}
@@ -200,16 +201,22 @@ export function SettingsView() {
           {thresholds && (
             <div className="param-grid">
               <Field label={t('settings.storage.warningPercent')} htmlFor="st-wp">
-                <input id="st-wp" className="field" type="number" min={1} max={99} value={thresholds.warning_percent} onChange={(e) => setThresholds({ ...thresholds, warning_percent: Number(e.target.value) })} />
+                <input id="st-wp" className="field" type="number" min={1} max={90} value={thresholds.warn_percent} onChange={(e) => setThresholds({ ...thresholds, warn_percent: Number(e.target.value) })} />
               </Field>
               <Field label={t('settings.storage.warningGib')} htmlFor="st-wb">
-                <input id="st-wb" className="field" type="number" min={1} value={Math.round(thresholds.warning_bytes / 1024 ** 3)} onChange={(e) => setThresholds({ ...thresholds, warning_bytes: Number(e.target.value) * 1024 ** 3 })} />
+                <input id="st-wb" className="field" type="number" min={1} value={Math.round(thresholds.warn_min_bytes / 1024 ** 3)} onChange={(e) => setThresholds({ ...thresholds, warn_min_bytes: Number(e.target.value) * 1024 ** 3 })} />
               </Field>
               <Field label={t('settings.storage.criticalPercent')} htmlFor="st-cp">
-                <input id="st-cp" className="field" type="number" min={1} max={99} value={thresholds.critical_percent} onChange={(e) => setThresholds({ ...thresholds, critical_percent: Number(e.target.value) })} />
+                <input id="st-cp" className="field" type="number" min={1} max={50} value={thresholds.critical_percent} onChange={(e) => setThresholds({ ...thresholds, critical_percent: Number(e.target.value) })} />
               </Field>
               <Field label={t('settings.storage.criticalGib')} htmlFor="st-cb">
-                <input id="st-cb" className="field" type="number" min={1} value={Math.round(thresholds.critical_bytes / 1024 ** 3)} onChange={(e) => setThresholds({ ...thresholds, critical_bytes: Number(e.target.value) * 1024 ** 3 })} />
+                <input id="st-cb" className="field" type="number" min={1} value={Math.round(thresholds.critical_min_bytes / 1024 ** 3)} onChange={(e) => setThresholds({ ...thresholds, critical_min_bytes: Number(e.target.value) * 1024 ** 3 })} />
+              </Field>
+              <Field label={t('settings.storage.logCapMib')} htmlFor="st-lc">
+                <input id="st-lc" className="field" type="number" min={1} max={100} value={Math.round(thresholds.log_cap_bytes / 1024 ** 2)} onChange={(e) => setThresholds({ ...thresholds, log_cap_bytes: Number(e.target.value) * 1024 ** 2 })} />
+              </Field>
+              <Field label={t('settings.storage.logRetentionDays')} htmlFor="st-ld">
+                <input id="st-ld" className="field" type="number" min={1} max={7} value={thresholds.log_retention_days} onChange={(e) => setThresholds({ ...thresholds, log_retention_days: Number(e.target.value) })} />
               </Field>
             </div>
           )}
@@ -219,11 +226,14 @@ export function SettingsView() {
           </button>
           {storage.data && (
             <ul className="plain-list">
-              {storage.data.volumes.map((v) => (
-                <li key={v.id}>
-                  {t(`volumes.${v.id}`, { defaultValue: v.id })}: {f.bytes(v.used_bytes)} {t('settings.storage.used')} · <StatusBadge kind={v.state} label={t(`storageState.${v.state}`)} />
+              {Object.entries(storage.data.volumes).map(([id, v]) => (
+                <li key={id}>
+                  {t(`volumes.${id}`, { defaultValue: id })}: {v.free_bytes !== undefined ? `${f.bytes(v.free_bytes)} ${t('settings.storage.free')}` : t('common.unknown')} · <StatusBadge kind={v.state} label={t(`storageState.${v.state}`, { defaultValue: v.state })} />
                 </li>
               ))}
+              <li>
+                {t('volumes.evidence')}: {f.bytes(storage.data.evidence.bytes)} {t('settings.storage.used')} · {t('volumes.logs')}: {f.bytes(storage.data.logs.bytes)} / {f.bytes(storage.data.logs.cap_bytes)}
+              </li>
             </ul>
           )}
           <p className="micro">{t('settings.storage.note')}</p>
@@ -235,18 +245,12 @@ export function SettingsView() {
           <ErrorNote error={security.error} onRetry={security.reload} />
           {security.data && (
             <>
-              <DefinitionList
-                rows={[
-                  ...Object.entries(security.data.counts).map(([k, v]) => ({ label: t(`securityCounts.${k}`, { defaultValue: k }), value: f.number(v) })),
-                  { label: t('settings.security.activeSessions'), value: f.number(security.data.owner_sessions_active) },
-                  { label: t('settings.security.activeAgentKeys'), value: f.number(security.data.agent_keys_active) },
-                ]}
-              />
+              <DefinitionList rows={Object.entries(security.data.counts).map(([k, v]) => ({ label: t(`securityEvents.${k}`, { defaultValue: k }), value: f.number(v) }))} />
               <h3 className="drawer-subtitle">{t('settings.security.lastEvents')}</h3>
               <ul className="plain-list">
                 {security.data.last_events.map((e, i) => (
                   <li key={i}>
-                    <time dateTime={e.at}>{f.dateTimeSeconds(e.at)}</time> · {t(`securityEvents.${e.event}`, { defaultValue: e.event })} · {e.actor}
+                    <time dateTime={e.occurred_at}>{f.dateTimeSeconds(e.occurred_at)}</time> · {t(`securityEvents.${e.event}`, { defaultValue: e.event })} · {e.actor_kind} · {e.channel}
                   </li>
                 ))}
               </ul>

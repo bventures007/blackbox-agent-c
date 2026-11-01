@@ -1,0 +1,2862 @@
+$ playwright test
+
+Running 68 tests using 1 worker
+
+  ✓   1 [desktop] › tests/01-auth.spec.ts:5:3 › access-key sign-in › rejects an invalid key with a localized error and never stores the key in localStorage (2.4s)
+  ✘   2 [desktop] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access (41.4s)
+  ✓   3 [desktop] › tests/01-auth.spec.ts:33:3 › access-key sign-in › German login copy (2.1s)
+  ✓   4 [desktop] › tests/01-auth.spec.ts:42:3 › access-key sign-in › logout ends the session (24.6s)
+  ✘   5 [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en (49.8s)
+  ✘   6 [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de (48.1s)
+  ✘   7 [desktop] › tests/02-demo-question.spec.ts:62:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero (3.4m)
+  ✘   8 [desktop] › tests/02-demo-question.spec.ts:77:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history (47.6s)
+  ✘   9 [desktop] › tests/02-demo-question.spec.ts:93:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it (3.0m)
+  ✓  10 [desktop] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action (15.2s)
+  ✘  11 [desktop] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (1.0m)
+  ✘  12 [desktop] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (2.6m)
+  ✘  13 [desktop] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form (1.1m)
+  ✘  14 [desktop] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence (2.3m)
+  ✘  15 [desktop] › tests/03-views.spec.ts:97:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config (2.7m)
+  ✘  16 [desktop] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls (1.8m)
+  ✓  17 [desktop] › tests/03-views.spec.ts:123:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle (1.8m)
+  ✓  18 [desktop] › tests/03-views.spec.ts:133:5 › views in en › keyboard navigation of the main nav and of a dialog (54.1s)
+  ✘  19 [desktop] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action (2.4m)
+  ✓  20 [desktop] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (51.5s)
+  ✘  21 [desktop] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (3.0m)
+  ✘  22 [desktop] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form (3.3m)
+  ✘  23 [desktop] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence (1.9m)
+  ✘  24 [desktop] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config (122ms)
+  ✘  25 [desktop] › tests/03-views.spec.ts:113:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls (3.3m)
+  ✘  26 [desktop] › tests/03-views.spec.ts:123:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle (2.0m)
+  ✘  27 [desktop] › tests/03-views.spec.ts:133:5 › views in de › keyboard navigation of the main nav and of a dialog (2.6m)
+  ✘  28 [desktop] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings (1.6m)
+  ✘  29 [desktop] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges (9.0m)
+  ✘  30 [desktop] › tests/04-diagnostics.spec.ts:69:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download (3.8m)
+  ✘  31 [desktop] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter (32.2s)
+  ✓  32 [desktop] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in en (10.6s)
+  ✓  33 [desktop] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in de (6.8s)
+  ✓  34 [desktop] › tests/05-landing.spec.ts:52:3 › landing page (served from a separate static base URL) › the HTML contains no embedded credentials or private tokens (3.7s)
+  ✓  35 [mobile] › tests/01-auth.spec.ts:5:3 › access-key sign-in › rejects an invalid key with a localized error and never stores the key in localStorage (42.1s)
+  ✓  36 [mobile] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access (5.3m)
+  ✓  37 [mobile] › tests/01-auth.spec.ts:33:3 › access-key sign-in › German login copy (4.5s)
+  ✘  38 [mobile] › tests/01-auth.spec.ts:42:3 › access-key sign-in › logout ends the session (3.4m)
+  ✘  39 [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en (4.2m)
+  ✘  40 [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de (5.3m)
+  ✘  41 [mobile] › tests/02-demo-question.spec.ts:62:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero (4.5m)
+  ✘  42 [mobile] › tests/02-demo-question.spec.ts:77:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history (6.8m)
+  ✘  43 [mobile] › tests/02-demo-question.spec.ts:93:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it (4.1m)
+  ✓  44 [mobile] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action (2.6m)
+  ✘  45 [mobile] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (5.3m)
+  ✘  46 [mobile] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (3.1m)
+  ✘  47 [mobile] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form (5.3m)
+  ✘  48 [mobile] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence (2.4m)
+  ✓  49 [mobile] › tests/03-views.spec.ts:97:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config (2.3m)
+  ✘  50 [mobile] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls (4.2m)
+  ✘  51 [mobile] › tests/03-views.spec.ts:123:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle (3.7m)
+  ✓  52 [mobile] › tests/03-views.spec.ts:133:5 › views in en › keyboard navigation of the main nav and of a dialog (3.7m)
+  ✘  53 [mobile] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action (3.5m)
+  ✓  54 [mobile] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (3.7m)
+  ✘  55 [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (12.1m)
+  ✓  56 [mobile] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form (7.0s)
+  ✘  57 [mobile] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence (1.1m)
+  ✓  58 [mobile] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config (9.5s)
+  ✓  59 [mobile] › tests/03-views.spec.ts:113:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls (7.6s)
+  ✓  60 [mobile] › tests/03-views.spec.ts:123:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle (5.0s)
+  ✓  61 [mobile] › tests/03-views.spec.ts:133:5 › views in de › keyboard navigation of the main nav and of a dialog (16.3s)
+  ✓  62 [mobile] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings (20.6s)
+  ✘  63 [mobile] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges (54.1s)
+  ✓  64 [mobile] › tests/04-diagnostics.spec.ts:69:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download (23.2s)
+  ✓  65 [mobile] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter (6.3s)
+  ✓  66 [mobile] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in en (1.7s)
+  ✓  67 [mobile] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in de (1.5s)
+  ✓  68 [mobile] › tests/05-landing.spec.ts:52:3 › landing page (served from a separate static base URL) › the HTML contains no embedded credentials or private tokens (954ms)
+
+
+  1) [desktop] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Your business. In view now.' })
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Your business. In view now.' }) with timeout 30000ms
+      - waiting for getByRole('heading', { name: 'Your business. In view now.' })
+
+
+      23 |     await page.getByLabel(T.en.remember).check();
+      24 |     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    > 25 |     await expect(page.getByRole('heading', { name: T.en.recorder })).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                                                      ^
+      26 |     await page.reload();
+      27 |     await expect(page.getByRole('heading', { name: T.en.recorder })).toBeVisible();
+      28 |     const cookies = await page.context().cookies();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/01-auth.spec.ts:25:70
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/01-auth-access-key-sign-in-03a76-d-and-explains-owner-access-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/01-auth-access-key-sign-in-03a76-d-and-explains-owner-access-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/01-auth-access-key-sign-in-03a76-d-and-explains-owner-access-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/01-auth-access-key-sign-in-03a76-d-and-explains-owner-access-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en 
+
+    Error: locator.click: Error: strict mode violation: getByRole('form', { name: /Can I still sell 100 Olive Cups|Kann ich noch 100 Olive Cups/ }).getByRole('button', { name: 'Look up' }) resolved to 3 elements:
+        1) <button type="button" class="btn small secondary">…</button> aka getByRole('button', { name: 'Look up' }).first()
+        2) <button type="button" class="btn small secondary">…</button> aka getByRole('button', { name: 'Look up' }).nth(1)
+        3) <button type="button" class="btn small secondary">…</button> aka getByRole('button', { name: 'Look up' }).nth(2)
+
+    Call log:
+      - waiting for getByRole('form', { name: /Can I still sell 100 Olive Cups|Kann ich noch 100 Olive Cups/ }).getByRole('button', { name: 'Look up' })
+
+
+      31 |       // Entity disambiguation is a literal journal search (GET /api/search), never a model.
+      32 |       await form.getByLabel(locale === 'en' ? 'Item *' : 'Artikel *').fill('CUP');
+    > 33 |       await form.getByRole('button', { name: locale === 'en' ? 'Look up' : 'Nachschlagen' }).click();
+         |                                                                                              ^
+      34 |       await form.getByRole('option', { name: /CUP-OLV/ }).click();
+      35 |       await expect(form.getByLabel(locale === 'en' ? 'Item *' : 'Artikel *')).toHaveValue('CUP-OLV');
+      36 |       await form.getByLabel(locale === 'en' ? 'Quantity *' : 'Menge *').fill('100');
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:33:94
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('form', { name: /Can I still sell 100 Olive Cups|Kann ich noch 100 Olive Cups/ })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('form', { name: /Can I still sell 100 Olive Cups|Kann ich noch 100 Olive Cups/ }) with timeout 10000ms
+      - waiting for getByRole('form', { name: /Can I still sell 100 Olive Cups|Kann ich noch 100 Olive Cups/ })
+
+
+      28 |       await page.goto('/app/questions?q=order-01');
+      29 |       const form = page.getByRole('form', { name: /Can I still sell 100 Olive Cups|Kann ich noch 100 Olive Cups/ });
+    > 30 |       await expect(form).toBeVisible();
+         |                          ^
+      31 |       // Entity disambiguation is a literal journal search (GET /api/search), never a model.
+      32 |       await form.getByLabel(locale === 'en' ? 'Item *' : 'Artikel *').fill('CUP');
+      33 |       await form.getByRole('button', { name: locale === 'en' ? 'Look up' : 'Nachschlagen' }).click();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:30:26
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-2/traces/3b29a265d3a46d4e6f1a-3c444d783131bc840a02-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-2/traces/3b29a265d3a46d4e6f1a-3c444d783131bc840a02-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-2/traces/3b29a265d3a46d4e6f1a-3c444d783131bc840a02.trace'
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-2/38acddea4488ea50eee982bb524114bc.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › tests/02-demo-question.spec.ts:62:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.fill: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('form', { name: /Can I still sell/ }).getByLabel('Item *')
+
+
+      64 |     await page.goto('/app/questions?q=order-01');
+      65 |     const form = page.getByRole('form', { name: /Can I still sell/ });
+    > 66 |     await form.getByLabel('Item *').fill('CUP-UNKNOWN');
+         |                                     ^
+      67 |     await form.getByLabel('Quantity *').fill('100');
+      68 |     await form.getByRole('button', { name: 'Ask', exact: true }).click();
+      69 |     const answer = page.locator('.answer-output');
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:66:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop] › tests/02-demo-question.spec.ts:77:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Currently outstanding')
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Currently outstanding') with timeout 20000ms
+      - waiting for getByText('Currently outstanding')
+
+
+      79 |     await page.goto('/app/entities/invoice/INV-1001');
+      80 |     await expect(page.getByRole('heading', { name: 'Invoice INV-1001', exact: true })).toBeVisible();
+    > 81 |     await expect(page.getByText('Currently outstanding')).toBeVisible();
+         |                                                           ^
+      82 |     await expect(page.getByText(/credit note is not a refund/)).toBeVisible();
+      83 |     await expect(page.locator('.track-summary-row')).toHaveCount(5);
+      84 |     await expect(page.locator('.shipment-history-row').first()).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:81:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop] › tests/02-demo-question.spec.ts:93:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-5/traces/3b29a265d3a46d4e6f1a-667b368408183e211279-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-5/traces/3b29a265d3a46d4e6f1a-667b368408183e211279-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-5/traces/3b29a265d3a46d4e6f1a-667b368408183e211279.trace'
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for locator('.integration-card').filter({ hasText: 'Bank CSV' }).getByRole('button', { name: /Connect/ })
+
+
+      107 |     // 2. A bank credit of the same amount without a payout reference → ambiguous → review case (nothing is linked silently).
+      108 |     await page.goto('/app/sources');
+    > 109 |     await page.locator('.integration-card', { hasText: 'Bank CSV' }).getByRole('button', { name: /Connect/ }).click();
+          |                                                                                                               ^
+      110 |     const bank = page.getByRole('dialog');
+      111 |     await bank.getByLabel('Connection name').fill(`e2e bank ${stamp}`);
+      112 |     await bank.getByLabel('Or paste CSV').fill(`date;amount;currency;reference;counterparty;booking_text\n2026-10-31;42,42;EUR;PAYOUT ${stamp};Provider;credit`);
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:109:111
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-5/ffe5d85b1ccf682394656c705d79d38c.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [desktop] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Your business has many sources.' })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Your business has many sources.' }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Your business has many sources.' })
+
+
+      21 |     test('sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list', async ({ page }, testInfo) => {
+      22 |       await page.goto('/app/sources');
+    > 23 |       await expect(page.getByRole('heading', { name: T[locale].sources })).toBeVisible();
+         |                                                                            ^
+      24 |       const cats = locale === 'en' ? ['Shops & business', 'Payments & payouts', 'Invoices & accounting', 'Shipping sources'] : ['Shops & Business', 'Zahlungen & Auszahlungen', 'Rechnungen & Buchhaltung', 'Versandquellen'];
+      25 |       for (const c of cats) await expect(page.getByRole('heading', { name: c, exact: true })).toBeVisible();
+      26 |       await expect(page.getByText(/xentral/i)).toHaveCount(0);
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:23:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [desktop] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Import plan' })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Import plan' }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Import plan' })
+
+
+      45 |       // The demo spec (02) created the demo connections; open the first connected row.
+      46 |       await page.locator('.ledger-table tr[data-action]').first().click();
+    > 47 |       await expect(page.getByRole('heading', { name: locale === 'en' ? 'Import plan' : 'Importplan' })).toBeVisible();
+         |                                                                                                         ^
+      48 |       await expect(page.getByText(locale === 'en' ? 'Last successful check' : 'Letzte erfolgreiche Prüfung').first()).toBeVisible();
+      49 |       await expect(page.getByText(locale === 'en' ? 'Last new event' : 'Letztes neues Ereignis').first()).toBeVisible();
+      50 |       await expect(page.getByText(locale === 'en' ? 'Capabilities' : 'Fähigkeiten').first()).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:47:105
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [desktop] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.otc-question')
+    Expected: 24
+    Received: 0
+    Timeout:  20000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.otc-question') with timeout 20000ms
+      - waiting for locator('.otc-question')
+        30 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      69 |       await expect(page.getByRole('heading', { name: T[locale].questions })).toBeVisible();
+      70 |       await expect(page.locator('.otc-card')).toHaveCount(6);
+    > 71 |       await expect(page.locator('.otc-question')).toHaveCount(24);
+         |                                                   ^
+      72 |       await expect(page.getByText(locale === 'en' ? 'search only — not a chat' : 'nur Suche — kein Chat')).toBeVisible();
+      73 |       await screenshot(page, testInfo, locale, '21-answers-empty');
+      74 |       await page.locator('.otc-question-button').first().click();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:71:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [desktop] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('No entries match these filters.')
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('No entries match these filters.') with timeout 20000ms
+      - waiting for getByText('No entries match these filters.')
+
+
+      90 |         await page.keyboard.press('Escape');
+      91 |       } else {
+    > 92 |         await expect(page.getByText(locale === 'en' ? 'No entries match these filters.' : 'Keine Einträge passen zu diesen Filtern.')).toBeVisible();
+         |                                                                                                                                        ^
+      93 |       }
+      94 |       await screenshot(page, testInfo, locale, '56-journal');
+      95 |     });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:92:136
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-9/traces/f909baf0fb732dc32957-3564d4124a3aee6c370a-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-9/traces/f909baf0fb732dc32957-3564d4124a3aee6c370a-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-9/traces/f909baf0fb732dc32957-3564d4124a3aee6c370a.network'
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-9/16e61634123169dd29c770d2c49441cd.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [desktop] › tests/03-views.spec.ts:97:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+
+    TimeoutError: page.waitForResponse: Timeout 90000ms exceeded while waiting for event "response"
+
+       at helpers.ts:93
+
+      91 | /** Switches the shell language and waits until the preference is persisted (PATCH /api/workspace) so later document loads keep it. */
+      92 | export async function switchLocale(page: Page, locale: Locale): Promise<void> {
+    > 93 |   const saved = page.waitForResponse((r) => r.url().includes('/api/workspace') && r.request().method() === 'PATCH', { timeout: LOGIN_TIMEOUT });
+         |                      ^
+      94 |   await page.locator('.app-topbar select').selectOption(locale);
+      95 |   await saved;
+      96 | }
+        at switchLocale (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:93:22)
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:86:37)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-agent-59ab4--once-copyable-stdio-config-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-agent-59ab4--once-copyable-stdio-config-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-agent-59ab4--once-copyable-stdio-config-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-agent-59ab4--once-copyable-stdio-config-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [desktop] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.health-card')
+    Expected: 7
+    Received: 0
+    Timeout:  20000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.health-card') with timeout 20000ms
+      - waiting for locator('.health-card')
+        28 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      114 |       await page.goto('/app/system');
+      115 |       await expect(page.getByRole('heading', { name: T[locale].system, exact: true })).toBeVisible();
+    > 116 |       await expect(page.locator('.health-card')).toHaveCount(7);
+          |                                                  ^
+      117 |       await expect(page.locator('.log-table tbody tr').first()).toBeVisible();
+      118 |       await expect(page.getByRole('button', { name: T[locale].warnings })).toBeVisible();
+      119 |       await expect(page.getByRole('button', { name: locale === 'en' ? 'Export diagnostics' : 'Diagnose exportieren' })).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:116:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [desktop] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action 
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-12/traces/f909baf0fb732dc32957-a301c795d55b2bbc15c2-recording4.network'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [desktop] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-13/traces/f909baf0fb732dc32957-8436dd14a68cc99ac3dd-recording3.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-13/traces/f909baf0fb732dc32957-8436dd14a68cc99ac3dd-recording3-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-13/traces/f909baf0fb732dc32957-8436dd14a68cc99ac3dd-recording2.trace'
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for locator('.ledger-table tr[data-action]').first()
+
+
+      44 |       await page.goto('/app/sources');
+      45 |       // The demo spec (02) created the demo connections; open the first connected row.
+    > 46 |       await page.locator('.ledger-table tr[data-action]').first().click();
+         |                                                                   ^
+      47 |       await expect(page.getByRole('heading', { name: locale === 'en' ? 'Import plan' : 'Importplan' })).toBeVisible();
+      48 |       await expect(page.getByText(locale === 'en' ? 'Last successful check' : 'Letzte erfolgreiche Prüfung').first()).toBeVisible();
+      49 |       await expect(page.getByText(locale === 'en' ? 'Last new event' : 'Letztes neues Ereignis').first()).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:46:67
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-13/c81c46944c195ef84d908ab84fe5b8b6.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [desktop] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.goto: Test timeout of 180000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:19180/app/questions", waiting until "load"
+
+
+      66 |
+      67 |     test('questions: six groups, 24 templates, labeled search box, typed parameter form', async ({ page }, testInfo) => {
+    > 68 |       await page.goto('/app/questions');
+         |                  ^
+      69 |       await expect(page.getByRole('heading', { name: T[locale].questions })).toBeVisible();
+      70 |       await expect(page.locator('.otc-card')).toHaveCount(6);
+      71 |       await expect(page.locator('.otc-question')).toHaveCount(24);
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:68:18
+
+    Error: ENOENT: no such file or directory, unlink '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-14/d398481929c9b1d95db67427597977c4.zip'
+
+    Error Context: test-results/03-views-views-in-de-quest-8e56a-ch-box-typed-parameter-form-desktop/error-context.md
+
+  16) [desktop] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [desktop] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+
+    Error: browserType.launch: Target page, context or browser has been closed
+    Browser logs:
+
+    <launching> /Users/benediktsauter/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T/playwright_chromiumdev_profile-e6BntD --remote-debugging-pipe --no-startup-window
+    <launched> pid=59595
+    [pid=59595] <process did exit: exitCode=null, signal=SIGTERM>
+    [pid=59595] starting temporary directories cleanup
+    Call log:
+      - <launching> /Users/benediktsauter/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T/playwright_chromiumdev_profile-e6BntD --remote-debugging-pipe --no-startup-window
+      - <launched> pid=59595
+      - [pid=59595] <process did exit: exitCode=null, signal=SIGTERM>
+      - [pid=59595] starting temporary directories cleanup
+      - [pid=59595] <gracefully close start>
+      - [pid=59595] <kill>
+      - [pid=59595] <skipped force kill spawnedProcess.killed=false processClosed=true>
+      - [pid=59595] finished temporary directories cleanup
+      - [pid=59595] <gracefully close end>
+
+
+    Error Context: test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-agent-328a1--once-copyable-stdio-config-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [desktop] › tests/03-views.spec.ts:113:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls 
+
+    Test timeout of 180000ms exceeded while running "beforeEach" hook.
+
+      4 | for (const locale of ['en', 'de'] as Locale[]) {
+      5 |   test.describe(`views in ${locale}`, () => {
+    > 6 |     test.beforeEach(async ({ page }) => {
+        |          ^
+      7 |       await login(page, locale);
+      8 |     });
+      9 |
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:6:10
+
+    TimeoutError: page.waitForResponse: Timeout 90000ms exceeded while waiting for event "response"
+
+       at helpers.ts:93
+
+      91 | /** Switches the shell language and waits until the preference is persisted (PATCH /api/workspace) so later document loads keep it. */
+      92 | export async function switchLocale(page: Page, locale: Locale): Promise<void> {
+    > 93 |   const saved = page.waitForResponse((r) => r.url().includes('/api/workspace') && r.request().method() === 'PATCH', { timeout: LOGIN_TIMEOUT });
+         |                      ^
+      94 |   await page.locator('.app-topbar select').selectOption(locale);
+      95 |   await saved;
+      96 | }
+        at switchLocale (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:93:22)
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:86:37)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-syste-7c925-e-debug-and-export-controls-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-syste-7c925-e-debug-and-export-controls-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-syste-7c925-e-debug-and-export-controls-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-syste-7c925-e-debug-and-export-controls-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [desktop] › tests/03-views.spec.ts:123:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-setti-ed929-rage-key-rotation-lifecycle-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-setti-ed929-rage-key-rotation-lifecycle-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-setti-ed929-rage-key-rotation-lifecycle-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-setti-ed929-rage-key-rotation-lifecycle-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [desktop] › tests/03-views.spec.ts:133:5 › views in de › keyboard navigation of the main nav and of a dialog 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-keybo-a85c3-he-main-nav-and-of-a-dialog-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-keybo-a85c3-he-main-nav-and-of-a-dialog-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-keybo-a85c3-he-main-nav-and-of-a-dialog-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-keybo-a85c3-he-main-nav-and-of-a-dialog-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [desktop] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 90000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 90000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:6:5
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-20/traces/e873be0caa44f2c2c942-2637917b7e6c653e12b2-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-20/traces/e873be0caa44f2c2c942-2637917b7e6c653e12b2-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-20/traces/e873be0caa44f2c2c942-2637917b7e6c653e12b2.trace'
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-20/e8106cb68b4beade46b30ca8c4d537d9.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-038e6--drawer-with-trace-siblings-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [desktop] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.log-table tbody tr').first()
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.log-table tbody tr').first() with timeout 60000ms
+      - waiting for locator('.log-table tbody tr').first()
+
+
+      50 |     await page.goto('/app/system');
+      51 |     const rows = page.locator('.log-table tbody tr');
+    > 52 |     await expect(rows.first()).toBeVisible();
+         |                                ^
+      53 |     const firstBefore = await rows.first().innerText();
+      54 |     await page.getByRole('button', { name: 'Live', exact: true }).click();
+      55 |     await expect(page.getByRole('button', { name: /Live · on/ })).toBeVisible({ timeout: 10_000 });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:52:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [desktop] › tests/04-diagnostics.spec.ts:69:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:70:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-0d1e6-og-previews-before-download-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-diagnostics-system-diag-0d1e6-og-previews-before-download-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-0d1e6-og-previews-before-download-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-0d1e6-og-previews-before-download-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [desktop] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter 
+
+    Error: page.goto: net::ERR_ABORTED at http://127.0.0.1:19180/login
+    Call log:
+      - navigating to "http://127.0.0.1:19180/login", waiting until "load"
+
+
+       at helpers.ts:77
+
+      75 | export async function login(page: Page, locale: Locale = 'en', remember = true): Promise<void> {
+      76 |   await setLocale(page, locale);
+    > 77 |   await page.goto('/login');
+         |              ^
+      78 |   await expect(page.getByRole('heading', { name: T[locale].loginTitle })).toBeVisible();
+      79 |   await page.getByLabel(locale === 'en' ? 'Personal access key' : 'Persönlicher Zugangsschlüssel').fill(KEY);
+      80 |   if (remember) await page.getByLabel(T[locale].remember).check();
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:77:14)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:93:5
+
+    Error Context: test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-8c0ab-plies-the-connection-filter-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [mobile] › tests/01-auth.spec.ts:42:3 › access-key sign-in › logout ends the session ─────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/01-auth.spec.ts:47:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/01-auth-access-key-sign-in-logout-ends-the-session-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/01-auth-access-key-sign-in-logout-ends-the-session-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/01-auth-access-key-sign-in-logout-ends-the-session-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/01-auth-access-key-sign-in-logout-ends-the-session-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:13:7
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-26/traces/3b29a265d3a46d4e6f1a-a081d7ebc436b90ca017-recording1.network' -> '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-26/traces/3b29a265d3a46d4e6f1a-a081d7ebc436b90ca017-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-26/traces/3b29a265d3a46d4e6f1a-a081d7ebc436b90ca017.network'
+
+    Error: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-26/0dae7e11ecf63d7d199fa4c0c43ecff9.zip'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-526ad-ory-available-to-sell-in-en-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:13:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d5ad6-ory-available-to-sell-in-de-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) [mobile] › tests/02-demo-question.spec.ts:62:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero 
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-28/traces/3b29a265d3a46d4e6f1a-8a83336bdbf3d0b6b020.network'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d3771-basis-not-a-fabricated-zero-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) [mobile] › tests/02-demo-question.spec.ts:77:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history 
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/test-results/.playwright-artifacts-29/traces/3b29a265d3a46d4e6f1a-9e444d5486fe126b766f.network'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-741e7-emantics-tracks-and-history-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) [mobile] › tests/02-demo-question.spec.ts:93:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/02-demo-question.spec.ts:94:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/02-demo-question-demo-scen-d53e0-ion-appends-and-resolves-it-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  31) [mobile] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-sourc-05ed2-al-absent-needs-review-list-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  32) [mobile] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Import plan' })
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Import plan' }) with timeout 60000ms
+      - waiting for getByRole('heading', { name: 'Import plan' })
+
+
+      45 |       // The demo spec (02) created the demo connections; open the first connected row.
+      46 |       await page.locator('.ledger-table tr[data-action]').first().click();
+    > 47 |       await expect(page.getByRole('heading', { name: locale === 'en' ? 'Import plan' : 'Importplan' })).toBeVisible();
+         |                                                                                                         ^
+      48 |       await expect(page.getByText(locale === 'en' ? 'Last successful check' : 'Letzte erfolgreiche Prüfung').first()).toBeVisible();
+      49 |       await expect(page.getByText(locale === 'en' ? 'Last new event' : 'Letztes neues Ereignis').first()).toBeVisible();
+      50 |       await expect(page.getByText(locale === 'en' ? 'Capabilities' : 'Fähigkeiten').first()).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:47:105
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-conne-15aa0-ility-health-view-logs-link-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33) [mobile] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.otc-question')
+    Expected: 24
+    Received: 0
+    Timeout:  60000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.otc-question') with timeout 60000ms
+      - waiting for locator('.otc-question')
+        103 × locator resolved to 0 elements
+            - unexpected value "0"
+
+
+      69 |       await expect(page.getByRole('heading', { name: T[locale].questions })).toBeVisible();
+      70 |       await expect(page.locator('.otc-card')).toHaveCount(6);
+    > 71 |       await expect(page.locator('.otc-question')).toHaveCount(24);
+         |                                                   ^
+      72 |       await expect(page.getByText(locale === 'en' ? 'search only — not a chat' : 'nur Suche — kein Chat')).toBeVisible();
+      73 |       await screenshot(page, testInfo, locale, '21-answers-empty');
+      74 |       await page.locator('.otc-question-button').first().click();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:71:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-quest-6e396-ch-box-typed-parameter-form-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  34) [mobile] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('No entries match these filters.')
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('No entries match these filters.') with timeout 60000ms
+      - waiting for getByText('No entries match these filters.')
+
+
+      90 |         await page.keyboard.press('Escape');
+      91 |       } else {
+    > 92 |         await expect(page.getByText(locale === 'en' ? 'No entries match these filters.' : 'Keine Einträge passen zu diesen Filtern.')).toBeVisible();
+         |                                                                                                                                        ^
+      93 |       }
+      94 |       await screenshot(page, testInfo, locale, '56-journal');
+      95 |     });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:92:136
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-journ-f084e-r-with-payload-and-evidence-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  35) [mobile] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'System & Diagnostics', exact: true })
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'System & Diagnostics', exact: true }) with timeout 60000ms
+      - waiting for getByRole('heading', { name: 'System & Diagnostics', exact: true })
+
+
+      113 |     test('system & diagnostics: seven health cards, logs table, debug and export controls', async ({ page }, testInfo) => {
+      114 |       await page.goto('/app/system');
+    > 115 |       await expect(page.getByRole('heading', { name: T[locale].system, exact: true })).toBeVisible();
+          |                                                                                        ^
+      116 |       await expect(page.locator('.health-card')).toHaveCount(7);
+      117 |       await expect(page.locator('.log-table tbody tr').first()).toBeVisible();
+      118 |       await expect(page.getByRole('button', { name: T[locale].warnings })).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:115:88
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-syste-f96ce-e-debug-and-export-controls-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  36) [mobile] › tests/03-views.spec.ts:123:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-setti-69008-rage-key-rotation-lifecycle-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-en-setti-69008-rage-key-rotation-lifecycle-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-en-setti-69008-rage-key-rotation-lifecycle-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-en-setti-69008-rage-key-rotation-lifecycle-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  37) [mobile] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.app-layout')
+    Expected: visible
+    Timeout: 180000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.app-layout') with timeout 180000ms
+      - waiting for locator('.app-layout')
+
+
+       at helpers.ts:84
+
+      82 |   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
+      83 |   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.
+    > 84 |   await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+         |                                             ^
+      85 |   const currentLang = await page.locator('html').getAttribute('lang');
+      86 |   if (currentLang !== locale) await switchLocale(page, locale);
+      87 |   await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        at login (/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/helpers.ts:84:45)
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:7:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-recor-dfbd4-eadiness-and-example-action-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  38) [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+
+    Test timeout of 600000ms exceeded.
+
+    Error: locator.click: Test timeout of 600000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog').getByRole('button', { name: 'Plan speichern und starten' })
+        - locator resolved to <button type="button" class="btn primary">Plan speichern und starten</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+      - retrying click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <div class="evidence-box">…</div> intercepts pointer events
+      - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not stable
+        - retrying click action
+          - waiting 100ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+        52 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <div class="evidence-box">…</div> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not stable
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is not stable
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+        62 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <div class="evidence-box">…</div> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      28 × retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <div class="evidence-box">…</div> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+      2 × retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <div class="evidence-box">…</div> intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      14 × retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <div class="evidence-box">…</div> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+      2 × retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="evidence-box">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is not stable
+      18 × retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <div class="evidence-box">…</div> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <div class="evidence-box">…</div> intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <p class="demo-callout">Zugängliche ältere offene Aufträge, unbezahlte Re…</p> intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+
+
+      58 |       await screenshot(page, testInfo, locale, '65-import-plan');
+      59 |       await dialog.getByRole('radio').first().check();
+    > 60 |       await dialog.getByRole('button', { name: locale === 'en' ? 'Save plan and start' : 'Plan speichern und starten' }).click();
+         |                                                                                                                          ^
+      61 |       await expect(page.locator('.toast.show')).toBeVisible();
+      62 |       await expect(page.getByText('UTC').first()).toBeVisible();
+      63 |       await expect(page.getByText(locale === 'en' ? 'Last 30 days' : 'Letzte 30 Tage').first()).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:60:122
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  39) [mobile] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Keine Einträge passen zu diesen Filtern.')
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Keine Einträge passen zu diesen Filtern.') with timeout 60000ms
+      - waiting for getByText('Keine Einträge passen zu diesen Filtern.')
+
+
+      90 |         await page.keyboard.press('Escape');
+      91 |       } else {
+    > 92 |         await expect(page.getByText(locale === 'en' ? 'No entries match these filters.' : 'Keine Einträge passen zu diesen Filtern.')).toBeVisible();
+         |                                                                                                                                        ^
+      93 |       }
+      94 |       await screenshot(page, testInfo, locale, '56-journal');
+      95 |     });
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:92:136
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-journ-80a05-r-with-payload-and-evidence-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  40) [mobile] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges 
+
+    Error: expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "1 Nov 2026, 16:43:33 CET·
+    ▲
+    WARN	engine-client	engine.call_failed	Engine call exceeded the deadline · deadline_exceeded		"
+
+    Call Log:
+    - Timeout 20000ms exceeded while waiting on the predicate
+
+      55 |     await expect(page.getByRole('button', { name: /Live · on/ })).toBeVisible({ timeout: 10_000 });
+      56 |     // The 5 s health probes of this very view produce INFO records, so new rows arrive without external activity.
+    > 57 |     await expect.poll(async () => rows.first().innerText(), { timeout: 20_000 }).not.toBe(firstBefore);
+         |                                                                                      ^
+      58 |     await page.getByRole('button', { name: 'Pause', exact: true }).click();
+      59 |     await expect(page.getByRole('button', { name: /Resume \(\d+ new\)/ })).toBeVisible();
+      60 |     const frozenFirst = await rows.first().innerText();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/04-diagnostics.spec.ts:57:86
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/04-diagnostics-system-diag-35fa0-ecord-counter-resume-merges-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [mobile] › tests/01-auth.spec.ts (9.5m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  40 failed
+    [desktop] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access 
+    [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en 
+    [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de 
+    [desktop] › tests/02-demo-question.spec.ts:62:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero 
+    [desktop] › tests/02-demo-question.spec.ts:77:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history 
+    [desktop] › tests/02-demo-question.spec.ts:93:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it 
+    [desktop] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+    [desktop] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+    [desktop] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form 
+    [desktop] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence 
+    [desktop] › tests/03-views.spec.ts:97:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+    [desktop] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls 
+    [desktop] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action 
+    [desktop] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+    [desktop] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form 
+    [desktop] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence 
+    [desktop] › tests/03-views.spec.ts:97:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config 
+    [desktop] › tests/03-views.spec.ts:113:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls 
+    [desktop] › tests/03-views.spec.ts:123:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle 
+    [desktop] › tests/03-views.spec.ts:133:5 › views in de › keyboard navigation of the main nav and of a dialog 
+    [desktop] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings 
+    [desktop] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges 
+    [desktop] › tests/04-diagnostics.spec.ts:69:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download 
+    [desktop] › tests/04-diagnostics.spec.ts:92:3 › system & diagnostics › view logs deep link from a source applies the connection filter 
+    [mobile] › tests/01-auth.spec.ts:42:3 › access-key sign-in › logout ends the session ───────────
+    [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en 
+    [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de 
+    [mobile] › tests/02-demo-question.spec.ts:62:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero 
+    [mobile] › tests/02-demo-question.spec.ts:77:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history 
+    [mobile] › tests/02-demo-question.spec.ts:93:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it 
+    [mobile] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list 
+    [mobile] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+    [mobile] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form 
+    [mobile] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence 
+    [mobile] › tests/03-views.spec.ts:113:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls 
+    [mobile] › tests/03-views.spec.ts:123:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle 
+    [mobile] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action 
+    [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+    [mobile] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence 
+    [mobile] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges 
+  28 passed (2.8h)
+/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] e2e@0.1.0 test: `playwright test`
+Exit status 1

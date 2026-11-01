@@ -1,0 +1,8 @@
+# command: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+# started: 2026-11-01T12:02:32Z commit 482bdf592a599102a5ddcc18cf4e48f176241177
+.............................................
+----------------------------------------------------------------------
+Ran 45 tests in 30.211s
+
+OK
+# exit: 0 finished: 2026-11-01T12:03:04Z

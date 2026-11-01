@@ -1,0 +1,21 @@
+# command: ./blackbox upgrade /Users/benediktsauter/GitHub/blackbox-agent-c/release/dist-rc6b/blackbox-0.1.0-rc6b-mac-arm64.tar.gz   (populated install: 386234 journal entries; the verifier interrupts the run once the phase file reaches images/migrate and resumes with --resume)
+# started 2026-11-01T13:35:54Z
+upgrade: installed 0.1.0-rc6 → release 0.1.0-rc6b
+  [preflight] 0.1.0-rc6->0.1.0-rc6b
+  [lease]
+  [fence] pre-upgrade
+2026-11-01T13:47:37Z backup generation blackbox-backup-20261101T134732Z (pre-upgrade) starting
+2026-11-01T13:47:42Z backup dumping database
+2026-11-01T14:24:54Z backup archiving evidence
+2026-11-01T14:24:55Z backup archiving snapshots
+2026-11-01T14:24:55Z backup archiving installation key material
+2026-11-01T14:25:30Z backup sealing generation
+2026-11-01T14:27:32Z backup generation finalized: /backup-dest/blackbox-backup-20261101T134732Z.tar.age (128656232 bytes, sha256 8a9117f32dc80a77085202b8f8edc972def75276ef948e4638929b3f626d4789)
+2026-11-01T14:27:34Z backup retention: 1 finalized generation(s); nothing to prune
+  [done]
+backup finalized: /backup-dest/blackbox-backup-20261101T134732Z.tar.age
+  [writers-paused]
+  [files-staged]
+resuming upgrade 0.1.0-rc6 → 0.1.0-rc6b from phase 'images'
+  [images-load]
+  loading api.tar

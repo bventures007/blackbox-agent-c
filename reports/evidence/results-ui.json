@@ -1,0 +1,253 @@
+{
+  "generated_at": "2026-11-01T15:53:50.629452Z",
+  "verifier": "UI/distribution verifier",
+  "summary": "No case passed with complete evidence in this slot. Real defects found and fixed in apps/web (contract alignment with the real API), apps/landing, scripts/release/serve-landing.sh and tests/e2e; the full Playwright suite, the 0.1.0 release build, the fresh-install journey and the browser screen comparison could not be completed because the shared Docker VM was saturated by other projects' containers for the whole slot. The rc6 stack (blackbox-agent-c) is left running with the rebuilt web dist bind-mounted via a compose override (/private/tmp/...scratchpad/web-override.yml); landing hosts on 19181/19187/19188/19190 are still serving; the 0.1.0 docker build is still running in the background.",
+  "release_archive": {
+    "version_built": null,
+    "existing": "release/dist/blackbox-0.1.0-rc6-mac-arm64.tar.gz",
+    "sha256": "b2068460b8c4cc32624a35687d22ad9b4f8e06509e47de4bb3eeb644aa486432",
+    "byte_size": 594309750,
+    "download_url_served": "http://127.0.0.1:19181/blackbox-0.1.0-rc6-mac-arm64.tar.gz",
+    "manifest_status": "released (rc6, tested_commit aa18411 — not the integrated commit)"
+  },
+  "playwright_fresh_install": {
+    "status": "not_run",
+    "counts": null,
+    "best_partial_run_on_rc6_stack": "run3: 01-auth 4 passed; 02-demo 2 failed (demo load >120 s); run aborted"
+  },
+  "results": [
+    {
+      "id": "INSTALL-01",
+      "status": "implemented_unverified",
+      "command": "not run (planned: curl download -> /Users/benediktsauter/blackbox-pilot-dist, ./blackbox doctor, scripts/release/setup-with-key-capture.py, ./blackbox up/status, docker compose -p blackbox-agent-c ps)",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "No fresh install was performed: the 0.1.0 archive does not exist yet (build stuck) and the time-box ended. The existing rc6 install (~/blackbox-pilot-int) is running.",
+      "evidence_paths": [
+        "reports/evidence/DIST-03/build-0.1.0-partial.log",
+        "scripts/release/setup-with-key-capture.py"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). no 0.1.0 artifact",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "INSTALL-02",
+      "status": "implemented_unverified",
+      "command": "not run (planned: scripts/release/answer-snapshot.sh before/after ./blackbox down && ./blackbox up)",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Restart persistence was not exercised in this slot.",
+      "evidence_paths": [
+        "scripts/release/answer-snapshot.sh"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). no fresh install",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "UI-01",
+      "status": "failed",
+      "command": "E2E_NO_MOCK=1 BASE_URL=http://127.0.0.1:19180 LANDING_URL=http://127.0.0.1:19181/ BLACKBOX_E2E_KEY=$(cat ~/blackbox-pilot-int/owner.key) pnpm --filter e2e test (8 runs against the rc6 stack; no fresh-install run)",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Baseline run exposed that every view crashed against the real API (built against the mock shapes). Fixed: types/adapters/all views, demo confirmation_required flow, landing download_url resolution, serve-landing manifest placement, record-id overflow, poll overlap. Re-runs on the saturated host never completed: best run (run3) 4/4 sign-in tests passed, demo/question tests failed on API latency (demo >5 min), later runs failed on login timeouts/500s and ERR_NETWORK_CHANGED. No complete pass for desktop+mobile EN+DE. A headless probe after the fixes showed all nine views render without page errors. Browser screen comparison not completed (comparison.md holds the deviations list and the fix log, the per-capture table and keyboard rows are PENDING).",
+      "evidence_paths": [
+        "reports/evidence/E2E/playwright-int-stack-baseline.txt",
+        "reports/evidence/E2E/playwright-int-stack-run3.txt",
+        "reports/evidence/E2E/playwright-int-stack-run8.txt",
+        "reports/evidence/UI-01/screens/en",
+        "reports/evidence/UI-01/screens/de",
+        "reports/evidence/UI-01/comparison.md",
+        "reports/evidence/E2E/playwright-int-stack-run2.txt",
+        "reports/evidence/E2E/playwright-int-stack-run6.txt"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). full suite never finished; 0.1.0 archive not built",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "LOCAL-06",
+      "status": "implemented_unverified",
+      "command": "scripts in reports/evidence/LOCAL-06/key-rotation-int-stack.txt (curl rotate-key proof)",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Rotation proof aborted: POST /api/auth/login returned 500 after 3 min (PostgreSQL 'timeout exceeded when trying to connect' under host load). Code review: rotateOwnerKey revokes the previous owner_key verifier and all owner sessions (packages/auth/src/service.ts). EN/DE locale persistence works (PATCH /api/workspace) but a locale switch immediately followed by a reload loses the preference until the PATCH completes (observed; test now waits for the PATCH).",
+      "evidence_paths": [
+        "reports/evidence/LOCAL-06/key-rotation-int-stack.txt",
+        "reports/evidence/E2E/playwright-int-stack-run3.txt"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "LOCAL-08",
+      "status": "implemented_unverified",
+      "command": "not run",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Fresh-folder install on this Mac not performed (no 0.1.0 archive, time-box).",
+      "evidence_paths": [],
+      "blocker": "no 0.1.0 artifact; host saturated",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "HEALTH-02",
+      "status": "implemented_unverified",
+      "command": "headless probe + partial e2e",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Sources overview, connection detail (per-capability health table, import plan with timezone/UTC, runs) and answer data status render from the real API after the contract alignment; EN/DE/narrow/keyboard coverage is in tests/e2e/tests/03-views.spec.ts but no complete run exists.",
+      "evidence_paths": [
+        "reports/evidence/UI-01/screens/en/11-sources.png",
+        "reports/evidence/UI-01/screens/en/61-connection-detail.png"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "HEALTH-03",
+      "status": "implemented_unverified",
+      "command": "headless probe",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Answer envelope shows applied/required cursor, recorded cutoff, coverage population and per-source coverage intervals (real order-01 answer, available 112 = GOLDEN checkpoint). Concurrent-import cutoff behaviour not exercised.",
+      "evidence_paths": [
+        "reports/evidence/UI-01/screens/en/22-answer-inventory.png"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "DIAG-01",
+      "status": "implemented_unverified",
+      "command": "tests/e2e/tests/04-diagnostics.spec.ts (never reached in a completed run)",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Filters/live/pause/debug/export rewritten to the real contract (components auth/ingestion/query/cli, export categories versions/health/errors/logs, record siblings). Not executed to completion.",
+      "evidence_paths": [
+        "reports/evidence/UI-01/screens/en/62-system-diagnostics.png"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "DIAG-02",
+      "status": "implemented_unverified",
+      "command": "observation during runs",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Seven health cards come from real probes with observed_at/reason; stale after stale_after_seconds from the API; top-bar status showed 'degraded' while the SLICE-01 fixture connection was unavailable (truthful). Fault injection not performed.",
+      "evidence_paths": [
+        "reports/evidence/UI-01/screens/en/62-system-diagnostics.png"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "DIST-01",
+      "status": "implemented_unverified",
+      "command": "scripts/release/serve-landing.sh (19181 released rc6 manifest; 19188 pending; 19187 invalid sha256); Playwright captures + built-in browser",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Landing fixed so all three CTAs resolve to the real artifact when the manifest is released (relative download_url against the manifest URL; serve-landing puts manifest+archive next to index.html). Built-in browser showed the released rc6 state ('Download for Mac 0.1.0-rc6', EN) and the pending/invalid states (EN/DE): hero CTA disabled with 'Download not available yet' / 'Download noch nicht verfügbar', invalid metadata message. Not re-verified for 0.1.0 and the e2e landing spec never ran to completion.",
+      "evidence_paths": [
+        "reports/evidence/DIST-01/landing-pending-en-desktop.png",
+        "reports/evidence/DIST-01/landing-pending-de-mobile.png",
+        "reports/evidence/DIST-01/landing-invalid-sha256-en-desktop.png",
+        "reports/evidence/DIST-01/landing-invalid-sha256-de-mobile.png"
+      ],
+      "blocker": "0.1.0 archive not built",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "DIST-02",
+      "status": "implemented_unverified",
+      "command": "not run",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Browser download of the exact advertised 0.1.0 archive, checksum, extract, doctor/setup/up on a fresh folder: not performed (no 0.1.0 artifact; the browser pane cannot save downloads, so curl of the CTA href was the planned fallback).",
+      "evidence_paths": [],
+      "blocker": "no 0.1.0 artifact",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "DIST-03",
+      "status": "failed",
+      "command": "scripts/release/build.sh 0.1.0 (running since 2026-11-01T14:24Z, still in docker build pnpm install at 16:52 local); scripts/release/verify-download.sh negative cases",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Negative cases enforce the contract: pending manifest -> FAIL exit 2; corrupted (non-hex) sha256 -> landing shows invalid state, verify-download fails (artifact 404); wrong but well-formed sha256 -> 'sha256 mismatch' exit 2; missing manifest path -> exit 2. The 0.1.0 archive/manifest do not exist yet; the only existing artifact is rc6 (release/dist/blackbox-0.1.0-rc6-mac-arm64.tar.gz, sha256 b2068460b8c4cc32624a35687d22ad9b4f8e06509e47de4bb3eeb644aa486432, 594309750 bytes, tested_commit aa18411 = pre-integration tree).",
+      "evidence_paths": [
+        "reports/evidence/DIST-03/verify-download-negative.txt",
+        "reports/evidence/DIST-03/build-tree-state-0.1.0.txt",
+        "reports/evidence/DIST-03/build-0.1.0-partial.log"
+      ],
+      "blocker": "docker build cannot fetch npm packages at usable speed inside the saturated Docker VM (UND_ERR_SOCKET, 50-100 s per request)",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "PILOT-10",
+      "status": "implemented_unverified",
+      "command": "headless probe of /app/questions; real POST /api/questions/inventory.available_to_sell",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "All 24 templates render typed parameter forms from the real params_schema; order-01 answered complete/112 from the engine, unknown item -> status unknown with 'no stock observation'; the search box is literal (GET /api/questions/search). No LLM call exists in the web app (no network egress besides 127.0.0.1:19180). Varying all 24 intents through the UI was not done.",
+      "evidence_paths": [
+        "reports/evidence/UI-01/screens/en/21-answers-empty.png"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "MCP-03",
+      "status": "implemented_unverified",
+      "command": "npx --yes @modelcontextprotocol/inspector --cli -e BLACKBOX_API_URL=http://127.0.0.1:19180 -e BLACKBOX_AGENT_KEY_FILE=<0600 file> node packages/mcp/dist/server.js --method tools/list | --method tools/call --tool-name get_business_state ...",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "tools/list PASSED (10 tools) with Inspector 2.13.0, SDK 1.32.2, node v25.9.0, stdio, API-created (not UI-created) agent key, revoked afterwards. tools/call get_business_state returned bridge_error timeout (10 s bridge limit under load). Claude Desktop not launched; config snippet in docs/tester-guide.md.",
+      "evidence_paths": [
+        "reports/evidence/MCP-03/README.md",
+        "reports/evidence/MCP-03/inspector-version.txt"
+      ],
+      "blocker": "tools/call not completed under host load; UI-created key not used",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "LOCAL-11",
+      "status": "implemented_unverified",
+      "command": "docs/tester-guide.md written (EN + DE); export preview exercised via POST /api/diagnostics/export?preview=1",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Tester guide covers install/key/demo/question/agent/restart/backup/diagnostics/limitations/feedback checklist. Export preview answered {size_bytes:16145, records:340, categories:[logs,health]} on the rc6 stack; a downloaded bundle was not inspected for leakage in this slot.",
+      "evidence_paths": [
+        "docs/tester-guide.md"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "IMPORT-03",
+      "status": "implemented_unverified",
+      "command": "connection detail view on the SLICE-01 fixture connection",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Runs show counters (requested/loaded/committed/applied/failed/duplicates), totals_known, percent only when known, attempt number, error_code provider_unavailable with next_action retry, phases. Restart/pause/cancel matrix not exercised.",
+      "evidence_paths": [
+        "reports/evidence/UI-01/screens/en/61-connection-detail.png"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    },
+    {
+      "id": "IMPORT-04",
+      "status": "implemented_unverified",
+      "command": "GET /api/questions readiness + order-01 answer",
+      "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
+      "observed_result": "Readiness per question is ready/partial/blocked from actual datasets (9 ready, settlement-04 blocked); order-01 answered while supply (optional) was missing and flagged 'optional datasets absent'. UI/API shown; MCP path not re-run.",
+      "evidence_paths": [
+        "reports/evidence/UI-01/screens/en/21-answers-empty.png"
+      ],
+      "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "note": "working tree at 482bdf592a599102a5ddcc18cf4e48f176241177 plus uncommitted P4 verification changes (see reports/evidence/DIST-03/build-tree-state-0.1.0.txt)"
+    }
+  ]
+}

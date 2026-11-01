@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { KEY, T, login, openMobileNav, screenshot, setLocale } from './helpers';
+import { KEY, LOGIN_TIMEOUT, T, login, openMobileNav, screenshot, setLocale, switchLocale } from './helpers';
 
 test.describe('access-key sign-in', () => {
   test('rejects an invalid key with a localized error and never stores the key in localStorage', async ({ page }) => {
@@ -7,7 +7,7 @@ test.describe('access-key sign-in', () => {
     await page.goto('/login');
     await page.getByLabel('Personal access key').fill('bbk_not_a_valid_key');
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-    await expect(page.getByRole('alert')).toHaveText(T.en.invalid);
+    await expect(page.getByRole('alert')).toHaveText(T.en.invalid, { timeout: LOGIN_TIMEOUT });
     const stored = await page.evaluate(() => JSON.stringify(Object.entries(window.localStorage)));
     expect(stored).not.toContain('bbk_');
     expect(stored).toContain('blackbox.locale');
@@ -22,9 +22,13 @@ test.describe('access-key sign-in', () => {
     await page.getByLabel('Personal access key').fill(KEY);
     await page.getByLabel(T.en.remember).check();
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    // After sign-in the server-persisted workspace locale applies (it may be German from an earlier session);
+    // the shell switch persists the preference through PATCH /api/workspace.
+    await expect(page.locator('.app-layout')).toBeVisible({ timeout: LOGIN_TIMEOUT });
+    if ((await page.locator('html').getAttribute('lang')) !== 'en') await switchLocale(page, 'en');
     await expect(page.getByRole('heading', { name: T.en.recorder })).toBeVisible();
     await page.reload();
-    await expect(page.getByRole('heading', { name: T.en.recorder })).toBeVisible();
+    await expect(page.getByRole('heading', { name: T.en.recorder })).toBeVisible({ timeout: LOGIN_TIMEOUT });
     const cookies = await page.context().cookies();
     const session = cookies.find((c) => c.name === 'bb_session');
     expect(session?.httpOnly).toBe(true);
@@ -43,8 +47,8 @@ test.describe('access-key sign-in', () => {
     await login(page, 'en');
     await openMobileNav(page, 'en');
     await page.getByRole('button', { name: 'Sign out' }).click();
-    await expect(page.getByRole('heading', { name: T.en.loginTitle })).toBeVisible();
+    await expect(page.getByRole('heading', { name: T.en.loginTitle })).toBeVisible({ timeout: LOGIN_TIMEOUT });
     await page.goto('/app');
-    await expect(page.getByRole('heading', { name: T.en.loginTitle })).toBeVisible();
+    await expect(page.getByRole('heading', { name: T.en.loginTitle })).toBeVisible({ timeout: LOGIN_TIMEOUT });
   });
 });

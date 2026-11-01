@@ -154,6 +154,7 @@ export async function startTestApp(options: { engineUrl?: string; logLevel?: Api
   const config: ApiConfig = {
     host: "127.0.0.1",
     port,
+    publicPort: port,
     databaseUrl: db.urls.api,
     migrateDatabaseUrl: db.urls.migrate,
     fenceDir: null,

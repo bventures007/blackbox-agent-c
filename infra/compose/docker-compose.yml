@@ -119,6 +119,9 @@ services:
       # into the container; the api refuses 0.0.0.0 without this explicit container flag.
       HOST: 0.0.0.0
       BLACKBOX_CONTAINER_BIND: "1"
+      # The port the browser/MCP client sees on the host loopback (Host/Origin allowlist); the
+      # container itself always listens on 19180.
+      BLACKBOX_PUBLIC_PORT: "${BLACKBOX_PORT:-19180}"
       PGMIGRATE_USER: bb_migrate
       PGMIGRATE_PASSWORD_FILE: /run/secrets/pg_migrate_password
       MIGRATIONS_DIR: /migrations

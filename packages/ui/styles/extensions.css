@@ -196,3 +196,23 @@ textarea.field.mono,input.field.mono{font-family:var(--mono);font-size:11px}
 /* absolute (sr-only) descendants must stay inside the scrolling table wrapper */
 .ledger-table-wrap,.mini-table,.review-card,.white-panel{position:relative}
 @media(max-width:600px){.readiness-summary,.otc-question-body,.answer-output{max-width:100%;overflow-x:auto}.math-row{gap:12px}}
+
+/* Answer envelope (real engine contract): calculation steps with formula + values, scalar result fields */
+.math-steps { display: grid; gap: 10px; margin: 12px 0; }
+.math-steps .math-item { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--line, #e6e4dc); border-radius: 10px; background: var(--paper, #fff); }
+.math-steps .formula { font-size: 12px; white-space: pre-wrap; word-break: break-word; }
+.math-steps .math-value { display: inline-block; margin: 2px 10px 2px 0; }
+.answer-fields { margin-top: 10px; }
+.answer-output .ledger-table-wrap { margin-top: 10px; }
+/* Entity view: per-track entry summary */
+.track-summary { display: grid; gap: 8px; margin: 8px 0 12px; }
+.track-summary-row { display: grid; grid-template-columns: 120px auto 1fr; gap: 8px; align-items: center; font-size: 13px; }
+.track-summary-row .chip-row { margin: 0; }
+@media (max-width: 720px) { .track-summary-row { grid-template-columns: 1fr; } }
+.readiness-list li { margin: 6px 0; }
+.capability-pill.muted { opacity: 0.7; }
+.capability-pill .status-badge { font-size: 11px; }
+/* Long engineering record ids (e.g. Shopify GIDs) must wrap inside cards/chips instead of overflowing. */
+.activity-item strong, .activity-item p, .event-chip span, .review-card h3, .detail-meta dd, .ledger-table td code { overflow-wrap: anywhere; word-break: break-word; }
+.activity-item { min-width: 0; }
+.activity-item > div { min-width: 0; }

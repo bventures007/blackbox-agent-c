@@ -1,18 +1,78 @@
 {
   "schema_version": "1.0",
-  "note": "No engine/application benchmark has run. The smoke profile now includes mandatory per-query API/MCP, memory, lag and recovery targets under PILOT-09; every measurement remains unmeasured.",
+  "note": "Smoke profile attempted by the ops verifier on 2026-11-01: corpus generated partially, load runs not executed (see profiles.smoke.limitations); reference_10m and scale_100m remain deferred and unmeasured.",
   "contract": "benchmarks/performance-contract.json",
   "profiles": {
     "smoke": {
-      "status": "not_started",
-      "tested_commit": null,
-      "environment": null,
-      "commands": [],
-      "dataset_manifest": null,
-      "measurements": null,
-      "evidence_paths": [],
-      "limitations": [],
-      "delivery_scope": "local_pilot"
+      "status": "implemented_unverified",
+      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+      "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with the containers of three other Blackbox projects), Docker 27.3.1, images blackbox/*:0.1.0-rc6 on the ops install (project blackbox-agent-c-ops, 127.0.0.1:19185); during the run the host was saturated by other agents' workloads (load average 700-840 on 8 cores, 14.7 GiB swap in use) and the Docker VM load average was 40-60; docker commands took minutes",
+      "commands": [
+        "PGHOST=127.0.0.1 PGPORT=19186 PGDATABASE=blackbox PGUSER=bb_api PGPASSWORD_FILE=<install>/secrets/pg_api_password target/release/corpus --seed 42 --tenants 50 --min-entries 250000 --min-orders 10000 --parallel 6 --manifest reports/evidence/PILOT-09/corpus-manifest.json  (corpus-v2, stopped after ~43 min; see corpus-generation.txt)",
+        "DATABASE_URL=postgres://postgres:***@127.0.0.1:19186/blackbox node tests/perf/manifest-from-db.mjs --out reports/evidence/PILOT-09/corpus-manifest.json --since 2026-11-01T12:22:00Z --seed 42",
+        "NOT EXECUTED: node tests/perf/prepare.mjs ...; node tests/perf/smoke.mjs --mode closed|fixed --transport api|mcp --duration 600 ...; node tests/perf/verdict.mjs ...; node tests/perf/report.mjs ... (driver, verdict and report scripts are committed and syntax-checked but no load run happened: the api of the ops install was unreachable on its published port until the rc6b upgrade (LOCAL-05 defect) and the upgrade itself was still loading images on the saturated host when the run was wrapped up)"
+      ],
+      "dataset_manifest": "reports/evidence/PILOT-09/corpus-manifest.json",
+      "measurements": {
+        "dataset": {
+          "tenants": 50,
+          "orders": 6305,
+          "journal_entries": 348233,
+          "largest_tenant_order_fraction": 0.207,
+          "order_history_entries": {
+            "p50": 63,
+            "p95": 69,
+            "max": 71,
+            "min": 31
+          },
+          "hot_set": 1305,
+          "cold_sample": 490,
+          "reconstructed": true,
+          "requirements_met": false,
+          "note": "generator stopped before the largest tenant was complete: 50 tenants and 348,233 five-track entries exist (above the 250k minimum) but only 6,305 distinct orders (minimum 10,000) and the largest tenant holds 20.7% of the orders (required 50%); one orphan tenant from an aborted sequential run is excluded"
+        },
+        "engine_observed_during_generation": {
+          "rss_mib": 1220,
+          "status": "degraded",
+          "tenants": 52,
+          "note": "engine /health read from inside the api container while the corpus was applied on the saturated host; the 1024 MiB steady target would not hold at this RSS (structural budget 512 MiB, two copies per tenant); not a load-run measurement"
+        },
+        "ingestion_observed": {
+          "append_journal_entries_rate_per_connection_entries_per_second": "~50 (single connection, PostgreSQL CPU-bound) rising to ~300 with 6 concurrent tenants before the host saturated",
+          "note": "generator-side measurement through the same append_journal_entries(jsonb) boundary the API uses; not the 20 entries/s replay-API workload of the contract"
+        },
+        "latency": null,
+        "success_fraction": null,
+        "lag": null,
+        "memory_runs": null,
+        "restart": null,
+        "rebuild": null,
+        "restore": null,
+        "postgres_reference": {
+          "tail_read_ms": 1.9,
+          "high_water_mark_point_read_ms": 0.16,
+          "entity_gin_read_ms": 1.85,
+          "indexed_sql_reference_aggregate_ms": 0.81,
+          "forced_sequential_scan_ms": 42260,
+          "evidence": "reports/evidence/PERF-01/postgres-explain.txt"
+        },
+        "engine_only_sample": "docs/engine.md measured sample 2026-11-01 (release binary p50 55.8 ms / p95 125.3 ms / p99 162.1 ms engine RPC only, 16 clients over 2 workspaces); not the API/MCP measurement"
+      },
+      "evidence_paths": [
+        "reports/evidence/PILOT-09/corpus-manifest.json",
+        "reports/evidence/PILOT-09/corpus-generation.txt",
+        "reports/evidence/PILOT-09/corpus-generation-aborted-sequential-v1.txt",
+        "reports/evidence/PERF-01/postgres-explain.txt",
+        "reports/evidence/CI-01/cargo-test-release.txt"
+      ],
+      "limitations": [
+        "No per-class API/MCP latency, success fraction, lag, memory, restart, rebuild or restore measurement exists: every smoke target is unmeasured and the gate is not passed.",
+        "The corpus does not meet the dataset minimums (orders 6,305 < 10,000; largest tenant 20.7% < 50%); the manifest was reconstructed from the database after the generator was stopped and its hot/cold sets are drawn by hash order, not by the generator RNG.",
+        "Host conditions were not representative of the reference host: other agents ran Playwright/Docker workloads concurrently (load average 700-840, 14.7 GiB swap); a repeat on a quiet host with the committed scripts (tests/perf/*.mjs) is required before any number is reported.",
+        "The ops install was on rc6 images whose api rejected every request on a non-default published port (defect fixed in the working tree, rc6b image); the upgrade to rc6b was still in progress at wrap-up."
+      ],
+      "delivery_scope": "local_pilot",
+      "measured_at": "2026-11-01T15:10:00Z"
     },
     "reference_10m": {
       "status": "not_started",

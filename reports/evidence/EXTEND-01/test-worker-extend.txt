@@ -1,0 +1,14 @@
+# command: WORKER_TEST_SUPERUSER_URL=postgres://postgres:workerpg@127.0.0.1:19191/postgres pnpm --filter @blackbox/tests-worker exec vitest run --config vitest.config.ts extend   (throwaway postgres:16-alpine container blackbox-agent-c-workerpg on loopback 19191)
+# started 2026-11-01T12:44:46Z commit 482bdf592a599102a5ddcc18cf4e48f176241177 + uncommitted tests/worker/extend.test.ts and helpers/db.ts port parameterization
+
+ RUN  v4.1.12 /Users/benediktsauter/GitHub/blackbox-agent-c/tests/worker
+
+ ✓ extend.test.ts (1 test) 3418ms
+     ✓ a fixture-backed supplier adapter for generic.supply lands source+fact entries without touching stock, money or the mapping table  1045ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  13:44:49
+   Duration  9.32s (transform 2.53s, setup 0ms, import 4.93s, tests 3.42s, environment 0ms)
+
+# exit: 0 finished 2026-11-01T12:44:59Z

@@ -1,0 +1,31 @@
+# command: pnpm test:worker
+# started: 2026-11-01T12:01:23Z commit 482bdf592a599102a5ddcc18cf4e48f176241177
+$ pnpm --filter @blackbox/tests-worker test:worker
+$ vitest run --config vitest.config.ts
+
+ RUN  v4.1.12 /Users/benediktsauter/GitHub/blackbox-agent-c/tests/worker
+
+ ✓ pipeline.test.ts (8 tests) 76636ms
+     ✓ appends source + derived entries once; a rerun appends nothing (INGEST-02, JOURNAL-02)  8392ms
+     ✓ same identity with different content preserves the original and opens a conflict (JOURNAL-02)  7594ms
+     ✓ an interrupted run resumes from its checkpoint without double effects (INGEST-03/05, IMPORT-05)  23329ms
+     ✓ late corrections append; earlier entries stay unchanged; successful empty poll advances only the check time (HEALTH-01, IMPORT-05)  7361ms
+     ✓ two tenants with the same external ids are isolated under the worker role (TENANT-01/02, SLICE-01 step 6)  7548ms
+     ✓ storage critical pauses fetch and keeps the checkpoint; resumes afterwards (PILOT-06)  9857ms
+     ✓ reconnecting with a different account never reuses cursors (PILOT-05)  1021ms
+     ✓ shopify payments backfill lands ledger/payout/dispute tracks with explicit test flags (SOURCE-01 subset)  5696ms
+ ✓ scheduler.test.ts (5 tests) 30257ms
+     ✓ schedules nothing without an import plan and explains why; dispatches once a plan exists  5884ms
+     ✓ after a suspension every overdue group gets one coalesced job plus one bounded reconciliation, spread over time (PILOT-05)  5558ms
+     ✓ is fair across connections, bounded per tick, respects Retry-After and pauses on storage critical (INGEST-05, PILOT-06)  1913ms
+ ✓ adapter.contract.test.ts (19 tests) 3106ms
+     ✓ checks credentials, grants and the immutable shop identity  700ms
+     ✓ supports the client-credentials grant (no redirect) and refreshes the 24h token  447ms
+     ✓ yields identical identities with duplicate and reordered pages (INGEST-02/04)  454ms
+
+ Test Files  3 passed (3)
+      Tests  32 passed (32)
+   Start at  13:01:38
+   Duration  142.48s (transform 2.27s, setup 0ms, import 21.12s, tests 110.00s, environment 6ms)
+
+# exit: 0 finished: 2026-11-01T12:04:01Z

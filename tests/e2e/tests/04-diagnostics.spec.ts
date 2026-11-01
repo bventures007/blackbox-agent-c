@@ -7,19 +7,31 @@ test.describe('system & diagnostics', () => {
     await page.goto('/app/system');
     const rows = page.locator('.log-table tbody tr');
     await expect(rows.first()).toBeVisible();
+    // Warnings preset: levels OR within the dimension. The sign-in spec produced at least one WARN (rejected key).
     await page.getByRole('button', { name: 'Warnings & errors' }).click();
     await expect(page.locator('.active-filters')).toContainText('WARN, ERROR');
     await expect(rows.first()).toBeVisible();
     const levels = await rows.locator('td:nth-child(2)').allInnerTexts();
+    expect(levels.length).toBeGreaterThan(0);
     expect(levels.every((l) => /WARN|ERROR/.test(l))).toBe(true);
-    await page.getByLabel('Worker', { exact: true }).check();
+    // Component filter: AND across dimensions. Use the component of the first warning so the test does not presume
+    // which subsystem warned on this installation.
+    const firstComponent = (await rows.first().locator('td:nth-child(3)').innerText()).trim();
+    const firstEvent = (await rows.first().locator('td:nth-child(4) code').innerText()).trim();
+    await page.getByLabel(firstComponent, { exact: true }).check();
     await page.getByRole('button', { name: 'Apply' }).click();
-    await expect(page.locator('.active-filters')).toContainText('Component: worker');
+    await expect(page.locator('.active-filters')).toContainText('Component:');
+    await expect(rows.first()).toBeVisible();
     const comps = await rows.locator('td:nth-child(3)').allInnerTexts();
-    expect(comps.every((c) => c === 'Worker')).toBe(true);
-    await page.getByLabel('Literal search').fill('rate limit');
+    expect(comps.every((c) => c.trim() === firstComponent)).toBe(true);
+    // Literal search on the event name (no free text leaves the machine).
+    const literal = firstEvent.split('.').pop() ?? firstEvent;
+    await page.getByLabel('Literal search').fill(literal);
     await page.getByRole('button', { name: 'Apply' }).click();
-    await expect(rows.first()).toContainText('provider.rate_limited');
+    await expect(page.locator('.active-filters')).toContainText(`"${literal}"`);
+    await expect(rows.first()).toBeVisible();
+    const events = await rows.locator('td:nth-child(4) code').allInnerTexts();
+    expect(events.every((e) => e.includes(literal))).toBe(true);
     await screenshot(page, testInfo, 'en', '66-diagnostics-filtered');
     await rows.first().click();
     const drawer = page.getByRole('dialog');
@@ -30,6 +42,7 @@ test.describe('system & diagnostics', () => {
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Clear filters' }).click();
     await expect(page.locator('.active-filters')).toContainText('Minimum level: INFO');
+    await expect(page.locator('.active-filters')).not.toContainText('Component:');
   });
 
   test('live mode appends records, pause freezes with a new-record counter, resume merges', async ({ page }, testInfo) => {
@@ -40,18 +53,25 @@ test.describe('system & diagnostics', () => {
     const firstBefore = await rows.first().innerText();
     await page.getByRole('button', { name: 'Live', exact: true }).click();
     await expect(page.getByRole('button', { name: /Live · on/ })).toBeVisible({ timeout: 10_000 });
-    await expect.poll(async () => rows.first().innerText(), { timeout: 10_000 }).not.toBe(firstBefore);
+    // The 5 s health probes of this very view produce INFO records, so new rows arrive without external activity.
+    await expect.poll(async () => rows.first().innerText(), { timeout: 20_000 }).not.toBe(firstBefore);
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
     await expect(page.getByRole('button', { name: /Resume \(\d+ new\)/ })).toBeVisible();
-    await expect.poll(async () => page.getByRole('button', { name: /Resume \((\d+) new\)/ }).innerText(), { timeout: 10_000 }).toMatch(/Resume \([1-9]\d* new\)/);
+    const frozenFirst = await rows.first().innerText();
+    await expect.poll(async () => page.getByRole('button', { name: /Resume \((\d+) new\)/ }).innerText(), { timeout: 20_000 }).toMatch(/Resume \([1-9]\d* new\)/);
+    expect(await rows.first().innerText()).toBe(frozenFirst);
     await screenshot(page, testInfo, 'en', '67-diagnostics-live-paused');
     await page.getByRole('button', { name: /Resume \(/ }).click();
     await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
+    await expect.poll(async () => rows.first().innerText()).not.toBe(frozenFirst);
   });
 
   test('debug controls bound minutes to 15 and show expiry; export dialog previews before download', async ({ page }) => {
     await login(page, 'en');
     await page.goto('/app/system');
+    // A debug window may still be active from a previous run: stop it first so the start controls are visible.
+    const stopExisting = page.getByRole('button', { name: 'Stop now' });
+    if (await stopExisting.isVisible({ timeout: 3000 }).catch(() => false)) await stopExisting.click();
     await page.getByLabel('Minutes (1–15)').fill('30');
     await expect(page.getByLabel('Minutes (1–15)')).toHaveValue('15');
     await page.getByRole('button', { name: /Start 15 min debug/ }).click();

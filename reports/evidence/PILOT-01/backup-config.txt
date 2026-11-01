@@ -1,0 +1,30 @@
+# command: ./blackbox backup-config /Users/benediktsauter/blackbox-pilot-ops-backups --label 'ops verifier same-disk destination'   (2026-11-01T13:27:52Z; recovery key captured to a 0600 file in the verifier's scratch directory, never stored in the repository or the install)
+Enrolling backup destination: ~/blackbox-pilot-ops-backups
+  note: same device as the installation — convenient, but does not protect against device loss. Prefer a separate volume.
+  [recovery-key]
+
+=== BACKUP RECOVERY KEY — shown once, not stored anywhere by Blackbox ===
+AGE-SECRET-KEY-1[REDACTED]
+=== Save it in your password manager, separately from the owner key. Without it, backups cannot be restored. ===
+
+  [done]
+Destination enrolled. The scheduler creates one encrypted generation per 24 h while the backend runs.
+Create the first one now: ./blackbox backup   (restart the stack with ./blackbox up so the scheduler sees the destination)
+## destination marker
+{"install_id":"2605f63acb33c654e56760537d0f206a","label":"ops verifier same-disk destination","same_device":true,"enrolled_at":"2026-11-01T13:27:52Z"}
+## secrets dir now
+total 64
+drwx------@ 10 benediktsauter  staff  320 Nov  1 14:27 .
+drwxr-xr-x@ 15 benediktsauter  staff  480 Nov  1 14:27 ..
+-rw-------@  1 benediktsauter  staff   63 Nov  1 14:27 backup_recipient.pub
+-rw-------@  1 benediktsauter  staff   32 Nov  1 13:04 data.key
+-rw-------@  1 benediktsauter  staff   64 Nov  1 13:04 engine_token
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_api_password
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_engine_password
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_migrate_password
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_superuser_password
+-rw-------@  1 benediktsauter  staff   45 Nov  1 13:04 pg_worker_password
+## .env destination line
+BLACKBOX_BACKUP_DESTINATION=~/blackbox-pilot-ops-backups
+## status.json
+{"status":"scheduled","configured":true,"destination_label":"ops verifier same-disk destination","same_device":true,"last_completed_at":null,"next_due_at":"2026-11-01T13:27:52Z","retention":{"daily":7,"weekly":4}}

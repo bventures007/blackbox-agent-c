@@ -1,0 +1,6 @@
+# command: python3 scripts/validate-question-catalogue.py
+# started: 2026-11-01T12:02:05Z commit 482bdf592a599102a5ddcc18cf4e48f176241177
+PASS: 24 original questions, 24 unique intents, 48 minimum test examples.
+PASS: 26 datasets, 11 tenant-scoped projections, 22 source entries, consistent links and coverage register.
+This checks the specification catalogue only. Product, API/MCP, recovery and live-provider tests remain unexecuted.
+# exit: 0 finished: 2026-11-01T12:02:06Z

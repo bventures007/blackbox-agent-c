@@ -28,6 +28,15 @@ type ReleaseState = { kind: 'loading' } | { kind: 'released'; manifest: ReleaseM
 const LOCALE_KEY = 'blackbox.locale';
 const MANIFEST_URL = new URL('release-manifest.json', document.baseURI).toString();
 const DEFAULT_APP_URL = 'http://127.0.0.1:19180/';
+// A relative download_url/guide_url resolves against the manifest location (docs/release.md), so the
+// archive is served next to the manifest wherever the static build is hosted.
+const resolveFromManifest = (u: string): string => {
+  try {
+    return new URL(u, MANIFEST_URL).toString();
+  } catch {
+    return u;
+  }
+};
 
 function readLocale(): Locale {
   const fromQuery = new URLSearchParams(location.search).get('lang');
@@ -113,7 +122,7 @@ function downloadButton(cls: string, id: string, compact = false): string {
   const label = t('landing.hero.download');
   if (release.kind === 'released') {
     const m = release.manifest;
-    return `<a id="${id}" class="btn ${cls}" href="${escapeHtml(String(m.download_url))}" download="${escapeHtml(String(m.artifact_filename))}" data-release="released">${icon('download')} ${label} <small class="mono">${escapeHtml(String(m.version))}</small></a>`;
+    return `<a id="${id}" class="btn ${cls}" href="${escapeHtml(resolveFromManifest(String(m.download_url)))}" download="${escapeHtml(String(m.artifact_filename))}" data-release="released">${icon('download')} ${label} <small class="mono">${escapeHtml(String(m.version))}</small></a>`;
   }
   const state = release.kind === 'loading' ? 'loading' : release.kind;
   const note = compact ? `<span class="sr-only"> · ${t('landing.release.unavailable')}</span>` : ` · ${t('landing.release.unavailable')}`;

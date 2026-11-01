@@ -1,0 +1,4 @@
+14:08:28Z step 1: sign in with the current owner key (session A)
+14:11:30Z   POST /api/auth/login -> 500
+14:11:33Z step 2: POST /api/auth/rotate-key {current_key} from session A
+14:11:34Z   rotation failed: {"error":{"code":"unauthenticated","message":"authentication required","retryable":false}}

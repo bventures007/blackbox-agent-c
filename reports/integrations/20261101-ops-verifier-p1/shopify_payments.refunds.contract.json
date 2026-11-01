@@ -1,0 +1,47 @@
+{
+  "row": "shopify_payments.refunds",
+  "kind": "contract",
+  "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
+  "recorded_at": "2026-11-01T12:58:20Z",
+  "command": "pnpm test:worker (tests/worker/adapter.contract.test.ts, 19 tests) + python3 integrations/mappings/validate-mappings.py",
+  "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, node v25.9.0, pnpm 11.20.0, cargo 1.83.0, images blackbox/*:0.1.0-rc6; throwaway postgres:16-alpine containers for the suites; installed stack blackbox-agent-c (127.0.0.1:19180) for SLICE-01",
+  "case_ids": [
+    "LOCAL-07",
+    "INGEST-02",
+    "INGEST-04",
+    "INGEST-05",
+    "SOURCE-01"
+  ],
+  "modes": [
+    "local_standalone",
+    "local_gateway",
+    "public_server"
+  ],
+  "observed": "adapter contract against the fixture: pagination/phases/exact totals, duplicate and reordered pages, 429 Retry-After, 503 retry/exhaustion, expired cursor, poison rejection, explicit test flag, strict from-now, credentials/grants/account mismatch, client-credentials refresh, mode declarations (gateway/public unsupported and refused) and mapping table validity; 19/19 passed, 14 mapping artifacts valid. pipeline: ledger refunds share economic_effect_id with shop-side refunds so a refund is never counted twice",
+  "raw_outputs": [
+    {
+      "path": "reports/integrations/20261101-ops-verifier-p1/test-worker.txt",
+      "sha256": "5f3b04da41c37d3fde4c4d61530c708f1a23c5cdfdbae9e152200947fea8cec1"
+    },
+    {
+      "path": "reports/integrations/20261101-ops-verifier-p1/test-backend-integration.txt",
+      "sha256": "2104e2cc966203a1ecf40bc20d94e7c987b3e5bb43b2c93cc64ebd35eb74ed80"
+    },
+    {
+      "path": "reports/integrations/20261101-ops-verifier-p1/cargo-test-release.txt",
+      "sha256": "40674bff30c881e87223f31275026d20bd9d22362924d5bc28493cad61656363"
+    },
+    {
+      "path": "reports/integrations/20261101-ops-verifier-p1/validate-mappings.txt",
+      "sha256": "103650e30c6cb03da3635b554daacc63e6cef24ba0e639bd34f612e7ab1e6ae8"
+    },
+    {
+      "path": "reports/integrations/20261101-ops-verifier-p1/slice-01-results.json",
+      "sha256": "5692584b52686f1c9d75e6f66c1632e19c156ed9d4729b46f76d65880b326250"
+    }
+  ],
+  "acceptance_evidence": [
+    "reports/evidence/CI-01/",
+    "reports/evidence/SLICE-01/"
+  ]
+}

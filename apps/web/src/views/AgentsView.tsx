@@ -59,7 +59,7 @@ export function AgentsView() {
     }
   };
 
-  const configSnippet = mcp.data ? mcp.data.config_json : '';
+  const configSnippet = mcp.data ? mcp.data.snippet : '';
 
   return (
     <>
@@ -173,10 +173,16 @@ export function AgentsView() {
           {mcp.data && (
             <>
               <pre className="config-code">{configSnippet}</pre>
-              <p className="micro">{t('agents.configNote', { env: mcp.data.key_file_env_var, alt: mcp.data.env_var })}</p>
+              <p className="micro">{t('agents.configNote', { env: 'BLACKBOX_AGENT_KEY_FILE', alt: 'BLACKBOX_AGENT_KEY' })}</p>
               <p className="micro">
-                {t('agents.testedClients')}: {mcp.data.tested_clients.map((c) => `${c.name} ${c.version} (${c.transport})`).join(', ')}
+                {t('agents.bridgeCommand')}: <code className="mono">{[mcp.data.command, ...mcp.data.args].join(' ')}</code> · {t('agents.apiUrl')}: <code className="mono">{mcp.data.env.BLACKBOX_API_URL}</code>
               </p>
+              <ul className="plain-list micro">
+                {mcp.data.notes.map((n) => (
+                  <li key={n}>{n}</li>
+                ))}
+              </ul>
+              <p className="micro">{t('agents.testedClients')}: {t('agents.testedClientsNote')}</p>
             </>
           )}
           <h2 className="section-gap">{t('agents.reachTitle')}</h2>
