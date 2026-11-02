@@ -18,6 +18,6 @@ snap = {"intent": d["intent"], "status": d["status"], "result": d["result"], "ca
         "applied_cursor": d["consistency"].get("applied_cursor"), "required_cursor": d["consistency"].get("required_cursor"), "reducer_version": d["consistency"].get("reducer_version"),
         "evidence_count": len(d["evidence_refs"]), "evidence_refs_sorted": sorted(d["evidence_refs"]), "datasets_present": d["coverage"]["datasets_present"]}
 json.dump(snap, open(sys.argv[1], "w"), indent=2, sort_keys=True)
-print(f"status={snap[\"status\"]} available={(snap[\"result\"] or {}).get(\"available\")} applied_cursor={snap[\"applied_cursor\"]} evidence={snap[\"evidence_count\"]}")
+print("status=%s available=%s applied_cursor=%s evidence=%s" % (snap["status"], (snap["result"] or {}).get("available"), snap["applied_cursor"], snap["evidence_count"]))
 ' "$OUT"
 curl -fsS -b "$JAR" -H "X-Blackbox-CSRF: $CSRF" -H "Origin: $BASE" -X POST "$BASE/api/auth/logout" -o /dev/null || true

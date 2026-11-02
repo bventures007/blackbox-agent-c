@@ -33,6 +33,19 @@ export interface BuildOptions {
 }
 
 /** Creates the shared services (also used by the CLI without an HTTP listener). */
+/**
+ * Backpressure classification of unhandled errors: PostgreSQL pool acquisition timeouts (`pg` Pool with
+ * connectionTimeoutMillis) and connection-terminated-on-timeout errors mean the installation is saturated,
+ * not broken. Pure so it can be unit-tested.
+ */
+export function classifyBackpressure(err: unknown): { code: string; message: string } | null {
+  const message = String((err as { message?: unknown })?.message ?? "");
+  if (/timeout exceeded when trying to connect/i.test(message) || /Connection terminated due to connection timeout/i.test(message)) {
+    return { code: "database_busy", message: "database connection pool saturated; retry shortly" };
+  }
+  return null;
+}
+
 export function createContext(options: BuildOptions): AppContext {
   const { config } = options;
   const debugGate = options.logger?.debugGate ?? new DebugGate();
@@ -116,6 +129,14 @@ export async function buildApp(options: BuildOptions): Promise<BuiltApp> {
       return reply.code(fe.statusCode).send({ error: { code, message: fe.message ?? "request error", retryable: false } });
     }
     const e = err as Error;
+    const busy = classifyBackpressure(e);
+    if (busy) {
+      // Pool exhaustion under load is backpressure, not an internal failure: answer a retryable 503 so clients
+      // (API, MCP bridge, load drivers) back off instead of counting a misleading 500 (observed on the smoke profile).
+      logger.warn("api.request_rejected", `Request rejected: ${busy.code} (${String(e?.message ?? "").slice(0, 120)})`, { error_code: busy.code, trace_id: request.traceId, retryable: true, action_code: request.routeOptions?.url ?? undefined });
+      reply.header("retry-after", "1");
+      return reply.code(503).send({ error: { code: busy.code, message: busy.message, retryable: true, trace_id: request.traceId } });
+    }
     logger.error("api.request_failed", `Unhandled request failure: ${e?.name ?? "Error"}: ${String(e?.message ?? "").slice(0, 200)}`, { error_code: "internal", trace_id: request.traceId, retryable: false, action_code: request.routeOptions?.url ?? undefined });
     return reply.code(500).send({ error: { code: "internal", message: "internal error", retryable: false, trace_id: request.traceId } });
   });

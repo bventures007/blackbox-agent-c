@@ -1,0 +1,108 @@
+# PILOT-10 egress observation  2026-11-02T03:26:45Z  install blackbox-agent-c at http://127.0.0.1:19180
+## before
+api external established peers: none
+worker external established peers: none
+engine external established peers: none
+host com.docker.backend external established: 0 []
+api tunl0 rx=0 tx=0
+api gre0 rx=0 tx=0
+api gretap0 rx=0 tx=0
+api erspan0 rx=0 tx=0
+api ip_vti0 rx=0 tx=0
+api ip6_vti0 rx=0 tx=0
+api sit0 rx=0 tx=0
+api ip6tnl0 rx=0 tx=0
+api ip6gre0 rx=0 tx=0
+api eth0 rx=242254 tx=69827
+api eth1 rx=18803 tx=49559
+worker tunl0 rx=0 tx=0
+worker gre0 rx=0 tx=0
+worker gretap0 rx=0 tx=0
+worker erspan0 rx=0 tx=0
+worker ip_vti0 rx=0 tx=0
+worker ip6_vti0 rx=0 tx=0
+worker sit0 rx=0 tx=0
+worker ip6tnl0 rx=0 tx=0
+worker ip6gre0 rx=0 tx=0
+worker eth0 rx=2468796 tx=10033850
+worker eth1 rx=3704 tx=3168
+engine tunl0 rx=0 tx=0
+engine gre0 rx=0 tx=0
+engine gretap0 rx=0 tx=0
+engine erspan0 rx=0 tx=0
+engine ip_vti0 rx=0 tx=0
+engine ip6_vti0 rx=0 tx=0
+engine sit0 rx=0 tx=0
+engine ip6tnl0 rx=0 tx=0
+engine ip6gre0 rx=0 tx=0
+engine eth0 rx=1251108 tx=1482162
+## burst: every template of GET /api/questions asked once through the owner API (example params from the GOLDEN demo; a template whose parameters cannot be guessed answers a validation/unknown status — still a local answer)
+  order-01       inventory.available_to_sell              http 200 -> complete
+  order-02       orders.fulfillable                       http 422 -> invalid_params
+  order-03       orders.reservation_variance              http 422 -> invalid_params
+  order-04       orders.inbound_delay_impact              http 422 -> invalid_params
+  delivery-01    shipments.attention                      http 422 -> invalid_params
+  delivery-02    shipments.promise_risk                   http 422 -> invalid_params
+  delivery-03    orders.partial_delivery_gaps             http 422 -> invalid_params
+  delivery-04    customer.delivery_reply                  http 422 -> invalid_params
+  invoice-01     invoices.outstanding                     http 422 -> invalid_params
+  invoice-02     orders.missing_invoice                   http 422 -> invalid_params
+  invoice-03     invoices.order_amount_variance           http 422 -> invalid_params
+  invoice-04     invoices.dispatch_evidence               http 422 -> invalid_params
+  collection-01  orders.payment_state                     http 422 -> invalid_params
+  collection-02  payments.recovered_attempts              http 422 -> invalid_params
+  collection-03  invoices.payment_variance                http 422 -> invalid_params
+  collection-04  receivables.review_queue                 http 422 -> invalid_params
+  settlement-01  providers.money_positions                http 422 -> invalid_params
+  settlement-02  payouts.gross_to_net                     http 422 -> invalid_params
+  settlement-03  payouts.missing_bank_confirmation        http 422 -> invalid_params
+  settlement-04  providers.holds_and_releases             http 200 -> unknown
+  reversal-01    returns.lifecycle                        http 422 -> invalid_params
+  reversal-02    credits.refund_gaps                      http 422 -> invalid_params
+  reversal-03    cancellations.outstanding_steps          http 422 -> invalid_params
+  reversal-04    refunds.chargeback_overlap               http 200 -> unknown
+asked 24 templates; local answers (complete/partial/unknown/conflict/unsupported): 3 ; validation/other: 21
+## during (right after the burst)
+api external established peers: none
+worker external established peers: none
+engine external established peers: none
+host com.docker.backend external established: 0 []
+## after
+api external established peers: none
+worker external established peers: none
+engine external established peers: none
+host com.docker.backend external established: 0 []
+api tunl0 rx_delta=0 tx_delta=0
+api gre0 rx_delta=0 tx_delta=0
+api gretap0 rx_delta=0 tx_delta=0
+api erspan0 rx_delta=0 tx_delta=0
+api ip_vti0 rx_delta=0 tx_delta=0
+api ip6_vti0 rx_delta=0 tx_delta=0
+api sit0 rx_delta=0 tx_delta=0
+api ip6tnl0 rx_delta=0 tx_delta=0
+api ip6gre0 rx_delta=0 tx_delta=0
+api eth0 rx_delta=1462786 tx_delta=217151
+api eth1 rx_delta=51032 tx_delta=149769
+worker tunl0 rx_delta=0 tx_delta=0
+worker gre0 rx_delta=0 tx_delta=0
+worker gretap0 rx_delta=0 tx_delta=0
+worker erspan0 rx_delta=0 tx_delta=0
+worker ip_vti0 rx_delta=0 tx_delta=0
+worker ip6_vti0 rx_delta=0 tx_delta=0
+worker sit0 rx_delta=0 tx_delta=0
+worker ip6tnl0 rx_delta=0 tx_delta=0
+worker ip6gre0 rx_delta=0 tx_delta=0
+worker eth0 rx_delta=125455 tx_delta=518428
+worker eth1 rx_delta=0 tx_delta=0
+engine tunl0 rx_delta=0 tx_delta=0
+engine gre0 rx_delta=0 tx_delta=0
+engine gretap0 rx_delta=0 tx_delta=0
+engine erspan0 rx_delta=0 tx_delta=0
+engine ip_vti0 rx_delta=0 tx_delta=0
+engine ip6_vti0 rx_delta=0 tx_delta=0
+engine sit0 rx_delta=0 tx_delta=0
+engine ip6tnl0 rx_delta=0 tx_delta=0
+engine ip6gre0 rx_delta=0 tx_delta=0
+engine eth0 rx_delta=104047 tx_delta=154718
+## interfaces: blackbox-agent-c-worker blackbox-agent-c-api  are on the egress network; backend network is internal (no route out). The api interface facing the published port carries this host's own request/response bytes.
+# finished 2026-11-02T03:27:10Z

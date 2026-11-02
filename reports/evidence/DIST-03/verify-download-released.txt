@@ -1,0 +1,22 @@
+# command: scripts/release/verify-download.sh http://127.0.0.1:19181 --manifest-path release-manifest.json --out <fresh temp dir>
+# started: 2026-11-01T22:15:25Z
+landing: http://127.0.0.1:19181  manifest: release-manifest.json  out: /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-download.CJfavo
+artifact: blackbox-0.1.0-mac-arm64.tar.gz (529984299 bytes) from http://127.0.0.1:19181/./blackbox-0.1.0-mac-arm64.tar.gz
+checksum ok: f71210e8d886fe8be45abf9c8d003043086fbc68c1f790d93ec8efc9a1a4bff6
+running bundled doctor in the fresh directory (never installs anything)
+blackbox doctor (release mode, install: /private/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T/blackbox-download.CJfavo/extract/blackbox-0.1.0)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 29.9.2 (arm64)
+[OK  ] DOC-COMPOSE  Compose v5.6.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 193 GiB (20%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[OK  ] DOC-PORT     port 19180 free
+[OK  ] DOC-SETUP    not set up yet → run ./blackbox setup
+doctor: ok
+doctor exit code: 0 (0 ok / 1 degraded / 2 failure)
+verify-download: PASS blackbox-0.1.0-mac-arm64.tar.gz → /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-download.CJfavo/extract/blackbox-0.1.0
+next: cd /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-download.CJfavo/extract/blackbox-0.1.0 && ./blackbox setup
+# exit: 0 finished 2026-11-01T22:15:44Z

@@ -1,0 +1,23 @@
+# command: scripts/release/verify-download.sh http://127.0.0.1:19181 --manifest-path release-manifest.json --out <scratch dir> (final archive, build #8)
+# started: 2026-11-02T02:06:49Z
+landing: http://127.0.0.1:19181  manifest: release-manifest.json  out: /private/tmp/claude-501/-Users-benediktsauter--claude-spares-spare-wJPZlE/7ee2fabf-2347-4b62-86ca-b5702ba06d2f/scratchpad/verify-download-final
+artifact: blackbox-0.1.0-mac-arm64.tar.gz (529971628 bytes) from http://127.0.0.1:19181/./blackbox-0.1.0-mac-arm64.tar.gz
+checksum ok: 922d6517eadebfa57ddcb346db4f47c8a22141e5c280ae8205182d2c3010c0de
+running bundled doctor in the fresh directory (never installs anything)
+blackbox doctor (release mode, install: /private/tmp/claude-501/-Users-benediktsauter--claude-spares-spare-wJPZlE/7ee2fabf-2347-4b62-86ca-b5702ba06d2f/scratchpad/verify-download-final/extract/blackbox-0.1.0)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 29.9.2 (arm64)
+[OK  ] DOC-COMPOSE  Compose v5.6.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 162 GiB (17%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[OK  ] DOC-PORT     port 19180 free
+[OK  ] DOC-SETUP    not set up yet → run ./blackbox setup
+[OK  ] DOC-PROJECT  no containers/volume of project blackbox-agent-c on this Docker host
+doctor: ok
+doctor exit code: 0 (0 ok / 1 degraded / 2 failure)
+verify-download: PASS blackbox-0.1.0-mac-arm64.tar.gz → /private/tmp/claude-501/-Users-benediktsauter--claude-spares-spare-wJPZlE/7ee2fabf-2347-4b62-86ca-b5702ba06d2f/scratchpad/verify-download-final/extract/blackbox-0.1.0
+next: cd /private/tmp/claude-501/-Users-benediktsauter--claude-spares-spare-wJPZlE/7ee2fabf-2347-4b62-86ca-b5702ba06d2f/scratchpad/verify-download-final/extract/blackbox-0.1.0 && ./blackbox setup
+# exit: 0 finished 2026-11-02T02:07:01Z

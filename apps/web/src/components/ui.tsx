@@ -109,7 +109,12 @@ export function EmptyState({ children }: { children: ReactNode }) {
 }
 
 /** Modal dialog with focus trap, Escape to close and focus restore. */
-export function Modal({ title, onClose, children, wide, labelledById }: { title: ReactNode; onClose: () => void; children: ReactNode; wide?: boolean; labelledById?: string }) {
+/**
+ * Modal dialog. With `actions`, the body scrolls on its own and the actions row stays visible at the bottom of the
+ * dialog: on narrow screens a long dialog otherwise needs scrolling to reach its primary button (observed on the
+ * import-plan dialog at 390 px, where the button could not be reached/clicked at all).
+ */
+export function Modal({ title, onClose, children, wide, labelledById, actions }: { title: ReactNode; onClose: () => void; children: ReactNode; wide?: boolean; labelledById?: string; actions?: ReactNode }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -117,12 +122,13 @@ export function Modal({ title, onClose, children, wide, labelledById }: { title:
   useFocusTrap(ref, onClose);
   return (
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`modal${wide ? ' modal-wide' : ''}`} role="dialog" aria-modal="true" aria-labelledby={headingId} ref={ref}>
+      <div className={`modal${wide ? ' modal-wide' : ''}${actions ? ' has-actions' : ''}`} role="dialog" aria-modal="true" aria-labelledby={headingId} ref={ref}>
         <button type="button" className="icon-btn modal-close" onClick={onClose} aria-label={t('common.close')}>
           <Icon name="close" />
         </button>
         <h2 id={headingId}>{title}</h2>
-        {children}
+        {actions ? <div className="modal-body">{children}</div> : children}
+        {actions && <div className="modal-actions">{actions}</div>}
       </div>
     </div>
   );
@@ -149,6 +155,12 @@ export function Drawer({ title, eyebrow, onClose, children }: { title: ReactNode
 }
 
 function useFocusTrap(ref: React.RefObject<HTMLElement>, onClose: () => void) {
+  // The latest onClose is read through a ref so the trap is installed once per mount: a parent that re-renders
+  // (the 5 s detail/health polls) passes a new callback each time, and re-running the effect would re-focus the
+  // first control and reset the dialog's scroll position every tick (observed on mobile: the Save button of the
+  // import-plan dialog became unreachable because the modal jumped back to the top every poll).
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     const node = ref.current;
@@ -161,7 +173,7 @@ function useFocusTrap(ref: React.RefObject<HTMLElement>, onClose: () => void) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        onClose();
+        onCloseRef.current();
       }
       if (e.key === 'Tab') {
         const items = focusable();
@@ -184,7 +196,7 @@ function useFocusTrap(ref: React.RefObject<HTMLElement>, onClose: () => void) {
       document.body.style.overflow = '';
       previous?.focus();
     };
-  }, [ref, onClose]);
+  }, [ref]);
 }
 
 export function CopyButton({ text, label }: { text: string; label?: string }) {

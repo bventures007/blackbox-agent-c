@@ -1,0 +1,5 @@
+# command: scripts/release/verify-download.sh http://127.0.0.1:19188 --manifest-path release-manifest.json --out <fresh temp dir>
+# started: 2026-11-01T22:15:45Z
+landing: http://127.0.0.1:19188  manifest: release-manifest.json  out: /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-download.2rGehK
+verify-download: FAIL manifest status is 'pending' (no released artifact advertised; the landing must show 'Download not available yet')
+# exit: 2 finished 2026-11-01T22:15:45Z

@@ -1,0 +1,734 @@
+blackbox setup (release mode) → /Users/benediktsauter/blackbox-pilot-fresh
+  [start] mode=release
+  [secrets-generate]
+  [env-write]
+  [images-load]
+  loading api.tar
+  loading backup.tar
+  loading engine.tar
+  loading postgres.tar
+  loading worker.tar
+  [postgres-start]
+[?25l[0G[2K[+] up 0/1
+[2K [33m⠋[0m Container blackbox-agent-c-postgres Recreate                             [34m0.0s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠙[0m Container blackbox-agent-c-postgres Recreate                             [34m0.1s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠹[0m Container blackbox-agent-c-postgres Recreate                             [34m0.2s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠸[0m Container blackbox-agent-c-postgres Recreate                             [34m0.3s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-postgres Recreate                             [34m0.4s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-postgres Recreate                             [34m0.5s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠦[0m Container blackbox-agent-c-postgres Recreate                             [34m0.6s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠧[0m Container blackbox-agent-c-postgres Recreate                             [34m0.7s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠇[0m Container blackbox-agent-c-postgres Recreate                             [34m0.8s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠏[0m Container blackbox-agent-c-postgres Recreate                             [34m0.9s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠋[0m Container blackbox-agent-c-postgres Recreate                             [34m1.0s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠙[0m Container blackbox-agent-c-postgres Recreate                             [34m1.1s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠹[0m Container blackbox-agent-c-postgres Recreate                             [34m1.2s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠸[0m Container blackbox-agent-c-postgres Recreate                             [34m1.3s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-postgres Recreate                             [34m1.4s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-postgres Recreate                             [34m1.5s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠦[0m Container blackbox-agent-c-postgres Recreate                             [34m1.6s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠧[0m Container blackbox-agent-c-postgres Recreate                             [34m1.7s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠇[0m Container blackbox-agent-c-postgres Recreate                             [34m1.8s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠏[0m Container blackbox-agent-c-postgres Recreate                             [34m1.9s[0m
+[?25h[?25l[2A[0G[2K[+] up 1/1
+[2K [32m✔[0m Container blackbox-agent-c-postgres [32mRecreated[0m                            [34m1.9s[0m
+[?25h[?25l[2A[0G[2K[+] up 0/1
+[2K [33m⠹[0m Container blackbox-agent-c-postgres Starting                             [34m2.2s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠸[0m Container blackbox-agent-c-postgres Starting                             [34m2.3s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-postgres Starting                             [34m2.4s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-postgres Starting                             [34m2.5s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠦[0m Container blackbox-agent-c-postgres Starting                             [34m2.6s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠧[0m Container blackbox-agent-c-postgres Starting                             [34m2.7s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠇[0m Container blackbox-agent-c-postgres Starting                             [34m2.8s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠏[0m Container blackbox-agent-c-postgres Starting                             [34m2.9s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠋[0m Container blackbox-agent-c-postgres Starting                             [34m3.0s[0m
+[?25h[?25l[2A[0G[2K[+] up 1/1
+[2K [32m✔[0m Container blackbox-agent-c-postgres [32mStarted[0m                              [34m3.1s[0m
+[?25h  postgres ready (4s)
+  [db-roles]
+  [db-migrate]
+Container blackbox-agent-c-api-run-785f1e73e035 [32mCreating[0m 
+Container blackbox-agent-c-api-run-785f1e73e035 [32mCreated[0m 
+{"applied":[],"skipped":["0001_journal.sql","0002_identity.sql","0003_operations.sql","0004_scoped_references.sql","0100_worker.sql","0101_maintenance_lease.sql"]}
+  [services-start]
+[?25l[0G[2K[+] up 1/3
+[2K [32m✔[0m Container blackbox-agent-c-postgres         [32mRunning[0m                      [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-engine           Recreate                     [34m0.1s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-engine           Recreate                     [34m0.2s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.3s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-engine           Recreate                     [34m0.3s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.4s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-engine           Recreate                     [34m0.4s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.5s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-engine           Recreate                     [34m0.5s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.6s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-engine           Recreate                     [34m0.6s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.7s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-engine           Recreate                     [34m0.7s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.8s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-engine           Recreate                     [34m0.8s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m0.9s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-engine           Recreate                     [34m0.9s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.0s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-engine           Recreate                     [34m1.0s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-engine           Recreate                     [34m1.1s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-engine           Recreate                     [34m1.2s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.3s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-engine           Recreate                     [34m1.3s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.4s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-engine           Recreate                     [34m1.4s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.5s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-engine           Recreate                     [34m1.5s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.6s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-engine           Recreate                     [34m1.6s[0m
+[?25h[?25l[4A[0G[2K[+] up 2/5
+
+[2K [33m⠦[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.7s[0m
+[2K [32m✔[0m Container blackbox-agent-c-engine           [32mRecreated[0m                    [34m1.6s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-worker           Recreate                     [34m0.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-api              Recreate                     [34m0.1s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.8s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Recreate                     [34m0.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-api              Recreate                     [34m0.2s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m1.9s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-worker           Recreate                     [34m0.3s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-api              Recreate                     [34m0.3s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.0s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-worker           Recreate                     [34m0.4s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-api              Recreate                     [34m0.4s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.1s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-worker           Recreate                     [34m0.5s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-api              Recreate                     [34m0.5s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.2s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-worker           Recreate                     [34m0.6s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-api              Recreate                     [34m0.6s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.3s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-worker           Recreate                     [34m0.7s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-api              Recreate                     [34m0.7s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.4s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-worker           Recreate                     [34m0.8s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-api              Recreate                     [34m0.8s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.5s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-worker           Recreate                     [34m0.9s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-api              Recreate                     [34m0.9s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.6s[0m
+
+[2K [33m⠏[0m Container blackbox-agent-c-worker           Recreate                     [34m1.0s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-api              Recreate                     [34m1.0s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.7s[0m
+
+[2K [33m⠋[0m Container blackbox-agent-c-worker           Recreate                     [34m1.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-api              Recreate                     [34m1.1s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.8s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Recreate                     [34m1.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-api              Recreate                     [34m1.2s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m2.9s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-worker           Recreate                     [34m1.3s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-api              Recreate                     [34m1.3s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.0s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-worker           Recreate                     [34m1.4s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-api              Recreate                     [34m1.4s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.1s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-worker           Recreate                     [34m1.5s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-api              Recreate                     [34m1.5s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.2s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-worker           Recreate                     [34m1.6s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-api              Recreate                     [34m1.6s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.3s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-worker           Recreate                     [34m1.7s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-api              Recreate                     [34m1.7s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.4s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-worker           Recreate                     [34m1.8s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-api              Recreate                     [34m1.8s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.5s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-worker           Recreate                     [34m1.9s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-api              Recreate                     [34m1.9s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.6s[0m
+
+[2K [33m⠏[0m Container blackbox-agent-c-worker           Recreate                     [34m2.0s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-api              Recreate                     [34m2.0s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.7s[0m
+
+[2K [33m⠋[0m Container blackbox-agent-c-worker           Recreate                     [34m2.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-api              Recreate                     [34m2.1s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.8s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Recreate                     [34m2.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-api              Recreate                     [34m2.2s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m3.9s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-worker           Recreate                     [34m2.3s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-api              Recreate                     [34m2.3s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.0s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-worker           Recreate                     [34m2.4s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-api              Recreate                     [34m2.4s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.1s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-worker           Recreate                     [34m2.5s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-api              Recreate                     [34m2.5s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.2s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-worker           Recreate                     [34m2.6s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-api              Recreate                     [34m2.6s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.3s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-worker           Recreate                     [34m2.7s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-api              Recreate                     [34m2.7s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.4s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-worker           Recreate                     [34m2.8s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-api              Recreate                     [34m2.8s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.5s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-worker           Recreate                     [34m2.9s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-api              Recreate                     [34m2.9s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.6s[0m
+
+[2K [33m⠋[0m Container blackbox-agent-c-worker           Recreate                     [34m3.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-api              Recreate                     [34m3.0s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.7s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Recreate                     [34m3.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-api              Recreate                     [34m3.1s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.8s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Recreate                     [34m3.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-api              Recreate                     [34m3.2s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m4.9s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-worker           Recreate                     [34m3.3s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-api              Recreate                     [34m3.3s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.0s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-worker           Recreate                     [34m3.4s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-api              Recreate                     [34m3.4s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.1s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-worker           Recreate                     [34m3.5s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-api              Recreate                     [34m3.5s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.2s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-worker           Recreate                     [34m3.6s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-api              Recreate                     [34m3.6s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.3s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-worker           Recreate                     [34m3.7s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-api              Recreate                     [34m3.7s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.4s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-worker           Recreate                     [34m3.8s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-api              Recreate                     [34m3.8s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.5s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-worker           Recreate                     [34m3.9s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-api              Recreate                     [34m3.9s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.6s[0m
+
+[2K [33m⠏[0m Container blackbox-agent-c-worker           Recreate                     [34m4.0s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-api              Recreate                     [34m4.0s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.7s[0m
+
+[2K [33m⠋[0m Container blackbox-agent-c-worker           Recreate                     [34m4.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-api              Recreate                     [34m4.1s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.8s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Recreate                     [34m4.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-api              Recreate                     [34m4.2s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m5.9s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-worker           Recreate                     [34m4.3s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-api              Recreate                     [34m4.3s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m6.0s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-worker           Recreate                     [34m4.4s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-api              Recreate                     [34m4.4s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m6.1s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-worker           Recreate                     [34m4.5s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-api              Recreate                     [34m4.5s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m6.2s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-worker           Recreate                     [34m4.6s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-api              Recreate                     [34m4.6s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m6.3s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-worker           Recreate                     [34m4.7s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-api              Recreate                     [34m4.7s[0m
+[?25h[?25l[6A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-backup-scheduler Recreate                     [34m6.4s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-worker           Recreate                     [34m4.8s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-api              Recreate                     [34m4.8s[0m
+[?25h[?25l[6A[0G[2K[+] up 3/5
+
+[2K [32m✔[0m Container blackbox-agent-c-backup-scheduler [32mRecreated[0m                    [34m6.4s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-worker           Recreate                     [34m4.9s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-api              Recreate                     [34m4.9s[0m
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-worker           Recreate                     [34m5.0s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-api              Recreate                     [34m5.0s[0m
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-worker           Recreate                     [34m5.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-api              Recreate                     [34m5.1s[0m
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Recreate                     [34m5.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-api              Recreate                     [34m5.2s[0m
+[?25h[?25l[6A[0G[2K[+] up 4/5
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-worker           [32mRecreated[0m                    [34m5.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-api              Recreate                     [34m5.3s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-api              Recreate                     [34m5.4s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-api              Recreate                     [34m5.5s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-api              Recreate                     [34m5.6s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-api              Recreate                     [34m5.7s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-api              Recreate                     [34m5.8s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-api              Recreate                     [34m5.9s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-api              Recreate                     [34m6.0s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-api              Recreate                     [34m6.1s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-api              Recreate                     [34m6.2s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-api              Recreate                     [34m6.3s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-api              Recreate                     [34m6.4s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-api              Recreate                     [34m6.5s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-api              Recreate                     [34m6.6s[0m
+[?25h[?25l[6A[0G[2K[+] up 5/5
+
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-api              [32mRecreated[0m                    [34m6.6s[0m
+[?25h[?25l[6A[0G[2K[+] up 4/5
+[2K [33m⠼[0m Container blackbox-agent-c-postgres         Waiting                      [34m8.5s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-postgres         Waiting                      [34m8.6s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠦[0m Container blackbox-agent-c-postgres         Waiting                      [34m8.7s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠧[0m Container blackbox-agent-c-postgres         Waiting                      [34m8.8s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠇[0m Container blackbox-agent-c-postgres         Waiting                      [34m8.9s[0m
+
+
+
+
+[?25h[?25l[6A[0G[2K[+] up 3/5
+[2K [32m✔[0m Container blackbox-agent-c-postgres         [32mHealthy[0m                      [34m8.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-backup-scheduler Starting                     [34m9.0s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-engine           Starting                     [34m9.0s[0m
+
+
+[?25h[?25l[6A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Starting                     [34m9.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-engine           Starting                     [34m9.1s[0m
+
+
+[?25h[?25l[6A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Starting                     [34m9.2s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-engine           Starting                     [34m9.2s[0m
+
+
+[?25h[?25l[6A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Starting                     [34m9.3s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-engine           Starting                     [34m9.3s[0m
+
+
+[?25h[?25l[6A[0G[2K[+] up 4/5
+
+[2K [32m✔[0m Container blackbox-agent-c-backup-scheduler [32mStarted[0m                      [34m9.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-engine           Starting                     [34m9.4s[0m
+
+
+[?25h[?25l[6A[0G
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-engine           Starting                     [34m9.5s[0m
+
+
+[?25h[?25l[6A[0G
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-engine           Starting                     [34m9.6s[0m
+
+
+[?25h[?25l[6A[0G
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-engine           Starting                     [34m9.7s[0m
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠧[0m Container blackbox-agent-c-postgres         Waiting                      [34m9.8s[0m
+
+[2K [32m✔[0m Container blackbox-agent-c-engine           [32mStarted[0m                      [34m9.7s[0m
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠇[0m Container blackbox-agent-c-postgres         Waiting                      [34m9.9s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠏[0m Container blackbox-agent-c-postgres         Waiting                     [34m10.0s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠋[0m Container blackbox-agent-c-postgres         Waiting                     [34m10.1s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠙[0m Container blackbox-agent-c-postgres         Waiting                     [34m10.2s[0m
+
+
+
+
+[?25h[?25l[6A[0G[2K[+] up 3/5
+[2K [32m✔[0m Container blackbox-agent-c-postgres         [32mHealthy[0m                     [34m10.2s[0m
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-worker           Starting                     [34m8.7s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-api              Starting                     [34m8.7s[0m
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-worker           Starting                     [34m8.8s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-api              Starting                     [34m8.8s[0m
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-worker           Starting                     [34m8.9s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-api              Starting                     [34m8.9s[0m
+[?25h[?25l[6A[0G[2K[+] up 4/5
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-worker           Starting                     [34m9.0s[0m
+[2K [32m✔[0m Container blackbox-agent-c-api              [32mStarted[0m                      [34m8.9s[0m
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-worker           Starting                     [34m9.1s[0m
+
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Starting                     [34m9.2s[0m
+
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-worker           Starting                     [34m9.3s[0m
+
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-worker           Starting                     [34m9.4s[0m
+
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-worker           Starting                     [34m9.5s[0m
+
+[?25h[?25l[6A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-worker           Starting                     [34m9.6s[0m
+
+[?25h[?25l[6A[0G[2K[+] up 5/5
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-worker           [32mStarted[0m                      [34m9.6s[0m
+
+[?25h  api ready (2s)
+  [owner-key]
+
+Your personal owner key is shown ONCE below. Save it in a password manager now.
+
+{"level":"INFO","action_code":"data_key_present","schema_version":1,"record_id":"2727f412-0e28-46d1-99c4-5afc9fca8602","occurred_at":"2026-11-01T22:17:33.320Z","observed_at":"2026-11-01T22:17:33.320Z","event_name":"setup.started","component":"api","service_version":"0.1.0","instance_id":"82e8dcee-78a0-4c3f-b69a-453d8a0be522","scope":"installation","message":"Setup started"}
+{"level":"INFO","tenant_id":"8be1eca2-f369-4389-abe1-cd2cfb9bab3c","schema_version":1,"record_id":"bd1ba345-594b-49fd-9244-66e25d543cd9","occurred_at":"2026-11-01T22:17:33.723Z","observed_at":"2026-11-01T22:17:33.723Z","event_name":"auth.setup_skipped","component":"auth","service_version":"0.1.0","instance_id":"82e8dcee-78a0-4c3f-b69a-453d8a0be522","scope":"workspace","message":"Setup already completed; existing owner preserved"}
+{"level":"INFO","tenant_id":"8be1eca2-f369-4389-abe1-cd2cfb9bab3c","schema_version":1,"record_id":"4f2c9c72-c20c-4f2f-8a1a-8275fb8ef69c","occurred_at":"2026-11-01T22:17:33.724Z","observed_at":"2026-11-01T22:17:33.724Z","event_name":"setup.already_initialized","component":"api","service_version":"0.1.0","instance_id":"82e8dcee-78a0-4c3f-b69a-453d8a0be522","scope":"workspace","message":"Setup already completed; nothing changed"}
+Setup already completed for workspace 8be1eca2-f369-4389-abe1-cd2cfb9bab3c. Existing owner key kept. Lost it? Use: reset-access (host only).
+Einrichtung bereits abgeschlossen. Bestehender Schlüssel bleibt gültig. Verloren? reset-access (nur auf dem Host).
+  [done]
+
+Setup complete. Open http://127.0.0.1:19180/  — stop with ./blackbox down, restart with ./blackbox up.
+Backups are NOT configured yet (unprotected). Enroll a destination: ./blackbox backup-config <directory>

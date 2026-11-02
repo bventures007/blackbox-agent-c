@@ -1,0 +1,27 @@
+{
+  "row": "shopify.payments",
+  "kind": "tenant_isolation",
+  "tested_commit": "df8cfbb5e41fb3da483270651823cf470aaf1a65",
+  "recorded_at": "2026-11-02T02:30:40Z",
+  "command": "pnpm test:backend:integration (tests/backend/integration/journal.test.ts TENANT-01..04, mcp.test.ts MCP-05) and SLICE-01 step 6 (second synthetic tenant with a colliding external order id)",
+  "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop daemon 29.9.2 VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1; throwaway postgres:16-alpine containers blackbox-agent-c-devpg (19183), blackbox-agent-c-workerpg (19191), blackbox-agent-c-enginepg (19184); installed release 0.1.0 stack blackbox-agent-c in a fresh folder (127.0.0.1:19180) for SLICE-01; host load averages during the suites between 30 and 250 (other projects' workloads)",
+  "case_ids": [
+    "TENANT-01",
+    "TENANT-02",
+    "TENANT-03",
+    "TENANT-04",
+    "MCP-05",
+    "SLICE-01"
+  ],
+  "modes": [
+    "local_standalone"
+  ],
+  "observed": "backend integration 6 files / 53 tests on df8cfbb (TENANT-01..04: same external ids in two tenants never cross through list/detail/history/search; runtime roles without tenant context read nothing and cannot write; pooled connections carry no tenant context; MCP-05 cross-tenant cursor/denial without disclosure); installed stack: SLICE-01 step 6 second synthetic tenant with the colliding order id gid://shopify/Order/5021 \u2014 28 owner entries, 0 from tenant B, foreign entry id 404, owner state unchanged, revoked agent denied within 2 s (row shopify.payments)",
+  "result": "passed",
+  "outputs": [
+    "reports/evidence/CI-01-rerun/test-backend-integration.txt",
+    "reports/evidence/CI-01-rerun/test-backend-integration-sources.txt",
+    "reports/evidence/SLICE-01-rerun/results.json"
+  ],
+  "note": "Sanitized summary of the actual suite outputs named in outputs (counts, run ids, timings); no keys, cookies, payloads or personal data. Synthetic provider-shaped fixture, not live provider evidence."
+}

@@ -91,7 +91,7 @@ describe("MCP-01 protocol client", () => {
       const state = await client.callTool({ name: "get_business_state", arguments: { entity_type: "order", entity_id: "#1001" } });
       expect(state.isError).toBe(true); // stub engine → projection_behind, typed
       expect(parse<{ error: { code: string } }>(state).error.code).toBe("projection_behind");
-      const answer = parse<{ status: string; error?: { code: string }; readiness: { status: string } }>(await client.callTool({ name: "answer_question", arguments: { intent: "invoices.outstanding", params: { invoice_id: "INV-1001" } } }));
+      const answer = parse<{ status: string; error?: { code: string }; readiness: { status: string } }>(await client.callTool({ name: "answer_question", arguments: { intent: "invoices.outstanding", params: { customer_id: "C-1" } } }));
       expect(answer.status).toBe("unavailable");
       expect(answer.error?.code).toBe("projection_behind");
       expect(answer.readiness.status).toBe("ready");

@@ -1,0 +1,16 @@
+# command: ENGINE_BINARY=$PWD/target/release/blackbox-engine ENGINE_TEST_PGPORT=19184 cargo test -p blackbox-engine --release --test ops_http -- --test-threads=2  (third attempt, no concurrent build; the workspace-wide run is cargo-test-release.txt)
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65 (Rust tree unchanged)
+# started: 2026-11-01T23:30:19Z load: 27.89 43.83 63.43
+    Finished `release` profile [optimized + debuginfo] target(s) in 1.53s
+     Running tests/ops_http.rs (target/release/deps/ops_http-e7a3e1b3eb10faa2)
+
+running 5 tests
+test eviction_under_tiny_budget_keeps_answers_correct_with_cold_reads ... ok
+test projection_behind_and_admission_limits ... ok
+test load_sample_hot_state_p95 ... ok
+test restart_with_snapshot_then_corrupt_snapshot_rebuild ... ok
+test unapplied_tail_of_1000_entries_applies_within_30s_with_concurrent_ingestion ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 26.03s
+
+# exit: 0 finished 2026-11-01T23:30:46Z load: 33.81 43.55 62.63

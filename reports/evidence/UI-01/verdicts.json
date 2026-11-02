@@ -1,0 +1,337 @@
+{
+  "desktop/01-landing.png": {
+    "shot": "reports/evidence/DIST-01/released-en-desktop-page.png (+ de, mobile)",
+    "verdict": "match with additions",
+    "note": "Same hero/flight-window/principle/tracks/questions/agents sections and footer; adds the release card and the EN/DE install guide (download contract); EN default, DE complete."
+  },
+  "desktop/02-landing-hero.png": {
+    "shot": "reports/evidence/DIST-01/released-en-desktop-hero.png",
+    "verdict": "match",
+    "note": "Hero copy, eyebrow, two CTAs (download + demo) as in the reference; the download CTA is a real link with version 0.1.0."
+  },
+  "desktop/03-signup.png": {
+    "shot": "60-login (en/1440)",
+    "verdict": "intentional deviation",
+    "note": "No signup/demo-workspace creation in the pilot: one automatic owner, sign-in with the personal key (D2). Visual language retained (card on paper background)."
+  },
+  "desktop/04-demo-information.png": {
+    "shot": "08b-recorder-demo-dialog",
+    "verdict": "intentional deviation",
+    "note": "Prototype capabilities dialog replaced by the demo confirmation dialog on the Recorder (labeled demo data, second confirmation when own data exists)."
+  },
+  "desktop/05-onboarding-1.png": {
+    "shot": "11-sources",
+    "verdict": "intentional deviation",
+    "note": "No onboarding wizard; source selection is the Sources catalogue (D2)."
+  },
+  "desktop/06-onboarding-2.png": {
+    "shot": "08-recorder",
+    "verdict": "intentional deviation",
+    "note": "Five-track explanation lives on the Recorder and landing; no wizard step."
+  },
+  "desktop/07-onboarding-3.png": {
+    "shot": "46-agents",
+    "verdict": "intentional deviation",
+    "note": "Agent choice is the Agents & MCP page (client notes), no wizard step."
+  },
+  "desktop/08-recorder.png": {
+    "shot": "08-recorder (viewed EN 1440 + 390)",
+    "verdict": "match with deviations",
+    "note": "Sidebar, four stat cards, five-track recorder with ruler, lower two panels and footer identical in structure; stat contents are truthful counters (D3), chips show record ids (D5), no Export/add-event (D4), question shortcuts with readiness instead of a chat input (D6)."
+  },
+  "desktop/09-recorder-paused.png": {
+    "shot": "08-recorder",
+    "verdict": "intentional deviation",
+    "note": "Pause control exists (recorder tools) but the pilot has no simulation clock to pause; pause only stops the live polling."
+  },
+  "desktop/10-recorder-new-event.png": {
+    "shot": "08-recorder",
+    "verdict": "intentional deviation",
+    "note": "No simulated event injection; new chips appear from real ingestion (demo/replay/sources)."
+  },
+  "desktop/11-sources.png": {
+    "shot": "11-sources (viewed EN 1440 full page + crop)",
+    "verdict": "match with deviations",
+    "note": "Same category sections, jump links, cards with glyph/state pill/capabilities; implemented cards are much taller than the reference (capability pills + limitation footnotes, D16: raw capability ids shown where no label exists and the demo-fixture note repeats per connection); Xentral absent; connected-sources table above the catalogue (D10)."
+  },
+  "desktop/12-sources-shops.png": {
+    "shot": "11-sources (Shops & business section)",
+    "verdict": "match with deviations",
+    "note": "Shopify configured, WooCommerce/Shopware planned (disabled Planned button) as required by the delivery profile (D8)."
+  },
+  "desktop/13-sources-payment.png": {
+    "shot": "11-sources (Payments & payouts)",
+    "verdict": "match with deviations",
+    "note": "Shopify Payments configured, Bank CSV configured, PayPal/Mollie/Stripe planned (D8)."
+  },
+  "desktop/14-sources-billing.png": {
+    "shot": "11-sources (Invoices & accounting)",
+    "verdict": "match with deviations",
+    "note": "easybill/Lexware/sevdesk/Billbee/Sufio planned only (no data path in the pilot, D8)."
+  },
+  "desktop/15-sources-tracking.png": {
+    "shot": "11-sources (Shipping sources)",
+    "verdict": "match with deviations",
+    "note": "DHL/DPD/UPS planned; shipping remains an ordinary category (D8)."
+  },
+  "desktop/16-connect-shopify.png": {
+    "shot": "16-connect-shopify",
+    "verdict": "match",
+    "note": "Dialog layout, shop domain + token fields, three-step summary; token is write-only."
+  },
+  "desktop/17-connect-api.png": {
+    "shot": "17-connect-api",
+    "verdict": "match with deviations",
+    "note": "Signed typed API dialog (producer name, HMAC secret shown once after creation) instead of the prototype custom-API form."
+  },
+  "desktop/18-connect-dhl.png": {
+    "shot": "— (planned provider)",
+    "verdict": "not reproducible",
+    "note": "DHL has no data path in the pilot: the card shows a disabled Planned action (D9); no dialog exists by design."
+  },
+  "desktop/19-connect-easybill.png": {
+    "shot": "— (planned provider)",
+    "verdict": "not reproducible",
+    "note": "easybill planned only (D9)."
+  },
+  "desktop/20-connect-shopify_payments.png": {
+    "shot": "20-connect-shopify_payments",
+    "verdict": "match",
+    "note": "Same dialog family as Shopify with the payments scopes."
+  },
+  "desktop/21-answers-empty.png": {
+    "shot": "21-answers-empty",
+    "verdict": "match",
+    "note": "Heading, labeled literal search box (\"search only — not a chat\"), six group cards with four questions each, tracks/sources footers."
+  },
+  "desktop/22-answer-inventory.png": {
+    "shot": "22-answer-inventory (viewed EN 1440)",
+    "verdict": "match with deviations",
+    "note": "Expanded question with method/need/result, typed form, answer block (eyebrow, headline 112 pcs, formula steps, result table, citations, data status). Deviation D18: the generic form lists optional window/pagination parameters (as_of/from/to/currency/unit/limit/cursor) above the required Item/Quantity fields — functional but noisier than the reference form."
+  },
+  "desktop/23-answer-delivery.png": {
+    "shot": "22-answer-inventory (same answer component; intent delivery-01 rendered generically)",
+    "verdict": "match with deviations",
+    "note": "Every intent renders through the same answer component (status, typed result fields/tables, calculation steps, citations); only inventory.available_to_sell has a dedicated headline sentence (D7). Readiness partial/ready per intent visible in 21-answers-empty."
+  },
+  "desktop/24-answer-cash.png": {
+    "shot": "22-answer-inventory (same answer component; intent settlement-01 rendered generically)",
+    "verdict": "match with deviations",
+    "note": "Every intent renders through the same answer component (status, typed result fields/tables, calculation steps, citations); only inventory.available_to_sell has a dedicated headline sentence (D7). Readiness partial/ready per intent visible in 21-answers-empty."
+  },
+  "desktop/25-answer-tracking.png": {
+    "shot": "22-answer-inventory (same answer component; intent delivery-01 rendered generically)",
+    "verdict": "match with deviations",
+    "note": "Every intent renders through the same answer component (status, typed result fields/tables, calculation steps, citations); only inventory.available_to_sell has a dedicated headline sentence (D7). Readiness partial/ready per intent visible in 21-answers-empty."
+  },
+  "desktop/26-answer-billing.png": {
+    "shot": "22-answer-inventory (same answer component; intent invoice-01 rendered generically)",
+    "verdict": "match with deviations",
+    "note": "Every intent renders through the same answer component (status, typed result fields/tables, calculation steps, citations); only inventory.available_to_sell has a dedicated headline sentence (D7). Readiness partial/ready per intent visible in 21-answers-empty."
+  },
+  "desktop/27-answer-payments.png": {
+    "shot": "22-answer-inventory (same answer component; intent settlement-01 rendered generically)",
+    "verdict": "match with deviations",
+    "note": "Every intent renders through the same answer component (status, typed result fields/tables, calculation steps, citations); only inventory.available_to_sell has a dedicated headline sentence (D7). Readiness partial/ready per intent visible in 21-answers-empty."
+  },
+  "desktop/28-answer-unknown.png": {
+    "shot": "28-answer-unknown",
+    "verdict": "match",
+    "note": "Status unknown with the missing basis (\"no stock observation\") instead of a fabricated zero; warning box as in the reference."
+  },
+  "desktop/29-event-src-001.png": {
+    "shot": "29-event-src-001 (viewed EN 1440)",
+    "verdict": "match",
+    "note": "Entry drawer: eyebrow, record id, typed payload, evidence excerpt box, links (supersedes/derived), entity links."
+  },
+  "desktop/30-event-fac-001.png": {
+    "shot": "29-event-src-001 (fact entry of the same drawer)",
+    "verdict": "match",
+    "note": "Facts carry input_entry_ids back to the source entry (derived-from links in the drawer)."
+  },
+  "desktop/31-event-com-002.png": {
+    "shot": "57-journal-filtered (commitment track)",
+    "verdict": "match with deviations",
+    "note": "Commitment entries and their history are listed per track; the current/superseded relation is shown in the entry drawer (superseded_by / supersedes)."
+  },
+  "desktop/32-event-mov-001.png": {
+    "shot": "29-event-src-001 (movement entries in 56-journal)",
+    "verdict": "match",
+    "note": "Movement track entries open the same drawer with evidence."
+  },
+  "desktop/33-event-res-001.png": {
+    "shot": "29-event-src-001 (reservation entries)",
+    "verdict": "match",
+    "note": "Reservation entries link their order."
+  },
+  "desktop/34-event-com-001.png": {
+    "shot": "57-journal-filtered",
+    "verdict": "match with deviations",
+    "note": "Superseded commitment retained: the journal keeps the original entry; the drawer marks superseded_by (no visual strike-through as in the prototype)."
+  },
+  "desktop/35-invoice-issued.png": {
+    "shot": "35-invoice-issued (viewed in run 5 suite shots)",
+    "verdict": "match with deviations",
+    "note": "Full entity page instead of a drawer (D11): lifecycle state, positions (outstanding/credit/net/paid), semantics note \"credit note is not a refund\", five track summaries, history."
+  },
+  "desktop/36-invoice-corrected.png": {
+    "shot": "35-invoice-issued",
+    "verdict": "match with deviations",
+    "note": "Correction appears as a credit position (invoice_credit_minor) on the same page; the GOLDEN scenario carries one credit note."
+  },
+  "desktop/37-invoice-cancelled.png": {
+    "shot": "35-invoice-issued",
+    "verdict": "not reproducible with demo data",
+    "note": "The GOLDEN demo has no cancellation; the page renders the same fields for that state."
+  },
+  "desktop/38-invoice-history.png": {
+    "shot": "35-invoice-issued (history section at the bottom)",
+    "verdict": "match",
+    "note": "Complete history list under the positions."
+  },
+  "desktop/39-payment-authorized.png": {
+    "shot": "39-payment-lifecycle",
+    "verdict": "match with deviations",
+    "note": "Payment page shows authorized/captured/fees/refunded/held/in-transit/bank-confirmed positions (engine state contract)."
+  },
+  "desktop/40-payment-in-transit.png": {
+    "shot": "39-payment-lifecycle",
+    "verdict": "match with deviations",
+    "note": "In-transit position present (0 in the demo after bank confirmation)."
+  },
+  "desktop/41-payment-bank-matched.png": {
+    "shot": "39-payment-lifecycle",
+    "verdict": "match",
+    "note": "Bank-confirmed 9170 shown as a separate position from the payout (GOLDEN checkpoint)."
+  },
+  "desktop/42-payment-history.png": {
+    "shot": "39-payment-lifecycle (history)",
+    "verdict": "match",
+    "note": "History under the positions."
+  },
+  "desktop/43-payment-disputed.png": {
+    "shot": "39-payment-lifecycle",
+    "verdict": "not reproducible with demo data",
+    "note": "No dispute in the GOLDEN scenario; held/dispute positions render as 0 (D11)."
+  },
+  "desktop/44-refund-pending.png": {
+    "shot": "39-payment-lifecycle",
+    "verdict": "not reproducible with demo data",
+    "note": "No pending refund in the demo (D11)."
+  },
+  "desktop/45-refund-completed.png": {
+    "shot": "39-payment-lifecycle",
+    "verdict": "match with deviations",
+    "note": "Refunded 2380 shown; reservation release is a reservation-track entry."
+  },
+  "desktop/46-agents.png": {
+    "shot": "46-agents (viewed EN 1440)",
+    "verdict": "match with deviations",
+    "note": "Grant explanation, keys table (name/status/created/last actual use/expiry/revoke), three-step local flow, client choice, copyable stdio config, tool list; no ChatGPT concept, no simulated answer (D13)."
+  },
+  "desktop/47-agent-chatgpt.png": {
+    "shot": "46-agents (client choice: Claude Desktop / MCP Inspector / Own agent)",
+    "verdict": "intentional deviation",
+    "note": "Only verifiable local MCP clients are offered (D13)."
+  },
+  "desktop/48-agent-custom.png": {
+    "shot": "46-agents (\"Own agent\" notes)",
+    "verdict": "match with deviations",
+    "note": "Own-agent notes: key from env/file, loopback only, read-only grant."
+  },
+  "desktop/49-agent-simulation.png": {
+    "shot": "—",
+    "verdict": "intentional deviation",
+    "note": "No simulated agent answer in the product; real answers come through MCP (MCP-03 evidence)."
+  },
+  "desktop/50-otc-order.png": {
+    "shot": "21-answers-empty / 22-answer-inventory (group card expanded)",
+    "verdict": "match",
+    "note": "Group card with step number, team, scope, agent role, benefit, four questions each with readiness; expanding shows method/need/result (viewed for the order group)."
+  },
+  "desktop/51-otc-delivery.png": {
+    "shot": "21-answers-empty / 22-answer-inventory (group card expanded)",
+    "verdict": "match",
+    "note": "Group card with step number, team, scope, agent role, benefit, four questions each with readiness; expanding shows method/need/result (viewed for the order group)."
+  },
+  "desktop/52-otc-invoice.png": {
+    "shot": "21-answers-empty / 22-answer-inventory (group card expanded)",
+    "verdict": "match",
+    "note": "Group card with step number, team, scope, agent role, benefit, four questions each with readiness; expanding shows method/need/result (viewed for the order group)."
+  },
+  "desktop/53-otc-collection.png": {
+    "shot": "21-answers-empty / 22-answer-inventory (group card expanded)",
+    "verdict": "match",
+    "note": "Group card with step number, team, scope, agent role, benefit, four questions each with readiness; expanding shows method/need/result (viewed for the order group)."
+  },
+  "desktop/54-otc-settlement.png": {
+    "shot": "21-answers-empty / 22-answer-inventory (group card expanded)",
+    "verdict": "match",
+    "note": "Group card with step number, team, scope, agent role, benefit, four questions each with readiness; expanding shows method/need/result (viewed for the order group)."
+  },
+  "desktop/55-otc-reversal.png": {
+    "shot": "21-answers-empty / 22-answer-inventory (group card expanded)",
+    "verdict": "match",
+    "note": "Group card with step number, team, scope, agent role, benefit, four questions each with readiness; expanding shows method/need/result (viewed for the order group)."
+  },
+  "desktop/56-journal.png": {
+    "shot": "56-journal (viewed EN 1440 + 390)",
+    "verdict": "match",
+    "note": "Filter toolbar (record id, track, event type, entity, occurred/recorded ranges), ledger columns, track tags, entry buttons; Export JSON. Nav badge for the recorder renders empty instead of a count (D19, cosmetic)."
+  },
+  "desktop/57-journal-filtered.png": {
+    "shot": "57-journal-filtered",
+    "verdict": "match",
+    "note": "Track filter commitment: current and superseded commitments listed."
+  },
+  "desktop/58-journal-empty.png": {
+    "shot": "58-journal-empty",
+    "verdict": "match",
+    "note": "Empty state \"No entries match these filters.\" with Clear filters."
+  },
+  "mobile/01-landing-page.png": {
+    "shot": "reports/evidence/DIST-01/released-en-mobile-page.png (+ de)",
+    "verdict": "match with additions",
+    "note": "Single column, stacked CTAs, release card; language toggle visible."
+  },
+  "mobile/02-recorder.png": {
+    "shot": "08-recorder (en/390, viewed)",
+    "verdict": "match",
+    "note": "Stacked stats, scrolling track lanes with truncated chips, lower panels stacked; hamburger navigation."
+  },
+  "mobile/03-source-catalogue.png": {
+    "shot": "11-sources (en/390)",
+    "verdict": "match with deviations",
+    "note": "Single-column cards; connected table scrolls horizontally (ledger-table-wrap); tall implemented cards (D16)."
+  },
+  "mobile/04-answer-with-evidence.png": {
+    "shot": "22-answer-inventory (en/390) + 30-evidence-drawer (en/390)",
+    "verdict": "match",
+    "note": "Answer block and full-width evidence drawer."
+  },
+  "mobile/05-agents-and-order-to-cash-examples.png": {
+    "shot": "46-agents (en/390) + 21-answers-empty (en/390)",
+    "verdict": "match with deviations",
+    "note": "Agents page stacked; keys table scrolls horizontally (Revoke button inside the scroll container, flagged by the geometry check but reachable)."
+  },
+  "mobile/06-journal-and-horizontal-table-layout.png": {
+    "shot": "56-journal (en/390)",
+    "verdict": "match",
+    "note": "Horizontal table layout as in the reference (entity links inside the scroll container)."
+  },
+  "mobile/07-navigation-open.png": {
+    "shot": "m07-navigation-open (en/390, de/390)",
+    "verdict": "match",
+    "note": "Drawer navigation opened by the hamburger (aria-expanded=true), overlay."
+  },
+  "mobile/08-demo-workspace-dialog.png": {
+    "shot": "08b-recorder-demo-dialog (en/390)",
+    "verdict": "intentional deviation",
+    "note": "Demo dialog (run the example) replaces the demo-workspace signup dialog; full-width, anchored to the top on narrow screens (fix from this pass)."
+  },
+  "mobile/09-source-evidence-drawer.png": {
+    "shot": "29-event-src-001 (en/390) + 30-evidence-drawer (en/390)",
+    "verdict": "match",
+    "note": "Full-width drawer with evidence box."
+  }
+}

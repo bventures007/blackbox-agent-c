@@ -1,0 +1,27 @@
+{
+  "run_id": "b2b0c73b-751b-49a7-b577-86b3e5bb248b",
+  "kind": "backfill",
+  "poll_group": "shopify:stock",
+  "state": "completed",
+  "phase": "link_and_process",
+  "counters": {
+    "requested": 0,
+    "loaded": 6,
+    "committed": 12,
+    "applied": 12,
+    "failed": 0,
+    "duplicates": 0,
+    "conflicts": 0,
+    "rejected": 0
+  },
+  "totals_known": false,
+  "percent": null,
+  "pages": 1,
+  "started_at": "2026-11-02T02:25:09.985Z",
+  "finished_at": "2026-11-02T02:25:12.601Z",
+  "outcome": "completed",
+  "error_code": null,
+  "committed_cursor": 98,
+  "coverage_from": "2026-10-03T02:25:06.472Z",
+  "coverage_to": "2026-11-02T02:25:06.472Z"
+}

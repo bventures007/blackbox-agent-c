@@ -1,0 +1,244 @@
+{
+  "intent": "cancellations.outstanding_steps",
+  "params": {
+    "order_id": "#M"
+  },
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "cancellations.outstanding_steps",
+      "question_id": "reversal-03",
+      "params": {
+        "order_id": "#M"
+      },
+      "readiness": {
+        "question_id": "reversal-03",
+        "intent": "cancellations.outstanding_steps",
+        "status": "partial",
+        "required": [
+          "orders",
+          "allocations",
+          "invoices",
+          "payments",
+          "refunds",
+          "entitlements",
+          "receipts",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "allocations",
+          "invoices",
+          "payments",
+          "refunds",
+          "entitlements",
+          "receipts"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: allocations, invoices, payments, refunds, entitlements, receipts"
+        ],
+        "sources": [
+          {
+            "connection_id": "3a01b6e2-5d45-48dc-b7ee-a18524e0caf1",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T04:08:26.501Z",
+            "last_new_event_at": "2026-11-02T04:08:26.501Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "do_not_mark_complete": true,
+        "cancelled": false,
+        "remaining_steps": [],
+        "checks": []
+      },
+      "calculation": [
+        {
+          "step": "branch",
+          "formula": "order is not cancelled; nothing to correct",
+          "values": {}
+        }
+      ],
+      "evidence_refs": [
+        "journal:e4fe1f5c-974c-4a18-9a70-aa75dfc8ca30",
+        "journal:3049cc12-2617-42eb-b2ff-a491427d9749",
+        "journal:e36a96ad-c0a1-4d5f-8018-a9c71fb9f933"
+      ],
+      "entry_ids": [
+        "e4fe1f5c-974c-4a18-9a70-aa75dfc8ca30",
+        "3049cc12-2617-42eb-b2ff-a491427d9749",
+        "e36a96ad-c0a1-4d5f-8018-a9c71fb9f933"
+      ],
+      "missing_inputs": [],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders"
+        ],
+        "datasets_missing": [
+          "allocations",
+          "invoices",
+          "payments",
+          "refunds",
+          "entitlements",
+          "receipts",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "cancellations.outstanding_steps",
+      "question_id": "reversal-03",
+      "params": {
+        "order_id": "#M"
+      },
+      "readiness": {
+        "question_id": "reversal-03",
+        "intent": "cancellations.outstanding_steps",
+        "status": "partial",
+        "required": [
+          "orders",
+          "allocations",
+          "invoices",
+          "payments",
+          "refunds",
+          "entitlements",
+          "receipts",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "allocations",
+          "invoices",
+          "payments",
+          "refunds",
+          "entitlements",
+          "receipts"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: allocations, invoices, payments, refunds, entitlements, receipts"
+        ],
+        "sources": [
+          {
+            "connection_id": "3a01b6e2-5d45-48dc-b7ee-a18524e0caf1",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T04:08:26.501Z",
+            "last_new_event_at": "2026-11-02T04:08:26.501Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "do_not_mark_complete": true,
+        "cancelled": false,
+        "remaining_steps": [],
+        "checks": []
+      },
+      "calculation": [
+        {
+          "step": "branch",
+          "formula": "order is not cancelled; nothing to correct",
+          "values": {}
+        }
+      ],
+      "evidence_refs": [
+        "journal:e4fe1f5c-974c-4a18-9a70-aa75dfc8ca30",
+        "journal:3049cc12-2617-42eb-b2ff-a491427d9749",
+        "journal:e36a96ad-c0a1-4d5f-8018-a9c71fb9f933"
+      ],
+      "entry_ids": [
+        "e4fe1f5c-974c-4a18-9a70-aa75dfc8ca30",
+        "3049cc12-2617-42eb-b2ff-a491427d9749",
+        "e36a96ad-c0a1-4d5f-8018-a9c71fb9f933"
+      ],
+      "missing_inputs": [],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders"
+        ],
+        "datasets_missing": [
+          "allocations",
+          "invoices",
+          "payments",
+          "refunds",
+          "entitlements",
+          "receipts",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

@@ -29,9 +29,12 @@ test.describe('demo scenario and question order-01', () => {
       const form = page.getByRole('form', { name: /Can I still sell 100 Olive Cups|Kann ich noch 100 Olive Cups/ });
       await expect(form).toBeVisible();
       // Entity disambiguation is a literal journal search (GET /api/search), never a model.
+      // order-01 has several entity parameters, each with its own literal lookup; use the Item field's one.
+      // `has` is matched relative to each .entity-field, so the inner locator must be page-level, not form-chained.
+      const itemField = form.locator('.entity-field', { has: page.getByLabel(locale === 'en' ? 'Item *' : 'Artikel *') });
       await form.getByLabel(locale === 'en' ? 'Item *' : 'Artikel *').fill('CUP');
-      await form.getByRole('button', { name: locale === 'en' ? 'Look up' : 'Nachschlagen' }).click();
-      await form.getByRole('option', { name: /CUP-OLV/ }).click();
+      await itemField.getByRole('button', { name: locale === 'en' ? 'Look up' : 'Nachschlagen' }).click();
+      await itemField.getByRole('option', { name: /CUP-OLV/ }).click();
       await expect(form.getByLabel(locale === 'en' ? 'Item *' : 'Artikel *')).toHaveValue('CUP-OLV');
       await form.getByLabel(locale === 'en' ? 'Quantity *' : 'Menge *').fill('100');
       await form.getByRole('button', { name: T[locale].ask, exact: true }).click();
@@ -44,7 +47,7 @@ test.describe('demo scenario and question order-01', () => {
       expect(await answer.locator('.math-item').count()).toBeGreaterThanOrEqual(2);
       await expect(answer.locator('.math-item .formula').first()).toContainText('available = physical');
       await expect(answer.locator('.citation-btn').first()).toBeVisible();
-      await expect(answer.getByText(locale === 'en' ? 'Data status' : 'Datenstatus')).toBeVisible();
+      await expect(answer.getByText(locale === 'en' ? 'Data status' : 'Datenstatus').first()).toBeVisible(); // heading + readiness label both carry the text
       await expect(answer.getByText(locale === 'en' ? /applied cursor \d+/ : /angewendeter Cursor \d+/)).toBeVisible();
       await screenshot(page, testInfo, locale, '22-answer-inventory');
       // evidence drawer lists the cited journal entries with their raw evidence

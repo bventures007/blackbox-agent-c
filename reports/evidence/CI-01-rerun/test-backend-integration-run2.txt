@@ -1,0 +1,10 @@
+# command: pnpm test:backend:integration (after the question parameter-contract mirror, the evicted-evidence disclosure and the two test fixes for invoices.outstanding parameters)
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65 + uncommitted deltas (reports/evidence/RERUN/README.md)
+# started: 2026-11-02T03:58:51Z
+
+ Test Files  6 passed (6)
+      Tests  53 passed (53)
+   Start at  04:58:51
+   Duration  14.71s (transform 619ms, setup 0ms, import 4.16s, tests 31.28s, environment 0ms)
+
+# exit: 0 finished 2026-11-02T03:59:18Z

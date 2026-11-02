@@ -1,0 +1,9 @@
+cargo run --release -p blackbox-engine --bin corpus -- --parallel ... (corpus generation, see corpus-generation.txt) ; node tests/perf/prepare.mjs ; node tests/perf/manifest-from-db.mjs > corpus-manifest.json
+node tests/perf/smoke.mjs --pools <keys>/pools.json --mode closed --transport api --duration 600 --clients 20 --rate 40 --ingest-obs-per-second 20 --warmup 60 --project blackbox-agent-c-ops2 --owner-key-file <ops2>/owner.key --out reports/evidence/PILOT-09-rerun/run-api-closed.json
+node tests/perf/smoke.mjs ... --mode fixed --transport api ... --out run-api-fixed.json
+node tests/perf/smoke.mjs ... --mode closed --transport mcp ... --out run-mcp-closed.json (re-run after the driver fix)
+node tests/perf/smoke.mjs ... --mode fixed --transport mcp ... --out run-mcp-fixed.json (re-run after the driver fix)
+scripts/verify/ops2-restart-rebuild.sh (restart with a 3,000-entry unapplied tail; no-snapshot rebuild) -> restart.json, rebuild.json
+./blackbox restore <generation> --into ~/blackbox-pilot-ops2-restore --port 19192 --project blackbox-agent-c-ops2-restore (OPS-RERUN/part2b.txt) -> restore.json
+node tests/perf/verdict.mjs --api-closed run-api-closed.json --api-fixed run-api-fixed.json --mcp-closed run-mcp-closed.json --mcp-fixed run-mcp-fixed.json --restart restart.json --rebuild rebuild.json --restore restore.json --manifest corpus-manifest.json > verdict.json
+node tests/perf/report.mjs --runs-dir reports/evidence/PILOT-09-rerun --verdict verdict.json --manifest corpus-manifest.json --commit df8cfbb5e41fb3da483270651823cf470aaf1a65 --environment "..." --limitations-file limitations.txt --commands-file commands.txt

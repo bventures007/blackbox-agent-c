@@ -1,0 +1,183 @@
+{
+  "url": "http://127.0.0.1:19188/",
+  "label": "pending",
+  "captured_at": "2026-11-01T22:00:10.313Z",
+  "states": [
+    {
+      "locale": "en",
+      "device": "desktop",
+      "lang": "en",
+      "title": "Blackbox — your business, without gaps",
+      "ctas": [
+        {
+          "id": "download-nav",
+          "tag": "BUTTON",
+          "text": "Download for Mac · Download not available yet",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        },
+        {
+          "id": "download-hero",
+          "tag": "BUTTON",
+          "text": "Download for Mac · Download not available yet",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        },
+        {
+          "id": "download-closing",
+          "tag": "BUTTON",
+          "text": "Download for Mac · Download not available yet",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        }
+      ],
+      "release_card": "Release Download not available yet Download not available yet There is no released installation package for this version yet. The guide and demo stay available; nothing is substituted. Installation guide VERSION – DATE – PLATFORM macOS Apple Silicon (arm64) FORMAT tar.gz SIZE – TESTED COMMIT – PREREQUISITES Docker Desktop 4.3x+ with Compose v2 · macOS 14 SHA-256 – Release notes: No release has been built yet. The landing page must show the localized 'Download not available yet' state and keep demo/guide access. The checksum detects corruption; it is not a code signature or notarization. Only macOS on Apple Silicon is built and tested. No other platform is offered. Installation guide →",
+      "guide_links": [],
+      "demo": "http://127.0.0.1:19180/"
+    },
+    {
+      "locale": "en",
+      "device": "mobile",
+      "lang": "en",
+      "title": "Blackbox — your business, without gaps",
+      "ctas": [
+        {
+          "id": "download-nav",
+          "tag": "BUTTON",
+          "text": "Download for Mac · Download not available yet",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        },
+        {
+          "id": "download-hero",
+          "tag": "BUTTON",
+          "text": "Download for Mac · Download not available yet",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        },
+        {
+          "id": "download-closing",
+          "tag": "BUTTON",
+          "text": "Download for Mac · Download not available yet",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        }
+      ],
+      "release_card": "Release Download not available yet Download not available yet There is no released installation package for this version yet. The guide and demo stay available; nothing is substituted. Installation guide VERSION – DATE – PLATFORM macOS Apple Silicon (arm64) FORMAT tar.gz SIZE – TESTED COMMIT – PREREQUISITES Docker Desktop 4.3x+ with Compose v2 · macOS 14 SHA-256 – Release notes: No release has been built yet. The landing page must show the localized 'Download not available yet' state and keep demo/guide access. The checksum detects corruption; it is not a code signature or notarization. Only macOS on Apple Silicon is built and tested. No other platform is offered. Installation guide →",
+      "guide_links": [],
+      "demo": "http://127.0.0.1:19180/"
+    },
+    {
+      "locale": "de",
+      "device": "desktop",
+      "lang": "de",
+      "title": "Blackbox — Dein Business. Lückenlos.",
+      "ctas": [
+        {
+          "id": "download-nav",
+          "tag": "BUTTON",
+          "text": "Für Mac herunterladen · Download noch nicht verfügbar",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        },
+        {
+          "id": "download-hero",
+          "tag": "BUTTON",
+          "text": "Für Mac herunterladen · Download noch nicht verfügbar",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        },
+        {
+          "id": "download-closing",
+          "tag": "BUTTON",
+          "text": "Für Mac herunterladen · Download noch nicht verfügbar",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        }
+      ],
+      "release_card": "Release Download noch nicht verfügbar Download noch nicht verfügbar Für diese Version gibt es noch kein freigegebenes Installationspaket. Anleitung und Demo bleiben verfügbar; nichts wird ersetzt. Installationsanleitung VERSION – DATUM – PLATTFORM macOS Apple Silicon (arm64) FORMAT tar.gz GRÖSSE – GETESTETER COMMIT – VORAUSSETZUNGEN Docker Desktop 4.3x+ with Compose v2 · macOS 14 SHA-256 – Release-Notizen: No release has been built yet. The landing page must show the localized 'Download not available yet' state and keep demo/guide access. Die Prüfsumme erkennt Beschädigungen; sie ist keine Code-Signatur und keine Notarisierung. Nur macOS auf Apple Silicon wird gebaut und getestet. Keine andere Plattform wird angeboten. Installationsanleitung →",
+      "guide_links": [],
+      "demo": "http://127.0.0.1:19180/"
+    },
+    {
+      "locale": "de",
+      "device": "mobile",
+      "lang": "de",
+      "title": "Blackbox — Dein Business. Lückenlos.",
+      "ctas": [
+        {
+          "id": "download-nav",
+          "tag": "BUTTON",
+          "text": "Für Mac herunterladen · Download noch nicht verfügbar",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        },
+        {
+          "id": "download-hero",
+          "tag": "BUTTON",
+          "text": "Für Mac herunterladen · Download noch nicht verfügbar",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        },
+        {
+          "id": "download-closing",
+          "tag": "BUTTON",
+          "text": "Für Mac herunterladen · Download noch nicht verfügbar",
+          "href": null,
+          "resolved": null,
+          "aria_disabled": "true",
+          "disabled": true,
+          "data_release": "pending",
+          "download_attr": null
+        }
+      ],
+      "release_card": "Release Download noch nicht verfügbar Download noch nicht verfügbar Für diese Version gibt es noch kein freigegebenes Installationspaket. Anleitung und Demo bleiben verfügbar; nichts wird ersetzt. Installationsanleitung VERSION – DATUM – PLATTFORM macOS Apple Silicon (arm64) FORMAT tar.gz GRÖSSE – GETESTETER COMMIT – VORAUSSETZUNGEN Docker Desktop 4.3x+ with Compose v2 · macOS 14 SHA-256 – Release-Notizen: No release has been built yet. The landing page must show the localized 'Download not available yet' state and keep demo/guide access. Die Prüfsumme erkennt Beschädigungen; sie ist keine Code-Signatur und keine Notarisierung. Nur macOS auf Apple Silicon wird gebaut und getestet. Keine andere Plattform wird angeboten. Installationsanleitung →",
+      "guide_links": [],
+      "demo": "http://127.0.0.1:19180/"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+# command: pnpm exec vitest run --config tests/backend/vitest.integration.config.ts tests/backend/integration/diagnostics.test.ts (worker heartbeat probe added)
+# started: 2026-11-02T02:23:26Z
+
+ RUN  v4.1.12 /Users/benediktsauter/GitHub/blackbox-agent-c
+
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  03:23:29
+   Duration  43.81s (transform 2.69s, setup 0ms, import 4.63s, tests 38.63s, environment 0ms)
+
+# exit: 0 finished 2026-11-02T02:24:13Z

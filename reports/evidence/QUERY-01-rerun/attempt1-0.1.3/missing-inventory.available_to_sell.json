@@ -1,0 +1,185 @@
+{
+  "intent": "inventory.available_to_sell",
+  "params": {
+    "item_id": "CUP-OLV",
+    "requested_quantity": 100
+  },
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "inventory.available_to_sell",
+      "question_id": "order-01",
+      "params": {
+        "item_id": "CUP-OLV",
+        "requested_quantity": 100
+      },
+      "readiness": {
+        "question_id": "order-01",
+        "intent": "inventory.available_to_sell",
+        "status": "blocked",
+        "required": [
+          "stock",
+          "coverage",
+          "identity"
+        ],
+        "optional": [
+          "supply"
+        ],
+        "missing": [
+          "stock"
+        ],
+        "missing_optional": [
+          "supply"
+        ],
+        "reasons": [
+          "missing required datasets: stock",
+          "optional datasets absent (answer may be partial): supply"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "item_id": "CUP-OLV",
+        "requested_quantity": "100",
+        "incoming_counted_as_stock": false,
+        "available": null
+      },
+      "calculation": [
+        {
+          "step": "basis",
+          "formula": "no stock observation for this item",
+          "values": {
+            "item_id": "CUP-OLV"
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "stock.basis"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "stock",
+          "allocations",
+          "supply",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:44.027Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "inventory.available_to_sell",
+      "question_id": "order-01",
+      "params": {
+        "item_id": "CUP-OLV",
+        "requested_quantity": 100
+      },
+      "readiness": {
+        "question_id": "order-01",
+        "intent": "inventory.available_to_sell",
+        "status": "blocked",
+        "required": [
+          "stock",
+          "coverage",
+          "identity"
+        ],
+        "optional": [
+          "supply"
+        ],
+        "missing": [
+          "stock"
+        ],
+        "missing_optional": [
+          "supply"
+        ],
+        "reasons": [
+          "missing required datasets: stock",
+          "optional datasets absent (answer may be partial): supply"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "item_id": "CUP-OLV",
+        "requested_quantity": "100",
+        "incoming_counted_as_stock": false,
+        "available": null
+      },
+      "calculation": [
+        {
+          "step": "basis",
+          "formula": "no stock observation for this item",
+          "values": {
+            "item_id": "CUP-OLV"
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "stock.basis"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "stock",
+          "allocations",
+          "supply",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:44.027Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

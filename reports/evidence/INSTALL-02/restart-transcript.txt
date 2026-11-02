@@ -1,0 +1,21 @@
+# INSTALL-02 re-run 2026-11-02T03:20:01Z (first attempt's snapshot helper had a Python f-string quoting error; helper fixed in scripts/release/answer-snapshot.sh)  load 20.76 33.48 44.22
+## answer snapshot before restart
+status=complete available=112 applied_cursor=514 evidence=54
+## full envelope before (consistency/coverage/readiness for HEALTH-03)
+{"status": "complete", "consistency": {"applied_cursor": 514, "required_cursor": 514, "reducer_version": 1, "status": "current", "recorded_cutoff": "2026-11-02T02:27:03.163Z", "effective_cutoff": null, "mode": "latest_committed"}, "coverage": {"datasets_present": ["stock", "allocations"], "datasets_missing": ["supply", "coverage", "identity"], "population": {"records_considered": 0, "returned": 0}, "evidence_truncated": false, "coverage_assertions": [], "incoming_supply_known": false}, "sources": [], "readiness": {"status": "ready", "required": ["stock", "coverage", "identity"], "optional": ["supply"], "missing": []}}
+## ./blackbox down && ./blackbox up
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+running at http://127.0.0.1:19180/ (project blackbox-agent-c)
+restart wall: 17 s
+api /health 200 after 1 probes
+## answer snapshot after restart
+status=complete available=112 applied_cursor=514 evidence=54
+snapshot files byte-identical: True
+status: complete complete | available: 112 112 | applied_cursor: 514 514 | evidence: 54 54 | datasets: ['stock', 'allocations']
+## evidence links resolvable after restart (first 3 citations of the answer + the UI evidence route)
+  journal:08a24951-3e42-4cc9-9be6-039520e67177 -> 200 ['derivations', 'derived_from', 'entry', 'superseded_by', 'supersedes']
+  journal:092d8303-501f-4762-8b3a-4acf907ee665 -> 200 ['derivations', 'derived_from', 'entry', 'superseded_by', 'supersedes']
+  journal:0dea9062-7e38-4679-90bf-bbbbc0f94158 -> 200 ['derivations', 'derived_from', 'entry', 'superseded_by', 'supersedes']
+## health cards after restart
+postgres=healthy | api=healthy | worker=working | engine=healthy | sources=degraded | mcp=unknown | diagnostics=healthy
+# finished 2026-11-02T03:20:23Z

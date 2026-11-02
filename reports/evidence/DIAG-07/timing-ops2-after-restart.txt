@@ -1,0 +1,93 @@
+# command: (api restarted so the collector re-indexes the retained files, then) node scripts/verify/diag-timing.mjs --api http://127.0.0.1:19185 --owner-key-file ~/blackbox-pilot-ops2/owner.key --n 30
+# started: 2026-11-01T23:09:36Z load: 152.41 89.74 90.40
+{
+  "api": "http://127.0.0.1:19185",
+  "measured_at": "2026-11-01T23:09:38.437Z",
+  "n": 30,
+  "classes": {
+    "first_page_200_last_hour_info": {
+      "p50_ms": 194.8,
+      "p95_ms": 2131.8,
+      "max_ms": 6243.6,
+      "rows_last": 200,
+      "status_last": 200
+    },
+    "warnings_preset_200": {
+      "p50_ms": 394.4,
+      "p95_ms": 5773.9,
+      "max_ms": 8802.5,
+      "rows_last": 200,
+      "status_last": 200
+    },
+    "literal_search_200_6_days": {
+      "p50_ms": 677.4,
+      "p95_ms": 3732.3,
+      "max_ms": 9362.2,
+      "rows_last": 200,
+      "status_last": 200
+    },
+    "component_filter_200_6_days": {
+      "p50_ms": 151.5,
+      "p95_ms": 1170.7,
+      "max_ms": 4106.2,
+      "rows_last": 200,
+      "status_last": 200
+    }
+  },
+  "live": {
+    "samples": [
+      10000,
+      10000,
+      10000,
+      10000,
+      10000,
+      10000,
+      10000,
+      10000
+    ],
+    "p95_ms": 10000,
+    "max_ms": 10000,
+    "records_received": 0
+  },
+  "storage": {
+    "thresholds": {
+      "warn_percent": 10,
+      "warn_min_bytes": 5368709120,
+      "critical_percent": 2,
+      "critical_min_bytes": 1073741824,
+      "log_cap_bytes": 104857600,
+      "log_retention_days": 7
+    },
+    "volumes": {
+      "evidence": {
+        "total_bytes": 254633621585920,
+        "free_bytes": 51653792235520,
+        "state": "ok"
+      },
+      "logs": {
+        "total_bytes": 254633621585920,
+        "free_bytes": 51653792235520,
+        "state": "ok"
+      },
+      "snapshots": {
+        "total_bytes": 254633621585920,
+        "free_bytes": 51653790138368,
+        "state": "ok"
+      }
+    },
+    "evidence": {
+      "bytes": 5697,
+      "available": true
+    },
+    "logs": {
+      "bytes": 100799860,
+      "cap_bytes": 104857600,
+      "retained_from": "2026-10-26T23:00:01.977Z",
+      "retained_to": "2026-11-01T23:09:38.416Z",
+      "files": 150,
+      "dropped_count": 0,
+      "state": "degraded"
+    }
+  }
+}
+# exit: 0 finished 2026-11-01T23:12:56Z

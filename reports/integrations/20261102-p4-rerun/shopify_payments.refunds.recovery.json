@@ -1,0 +1,24 @@
+{
+  "row": "shopify_payments.refunds",
+  "kind": "recovery",
+  "tested_commit": "df8cfbb5e41fb3da483270651823cf470aaf1a65",
+  "recorded_at": "2026-11-02T02:31:58Z",
+  "command": "ENGINE_BINARY=$PWD/target/release/blackbox-engine ENGINE_TEST_PGPORT=19184 cargo test --workspace --release -- --test-threads=2 (apps/engine/tests/ops_http.rs, golden_http.rs) and SLICE-01 step 5 (full stack restart + corrupted snapshot rebuild)",
+  "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop daemon 29.9.2 VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1; throwaway postgres:16-alpine containers blackbox-agent-c-devpg (19183), blackbox-agent-c-workerpg (19191), blackbox-agent-c-enginepg (19184); installed release 0.1.0 stack blackbox-agent-c in a fresh folder (127.0.0.1:19180) for SLICE-01; host load averages during the suites between 30 and 250 (other projects' workloads)",
+  "case_ids": [
+    "LOCAL-09",
+    "JOURNAL-02",
+    "DOMAIN-01",
+    "SLICE-01"
+  ],
+  "modes": [
+    "local_standalone"
+  ],
+  "observed": "engine boundary on df8cfbb: domain golden 14 tests, golden_http 4, intents_http 1 (24 intents positive + missing data), ops_http 5 (snapshot restart, corrupt snapshot rebuild to identical state/chain hash, projection_behind/admission, 1000-entry tail, eviction/cold reads, load sample p95 within the 200 ms engine-RPC target on the third attempt after two attempts under a concurrent image build) \u2014 the first workspace run's golden_http tests failed only because a cwd-relative ENGINE_BINARY was passed (re-run with the absolute path passed); installed stack: SLICE-01 step 5 full restart + corrupted snapshot rebuild returned identical cutoff answers via API and MCP for shopify_payments.refunds",
+  "result": "passed",
+  "outputs": [
+    "reports/evidence/CI-01-rerun/cargo-test-release.txt",
+    "reports/evidence/SLICE-01-rerun/results.json"
+  ],
+  "note": "Sanitized summary of the actual suite outputs named in outputs (counts, run ids, timings); no keys, cookies, payloads or personal data. Synthetic provider-shaped fixture, not live provider evidence."
+}

@@ -1,0 +1,11 @@
+{
+  "connection_id": "8f9d242a-5da1-439e-9960-26d77fbefe49",
+  "provider": "shopify",
+  "status": "configured",
+  "has_secret": true,
+  "config": {
+    "base_url": "http://host.docker.internal:19182",
+    "page_size": 7,
+    "shop_domain": "fixture-42.myshopify.com"
+  }
+}

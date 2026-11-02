@@ -40,8 +40,8 @@ Common envelopes: question/state responses follow `specs/question-data-contracts
 - GET /api/schema → describe_business_schema.
 
 ## Questions (A)
-- GET /api/questions → the 24 templates with {id, intent, group, params_schema, supported, readiness}.
-- POST /api/questions/:intent {params, consistency?} → result envelope (engine /v1/query). Free text is never sent anywhere; `GET /api/questions/search?q=` only matches template titles/entities.
+- GET /api/questions → the 24 templates with {id, intent, group, params_schema, supported, readiness}. `params_schema` mirrors the engine's per-intent parameter contract (`crates/query/src/intents.rs` `param_specs`, mirrored in `packages/application/src/questions.ts` `ENGINE_PARAMS`; a unit test fails on drift) plus the API-level `as_of` (recorded-time cutoff → `consistency.as_of_recorded`), `limit` and `cursor` (paging), which are never forwarded to the engine. Unknown names are rejected with 422 `invalid_params`; product-level narrowing only (`requested_quantity` positive and required, `order_id` required for `customer.delivery_reply`).
+- POST /api/questions/:intent {params, consistency?} → result envelope (engine /v1/query). When a touched entity's history was evicted from the engine's working set, `missing_inputs` carries `history.evicted_use_cold_read`, `coverage.evidence_evicted_entities` counts them and the evidence is served from the indexed cold path (`coverage.evidence_source: postgresql_cold_read`) instead of an empty citation list. Free text is never sent anywhere; `GET /api/questions/search?q=` only matches template titles/entities.
 
 ## Agents (owner)
 - GET /api/agents → [{credential_id, name, status, created_at, last_used_at, expires_at, revoked_at, grant:"workspace.read_business"}]
@@ -53,7 +53,7 @@ Common envelopes: question/state responses follow `specs/question-data-contracts
 - GET /api/review/cases?state= (A) → cases; POST /api/review/cases/:id/actions {action: retry|confirm_link|reject_link|append_correction|leave_open, revision, reason, payload?} → case; 409 on stale revision.
 
 ## Settings (owner)
-- GET/PATCH /api/settings/backups → {status: not_configured|scheduled|running|failed|overdue, destination_label, last_attempt_at, last_completed_at, last_cutoff, next_due_at, recoverable_age_seconds, retention:{daily:7, weekly:4}, same_device:boolean, last_restore_test_at}; POST /api/settings/backups/run → run (only to the enrolled destination).
+- GET/PATCH /api/settings/backups → {status: not_configured|scheduled|running|failed|overdue, configured, destination_label, destination_available, same_device, last_attempt_at, last_attempt_kind, last_completed_at, last_generation, last_sha256, last_bytes, last_cutoff, last_cutoff_committed:[{tenant_id, committed_sequence}], next_due_at, recoverable_age_seconds, retention:{daily:7, weekly:4}, failures, last_error, last_restore_test_at, protection}. Source of truth: the wrapper/scheduler status file `BACKUP_STATUS_FILE` (/data/backups/status.json, docs/operations.md); the `backup_status` row only overlays owner retention overrides and the last restore test. A missing/unreadable file answers not_configured ("unprotected"). POST /api/settings/backups/run → run (only to the enrolled destination).
 - GET/PATCH /api/settings/retention → per evidence class days; GET/PATCH /api/settings/storage → thresholds + usage.
 - GET /api/settings/security → audit summary (counts, last events; never secrets).
 

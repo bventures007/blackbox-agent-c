@@ -1,0 +1,21 @@
+upgrade: installed 0.1.0 → release 0.1.3
+  [preflight] 0.1.0->0.1.3
+  [lease]
+  [fence] pre-upgrade
+ Container blackbox-agent-c-ops2-backup-run-1ad08b84dde4 Creating 
+ Container blackbox-agent-c-ops2-backup-run-1ad08b84dde4 Created 
+2026-11-02T02:30:56Z backup generation blackbox-backup-20261102T023056Z (pre-upgrade) starting
+2026-11-02T02:30:57Z backup dumping database
+2026-11-02T02:32:43Z backup archiving evidence
+2026-11-02T02:32:45Z backup archiving snapshots
+2026-11-02T02:32:45Z backup archiving installation key material
+2026-11-02T02:32:45Z backup sealing generation
+2026-11-02T02:32:48Z backup generation finalized: /backup-dest/blackbox-backup-20261102T023056Z.tar.age (162354056 bytes, sha256 15938e356ceaa561a1609a30bf5e55600e98172e01399e497b315ab63b5561c0)
+2026-11-02T02:32:48Z backup retention: kept 2 of 2 finalized generation(s) (daily=7 weekly=4)
+  [done]
+backup finalized: /backup-dest/blackbox-backup-20261102T023056Z.tar.age
+  [writers-paused]
+  [files-staged]
+resuming upgrade 0.1.0 → 0.1.3 from phase 'images'
+  [images-load]
+  loading api.tar

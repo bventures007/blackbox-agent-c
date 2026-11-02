@@ -1,0 +1,208 @@
+{
+  "intent": "orders.payment_state",
+  "params": {
+    "order_id": "#M"
+  },
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "orders.payment_state",
+      "question_id": "collection-01",
+      "params": {
+        "order_id": "#M"
+      },
+      "readiness": {
+        "question_id": "collection-01",
+        "intent": "orders.payment_state",
+        "status": "partial",
+        "required": [
+          "orders",
+          "payments",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "payments"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: payments"
+        ],
+        "sources": [
+          {
+            "connection_id": "aaa002c2-ce7d-4c43-a1c2-72c8cdeb80c7",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:44.031Z",
+            "last_new_event_at": "2026-11-02T03:46:44.031Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "unknown",
+      "result": {
+        "collected_minor": null,
+        "orders": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "payments.status"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "payments.status"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders"
+        ],
+        "datasets_missing": [
+          "payments",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:44.027Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "orders.payment_state",
+      "question_id": "collection-01",
+      "params": {
+        "order_id": "#M"
+      },
+      "readiness": {
+        "question_id": "collection-01",
+        "intent": "orders.payment_state",
+        "status": "partial",
+        "required": [
+          "orders",
+          "payments",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "payments"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: payments"
+        ],
+        "sources": [
+          {
+            "connection_id": "aaa002c2-ce7d-4c43-a1c2-72c8cdeb80c7",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:44.031Z",
+            "last_new_event_at": "2026-11-02T03:46:44.031Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "unknown",
+      "result": {
+        "collected_minor": null,
+        "orders": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "payments.status"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "payments.status"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders"
+        ],
+        "datasets_missing": [
+          "payments",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:44.027Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

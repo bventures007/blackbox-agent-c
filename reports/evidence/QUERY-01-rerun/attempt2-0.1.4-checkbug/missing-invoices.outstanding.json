@@ -1,0 +1,166 @@
+{
+  "intent": "invoices.outstanding",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "invoices.outstanding",
+      "question_id": "invoice-01",
+      "params": {},
+      "readiness": {
+        "question_id": "invoice-01",
+        "intent": "invoices.outstanding",
+        "status": "blocked",
+        "required": [
+          "invoices",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "invoices"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: invoices"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "open_minor": null,
+        "invoices": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "invoices.correction_chain_coverage"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "invoices.correction_chain_coverage"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "invoices",
+          "payment_allocations",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "invoices.outstanding",
+      "question_id": "invoice-01",
+      "params": {},
+      "readiness": {
+        "question_id": "invoice-01",
+        "intent": "invoices.outstanding",
+        "status": "blocked",
+        "required": [
+          "invoices",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "invoices"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: invoices"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "open_minor": null,
+        "invoices": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "invoices.correction_chain_coverage"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "invoices.correction_chain_coverage"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "invoices",
+          "payment_allocations",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

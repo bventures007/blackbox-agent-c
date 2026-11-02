@@ -13,6 +13,8 @@ export interface ApiConfig {
   migrateDatabaseUrl: string | null;
   /** Directory holding the maintenance fences written by the host wrapper (writers.paused.json, evidence-access.json). */
   fenceDir: string | null;
+  /** /data/backups/status.json maintained by the wrapper and the backup scheduler (docs/operations.md); null = not mounted. */
+  backupStatusFile: string | null;
   secretsDir: string;
   evidenceDir: string;
   logsDir: string;
@@ -127,6 +129,7 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): ApiConfig {
     databaseUrl,
     migrateDatabaseUrl: env.MIGRATE_DATABASE_URL ?? null,
     fenceDir: env.FENCE_DIR ?? null,
+    backupStatusFile: env.BACKUP_STATUS_FILE ?? null,
     secretsDir,
     evidenceDir,
     logsDir,

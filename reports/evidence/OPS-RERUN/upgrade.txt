@@ -1,0 +1,83 @@
+# ops2 upgrade rehearsal  started 2026-11-02T02:29:54Z  load 147.93 130.72 102.17
+## installed: project: blackbox-agent-c-ops2   version: installed=0.1.0 release=0.1.0   url: http://127.0.0.1:19185/
+entries: 553866
+## refusal: same version
+upgrade: installed 0.1.0 → release 0.1.0
+blackbox: ERROR: release 0.1.0 is already installed
+exit 1
+## refusal: missing source
+blackbox: ERROR: release source not found: /nonexistent/blackbox-9.9.9-mac-arm64.tar.gz
+exit 2
+## upgrade to blackbox-0.1.3-mac-arm64.tar.gz, interrupted with SIGKILL in the images phase
+killed wrapper (pid 95742) in phase images after 167 s
+2026-11-02T02:30:56Z backup generation blackbox-backup-20261102T023056Z (pre-upgrade) starting
+2026-11-02T02:30:57Z backup dumping database
+2026-11-02T02:32:43Z backup archiving evidence
+2026-11-02T02:32:45Z backup archiving snapshots
+2026-11-02T02:32:45Z backup archiving installation key material
+2026-11-02T02:32:45Z backup sealing generation
+2026-11-02T02:32:48Z backup generation finalized: /backup-dest/blackbox-backup-20261102T023056Z.tar.age (162354056 bytes, sha256 15938e356ceaa561a1609a30bf5e55600e98172e01399e497b315ab63b5561c0)
+2026-11-02T02:32:48Z backup retention: kept 2 of 2 finalized generation(s) (daily=7 weekly=4)
+  [done]
+backup finalized: /backup-dest/blackbox-backup-20261102T023056Z.tar.age
+  [writers-paused]
+  [files-staged]
+resuming upgrade 0.1.0 → 0.1.3 from phase 'images'
+  [images-load]
+  loading api.tar
+## state after the interruption
+{"phase":"images","from":"0.1.0","to":"0.1.3","source":"/Users/benediktsauter/GitHub/blackbox-agent-c/release/dist/blackbox-0.1.3-mac-arm64.tar.gz","started_at":"2026-11-02T02:30:10Z","updated_at":"2026-11-02T02:32:53Z"}
+
+install.json installed-release.json last-backup-path maintenance.lock previous-release upgrade-stage upgrade.json writers.paused.json 
+fence: {"reason":"upgrade_0.1.3","since":"2026-11-02T02:32:50Z","owner":"wrapper"}
+## ./blackbox doctor (must report the interrupted upgrade)
+[WARN] DOC-FENCE    writers fenced: {"reason":"upgrade_0.1.3","since":"2026-11-02T02:32:50Z","owner":"wrapper"} → finish the running operation or ./blackbox resume-sources
+[WARN] DOC-VERSION  release files 0.1.3 differ from installed 0.1.0 → ./blackbox upgrade
+[WARN] DOC-UPGRADE  upgrade in progress/interrupted (phase images) → ./blackbox upgrade --resume
+doctor: degraded (exit 1)
+## ./blackbox up (must refuse)
+blackbox: ERROR: an upgrade is in progress/interrupted; run ./blackbox upgrade --resume
+exit 1
+## ./blackbox upgrade --resume
+resume exit 0 after 57 s
+  api ready (3s)
+blackbox verify
+  [OK] api health: {"status":"ok","version":"0.1.3"}
+  [OK] migrations current (/Users/benediktsauter/blackbox-pilot-ops2/migrations)
+  [OK] engine running
+  [OK] worker running
+{"level":"INFO","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","operation_id":"verify:order","applied_cursor":1068,"schema_version":1,"record_id":"07981356-9dc0-41ba-a71d-b37f104772a5","occurred_at":"2026-11-02T02:33:54.345Z","observed_at":"2026-11-02T02:33:54.345Z","event_name":"query.served","component":"api","service_version":"0.1.3","instance_id":"0a119209-8d32-470f-9b70-6a2c3e0e0e56","scope":"workspace","message":"Golden verify served"}
+physical_stock         observed="112" expected=112
+available_stock        observed="112" expected=112
+captured_minor         observed=11900 expected=11900
+fees_minor             observed=350 expected=350
+refunded_minor         observed=2380 expected=2380
+bank_confirmed_minor   observed=9170 expected=9170
+consistency: {"applied_cursor":1068,"required_cursor":1068,"reducer_version":1,"status":"current","recorded_cutoff":"2026-11-02T01:59:14.105Z","effective_cutoff":null,"mode":"latest_committed"}
+verify: passed (golden order state matches)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+  [done] 0.1.0->0.1.3
+upgrade complete: 0.1.0 → 0.1.3. Previous release files kept in /Users/benediktsauter/blackbox-pilot-ops2/data/state/previous-release/0.1.0; previous image tags remain in Docker.
+Rollback policy: see docs/operations.md — reverting images never reverts a database migration; use the pre-upgrade backup generation for an isolated restore.
+## after: project: blackbox-agent-c-ops2   version: installed=0.1.3 release=0.1.3   url: http://127.0.0.1:19185/
+  "version": "0.1.3",
+BLACKBOX_VERSION=0.1.3
+upgrade state file removed
+fence released
+previous release kept: 0.1.0
+## pre-upgrade generation
+266504 blackbox-backup-20261101T224643Z.tar.age
+162354056 blackbox-backup-20261102T023056Z.tar.age
+{'status': 'scheduled', 'last_kind': 'pre-upgrade', 'last_generation': 'blackbox-backup-20261102T023056Z', 'last_bytes': 162354056, 'last_completed_at': '2026-11-02T02:32:48Z'}
+## containers
+blackbox-agent-c-ops2-api	blackbox/api:0.1.3	Up 14 seconds (healthy)
+blackbox-agent-c-ops2-backup-scheduler	blackbox/backup:0.1.3	Up 16 seconds
+blackbox-agent-c-ops2-engine	blackbox/engine:0.1.3	Up 17 seconds (healthy)
+blackbox-agent-c-ops2-postgres	postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef	Up 3 hours (healthy)
+blackbox-agent-c-ops2-worker	blackbox/worker:0.1.3	Up 15 seconds
+## golden answer after the upgrade
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+## entries after: 553866
+# finished 2026-11-02T02:34:03Z  load 77.45 132.37 112.71

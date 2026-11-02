@@ -158,6 +158,7 @@ export async function startTestApp(options: { engineUrl?: string; logLevel?: Api
     databaseUrl: db.urls.api,
     migrateDatabaseUrl: db.urls.migrate,
     fenceDir: null,
+    backupStatusFile: null,
     secretsDir: install.secretsDir,
     evidenceDir: install.evidenceDir,
     logsDir: install.logsDir,

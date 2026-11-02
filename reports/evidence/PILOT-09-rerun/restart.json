@@ -1,0 +1,12 @@
+{
+ "ready_seconds": 5,
+ "unapplied_tail_entries": 3000,
+ "unapplied_tail_observations": 1000,
+ "engine_rss_bytes_after": 1088221184,
+ "committed_cursor_owner_tenant": {
+  "before": 35745,
+  "after": 38745
+ },
+ "measured_at": "2026-11-02T03:18:16.335506+00:00",
+ "source": "scripts/verify/ops2-restart-rebuild.sh (part4.txt); 1,000 observations = 3,000 journal entries ingested while the engine was stopped"
+}

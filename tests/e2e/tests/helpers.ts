@@ -77,7 +77,11 @@ export async function login(page: Page, locale: Locale = 'en', remember = true):
   await page.goto('/login');
   await expect(page.getByRole('heading', { name: T[locale].loginTitle })).toBeVisible();
   await page.getByLabel(locale === 'en' ? 'Personal access key' : 'Persönlicher Zugangsschlüssel').fill(KEY);
-  if (remember) await page.getByLabel(T[locale].remember).check();
+  if (remember) {
+    // A single click occasionally did not toggle the controlled checkbox right after the locale re-render; retry once.
+    const cb = page.getByLabel(T[locale].remember);
+    await cb.check().catch(async () => { await page.waitForTimeout(300); await cb.check(); });
+  }
   await page.getByRole('button', { name: locale === 'en' ? 'Sign in' : 'Anmelden', exact: true }).click();
   // Key verification is a deliberate slow hash (scrypt); on a loaded Mac the round trip takes several seconds.
   // After login the server-persisted workspace locale applies; the shell toggle persists a change through PATCH /api/workspace.

@@ -1,0 +1,6 @@
+# command: node tests/diag/log-corpus.mjs --dir ~/blackbox-pilot-ops2/data/logs --total-mib 96 --days 6 --tenant 9c299ace-2060-40ee-be20-8490f41bbcfe --version 0.1.0
+# started: 2026-11-01T23:03:31Z
+{"dir":"/Users/benediktsauter/blackbox-pilot-ops2/data/logs","files":144,"records":197966,"bytes_written":100697892,"mib":96}
+# exit: 0 finished 2026-11-01T23:03:33Z
+ 96M	/Users/benediktsauter/blackbox-pilot-ops2/data/logs
+     151

@@ -1,0 +1,15 @@
+# command: node scripts/verify/ui-capture.mjs --api http://127.0.0.1:19180 --owner-key-file ~/blackbox-pilot-fresh2/owner.key --out reports/evidence/UI-01/capture  (final build #9 install ~/blackbox-pilot-fresh2 after the D22/D23 fixes; real Chromium headless; EN/DE x 1440x1000/390x844; the build-#8 capture is kept under capture-build8/)
+# started: 2026-11-02T04:39:32Z load: 17.22 36.22 44.26
+  'button "Datensatz 4c63cdd4-03a0-47ca-a" x=693..725 (vw 390)'
+]
+  de 390 68-diagnostics-debug-active [
+  'button "Datensatz f3473ca2-4fbc-454f-8" x=693..725 (vw 390)',
+  'button "Datensatz fb7b2d7f-bb9f-43ba-8" x=693..725 (vw 390)',
+  'button "Datensatz 4c63cdd4-03a0-47ca-a" x=693..725 (vw 390)'
+]
+  de 390 69-diagnostics-export-preview [
+  'button "Datensatz f3473ca2-4fbc-454f-8" x=693..725 (vw 390)',
+  'button "Datensatz fb7b2d7f-bb9f-43ba-8" x=693..725 (vw 390)',
+  'button "Datensatz 4c63cdd4-03a0-47ca-a" x=693..725 (vw 390)'
+]
+# exit: 0 finished 2026-11-02T04:42:00Z

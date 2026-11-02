@@ -1,0 +1,27 @@
+# ops2 install from the final archive: ./blackbox setup --port 19185 --project blackbox-agent-c-ops2 (key -> ~/blackbox-pilot-ops2/owner.key 0600)
+# started: 2026-11-01T22:34:35Z
+
+setup exit code 0; owner key captured to /Users/benediktsauter/blackbox-pilot-ops2/owner.key (0600); transcript (redacted): /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/INSTALL-01/ops2-setup-transcript-redacted.txt
+# setup exit: 
+ Container blackbox-agent-c-ops2-engine Running 
+ Container blackbox-agent-c-ops2-api Running 
+ Container blackbox-agent-c-ops2-worker Running 
+ Container blackbox-agent-c-ops2-backup-scheduler Running 
+ Container blackbox-agent-c-ops2-postgres Running 
+ Container blackbox-agent-c-ops2-postgres Waiting 
+ Container blackbox-agent-c-ops2-postgres Waiting 
+ Container blackbox-agent-c-ops2-postgres Healthy 
+ Container blackbox-agent-c-ops2-postgres Waiting 
+ Container blackbox-agent-c-ops2-postgres Waiting 
+ Container blackbox-agent-c-ops2-postgres Healthy 
+ Container blackbox-agent-c-ops2-postgres Healthy 
+ Container blackbox-agent-c-ops2-postgres Healthy 
+  api ready (0s)
+running at http://127.0.0.1:19185/ (project blackbox-agent-c-ops2)
+# up exit: 0
+blackbox-agent-c-ops2-api	Up About a minute (healthy)
+blackbox-agent-c-ops2-backup-scheduler	Up About a minute
+blackbox-agent-c-ops2-engine	Up About a minute (healthy)
+blackbox-agent-c-ops2-postgres	Up 3 minutes (healthy)
+blackbox-agent-c-ops2-worker	Up About a minute
+# finished: 2026-11-01T22:42:48Z

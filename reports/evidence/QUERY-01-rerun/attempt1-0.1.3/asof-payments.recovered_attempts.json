@@ -1,0 +1,484 @@
+{
+  "intent": "payments.recovered_attempts",
+  "params": {
+    "order_id": "#R-Q"
+  },
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "payments.recovered_attempts",
+      "question_id": "collection-02",
+      "params": {
+        "order_id": "#R-Q"
+      },
+      "readiness": {
+        "question_id": "collection-02",
+        "intent": "payments.recovered_attempts",
+        "status": "ready",
+        "required": [
+          "orders",
+          "payments",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+            "provider": "shopify",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.804Z",
+            "last_new_event_at": "2026-11-01T22:45:23.804Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "055da69e-1000-48f1-b6ca-1e3631c0a9b9",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:45:58.322Z",
+            "last_new_event_at": "2026-11-02T03:45:58.322Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "ca0a1b65-bd9a-4d36-9fb6-5dec424f5f34",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:18:05.616Z",
+            "last_new_event_at": "2026-11-02T03:18:05.616Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+            "last_new_event_at": "2026-11-02T03:46:45.881Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+            "provider": "shopify_payments",
+            "capability_id": "payments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.887Z",
+            "last_new_event_at": "2026-11-01T22:45:23.887Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+            "provider": "replay",
+            "capability_id": "payments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+            "last_new_event_at": "2026-11-02T03:46:46.171Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "partial",
+      "result": {
+        "recovered_population_complete": false,
+        "orders": [
+          {
+            "order_id": "#R-Q",
+            "required_minor": 11900,
+            "collected_minor": 11900,
+            "deficit_minor": 0,
+            "recovered": true,
+            "state": "recovered",
+            "failed_history_retained": [
+              {
+                "attempt_id": "T1-a-Q",
+                "transaction_id": "T1-Q",
+                "amount_minor": 11900,
+                "occurred_at": "2026-10-31T02:01:00Z",
+                "reason": "insufficient_funds"
+              }
+            ]
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "recovery",
+          "formula": "recovered = later confirmed captures >= required amount; all attempts retained",
+          "values": {
+            "orders_with_failures": 1
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:b35edb0b-e98b-4da5-884d-25c926dfb7d8",
+        "journal:8e8b5ee7-5ab0-434c-ad86-c79d6f5b72a8",
+        "journal:0e9807b5-2123-48f9-ab5a-ab8262451272",
+        "journal:fa9810d2-661d-4b26-95fb-8c88375e9ed2",
+        "journal:3ee2987a-3f3d-4692-9bdc-cf7335f75b78",
+        "journal:9aa24b24-1262-464b-b47e-ef79dfcc48c4",
+        "journal:0733fce2-03a3-4f75-a209-8b07602a009b",
+        "journal:2d5be264-f881-46d7-88b9-4a73ce17679e"
+      ],
+      "entry_ids": [
+        "b35edb0b-e98b-4da5-884d-25c926dfb7d8",
+        "8e8b5ee7-5ab0-434c-ad86-c79d6f5b72a8",
+        "0e9807b5-2123-48f9-ab5a-ab8262451272",
+        "fa9810d2-661d-4b26-95fb-8c88375e9ed2",
+        "3ee2987a-3f3d-4692-9bdc-cf7335f75b78",
+        "9aa24b24-1262-464b-b47e-ef79dfcc48c4",
+        "0733fce2-03a3-4f75-a209-8b07602a009b",
+        "2d5be264-f881-46d7-88b9-4a73ce17679e"
+      ],
+      "missing_inputs": [
+        "payments.attempt_history_coverage"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders",
+          "payments"
+        ],
+        "datasets_missing": [
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 1,
+          "returned": 1
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "historical",
+        "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+        "effective_cutoff": null,
+        "mode": "as_of"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 1,
+        "total": 1,
+        "snapshot_cursor": 75561
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "payments.recovered_attempts",
+      "question_id": "collection-02",
+      "params": {
+        "order_id": "#R-Q"
+      },
+      "readiness": {
+        "question_id": "collection-02",
+        "intent": "payments.recovered_attempts",
+        "status": "ready",
+        "required": [
+          "orders",
+          "payments",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+            "provider": "shopify",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.804Z",
+            "last_new_event_at": "2026-11-01T22:45:23.804Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "055da69e-1000-48f1-b6ca-1e3631c0a9b9",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:45:58.322Z",
+            "last_new_event_at": "2026-11-02T03:45:58.322Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "ca0a1b65-bd9a-4d36-9fb6-5dec424f5f34",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:18:05.616Z",
+            "last_new_event_at": "2026-11-02T03:18:05.616Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+            "last_new_event_at": "2026-11-02T03:46:45.881Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+            "provider": "shopify_payments",
+            "capability_id": "payments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.887Z",
+            "last_new_event_at": "2026-11-01T22:45:23.887Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+            "provider": "replay",
+            "capability_id": "payments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+            "last_new_event_at": "2026-11-02T03:46:46.171Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "partial",
+      "result": {
+        "recovered_population_complete": false,
+        "orders": [
+          {
+            "order_id": "#R-Q",
+            "required_minor": 11900,
+            "collected_minor": 11900,
+            "deficit_minor": 0,
+            "recovered": true,
+            "state": "recovered",
+            "failed_history_retained": [
+              {
+                "attempt_id": "T1-a-Q",
+                "transaction_id": "T1-Q",
+                "amount_minor": 11900,
+                "occurred_at": "2026-10-31T02:01:00Z",
+                "reason": "insufficient_funds"
+              }
+            ]
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "recovery",
+          "formula": "recovered = later confirmed captures >= required amount; all attempts retained",
+          "values": {
+            "orders_with_failures": 1
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:b35edb0b-e98b-4da5-884d-25c926dfb7d8",
+        "journal:8e8b5ee7-5ab0-434c-ad86-c79d6f5b72a8",
+        "journal:0e9807b5-2123-48f9-ab5a-ab8262451272",
+        "journal:fa9810d2-661d-4b26-95fb-8c88375e9ed2",
+        "journal:3ee2987a-3f3d-4692-9bdc-cf7335f75b78",
+        "journal:9aa24b24-1262-464b-b47e-ef79dfcc48c4",
+        "journal:0733fce2-03a3-4f75-a209-8b07602a009b",
+        "journal:2d5be264-f881-46d7-88b9-4a73ce17679e"
+      ],
+      "entry_ids": [
+        "b35edb0b-e98b-4da5-884d-25c926dfb7d8",
+        "8e8b5ee7-5ab0-434c-ad86-c79d6f5b72a8",
+        "0e9807b5-2123-48f9-ab5a-ab8262451272",
+        "fa9810d2-661d-4b26-95fb-8c88375e9ed2",
+        "3ee2987a-3f3d-4692-9bdc-cf7335f75b78",
+        "9aa24b24-1262-464b-b47e-ef79dfcc48c4",
+        "0733fce2-03a3-4f75-a209-8b07602a009b",
+        "2d5be264-f881-46d7-88b9-4a73ce17679e"
+      ],
+      "missing_inputs": [
+        "payments.attempt_history_coverage"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders",
+          "payments"
+        ],
+        "datasets_missing": [
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 1,
+          "returned": 1
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "historical",
+        "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+        "effective_cutoff": null,
+        "mode": "as_of"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 1,
+        "total": 1,
+        "snapshot_cursor": 75561
+      }
+    }
+  }
+}

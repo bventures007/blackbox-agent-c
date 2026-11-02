@@ -31,6 +31,13 @@ class RegisterTests(unittest.TestCase):
         self.run_git('init', '-q')
         self.run_git('config', 'user.name', 'Register test fixture')
         self.run_git('config', 'user.email', 'fixture@example.invalid')
+        # The real history binds implementation events to repository commits (artifact digests are read with
+        # `git show <commit>:<path>`); give the temporary copy those objects so the copied history validates.
+        if (SOURCE / '.git').exists():
+            subprocess.run(['git', '-C', str(self.root), 'fetch', '-q', str(SOURCE), 'HEAD'], check=True, capture_output=True)
+        # test/review events point at committed artifact files; the copy needs them to validate the real history
+        if (SOURCE / 'reports/integrations').is_dir():
+            shutil.copytree(SOURCE / 'reports/integrations', self.root / 'reports/integrations')
 
     def run_git(self, *args):
         return subprocess.run(['git', '-C', str(self.root), *args], check=True, capture_output=True).stdout.decode().strip()
@@ -160,7 +167,7 @@ class RegisterTests(unittest.TestCase):
         review = self.approval(impl)
         path = self.root / 'integrations/history.jsonl'
         events = [json.loads(line) for line in path.read_text().splitlines()]
-        next(e for e in events if e.get('kind') == 'recovery')['modes'] = ['local_standalone']
+        next(e for e in events if e.get('kind') == 'recovery' and e.get('row') == self.row)['modes'] = ['local_standalone']
         path.write_text(''.join(json.dumps(e) + '\n' for e in events))
         self.append(review)
         with self.assertRaisesRegex(ValueError, 'modes lack'):

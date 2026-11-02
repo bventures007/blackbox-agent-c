@@ -1,0 +1,518 @@
+{
+  "pre_restart": {
+    "intent": "providers.money_positions",
+    "question_id": "settlement-01",
+    "params": {
+      "account_ref": "acct-main-Q"
+    },
+    "status": "complete",
+    "result": {
+      "net_assets_minor": 0,
+      "in_transit_minor": 5000,
+      "bank_confirmed_minor": 9170,
+      "provider_balance_minor": -14170,
+      "unknown_components": [],
+      "unknown_components_are_zero": false,
+      "accounts": [
+        {
+          "account_ref": "acct-main-Q",
+          "currency": "EUR",
+          "captured_minor": 0,
+          "fees_minor": 0,
+          "refunds_minor": 0,
+          "chargebacks_net_minor": 0,
+          "other_adjustments_minor": 0,
+          "provider_balance_minor": -14170,
+          "held_minor": 9700,
+          "processing_minor": 0,
+          "available_minor": -23870,
+          "payout_announced_minor": 0,
+          "in_transit_minor": 5000,
+          "bank_confirmed_minor": 9170,
+          "net_assets_minor": 0,
+          "observed_total_minor": 10000,
+          "reconciliation_residual_minor": 24170,
+          "observed_at": "2026-10-31T01:08:00Z",
+          "complete_partition": true,
+          "unknown_components": []
+        }
+      ]
+    },
+    "calculation": [
+      {
+        "step": "positions",
+        "formula": "provider_balance = captured − fees − refunds − payouts sent − chargebacks + adjustments; net_assets = balance + in_transit + bank_confirmed; unknown components are reported, never zeroed",
+        "values": {
+          "accounts": 1
+        }
+      }
+    ],
+    "evidence_refs": [
+      "journal:bdaa3a7d-1f5d-407c-beff-c0f52244a69d",
+      "journal:e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+      "journal:64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+      "journal:9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+      "journal:1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+      "journal:9302366d-be32-4e50-a0db-50c173e5f664",
+      "journal:6fbead23-de58-4d41-a739-208c4a81ef39",
+      "journal:fcdf0c9d-c854-455a-837c-2e545c675559"
+    ],
+    "entry_ids": [
+      "bdaa3a7d-1f5d-407c-beff-c0f52244a69d",
+      "e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+      "64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+      "9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+      "1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+      "9302366d-be32-4e50-a0db-50c173e5f664",
+      "6fbead23-de58-4d41-a739-208c4a81ef39",
+      "fcdf0c9d-c854-455a-837c-2e545c675559"
+    ],
+    "missing_inputs": [],
+    "conflicts": [],
+    "coverage": {
+      "datasets_present": [
+        "provider_ledger",
+        "positions",
+        "payouts",
+        "bank",
+        "holds",
+        "coverage",
+        "identity"
+      ],
+      "datasets_missing": [],
+      "population": {
+        "records_considered": 1,
+        "returned": 1
+      },
+      "evidence_truncated": false,
+      "coverage_assertions": [
+        {
+          "coverage_id": "carrier|tracking",
+          "status": "backfill_complete",
+          "connection": "carrier",
+          "capability": "tracking",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75455
+        },
+        {
+          "coverage_id": "invoice|invoices",
+          "status": "backfill_complete",
+          "connection": "invoice",
+          "capability": "invoices",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75465
+        },
+        {
+          "coverage_id": "invoice|invoice_dispatch",
+          "status": "backfill_complete",
+          "connection": "invoice",
+          "capability": "invoice_dispatch",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75467
+        },
+        {
+          "coverage_id": "payment|payments",
+          "status": "backfill_complete",
+          "connection": "payment",
+          "capability": "payments",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75469
+        },
+        {
+          "coverage_id": "generic|cases",
+          "status": "backfill_complete",
+          "connection": "generic",
+          "capability": "cases",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75471
+        },
+        {
+          "coverage_id": "bank_csv|bank",
+          "status": "backfill_complete",
+          "connection": "bank_csv",
+          "capability": "bank",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T09:00:00.000Z",
+          "links": [],
+          "last_sequence": 75475
+        }
+      ]
+    },
+    "consistency": {
+      "status": "historical",
+      "mode": "as_of",
+      "reducer_version": 1
+    },
+    "page": {
+      "next_cursor": null,
+      "truncated": false,
+      "returned": 1,
+      "total": 1,
+      "snapshot_cursor": 75561
+    }
+  },
+  "post_restart": {
+    "intent": "providers.money_positions",
+    "question_id": "settlement-01",
+    "params": {
+      "account_ref": "acct-main-Q"
+    },
+    "readiness": {
+      "question_id": "settlement-01",
+      "intent": "providers.money_positions",
+      "status": "ready",
+      "required": [
+        "provider_ledger",
+        "positions",
+        "payouts",
+        "bank",
+        "holds",
+        "coverage",
+        "identity"
+      ],
+      "optional": [],
+      "missing": [],
+      "missing_optional": [],
+      "reasons": [],
+      "sources": [
+        {
+          "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+          "provider": "shopify_payments",
+          "capability_id": "provider_ledger",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-01T22:45:23.955Z",
+          "last_new_event_at": "2026-11-01T22:45:23.955Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": "2026-10-31T09:01:00.000Z",
+          "coverage_to": "2026-10-31T10:00:00.000Z",
+          "coverage_state": "complete_for_declared_scope",
+          "history_kind": "event_history",
+          "limitations": [
+            "synthetic demo fixture: no live provider"
+          ]
+        },
+        {
+          "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+          "provider": "replay",
+          "capability_id": "provider_ledger",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+          "last_new_event_at": "2026-11-02T03:46:46.171Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+          "provider": "replay",
+          "capability_id": "positions",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+          "last_new_event_at": "2026-11-02T03:46:46.171Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+          "provider": "shopify_payments",
+          "capability_id": "payouts",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-01T22:45:23.984Z",
+          "last_new_event_at": "2026-11-01T22:45:23.984Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": "2026-10-31T09:01:00.000Z",
+          "coverage_to": "2026-10-31T10:00:00.000Z",
+          "coverage_state": "complete_for_declared_scope",
+          "history_kind": "event_history",
+          "limitations": [
+            "synthetic demo fixture: no live provider"
+          ]
+        },
+        {
+          "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+          "provider": "replay",
+          "capability_id": "payouts",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+          "last_new_event_at": "2026-11-02T03:46:46.171Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "a3806303-3ece-4a4a-86f5-4bf7764cf221",
+          "provider": "bank_csv",
+          "capability_id": "bank",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-01T22:45:24.009Z",
+          "last_new_event_at": "2026-11-01T22:45:24.009Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": "2026-10-31T09:01:00.000Z",
+          "coverage_to": "2026-10-31T10:00:00.000Z",
+          "coverage_state": "complete_for_declared_scope",
+          "history_kind": "event_history",
+          "limitations": [
+            "synthetic demo fixture: no live provider"
+          ]
+        },
+        {
+          "connection_id": "835ed08c-fb8f-4706-b72a-104126cbfea8",
+          "provider": "replay",
+          "capability_id": "bank",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:46.194Z",
+          "last_new_event_at": "2026-11-02T03:46:46.194Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+          "provider": "replay",
+          "capability_id": "holds",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+          "last_new_event_at": "2026-11-02T03:46:45.988Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+          "provider": "replay",
+          "capability_id": "coverage",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+          "last_new_event_at": "2026-11-02T03:46:45.988Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+          "provider": "replay",
+          "capability_id": "identity",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+          "last_new_event_at": "2026-11-02T03:46:45.988Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        }
+      ]
+    },
+    "status": "complete",
+    "result": {
+      "net_assets_minor": 0,
+      "in_transit_minor": 5000,
+      "bank_confirmed_minor": 9170,
+      "provider_balance_minor": -14170,
+      "unknown_components": [],
+      "unknown_components_are_zero": false,
+      "accounts": [
+        {
+          "account_ref": "acct-main-Q",
+          "currency": "EUR",
+          "captured_minor": 0,
+          "fees_minor": 0,
+          "refunds_minor": 0,
+          "chargebacks_net_minor": 0,
+          "other_adjustments_minor": 0,
+          "provider_balance_minor": -14170,
+          "held_minor": 9700,
+          "processing_minor": 0,
+          "available_minor": -23870,
+          "payout_announced_minor": 0,
+          "in_transit_minor": 5000,
+          "bank_confirmed_minor": 9170,
+          "net_assets_minor": 0,
+          "observed_total_minor": 10000,
+          "reconciliation_residual_minor": 24170,
+          "observed_at": "2026-10-31T01:08:00Z",
+          "complete_partition": true,
+          "unknown_components": []
+        }
+      ]
+    },
+    "calculation": [
+      {
+        "step": "positions",
+        "formula": "provider_balance = captured − fees − refunds − payouts sent − chargebacks + adjustments; net_assets = balance + in_transit + bank_confirmed; unknown components are reported, never zeroed",
+        "values": {
+          "accounts": 1
+        }
+      }
+    ],
+    "evidence_refs": [
+      "journal:bdaa3a7d-1f5d-407c-beff-c0f52244a69d",
+      "journal:e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+      "journal:64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+      "journal:9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+      "journal:1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+      "journal:9302366d-be32-4e50-a0db-50c173e5f664",
+      "journal:6fbead23-de58-4d41-a739-208c4a81ef39",
+      "journal:fcdf0c9d-c854-455a-837c-2e545c675559"
+    ],
+    "entry_ids": [
+      "bdaa3a7d-1f5d-407c-beff-c0f52244a69d",
+      "e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+      "64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+      "9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+      "1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+      "9302366d-be32-4e50-a0db-50c173e5f664",
+      "6fbead23-de58-4d41-a739-208c4a81ef39",
+      "fcdf0c9d-c854-455a-837c-2e545c675559"
+    ],
+    "missing_inputs": [],
+    "conflicts": [],
+    "coverage": {
+      "datasets_present": [
+        "provider_ledger",
+        "positions",
+        "payouts",
+        "bank",
+        "holds",
+        "coverage",
+        "identity"
+      ],
+      "datasets_missing": [],
+      "population": {
+        "records_considered": 1,
+        "returned": 1
+      },
+      "evidence_truncated": false,
+      "coverage_assertions": [
+        {
+          "coverage_id": "carrier|tracking",
+          "status": "backfill_complete",
+          "connection": "carrier",
+          "capability": "tracking",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75455
+        },
+        {
+          "coverage_id": "invoice|invoices",
+          "status": "backfill_complete",
+          "connection": "invoice",
+          "capability": "invoices",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75465
+        },
+        {
+          "coverage_id": "invoice|invoice_dispatch",
+          "status": "backfill_complete",
+          "connection": "invoice",
+          "capability": "invoice_dispatch",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75467
+        },
+        {
+          "coverage_id": "payment|payments",
+          "status": "backfill_complete",
+          "connection": "payment",
+          "capability": "payments",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75469
+        },
+        {
+          "coverage_id": "generic|cases",
+          "status": "backfill_complete",
+          "connection": "generic",
+          "capability": "cases",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T10:00:00.000Z",
+          "links": [],
+          "last_sequence": 75471
+        },
+        {
+          "coverage_id": "bank_csv|bank",
+          "status": "backfill_complete",
+          "connection": "bank_csv",
+          "capability": "bank",
+          "entity_scope": null,
+          "history_start": "2026-10-01T00:00:00.000Z",
+          "complete_through": "2026-10-31T09:00:00.000Z",
+          "links": [],
+          "last_sequence": 75475
+        }
+      ]
+    },
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T04:12:02.936Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    },
+    "page": {
+      "next_cursor": null,
+      "truncated": false,
+      "returned": 1,
+      "total": 1,
+      "snapshot_cursor": 75561
+    }
+  }
+}

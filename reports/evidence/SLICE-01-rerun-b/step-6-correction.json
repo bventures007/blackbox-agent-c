@@ -1,0 +1,20 @@
+{
+  "accepted": 1,
+  "duplicate": 0,
+  "conflict": 0,
+  "rejected": 0,
+  "committed_cursor": 494,
+  "outcomes": [
+    {
+      "provider_event_id": "slice01-correction:gid://shopify/Order/5021",
+      "status": "accepted",
+      "entry_ids": [
+        "f7c0a325-1c6a-443f-82c2-e1ca0a05c366",
+        "30f94df1-33e3-4407-abe6-ed65ff616878",
+        "491bc821-2453-43f9-b283-038c4a5c9726"
+      ],
+      "committed_sequence": 494,
+      "delivery_id": "5a330dad-1b01-40e8-8137-519901ff36ba"
+    }
+  ]
+}

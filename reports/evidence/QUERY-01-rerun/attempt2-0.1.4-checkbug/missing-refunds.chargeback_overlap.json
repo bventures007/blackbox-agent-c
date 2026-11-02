@@ -1,0 +1,176 @@
+{
+  "intent": "refunds.chargeback_overlap",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "refunds.chargeback_overlap",
+      "question_id": "reversal-04",
+      "params": {},
+      "readiness": {
+        "question_id": "reversal-04",
+        "intent": "refunds.chargeback_overlap",
+        "status": "blocked",
+        "required": [
+          "payments",
+          "refunds",
+          "disputes",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "payments",
+          "refunds",
+          "disputes"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: payments, refunds, disputes"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "duplicate_repayment_proven": false,
+        "transactions": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "disputes.original_transaction_id"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "disputes.original_transaction_id"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "payments",
+          "refunds",
+          "disputes",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "refunds.chargeback_overlap",
+      "question_id": "reversal-04",
+      "params": {},
+      "readiness": {
+        "question_id": "reversal-04",
+        "intent": "refunds.chargeback_overlap",
+        "status": "blocked",
+        "required": [
+          "payments",
+          "refunds",
+          "disputes",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "payments",
+          "refunds",
+          "disputes"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: payments, refunds, disputes"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "duplicate_repayment_proven": false,
+        "transactions": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "disputes.original_transaction_id"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "disputes.original_transaction_id"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "payments",
+          "refunds",
+          "disputes",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

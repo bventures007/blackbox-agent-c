@@ -1,0 +1,522 @@
+{
+  "intent": "payouts.missing_bank_confirmation",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "payouts.missing_bank_confirmation",
+      "question_id": "settlement-03",
+      "params": {},
+      "readiness": {
+        "question_id": "settlement-03",
+        "intent": "payouts.missing_bank_confirmation",
+        "status": "ready",
+        "required": [
+          "payouts",
+          "bank",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+            "provider": "shopify_payments",
+            "capability_id": "payouts",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.984Z",
+            "last_new_event_at": "2026-11-01T22:45:23.984Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+            "provider": "replay",
+            "capability_id": "payouts",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+            "last_new_event_at": "2026-11-02T03:46:46.171Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "a3806303-3ece-4a4a-86f5-4bf7764cf221",
+            "provider": "bank_csv",
+            "capability_id": "bank",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:24.009Z",
+            "last_new_event_at": "2026-11-01T22:45:24.009Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "835ed08c-fb8f-4706-b72a-104126cbfea8",
+            "provider": "replay",
+            "capability_id": "bank",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.194Z",
+            "last_new_event_at": "2026-11-02T03:46:46.194Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "bank_import_complete_through": "2026-10-31T09:00:00Z",
+        "missing_confirmation": [
+          "OUT-2-Q"
+        ],
+        "conclusion": "no_evidence_in_imported_interval",
+        "payouts": [
+          {
+            "payout_id": "OUT-2-Q",
+            "state": "sent",
+            "amount_minor": 5000,
+            "currency": "EUR",
+            "bank_confirmed_minor": 0,
+            "sent_at": "2026-10-31T01:05:00Z",
+            "conclusion": "no_evidence_in_imported_interval",
+            "matching_booked_entries": [],
+            "pending_entries": []
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "match",
+          "formula": "a sent payout is confirmed only by a uniquely evidenced booked bank credit (reference/currency/amount); pending, ambiguous and out-of-interval cases are reported separately",
+          "values": {
+            "missing": 1
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:9302366d-be32-4e50-a0db-50c173e5f664",
+        "journal:ced610b3-37a1-456b-af54-6a9c118daba9",
+        "journal:a6f515bd-daf5-4934-bb22-200d74e168c6"
+      ],
+      "entry_ids": [
+        "9302366d-be32-4e50-a0db-50c173e5f664",
+        "ced610b3-37a1-456b-af54-6a9c118daba9",
+        "a6f515bd-daf5-4934-bb22-200d74e168c6"
+      ],
+      "missing_inputs": [],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "payouts",
+          "bank",
+          "coverage",
+          "identity"
+        ],
+        "datasets_missing": [],
+        "population": {
+          "records_considered": 1,
+          "returned": 1
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": [
+          {
+            "coverage_id": "carrier|tracking",
+            "status": "backfill_complete",
+            "connection": "carrier",
+            "capability": "tracking",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75455
+          },
+          {
+            "coverage_id": "invoice|invoices",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoices",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75465
+          },
+          {
+            "coverage_id": "invoice|invoice_dispatch",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoice_dispatch",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75467
+          },
+          {
+            "coverage_id": "payment|payments",
+            "status": "backfill_complete",
+            "connection": "payment",
+            "capability": "payments",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75469
+          },
+          {
+            "coverage_id": "generic|cases",
+            "status": "backfill_complete",
+            "connection": "generic",
+            "capability": "cases",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75471
+          },
+          {
+            "coverage_id": "bank_csv|bank",
+            "status": "backfill_complete",
+            "connection": "bank_csv",
+            "capability": "bank",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T09:00:00.000Z",
+            "links": [],
+            "last_sequence": 75475
+          }
+        ]
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "historical",
+        "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+        "effective_cutoff": null,
+        "mode": "as_of"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 1,
+        "total": 1,
+        "snapshot_cursor": 75561
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "payouts.missing_bank_confirmation",
+      "question_id": "settlement-03",
+      "params": {},
+      "readiness": {
+        "question_id": "settlement-03",
+        "intent": "payouts.missing_bank_confirmation",
+        "status": "ready",
+        "required": [
+          "payouts",
+          "bank",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+            "provider": "shopify_payments",
+            "capability_id": "payouts",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.984Z",
+            "last_new_event_at": "2026-11-01T22:45:23.984Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+            "provider": "replay",
+            "capability_id": "payouts",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+            "last_new_event_at": "2026-11-02T03:46:46.171Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "a3806303-3ece-4a4a-86f5-4bf7764cf221",
+            "provider": "bank_csv",
+            "capability_id": "bank",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:24.009Z",
+            "last_new_event_at": "2026-11-01T22:45:24.009Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "835ed08c-fb8f-4706-b72a-104126cbfea8",
+            "provider": "replay",
+            "capability_id": "bank",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.194Z",
+            "last_new_event_at": "2026-11-02T03:46:46.194Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "bank_import_complete_through": "2026-10-31T09:00:00Z",
+        "missing_confirmation": [
+          "OUT-2-Q"
+        ],
+        "conclusion": "no_evidence_in_imported_interval",
+        "payouts": [
+          {
+            "payout_id": "OUT-2-Q",
+            "state": "sent",
+            "amount_minor": 5000,
+            "currency": "EUR",
+            "bank_confirmed_minor": 0,
+            "sent_at": "2026-10-31T01:05:00Z",
+            "conclusion": "no_evidence_in_imported_interval",
+            "matching_booked_entries": [],
+            "pending_entries": []
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "match",
+          "formula": "a sent payout is confirmed only by a uniquely evidenced booked bank credit (reference/currency/amount); pending, ambiguous and out-of-interval cases are reported separately",
+          "values": {
+            "missing": 1
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:9302366d-be32-4e50-a0db-50c173e5f664",
+        "journal:ced610b3-37a1-456b-af54-6a9c118daba9",
+        "journal:a6f515bd-daf5-4934-bb22-200d74e168c6"
+      ],
+      "entry_ids": [
+        "9302366d-be32-4e50-a0db-50c173e5f664",
+        "ced610b3-37a1-456b-af54-6a9c118daba9",
+        "a6f515bd-daf5-4934-bb22-200d74e168c6"
+      ],
+      "missing_inputs": [],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "payouts",
+          "bank",
+          "coverage",
+          "identity"
+        ],
+        "datasets_missing": [],
+        "population": {
+          "records_considered": 1,
+          "returned": 1
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": [
+          {
+            "coverage_id": "carrier|tracking",
+            "status": "backfill_complete",
+            "connection": "carrier",
+            "capability": "tracking",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75455
+          },
+          {
+            "coverage_id": "invoice|invoices",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoices",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75465
+          },
+          {
+            "coverage_id": "invoice|invoice_dispatch",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoice_dispatch",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75467
+          },
+          {
+            "coverage_id": "payment|payments",
+            "status": "backfill_complete",
+            "connection": "payment",
+            "capability": "payments",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75469
+          },
+          {
+            "coverage_id": "generic|cases",
+            "status": "backfill_complete",
+            "connection": "generic",
+            "capability": "cases",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75471
+          },
+          {
+            "coverage_id": "bank_csv|bank",
+            "status": "backfill_complete",
+            "connection": "bank_csv",
+            "capability": "bank",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T09:00:00.000Z",
+            "links": [],
+            "last_sequence": 75475
+          }
+        ]
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "historical",
+        "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+        "effective_cutoff": null,
+        "mode": "as_of"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 1,
+        "total": 1,
+        "snapshot_cursor": 75561
+      }
+    }
+  }
+}

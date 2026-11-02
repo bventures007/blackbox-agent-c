@@ -1,0 +1,195 @@
+blackbox setup (release mode) → /Users/benediktsauter/blackbox-pilot-fresh2
+  [start] mode=release
+  [secrets-generate]
+  [env-write]
+  [images-load]
+  loading api.tar
+  loading backup.tar
+  loading engine.tar
+  loading postgres.tar
+  loading worker.tar
+  [postgres-start]
+[?25l[0G[2K[+] up 1/2
+[2K [33m⠋[0m Network blackbox-agent-c_backend Creating                                [34m0.0s[0m
+[2K [32m✔[0m Volume blackbox-agent-c_pgdata   [32mCreated[0m                                 [34m0.0s[0m
+[?25h[?25l[3A[0G[2K[+] up 2/3
+[2K [32m✔[0m Network blackbox-agent-c_backend    [32mCreated[0m                              [34m0.0s[0m
+[2K [32m✔[0m Volume blackbox-agent-c_pgdata      [32mCreated[0m                              [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-postgres Creating                             [34m0.1s[0m
+[?25h[?25l[4A[0G
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-postgres Starting                             [34m0.2s[0m
+[?25h[?25l[4A[0G
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-postgres Starting                             [34m0.3s[0m
+[?25h[?25l[4A[0G
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-postgres Starting                             [34m0.4s[0m
+[?25h[?25l[4A[0G[2K[+] up 3/3
+
+
+[2K [32m✔[0m Container blackbox-agent-c-postgres [32mStarted[0m                              [34m0.5s[0m
+[?25h  postgres ready (5s)
+  [db-roles]
+  [db-migrate]
+[?25l[0G[2K[+] run 0/1
+[2K [33m⠋[0m Network blackbox-agent-c_egress Creating                                 [34m0.1s[0m
+[?25h[?25l[2A[0G[2K[+] run 1/1
+[2K [32m✔[0m Network blackbox-agent-c_egress [32mCreated[0m                                  [34m0.1s[0m
+[?25hContainer blackbox-agent-c-api-run-5838a3bc9503 [32mCreating[0m 
+Container blackbox-agent-c-api-run-5838a3bc9503 [32mCreated[0m 
+migrate: applied 0001_journal.sql
+migrate: applied 0002_identity.sql
+migrate: applied 0003_operations.sql
+migrate: applied 0004_scoped_references.sql
+migrate: applied 0100_worker.sql
+migrate: applied 0101_maintenance_lease.sql
+{"applied":["0001_journal.sql","0002_identity.sql","0003_operations.sql","0004_scoped_references.sql","0100_worker.sql","0101_maintenance_lease.sql"],"skipped":[]}
+  [services-start]
+[?25l[0G[2K[+] up 1/3
+[2K [32m✔[0m Container blackbox-agent-c-postgres         [32mRunning[0m                      [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Creating                     [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-engine           Creating                     [34m0.0s[0m
+[?25h[?25l[4A[0G[2K[+] up 2/5
+
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Creating                     [34m0.1s[0m
+[2K [32m✔[0m Container blackbox-agent-c-engine           [32mCreated[0m                      [34m0.1s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-worker           Creating                     [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-api              Creating                     [34m0.0s[0m
+[?25h[?25l[6A[0G[2K[+] up 3/5
+
+[2K [32m✔[0m Container blackbox-agent-c-backup-scheduler [32mCreated[0m                      [34m0.1s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-worker           Creating                     [34m0.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-api              Creating                     [34m0.1s[0m
+[?25h[?25l[6A[0G[2K[+] up 5/5
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-worker           [32mCreated[0m                      [34m0.2s[0m
+[2K [32m✔[0m Container blackbox-agent-c-api              [32mCreated[0m                      [34m0.2s[0m
+[?25h[?25l[6A[0G[2K[+] up 4/5
+[2K [33m⠼[0m Container blackbox-agent-c-postgres         Waiting                      [34m0.4s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-postgres         Waiting                      [34m0.5s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠦[0m Container blackbox-agent-c-postgres         Waiting                      [34m0.6s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠧[0m Container blackbox-agent-c-postgres         Waiting                      [34m0.7s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠇[0m Container blackbox-agent-c-postgres         Waiting                      [34m0.8s[0m
+
+
+
+
+[?25h[?25l[6A[0G[2K[+] up 3/5
+[2K [32m✔[0m Container blackbox-agent-c-postgres         [32mHealthy[0m                      [34m0.8s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-backup-scheduler Starting                     [34m0.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-engine           Starting                     [34m0.9s[0m
+
+
+[?25h[?25l[6A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-backup-scheduler Starting                     [34m1.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-engine           Starting                     [34m1.0s[0m
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠙[0m Container blackbox-agent-c-postgres         Waiting                      [34m1.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-backup-scheduler Starting                     [34m1.1s[0m
+[2K [32m✔[0m Container blackbox-agent-c-engine           [32mStarted[0m                      [34m1.0s[0m
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠹[0m Container blackbox-agent-c-postgres         Waiting                      [34m1.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-backup-scheduler Starting                     [34m1.2s[0m
+
+
+
+[?25h[?25l[6A[0G[2K[+] up 4/5
+[2K [33m⠸[0m Container blackbox-agent-c-postgres         Waiting                      [34m1.3s[0m
+[2K [32m✔[0m Container blackbox-agent-c-backup-scheduler [32mStarted[0m                      [34m1.2s[0m
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-postgres         Waiting                      [34m1.4s[0m
+
+
+
+
+[?25h[?25l[6A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-postgres         Waiting                      [34m1.5s[0m
+
+
+
+
+[?25h[?25l[6A[0G[2K[+] up 3/5
+[2K [32m✔[0m Container blackbox-agent-c-postgres         [32mHealthy[0m                      [34m1.5s[0m
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-worker           Starting                     [34m1.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-api              Starting                     [34m1.5s[0m
+[?25h[?25l[6A[0G[2K[+] up 4/5
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-worker           [32mStarted[0m                      [34m1.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-api              Starting                     [34m1.6s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-api              Starting                     [34m1.7s[0m
+[?25h[?25l[6A[0G
+
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-api              Starting                     [34m1.8s[0m
+[?25h[?25l[6A[0G[2K[+] up 5/5
+
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-api              [32mStarted[0m                      [34m1.9s[0m
+[?25h  api ready (1s)
+  [owner-key]
+
+Your personal owner key is shown ONCE below. Save it in a password manager now.
+
+{"level":"INFO","action_code":"data_key_present","schema_version":1,"record_id":"2e7ebdf8-1b3d-4908-90ca-b67522702a04","occurred_at":"2026-11-02T04:11:27.083Z","observed_at":"2026-11-02T04:11:27.083Z","event_name":"setup.started","component":"api","service_version":"0.1.0","instance_id":"e6ce7938-c6a9-4196-b20b-ebb8b3fb312f","scope":"installation","message":"Setup started"}
+{"level":"INFO","tenant_id":"ca1b0c24-e81d-424a-866b-7e63275d8744","schema_version":1,"record_id":"13068c91-c99e-4186-87d7-ce9d47febe51","occurred_at":"2026-11-02T04:11:27.316Z","observed_at":"2026-11-02T04:11:27.316Z","event_name":"auth.setup_completed","component":"auth","service_version":"0.1.0","instance_id":"e6ce7938-c6a9-4196-b20b-ebb8b3fb312f","scope":"workspace","message":"Workspace and owner created; key issued through the setup channel"}
+{"level":"INFO","tenant_id":"ca1b0c24-e81d-424a-866b-7e63275d8744","schema_version":1,"record_id":"01b77325-1fd5-44e3-b444-7620038da04c","occurred_at":"2026-11-02T04:11:27.317Z","observed_at":"2026-11-02T04:11:27.317Z","event_name":"setup.completed","component":"api","service_version":"0.1.0","instance_id":"e6ce7938-c6a9-4196-b20b-ebb8b3fb312f","scope":"workspace","message":"Workspace and owner created"}
+
+Your personal access key (shown once). Save it in your password manager now. Possession grants administrator access to this workspace: do not share it with agents.
+Ihr persönlicher Zugangsschlüssel (wird nur einmal angezeigt). Speichern Sie ihn jetzt in Ihrem Passwort-Manager. Wer den Schlüssel besitzt, hat Administratorzugriff auf diesen Arbeitsbereich: nicht an Agenten weitergeben.
+
+    bbk_<redacted>
+
+Workspace: ca1b0c24-e81d-424a-866b-7e63275d8744
+Open http://127.0.0.1:19180/ and sign in with the key.
+  [done]
+
+Setup complete. Open http://127.0.0.1:19180/  — stop with ./blackbox down, restart with ./blackbox up.
+Backups are NOT configured yet (unprotected). Enroll a destination: ./blackbox backup-config <directory>

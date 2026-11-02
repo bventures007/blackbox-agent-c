@@ -1,0 +1,264 @@
+{
+  "intent": "customer.delivery_reply",
+  "params": {
+    "order_id": "#M"
+  },
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "customer.delivery_reply",
+      "question_id": "delivery-04",
+      "params": {
+        "order_id": "#M"
+      },
+      "readiness": {
+        "question_id": "delivery-04",
+        "intent": "customer.delivery_reply",
+        "status": "partial",
+        "required": [
+          "orders",
+          "fulfillments",
+          "tracking",
+          "communications",
+          "coverage",
+          "identity"
+        ],
+        "optional": [
+          "promises"
+        ],
+        "missing": [
+          "fulfillments",
+          "tracking",
+          "communications"
+        ],
+        "missing_optional": [
+          "promises"
+        ],
+        "reasons": [
+          "missing required datasets: fulfillments, tracking, communications",
+          "optional datasets absent (answer may be partial): promises"
+        ],
+        "sources": [
+          {
+            "connection_id": "3a01b6e2-5d45-48dc-b7ee-a18524e0caf1",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T04:08:26.501Z",
+            "last_new_event_at": "2026-11-02T04:08:26.501Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "partial",
+      "result": {
+        "send_action": false,
+        "facts": [
+          "not_yet_shipped"
+        ],
+        "shipments": [],
+        "known_promises": [],
+        "prior_communications": [],
+        "prior_promises_checked": false,
+        "omitted_context": [
+          "prior_communication"
+        ]
+      },
+      "calculation": [
+        {
+          "step": "reply_facts",
+          "formula": "structured evidenced facts only; no promise or apology is invented; sending is never automatic",
+          "values": {
+            "facts": 1,
+            "communications_known": false
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:e4fe1f5c-974c-4a18-9a70-aa75dfc8ca30",
+        "journal:3049cc12-2617-42eb-b2ff-a491427d9749",
+        "journal:e36a96ad-c0a1-4d5f-8018-a9c71fb9f933"
+      ],
+      "entry_ids": [
+        "e4fe1f5c-974c-4a18-9a70-aa75dfc8ca30",
+        "3049cc12-2617-42eb-b2ff-a491427d9749",
+        "e36a96ad-c0a1-4d5f-8018-a9c71fb9f933"
+      ],
+      "missing_inputs": [
+        "communications",
+        "tracking"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders"
+        ],
+        "datasets_missing": [
+          "fulfillments",
+          "tracking",
+          "communications",
+          "promises",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "customer.delivery_reply",
+      "question_id": "delivery-04",
+      "params": {
+        "order_id": "#M"
+      },
+      "readiness": {
+        "question_id": "delivery-04",
+        "intent": "customer.delivery_reply",
+        "status": "partial",
+        "required": [
+          "orders",
+          "fulfillments",
+          "tracking",
+          "communications",
+          "coverage",
+          "identity"
+        ],
+        "optional": [
+          "promises"
+        ],
+        "missing": [
+          "fulfillments",
+          "tracking",
+          "communications"
+        ],
+        "missing_optional": [
+          "promises"
+        ],
+        "reasons": [
+          "missing required datasets: fulfillments, tracking, communications",
+          "optional datasets absent (answer may be partial): promises"
+        ],
+        "sources": [
+          {
+            "connection_id": "3a01b6e2-5d45-48dc-b7ee-a18524e0caf1",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T04:08:26.501Z",
+            "last_new_event_at": "2026-11-02T04:08:26.501Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "partial",
+      "result": {
+        "send_action": false,
+        "facts": [
+          "not_yet_shipped"
+        ],
+        "shipments": [],
+        "known_promises": [],
+        "prior_communications": [],
+        "prior_promises_checked": false,
+        "omitted_context": [
+          "prior_communication"
+        ]
+      },
+      "calculation": [
+        {
+          "step": "reply_facts",
+          "formula": "structured evidenced facts only; no promise or apology is invented; sending is never automatic",
+          "values": {
+            "facts": 1,
+            "communications_known": false
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:e4fe1f5c-974c-4a18-9a70-aa75dfc8ca30",
+        "journal:3049cc12-2617-42eb-b2ff-a491427d9749",
+        "journal:e36a96ad-c0a1-4d5f-8018-a9c71fb9f933"
+      ],
+      "entry_ids": [
+        "e4fe1f5c-974c-4a18-9a70-aa75dfc8ca30",
+        "3049cc12-2617-42eb-b2ff-a491427d9749",
+        "e36a96ad-c0a1-4d5f-8018-a9c71fb9f933"
+      ],
+      "missing_inputs": [
+        "communications",
+        "tracking"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders"
+        ],
+        "datasets_missing": [
+          "fulfillments",
+          "tracking",
+          "communications",
+          "promises",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

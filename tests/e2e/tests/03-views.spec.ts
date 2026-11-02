@@ -80,7 +80,10 @@ for (const locale of ['en', 'de'] as Locale[]) {
       await page.goto('/app/journal');
       await expect(page.getByRole('heading', { name: T[locale].journal })).toBeVisible();
       await expect(page.getByLabel(locale === 'en' ? 'Track' : 'Spur')).toBeVisible();
-      const rows = page.locator('.ledger-table tr[data-action]');
+      // Journal rows expose an explicit accessible "Open entry …" button (keyboard-reachable) rather than a row-level click target.
+      const rows = page.getByRole('button', { name: locale === 'en' ? /^Open entry/ : /^Eintrag .* öffnen$/ });
+      // wait until the first page rendered: either entry rows or the explicit empty state (the entry count is hidden on narrow screens)
+      await expect(rows.first().or(page.getByText(locale === 'en' ? 'No entries match these filters.' : 'Keine Einträge passen zu diesen Filtern.'))).toBeVisible();
       if ((await rows.count()) > 0) {
         await rows.first().click();
         const drawer = page.getByRole('dialog');

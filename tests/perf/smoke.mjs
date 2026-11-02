@@ -8,7 +8,7 @@
 // Query mix (per request): 50 % hot current state (latest_committed order state of a designated hot
 // order), 20 % cold order state (as_of_recorded replay of a cold-sample order at one of 600 distinct
 // cutoffs so the engine's cold LRU mostly misses), 20 % entity history (first 100 entries), 10 %
-// bounded 30-day summary (tenant-wide `invoices.outstanding` with from/to). Closed loop: N clients
+// bounded 30-day summary (tenant-wide `invoices.outstanding` evaluated at the window end: `now` + `due_before`; the intent has no from/to). Closed loop: N clients
 // each issue one request after the other. Fixed arrival: requests are scheduled at a constant rate
 // and latency counts from the scheduled arrival to completion (queueing included). Both modes run
 // with concurrent replay ingestion through the owner session (durable ack latency and
@@ -135,12 +135,12 @@ async function doRequest(client, cls) {
     if (cls === "hot") r = await apiRequest("GET", `/api/entities/order/${encodeURIComponent(pick(pool.hot))}/state`, key);
     else if (cls === "cold") r = await apiRequest("GET", `/api/entities/order/${encodeURIComponent(pick(pool.cold))}/state?mode=as_of&as_of_recorded=${encodeURIComponent(pick(CUTOFFS))}`, key);
     else if (cls === "history") r = await apiRequest("GET", `/api/entities/order/${encodeURIComponent(pick(pool.hot.concat(pool.cold)))}/history?limit=100`, key);
-    else r = await apiRequest("POST", `/api/questions/invoices.outstanding`, key, { params: { from: POOLS.summary_window.from, to: POOLS.summary_window.to } });
+    else r = await apiRequest("POST", `/api/questions/invoices.outstanding`, key, { params: { now: POOLS.summary_window.to, due_before: POOLS.summary_window.to } });
   } else {
     if (cls === "hot") r = await mcpCall(client.key_file, "get_business_state", { entity_type: "order", entity_id: pick(pool.hot) });
     else if (cls === "cold") r = await mcpCall(client.key_file, "get_business_state", { entity_type: "order", entity_id: pick(pool.cold), mode: "as_of", as_of_recorded: pick(CUTOFFS) });
     else if (cls === "history") r = await mcpCall(client.key_file, "get_entity_history", { entity_type: "order", entity_id: pick(pool.hot.concat(pool.cold)), limit: 100 });
-    else r = await mcpCall(client.key_file, "answer_question", { intent: "invoices.outstanding", params: { from: POOLS.summary_window.from, to: POOLS.summary_window.to } });
+    else r = await mcpCall(client.key_file, "answer_question", { intent: "invoices.outstanding", params: { now: POOLS.summary_window.to, due_before: POOLS.summary_window.to } });
   }
   return classify(cls, r);
 }
@@ -192,7 +192,8 @@ let ingestTimer = null;
 function startIngestion(owner, runTag) {
   if (!owner || INGEST_OBS <= 0) return;
   let n = 0;
-  ingestTimer = setInterval(async () => {
+  ingestTimer = setInterval(() => ingestOnce().catch((e) => { ingest.errors.driver = (ingest.errors.driver ?? 0) + 1; ingest.last_driver_error = String(e?.message ?? e); }), 1000);
+  async function ingestOnce() {
     const events = [];
     for (let i = 0; i < INGEST_OBS; i++) {
       const id = `#PERF-${runTag}-${n++}`;
@@ -211,7 +212,13 @@ function startIngestion(owner, runTag) {
       ingest.errors[`http_${res.status}`] = (ingest.errors[`http_${res.status}`] ?? 0) + 1;
       return;
     }
-    const body = await res.json();
+    let body;
+    try {
+      body = await res.json();
+    } catch (e) {
+      ingest.errors.body = (ingest.errors.body ?? 0) + 1;
+      return;
+    }
     ingest.batches++;
     ingest.observations += body.accepted ?? 0;
     ingest.ack_ms.push(ack);
@@ -221,12 +228,18 @@ function startIngestion(owner, runTag) {
       // lag: time until the engine has applied this batch's committed cursor (barrier wait + one point read)
       const t1 = performance.now();
       const last = events[events.length - 1].entity.order;
-      const r = await fetch(API + `/api/entities/order/${encodeURIComponent(last)}/state?mode=at_least_cursor&cursor=${body.committed_cursor}`, { headers: owner.headers });
-      const lag = performance.now() - t1;
-      if (r.status === 200) ingest.lag_ms.push(lag);
-      else ingest.errors[`lag_http_${r.status}`] = (ingest.errors[`lag_http_${r.status}`] ?? 0) + 1;
+      // A saturated API can exceed undici's 300 s header timeout here; a failed barrier read is an ingestion
+      // error, never a driver crash (the earlier runs died on an unhandled HeadersTimeoutError at this point).
+      try {
+        const r = await fetch(API + `/api/entities/order/${encodeURIComponent(last)}/state?mode=at_least_cursor&cursor=${body.committed_cursor}`, { headers: owner.headers, signal: AbortSignal.timeout(DEADLINE_MS * 10) });
+        const lag = performance.now() - t1;
+        if (r.status === 200) ingest.lag_ms.push(lag);
+        else ingest.errors[`lag_http_${r.status}`] = (ingest.errors[`lag_http_${r.status}`] ?? 0) + 1;
+      } catch (e) {
+        ingest.errors[e.name === "TimeoutError" ? "lag_client_timeout" : "lag_network"] = (ingest.errors[e.name === "TimeoutError" ? "lag_client_timeout" : "lag_network"] ?? 0) + 1;
+      }
     }
-  }, 1000);
+  }
 }
 
 // ----- memory sampling ---------------------------------------------------------------------------------------

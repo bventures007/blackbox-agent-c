@@ -1,0 +1,33 @@
+{
+  "intent": "orders.missing_invoice",
+  "params": {
+    "rule": "after_confirmed_dispatch"
+  },
+  "api": {
+    "status": 422,
+    "json": {
+      "error": {
+        "code": "invalid_params",
+        "message": "question parameters are invalid",
+        "retryable": false,
+        "details": [
+          {
+            "path": "",
+            "message": "Unrecognized key: \"rule\""
+          }
+        ]
+      }
+    }
+  },
+  "mcp": {
+    "status": 500,
+    "json": {
+      "error": {
+        "status": 422,
+        "code": "invalid_params",
+        "message": "question parameters are invalid",
+        "retryable": false
+      }
+    }
+  }
+}

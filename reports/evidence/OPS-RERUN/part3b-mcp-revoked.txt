@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"error\":{\"status\":401,\"code\":\"unauthenticated\",\"message\":\"authentication required\",\"retryable\":false}}"
+    }
+  ],
+  "isError": true
+}

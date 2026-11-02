@@ -4,7 +4,9 @@ import os from "node:os";
 import path from "node:path";
 import { zipSync, strToU8 } from "fflate";
 import type { Pool } from "@blackbox/database";
-import { withTenant } from "@blackbox/database";
+/** Three heartbeat intervals (HEARTBEAT_MS default 10 s): a worker that missed them is shown degraded, never healthy. */
+export const WORKER_HEARTBEAT_STALE_SECONDS = 30;
+import { withTenant, withInstallation } from "@blackbox/database";
 import { queryLogs, type CollectorStats, type LogRecord } from "@blackbox/logging";
 import type { EngineClient, EngineHealth } from "@blackbox/application";
 
@@ -73,13 +75,30 @@ export async function healthCards(input: HealthInputs): Promise<HealthCard[]> {
       });
       const running = Number(s.runs.running);
       const failed = Number(s.runs.failed);
+      // Liveness comes from the worker's own heartbeat row (written every HEARTBEAT_MS, default 10 s); work tables only
+      // describe what it is doing. A missing or stale heartbeat is never shown as healthy.
+      const hb = await withInstallation(input.pool, async (c) => (await c.query<{ instance_id: string; service_version: string; age_s: string; started_at: Date; stopped_at: Date | null; storage_state: string; suspension_detected_at: Date | null; suspension_gap_ms: string | null }>("SELECT instance_id, service_version, extract(epoch from now() - last_beat_at)::text AS age_s, started_at, stopped_at, storage_state, suspension_detected_at, suspension_gap_ms::text FROM worker_heartbeat ORDER BY last_beat_at DESC LIMIT 1")).rows[0] ?? null).catch(() => null);
+      const age = hb ? Number(hb.age_s) : null;
+      const alive = hb !== null && hb.stopped_at === null && age !== null && age <= WORKER_HEARTBEAT_STALE_SECONDS;
+      const state: HealthCard["state"] = !hb ? "unknown" : hb.stopped_at !== null ? "unavailable" : !alive ? "degraded" : failed > 0 ? "degraded" : running > 0 ? "working" : "healthy";
+      const reason = !hb
+        ? "no worker heartbeat recorded yet"
+        : hb.stopped_at !== null
+          ? `worker stopped at ${hb.stopped_at.toISOString()}`
+          : !alive
+            ? `worker heartbeat stale: last beat ${Math.round(age ?? 0)} s ago (expected every ${Math.round(WORKER_HEARTBEAT_STALE_SECONDS / 3)} s)`
+            : running > 0
+              ? `${running} import run(s) in progress`
+              : failed > 0
+                ? `${failed} failed run(s) need attention`
+                : `worker alive (last beat ${Math.round(age ?? 0)} s ago); no queued work`;
       worker = {
         area: "worker",
-        state: running > 0 ? "working" : failed > 0 ? "degraded" : "unknown",
+        state,
         observed_at: now,
-        reason: running > 0 ? `${running} import run(s) in progress` : failed > 0 ? `${failed} failed run(s) need attention` : "no worker heartbeat; no queued work",
-        next_action: failed > 0 ? "open Sources → Needs review" : null,
-        details: { running, failed, oldest_pending_started_at: s.runs.oldest?.toISOString() ?? null, last_completed_at: s.runs.last_done?.toISOString() ?? null },
+        reason,
+        next_action: !hb || hb.stopped_at !== null || !alive ? "start the worker service (./blackbox up); until then imports are producer-driven only" : failed > 0 ? "open Sources → Needs review" : null,
+        details: { running, failed, oldest_pending_started_at: s.runs.oldest?.toISOString() ?? null, last_completed_at: s.runs.last_done?.toISOString() ?? null, heartbeat_age_seconds: age === null ? null : Math.round(age), worker_instance: hb?.instance_id ?? null, worker_version: hb?.service_version ?? null, worker_started_at: hb?.started_at?.toISOString() ?? null, storage_state: hb?.storage_state ?? null, suspension_detected_at: hb?.suspension_detected_at?.toISOString() ?? null, suspension_gap_ms: hb?.suspension_gap_ms ? Number(hb.suspension_gap_ms) : null },
       };
       const total = s.caps.reduce((a, r) => a + Number(r.n), 0);
       const bad = s.caps.filter((r) => r.status === "degraded" || r.status === "unavailable").reduce((a, r) => a + Number(r.n), 0);

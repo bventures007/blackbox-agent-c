@@ -1,0 +1,7 @@
+# command: scripts/release/verify-download.sh http://127.0.0.1:19187 --manifest-path release-manifest.json --out <fresh temp dir>
+# started: 2026-11-01T22:15:44Z
+landing: http://127.0.0.1:19187  manifest: release-manifest.json  out: /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-download.cD5BsK
+artifact: blackbox-0.1.0-mac-arm64.tar.gz (529984299 bytes) from http://127.0.0.1:19187/./blackbox-0.1.0-mac-arm64.tar.gz
+curl: (22) The requested URL returned error: 404
+verify-download: FAIL artifact download failed
+# exit: 2 finished 2026-11-01T22:15:44Z

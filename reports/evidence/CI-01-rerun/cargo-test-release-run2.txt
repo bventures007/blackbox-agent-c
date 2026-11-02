@@ -1,0 +1,32 @@
+# command: cargo build --release -p blackbox-engine && ENGINE_BINARY=$PWD/target/release/blackbox-engine ENGINE_TEST_PGPORT=19184 cargo test --workspace --release -- --test-threads=2 (after the evicted-evidence disclosure in crates/query and apps/engine)
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65 + uncommitted Rust delta (crates/query/src/lib.rs, apps/engine/src/main.rs)
+# started: 2026-11-02T03:57:04Z load: 8.92 17.50 25.56
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.69s
+     Running unittests src/lib.rs (target/release/deps/blackbox_domain-cf3178cab1c81241)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/golden.rs (target/release/deps/golden-e9d0395fde8b5c21)
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+     Running unittests src/main.rs (target/release/deps/blackbox_engine-1e1b6431f4ea255b)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running unittests src/bin/corpus.rs (target/release/deps/corpus-be4c5d2d02b79482)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/golden_http.rs (target/release/deps/golden_http-3050e98aa9aee8b0)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.00s
+     Running tests/intents_http.rs (target/release/deps/intents_http-46c43425fbe9b90a)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.56s
+     Running tests/ops_http.rs (target/release/deps/ops_http-bd8658c9b4eb04f7)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.41s
+     Running unittests src/lib.rs (target/release/deps/blackbox_engine_tests-d463856878db1161)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running unittests src/lib.rs (target/release/deps/blackbox_projections-db576ae74f4fde22)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running unittests src/lib.rs (target/release/deps/blackbox_query-8fa2ab6775efda36)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running unittests src/lib.rs (target/release/deps/blackbox_storage-5649650dd8837ef2)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+# exit:  finished 2026-11-02T03:58:15Z load: 35.23 23.91 27.35

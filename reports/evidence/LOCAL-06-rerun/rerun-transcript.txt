@@ -1,0 +1,17 @@
+## (re-run 2026-11-02T03:10:53Z; the earlier attempt hung because scripts/verify/pty-capture.py does not forward stdin to the CLI — not a product defect; the wrapper's rotate-key attaches a terminal and reads the current key from stdin)
+## session with the current key, then rotate-key (current key on stdin via docker compose exec -T, the wrapper's api_cli invocation without TTY allocation; --json output captured to a 0600 file, key never printed)
+login(old) 204
+rotate-key exit 0 (9 s); stderr: {"level":"INFO","tenant_id":"2b60bc6a-bab4-4540-bf50-3fdc7101d8ff","schema_version":1,"record_id":"282ce368-b939-4c82-b66c-0fa05556f5cb","occurred_at":"2026-11-02T03:11:03.133Z","observed_at":"2026-11
+stdout keys: ['key', 'status'] | status: rotated | key prefix: bbk_ | key length: 47
+## old session after rotation (must be invalid)
+GET /api/auth/session with the old session cookie: 401 {"error":{"code":"unauthenticated","message":"authentication required","retryable":false}}
+## old key after rotation (must be refused)
+login(old key): 401 {"error":{"code":"invalid_key","message":"The access key is not valid","retryable":false}}
+## new key: login 204 (owner.key replaced; retired key kept 0600 outside the repo)
+   -rw-------@ 48 /Users/benediktsauter/blackbox-pilot-fresh/owner.key
+   -rw-------@ 48 /Users/benediktsauter/blackbox-pilot-fresh/owner.key.retired
+## security audit (last events + counts)
+  counts: {'owner.key_rotated': 1, 'owner.setup': 1, 'agent.key_created': 13, 'owner.login': 76, 'workspace.updated': 10, 'debug.stopped': 8, 'debug.enabled': 8, 'agent.key_revoked': 1, 'owner.logout': 2}
+## engine/api health after rotation
+GET /health 200
+# finished 2026-11-02T03:11:05Z

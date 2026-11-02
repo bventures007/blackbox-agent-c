@@ -1,0 +1,28 @@
+{
+  "row": "shopify.orders",
+  "kind": "pipeline",
+  "tested_commit": "df8cfbb5e41fb3da483270651823cf470aaf1a65",
+  "recorded_at": "2026-11-02T02:29:56Z",
+  "command": "pnpm test:worker (tests/worker/pipeline.test.ts, PostgreSQL + fixture) and INSTALL_DIR=~/blackbox-pilot-fresh tests/slice/slice-01.sh (installed 0.1.0 stack from the downloaded archive, API + stdio MCP bridge)",
+  "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop daemon 29.9.2 VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1; throwaway postgres:16-alpine containers blackbox-agent-c-devpg (19183), blackbox-agent-c-workerpg (19191), blackbox-agent-c-enginepg (19184); installed release 0.1.0 stack blackbox-agent-c in a fresh folder (127.0.0.1:19180) for SLICE-01; host load averages during the suites between 30 and 250 (other projects' workloads)",
+  "case_ids": [
+    "SLICE-01",
+    "INGEST-02",
+    "INGEST-03",
+    "JOURNAL-02",
+    "HEALTH-01",
+    "IMPORT-02",
+    "QUERY-01"
+  ],
+  "modes": [
+    "local_standalone"
+  ],
+  "observed": "adapter -> PostgreSQL (bb_worker, RLS, append_journal_entries) -> Rust engine -> API and MCP with identical normalized values and evidence ids for shopify.orders: SLICE-01 52/52 checks on the installed 0.1.0 release stack (fresh folder, build #8) 2026-11-02T02:24:57Z..2026-11-02T02:28:10.527Z; orders run fcf814e3: 31 orders requested/loaded, 99 records committed, 5 pending SALE transactions rejected as unsupported_event (never cash), second backfill 159 duplicates / 0 new entries (437 entries before and after); worker pipeline suite 5 files / 35 tests passed on df8cfbb",
+  "result": "passed",
+  "outputs": [
+    "reports/evidence/CI-01-rerun/test-worker.txt",
+    "reports/evidence/SLICE-01-rerun/results.json",
+    "reports/evidence/SLICE-01-rerun/run-output.txt"
+  ],
+  "note": "Sanitized summary of the actual suite outputs named in outputs (counts, run ids, timings); no keys, cookies, payloads or personal data. Synthetic provider-shaped fixture, not live provider evidence."
+}

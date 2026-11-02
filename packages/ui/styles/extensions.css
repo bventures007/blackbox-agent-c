@@ -216,3 +216,15 @@ textarea.field.mono,input.field.mono{font-family:var(--mono);font-size:11px}
 .activity-item strong, .activity-item p, .event-chip span, .review-card h3, .detail-meta dd, .ledger-table td code { overflow-wrap: anywhere; word-break: break-word; }
 .activity-item { min-width: 0; }
 .activity-item > div { min-width: 0; }
+
+/* Modal with a fixed actions row: the body scrolls, the primary action stays reachable (mobile import-plan dialog). */
+.modal.has-actions{display:flex;flex-direction:column;overflow:hidden}
+.modal.has-actions>h2,.modal.has-actions>.modal-close{flex:none}
+.modal.has-actions .modal-body{flex:1 1 auto;min-height:0;overflow:auto;margin:0 -8px;padding:0 8px}
+.modal.has-actions .modal-actions{flex:none;padding-top:16px;border-top:1px solid var(--line);margin-top:8px}
+.modal.has-actions .modal-actions .onboard-actions{margin-top:0}
+
+/* Narrow screens: anchor dialogs to the top of the visible viewport. Centering against the layout viewport pushed the
+   lower part of a tall dialog below the visible area in mobile browsers/emulation (dvh ≠ vh), where a German import-plan
+   dialog's primary button sat off-screen and could not be tapped. */
+@media (max-width:600px){.modal-backdrop{align-items:flex-start}}

@@ -1,0 +1,140 @@
+# question coverage run  2026-11-02T04:08:24Z  install blackbox-agent-c-ops2 at http://127.0.0.1:19185  load 18.91 17.20 21.29
+## egress sample before
+api external established peers: none
+worker external established peers: none
+engine external established peers: none
+host com.docker.backend external established: 2 ['32.193.181.249:443', '54.163.166.73:443']
+## sparse tenant + read-only agent key (host CLI, test-only; key written 0600 outside the repo, never printed)
+sparse tenant: ebaf9e17…
+sparse agent key: status created prefix bba_ len 47
+## phase positive  2026-11-02T04:08:28Z
+{
+  "positive_passed": 23,
+  "positive_total": 24,
+  "parity_ok": 24,
+  "asof_passed": 20,
+  "missing_passed": 24,
+  "missing_total": 24,
+  "missing_parity_ok": 24,
+  "ingest": {
+    "accepted": 0,
+    "duplicate": 72,
+    "rejected": 0,
+    "conflict": 0,
+    "committed_cursor": 0,
+    "problems": []
+  }
+}
+FAILED providers.money_positions 200 complete [{"name":"unknown not zero","pass":false}] ["history.evicted_use_cold_read"]
+positive exit: 0
+## ./blackbox down && ./blackbox up  2026-11-02T04:09:10Z
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+running at http://127.0.0.1:19185/ (project blackbox-agent-c-ops2)
+api /health 200 after 1 probes
+engine healthy after 1 probes
+## phase restart  2026-11-02T04:09:31Z
+[
+  {
+    "group": "order",
+    "intent": "inventory.available_to_sell",
+    "api_status": 200,
+    "status": "complete",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "delivery",
+    "intent": "shipments.attention",
+    "api_status": 200,
+    "status": "partial",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "invoice",
+    "intent": "invoices.outstanding",
+    "api_status": 200,
+    "status": "complete",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "collection",
+    "intent": "payments.recovered_attempts",
+    "api_status": 200,
+    "status": "partial",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "settlement",
+    "intent": "providers.money_positions",
+    "api_status": 200,
+    "status": "complete",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "reversal",
+    "intent": "returns.lifecycle",
+    "api_status": 200,
+    "status": "complete",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  }
+]
+restart exit: 0
+## egress sample after
+api external established peers: none
+worker external established peers: none
+engine external established peers: none
+host com.docker.backend external established: 0 []
+# finished 2026-11-02T04:09:36Z  load 14.37 16.12 20.55

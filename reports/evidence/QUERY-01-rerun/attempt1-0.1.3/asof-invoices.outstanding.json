@@ -1,0 +1,510 @@
+{
+  "intent": "invoices.outstanding",
+  "params": {
+    "customer_id": "C-I-Q"
+  },
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "invoices.outstanding",
+      "question_id": "invoice-01",
+      "params": {
+        "customer_id": "C-I-Q"
+      },
+      "readiness": {
+        "question_id": "invoice-01",
+        "intent": "invoices.outstanding",
+        "status": "ready",
+        "required": [
+          "invoices",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "657bc500-aa6b-48fa-b09c-f623194fe889",
+            "provider": "generic",
+            "capability_id": "invoices",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.875Z",
+            "last_new_event_at": "2026-11-01T22:45:23.875Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "07931a6a-81a7-4c15-93a7-ffb3856e2693",
+            "provider": "replay",
+            "capability_id": "invoices",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.080Z",
+            "last_new_event_at": "2026-11-02T03:46:46.080Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "totals_open_by_currency": {
+          "EUR": 4520
+        },
+        "totals_credit_balance_by_currency": {},
+        "invoices": [
+          {
+            "invoice_id": "I-1-Q",
+            "order_id": "#I-Q",
+            "customer_id": "C-I-Q",
+            "currency": "EUR",
+            "gross_minor": 11900,
+            "credits_minor": 2380,
+            "reported_payments_minor": 5000,
+            "reported_open_minor": 4520,
+            "credit_balance_minor": 0,
+            "reconciled_open_minor": 4520,
+            "new_cash_from_marker": 0,
+            "due_date": "2026-10-30T00:00:00Z"
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "open",
+          "formula": "reported_open = gross − credits − reported payment markers (markers are not cash; negative = credit/overpayment, not negative debt)",
+          "values": {
+            "invoices": 1
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+        "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+        "journal:8e139855-0371-4b9d-b299-292980abc132",
+        "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+        "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+        "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+        "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+        "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+        "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+        "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+        "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+        "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+        "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+        "journal:f4e63630-d077-4296-9227-92915240847f"
+      ],
+      "entry_ids": [
+        "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+        "8843165e-50ae-4c4a-b355-9825ae80452f",
+        "8e139855-0371-4b9d-b299-292980abc132",
+        "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+        "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+        "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+        "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+        "5db0573d-277a-4bd3-8cd6-733c88a30973",
+        "c3743166-74ad-45b0-8744-89cebe2d5936",
+        "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+        "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+        "d8406e07-4552-4b81-a08b-d230704b846b",
+        "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+        "f4e63630-d077-4296-9227-92915240847f"
+      ],
+      "missing_inputs": [],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "invoices",
+          "payment_allocations",
+          "coverage",
+          "identity"
+        ],
+        "datasets_missing": [],
+        "population": {
+          "records_considered": 1,
+          "returned": 1
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": [
+          {
+            "coverage_id": "carrier|tracking",
+            "status": "backfill_complete",
+            "connection": "carrier",
+            "capability": "tracking",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75455
+          },
+          {
+            "coverage_id": "invoice|invoices",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoices",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75465
+          },
+          {
+            "coverage_id": "invoice|invoice_dispatch",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoice_dispatch",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75467
+          },
+          {
+            "coverage_id": "payment|payments",
+            "status": "backfill_complete",
+            "connection": "payment",
+            "capability": "payments",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75469
+          },
+          {
+            "coverage_id": "generic|cases",
+            "status": "backfill_complete",
+            "connection": "generic",
+            "capability": "cases",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75471
+          },
+          {
+            "coverage_id": "bank_csv|bank",
+            "status": "backfill_complete",
+            "connection": "bank_csv",
+            "capability": "bank",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T09:00:00.000Z",
+            "links": [],
+            "last_sequence": 75475
+          }
+        ]
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "historical",
+        "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+        "effective_cutoff": null,
+        "mode": "as_of"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 1,
+        "total": 1,
+        "snapshot_cursor": 75561
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "invoices.outstanding",
+      "question_id": "invoice-01",
+      "params": {
+        "customer_id": "C-I-Q"
+      },
+      "readiness": {
+        "question_id": "invoice-01",
+        "intent": "invoices.outstanding",
+        "status": "ready",
+        "required": [
+          "invoices",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "657bc500-aa6b-48fa-b09c-f623194fe889",
+            "provider": "generic",
+            "capability_id": "invoices",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.875Z",
+            "last_new_event_at": "2026-11-01T22:45:23.875Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "07931a6a-81a7-4c15-93a7-ffb3856e2693",
+            "provider": "replay",
+            "capability_id": "invoices",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.080Z",
+            "last_new_event_at": "2026-11-02T03:46:46.080Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "totals_open_by_currency": {
+          "EUR": 4520
+        },
+        "totals_credit_balance_by_currency": {},
+        "invoices": [
+          {
+            "invoice_id": "I-1-Q",
+            "order_id": "#I-Q",
+            "customer_id": "C-I-Q",
+            "currency": "EUR",
+            "gross_minor": 11900,
+            "credits_minor": 2380,
+            "reported_payments_minor": 5000,
+            "reported_open_minor": 4520,
+            "credit_balance_minor": 0,
+            "reconciled_open_minor": 4520,
+            "new_cash_from_marker": 0,
+            "due_date": "2026-10-30T00:00:00Z"
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "open",
+          "formula": "reported_open = gross − credits − reported payment markers (markers are not cash; negative = credit/overpayment, not negative debt)",
+          "values": {
+            "invoices": 1
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+        "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+        "journal:8e139855-0371-4b9d-b299-292980abc132",
+        "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+        "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+        "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+        "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+        "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+        "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+        "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+        "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+        "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+        "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+        "journal:f4e63630-d077-4296-9227-92915240847f"
+      ],
+      "entry_ids": [
+        "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+        "8843165e-50ae-4c4a-b355-9825ae80452f",
+        "8e139855-0371-4b9d-b299-292980abc132",
+        "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+        "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+        "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+        "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+        "5db0573d-277a-4bd3-8cd6-733c88a30973",
+        "c3743166-74ad-45b0-8744-89cebe2d5936",
+        "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+        "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+        "d8406e07-4552-4b81-a08b-d230704b846b",
+        "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+        "f4e63630-d077-4296-9227-92915240847f"
+      ],
+      "missing_inputs": [],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "invoices",
+          "payment_allocations",
+          "coverage",
+          "identity"
+        ],
+        "datasets_missing": [],
+        "population": {
+          "records_considered": 1,
+          "returned": 1
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": [
+          {
+            "coverage_id": "carrier|tracking",
+            "status": "backfill_complete",
+            "connection": "carrier",
+            "capability": "tracking",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75455
+          },
+          {
+            "coverage_id": "invoice|invoices",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoices",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75465
+          },
+          {
+            "coverage_id": "invoice|invoice_dispatch",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoice_dispatch",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75467
+          },
+          {
+            "coverage_id": "payment|payments",
+            "status": "backfill_complete",
+            "connection": "payment",
+            "capability": "payments",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75469
+          },
+          {
+            "coverage_id": "generic|cases",
+            "status": "backfill_complete",
+            "connection": "generic",
+            "capability": "cases",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75471
+          },
+          {
+            "coverage_id": "bank_csv|bank",
+            "status": "backfill_complete",
+            "connection": "bank_csv",
+            "capability": "bank",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T09:00:00.000Z",
+            "links": [],
+            "last_sequence": 75475
+          }
+        ]
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "historical",
+        "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+        "effective_cutoff": null,
+        "mode": "as_of"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 1,
+        "total": 1,
+        "snapshot_cursor": 75561
+      }
+    }
+  }
+}

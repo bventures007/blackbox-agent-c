@@ -1,5 +1,7 @@
 import { originAllowed } from "@blackbox/auth";
 import type { FastifyInstance } from "fastify";
+import { readFileSync } from "node:fs";
+import { observeVolumes } from "../storage.js";
 import { z } from "zod";
 import { AGENT_GRANT, AuthError, SESSION_COOKIE, clientThrottleKey, REMEMBERED_ABSOLUTE_MS } from "@blackbox/auth";
 import { withTenant } from "@blackbox/database";
@@ -173,24 +175,65 @@ function originOk(origin: string, ports: number | readonly number[]): boolean {
   return originAllowed(origin, ports);
 }
 
+/** The wrapper/scheduler status file (docs/operations.md "Backup status"); missing or unreadable = not configured (fail honest). */
+function readBackupStatusFile(file: string | null): Record<string, unknown> | null {
+  if (!file) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(file, "utf8")) as unknown;
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Backups & recovery surface. Source of truth for the operational state is the status file written by
+ * `./blackbox backup-config|backup|restore` and the scheduler (the only components that know the destination);
+ * the per-workspace `backup_status` row only carries owner-editable retention overrides and the last restore test.
+ */
 export async function readBackups(ctx: AppContext, tenantId: string): Promise<Record<string, unknown> & { status: string }> {
+  const file = readBackupStatusFile(ctx.config.backupStatusFile);
   return withTenant(ctx.pool, tenantId, async (c) => {
     const r = await c.query("SELECT * FROM backup_status WHERE tenant_id = $1", [tenantId]);
-    const row = (r.rows[0] ?? { status: "not_configured" }) as Record<string, unknown>;
-    const ts = (v: unknown) => (v instanceof Date ? v.toISOString() : (v ?? null));
-    const lastCutoff = row.last_cutoff instanceof Date ? row.last_cutoff : null;
+    const row = (r.rows[0] ?? {}) as Record<string, unknown>;
+    const ts = (v: unknown) => (v instanceof Date ? v.toISOString() : typeof v === "string" ? v : null);
+    const configured = Boolean(file?.configured) && typeof file?.status === "string" && file.status !== "not_configured";
+    const status = configured ? String(file!.status) : "not_configured";
+    const lastCutoffIso = ts(file?.last_cutoff_at);
+    const lastCutoff = lastCutoffIso ? new Date(lastCutoffIso) : null;
+    const fileRetention = (file?.retention ?? {}) as Record<string, unknown>;
+    const protection = !configured
+      ? "unprotected: no backup destination enrolled"
+      : file?.destination_available === false
+        ? "destination unavailable: the enrolled volume is not mounted"
+        : status === "overdue"
+          ? "overdue: the last completed generation is older than the 24 h objective"
+          : status === "failed"
+            ? `last backup failed${file?.last_error ? `: ${String(file.last_error)}` : ""}`
+            : file?.last_completed_at
+              ? "protected: encrypted generation present"
+              : "scheduled: no completed generation yet";
     return {
-      status: String(row.status ?? "not_configured"),
-      destination_label: row.destination_label ?? null,
-      last_attempt_at: ts(row.last_attempt_at),
-      last_completed_at: ts(row.last_completed_at),
-      last_cutoff: ts(row.last_cutoff),
-      next_due_at: ts(row.next_due_at),
-      recoverable_age_seconds: lastCutoff ? Math.floor((Date.now() - lastCutoff.getTime()) / 1000) : null,
-      retention: { daily: Number(row.retention_daily ?? 7), weekly: Number(row.retention_weekly ?? 4) },
-      same_device: row.same_device ?? null,
+      status,
+      configured,
+      destination_label: configured ? (file?.destination_label ?? null) : null,
+      destination_available: configured ? (file?.destination_available ?? null) : null,
+      same_device: configured ? (file?.same_device ?? null) : null,
+      last_attempt_at: ts(file?.last_attempt_at),
+      last_attempt_kind: configured ? (file?.last_attempt_kind ?? null) : null,
+      last_completed_at: ts(file?.last_completed_at),
+      last_generation: configured ? (file?.last_generation ?? null) : null,
+      last_sha256: configured ? (file?.last_sha256 ?? null) : null,
+      last_bytes: configured && typeof file?.last_bytes === "number" ? file.last_bytes : null,
+      last_cutoff: lastCutoffIso,
+      last_cutoff_committed: configured ? (file?.last_cutoff_committed ?? null) : null,
+      next_due_at: ts(file?.next_due_at),
+      recoverable_age_seconds: lastCutoff && !Number.isNaN(lastCutoff.getTime()) ? Math.floor((Date.now() - lastCutoff.getTime()) / 1000) : null,
+      retention: { daily: Number(row.retention_daily ?? fileRetention.daily ?? 7), weekly: Number(row.retention_weekly ?? fileRetention.weekly ?? 4) },
+      failures: configured && typeof file?.failures === "number" ? file.failures : null,
+      last_error: configured ? (file?.last_error ?? null) : null,
       last_restore_test_at: ts(row.last_restore_test_at),
-      protection: row.status === "not_configured" ? "unprotected: no backup destination enrolled" : "scheduled",
+      protection,
     };
   });
 }
@@ -203,25 +246,7 @@ async function readRetention(ctx: AppContext, tenantId: string): Promise<{ defau
 }
 
 export async function readStorage(ctx: AppContext, tenantId: string): Promise<Record<string, unknown>> {
-  const { statfs } = await import("node:fs/promises");
-  const thresholds = await withTenant(ctx.pool, tenantId, async (c) => (await c.query("SELECT * FROM storage_thresholds WHERE tenant_id = $1", [tenantId])).rows[0] as Record<string, unknown> | undefined);
-  const volumes: Record<string, unknown> = {};
-  for (const [name, dir] of [
-    ["evidence", ctx.config.evidenceDir],
-    ["logs", ctx.config.logsDir],
-    ["snapshots", ctx.config.snapshotDir],
-  ] as const) {
-    try {
-      const s = await statfs(dir);
-      const total = Number(s.blocks) * Number(s.bsize);
-      const free = Number(s.bavail) * Number(s.bsize);
-      const warnAt = Math.max((Number(thresholds?.warn_percent ?? 10) / 100) * total, Number(thresholds?.warn_min_bytes ?? 5368709120));
-      const critAt = Math.max((Number(thresholds?.critical_percent ?? 2) / 100) * total, Number(thresholds?.critical_min_bytes ?? 1073741824));
-      volumes[name] = { total_bytes: total, free_bytes: free, state: free < critAt ? "critical" : free < warnAt ? "warning" : "ok" };
-    } catch (err) {
-      volumes[name] = { state: "unavailable", reason: (err as NodeJS.ErrnoException).code ?? "stat_failed" };
-    }
-  }
+  const { thresholds, volumes } = await observeVolumes(ctx, tenantId);
   const logs = ctx.collector.stats();
   return {
     thresholds: thresholds ? { warn_percent: Number(thresholds.warn_percent), warn_min_bytes: Number(thresholds.warn_min_bytes), critical_percent: Number(thresholds.critical_percent), critical_min_bytes: Number(thresholds.critical_min_bytes), log_cap_bytes: Number(thresholds.log_cap_bytes), log_retention_days: Number(thresholds.log_retention_days) } : null,

@@ -1,0 +1,172 @@
+{
+  "intent": "payouts.missing_bank_confirmation",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "payouts.missing_bank_confirmation",
+      "question_id": "settlement-03",
+      "params": {},
+      "readiness": {
+        "question_id": "settlement-03",
+        "intent": "payouts.missing_bank_confirmation",
+        "status": "blocked",
+        "required": [
+          "payouts",
+          "bank",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "payouts",
+          "bank"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: payouts, bank"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "bank_arrival": "unknown",
+        "missing_confirmation": null,
+        "payouts": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "bank"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "bank"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "payouts",
+          "bank",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:44.027Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "payouts.missing_bank_confirmation",
+      "question_id": "settlement-03",
+      "params": {},
+      "readiness": {
+        "question_id": "settlement-03",
+        "intent": "payouts.missing_bank_confirmation",
+        "status": "blocked",
+        "required": [
+          "payouts",
+          "bank",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "payouts",
+          "bank"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: payouts, bank"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "bank_arrival": "unknown",
+        "missing_confirmation": null,
+        "payouts": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "bank"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "bank"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "payouts",
+          "bank",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:44.027Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,215 @@
+# command: node scripts/verify/ui-capture.mjs --api http://127.0.0.1:19180 --owner-key-file ~/blackbox-pilot-fresh/owner.key --out reports/evidence/UI-01/capture  (fresh-folder install of archive #8; real Chromium 1248 headless; EN/DE x 1440x1000/390x844; agent key masked in the DOM before its capture)
+# started: 2026-11-02T02:15:32Z load: 31.51 39.98 55.93
+en/1440: 31 screens
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.getAttribute: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Open navigation' })
+
+  log: [
+    "  - waiting for getByRole('button', { name: 'Open navigation' })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v25.9.0
+# exit: 0 finished 2026-11-02T02:17:34Z
+# command: node scripts/verify/ui-capture.mjs --api http://127.0.0.1:19180 --owner-key-file ~/blackbox-pilot-fresh/owner.key --out reports/evidence/UI-01/capture --locales de  (EN captured in the previous invocation: 31 + 31 screens; the mobile-nav step is now tolerant)
+# started: 2026-11-02T02:18:07Z load: 82.85 48.60 56.18
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Pause', exact: true })
+
+  log: [
+    "  - waiting for getByRole('button', { name: 'Pause', exact: true })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v25.9.0
+# exit: 0 finished 2026-11-02T02:19:25Z
+# command: node scripts/verify/ui-capture.mjs ... --locales de,en  (German labels corrected: Pausieren / Jetzt beenden / Bündel prüfen (Vorschau); EN repeated so the per-screen report covers both locales)
+# started: 2026-11-02T02:20:11Z load: 167.60 89.02 71.05
+de/1440: 31 screens
+de/390: 32 screens
+en/1440: 31 screens
+en/390: 32 screens
+total 126 screens; screens with clipped controls: 34
+  de 390 11-sources [
+  'a "Demo shop (Shopify-shaped) öff" x=642..674 (vw 423)',
+  'a "Demo payments (Shopify Payment" x=642..674 (vw 423)',
+  'a "Demo bank statement (CSV) öffn" x=642..674 (vw 423)'
+]
+  de 390 16-connect-shopify [
+  'a "Demo shop (Shopify-shaped) öff" x=642..674 (vw 423)',
+  'a "Demo payments (Shopify Payment" x=642..674 (vw 423)',
+  'a "Demo bank statement (CSV) öffn" x=642..674 (vw 423)'
+]
+  de 390 20-connect-shopify_payments [
+  'a "Demo shop (Shopify-shaped) öff" x=642..674 (vw 423)',
+  'a "Demo payments (Shopify Payment" x=642..674 (vw 423)',
+  'a "Demo bank statement (CSV) öffn" x=642..674 (vw 423)'
+]
+  de 390 17-connect-api [
+  'a "Demo shop (Shopify-shaped) öff" x=642..674 (vw 423)',
+  'a "Demo payments (Shopify Payment" x=642..674 (vw 423)',
+  'a "Demo bank statement (CSV) öffn" x=642..674 (vw 423)'
+]
+  de 390 17b-connect-bank-csv [
+  'a "Demo shop (Shopify-shaped) öff" x=642..674 (vw 423)',
+  'a "Demo payments (Shopify Payment" x=642..674 (vw 423)',
+  'a "Demo bank statement (CSV) öffn" x=642..674 (vw 423)'
+]
+  de 390 17c-connect-replay [
+  'a "Demo shop (Shopify-shaped) öff" x=642..674 (vw 423)',
+  'a "Demo payments (Shopify Payment" x=642..674 (vw 423)',
+  'a "Demo bank statement (CSV) öffn" x=642..674 (vw 423)'
+]
+  de 390 64-needs-review [
+  'a "Demo shop (Shopify-shaped) öff" x=642..674 (vw 423)',
+  'a "Demo payments (Shopify Payment" x=642..674 (vw 423)',
+  'a "Demo bank statement (CSV) öffn" x=642..674 (vw 423)'
+]
+  de 390 56-journal [
+  'a "CUP-OLV" x=631..671 (vw 390)',
+  'a "#1001" x=631..662 (vw 390)',
+  'a "C-1" x=631..648 (vw 390)'
+]
+  de 390 57-journal-filtered [
+  'a "CUP-OLV" x=584..624 (vw 390)',
+  'a "#1001" x=584..615 (vw 390)',
+  'a "C-1" x=584..602 (vw 390)'
+]
+  de 390 46-agents [
+  'button "Widerrufen" x=581..670 (vw 390)',
+  'button "Widerrufen" x=581..670 (vw 390)',
+  'button "Widerrufen" x=581..670 (vw 390)'
+]
+  de 390 47-agent-key-shown [
+  'button "Widerrufen" x=581..670 (vw 390)',
+  'button "Widerrufen" x=581..670 (vw 390)',
+  'button "Widerrufen" x=581..670 (vw 390)'
+]
+  de 390 62-system-diagnostics [
+  'button "Datensatz 0ef98894-588f-40ec-a" x=665..697 (vw 390)',
+  'button "Datensatz 1fba05e7-e698-4b82-b" x=665..697 (vw 390)',
+  'button "Datensatz 47a5cc7b-7d75-4ff5-a" x=665..697 (vw 390)'
+]
+  de 390 66-diagnostics-filtered [
+  'button "Datensatz 9b98c6f9-be27-4b7d-a" x=638..670 (vw 390)',
+  'button "Datensatz a12e3e13-7776-4bc7-b" x=638..670 (vw 390)',
+  'button "Datensatz eea953f5-a3f5-4654-8" x=638..670 (vw 390)'
+]
+  de 390 66b-diagnostics-record-drawer [
+  'button "Datensatz 9b98c6f9-be27-4b7d-a" x=638..670 (vw 390)',
+  'button "Datensatz a12e3e13-7776-4bc7-b" x=638..670 (vw 390)',
+  'button "Datensatz eea953f5-a3f5-4654-8" x=638..670 (vw 390)'
+]
+  de 390 67-diagnostics-live-paused [
+  'button "Datensatz 9b98c6f9-be27-4b7d-a" x=638..670 (vw 390)',
+  'button "Datensatz a12e3e13-7776-4bc7-b" x=638..670 (vw 390)',
+  'button "Datensatz eea953f5-a3f5-4654-8" x=638..670 (vw 390)'
+]
+  de 390 68-diagnostics-debug-active [
+  'button "Datensatz 9b98c6f9-be27-4b7d-a" x=638..670 (vw 390)',
+  'button "Datensatz a12e3e13-7776-4bc7-b" x=638..670 (vw 390)',
+  'button "Datensatz eea953f5-a3f5-4654-8" x=638..670 (vw 390)'
+]
+  de 390 69-diagnostics-export-preview [
+  'button "Datensatz 9b98c6f9-be27-4b7d-a" x=638..670 (vw 390)',
+  'button "Datensatz a12e3e13-7776-4bc7-b" x=638..670 (vw 390)',
+  'button "Datensatz eea953f5-a3f5-4654-8" x=638..670 (vw 390)'
+]
+  en 390 11-sources [
+  'a "Open Demo shop (Shopify-shaped" x=633..665 (vw 390)',
+  'a "Open Demo payments (Shopify Pa" x=633..665 (vw 390)',
+  'a "Open Demo bank statement (CSV)" x=633..665 (vw 390)'
+]
+  en 390 16-connect-shopify [
+  'a "Open Demo shop (Shopify-shaped" x=633..665 (vw 390)',
+  'a "Open Demo payments (Shopify Pa" x=633..665 (vw 390)',
+  'a "Open Demo bank statement (CSV)" x=633..665 (vw 390)'
+]
+  en 390 20-connect-shopify_payments [
+  'a "Open Demo shop (Shopify-shaped" x=633..665 (vw 390)',
+  'a "Open Demo payments (Shopify Pa" x=633..665 (vw 390)',
+  'a "Open Demo bank statement (CSV)" x=633..665 (vw 390)'
+]
+  en 390 17-connect-api [
+  'a "Open Demo shop (Shopify-shaped" x=633..665 (vw 390)',
+  'a "Open Demo payments (Shopify Pa" x=633..665 (vw 390)',
+  'a "Open Demo bank statement (CSV)" x=633..665 (vw 390)'
+]
+  en 390 17b-connect-bank-csv [
+  'a "Open Demo shop (Shopify-shaped" x=633..665 (vw 390)',
+  'a "Open Demo payments (Shopify Pa" x=633..665 (vw 390)',
+  'a "Open Demo bank statement (CSV)" x=633..665 (vw 390)'
+]
+  en 390 17c-connect-replay [
+  'a "Open Demo shop (Shopify-shaped" x=633..665 (vw 390)',
+  'a "Open Demo payments (Shopify Pa" x=633..665 (vw 390)',
+  'a "Open Demo bank statement (CSV)" x=633..665 (vw 390)'
+]
+  en 390 64-needs-review [
+  'a "Open Demo shop (Shopify-shaped" x=633..665 (vw 390)',
+  'a "Open Demo payments (Shopify Pa" x=633..665 (vw 390)',
+  'a "Open Demo bank statement (CSV)" x=633..665 (vw 390)'
+]
+  en 390 56-journal [
+  'a "CUP-OLV" x=645..679 (vw 390)',
+  'a "#1001" x=645..675 (vw 390)',
+  'a "C-1" x=645..662 (vw 390)'
+]
+  en 390 57-journal-filtered [
+  'a "CUP-OLV" x=624..659 (vw 390)',
+  'a "#1001" x=624..655 (vw 390)',
+  'a "C-1" x=624..641 (vw 390)'
+]
+  en 390 46-agents [
+  'button "Revoke" x=604..670 (vw 390)',
+  'button "Revoke" x=604..670 (vw 390)',
+  'button "Revoke" x=604..670 (vw 390)'
+]
+  en 390 47-agent-key-shown [
+  'button "Revoke" x=604..670 (vw 390)',
+  'button "Revoke" x=604..670 (vw 390)',
+  'button "Revoke" x=604..670 (vw 390)'
+]
+  en 390 62-system-diagnostics [
+  'button "Open record 5ddc9f37-116b-4cdd" x=638..670 (vw 390)',
+  'button "Open record 20b42e97-c27b-4670" x=638..670 (vw 390)',
+  'button "Open record 8b1b66bb-c800-4305" x=638..670 (vw 390)'
+]
+  en 390 66-diagnostics-filtered [
+  'button "Open record 737be3a6-0d98-4462" x=638..670 (vw 390)',
+  'button "Open record ead04a6f-b2a8-4894" x=638..670 (vw 390)',
+  'button "Open record 9b98c6f9-be27-4b7d" x=638..670 (vw 390)'
+]
+  en 390 66b-diagnostics-record-drawer [
+  'button "Open record 737be3a6-0d98-4462" x=638..670 (vw 390)',
+  'button "Open record ead04a6f-b2a8-4894" x=638..670 (vw 390)',
+  'button "Open record 9b98c6f9-be27-4b7d" x=638..670 (vw 390)'
+]
+  en 390 67-diagnostics-live-paused [
+  'button "Open record 737be3a6-0d98-4462" x=638..670 (vw 390)',
+  'button "Open record ead04a6f-b2a8-4894" x=638..670 (vw 390)',
+  'button "Open record 9b98c6f9-be27-4b7d" x=638..670 (vw 390)'
+]
+  en 390 68-diagnostics-debug-active [
+  'button "Open record 737be3a6-0d98-4462" x=638..670 (vw 390)',
+  'button "Open record ead04a6f-b2a8-4894" x=638..670 (vw 390)',
+  'button "Open record 9b98c6f9-be27-4b7d" x=638..670 (vw 390)'
+]
+  en 390 69-diagnostics-export-preview [
+  'button "Open record 737be3a6-0d98-4462" x=638..670 (vw 390)',
+  'button "Open record ead04a6f-b2a8-4894" x=638..670 (vw 390)',
+  'button "Open record 9b98c6f9-be27-4b7d" x=638..670 (vw 390)'
+]
+# exit: 0 finished 2026-11-02T02:23:56Z

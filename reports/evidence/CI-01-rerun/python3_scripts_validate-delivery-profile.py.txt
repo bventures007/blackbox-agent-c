@@ -1,0 +1,6 @@
+# command: python3 scripts/validate-delivery-profile.py
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65
+# started: 2026-11-01T21:33:46Z
+Profile valid: 83 active pilot cases, 37 deferred cases, 68 required capability rows.
+This validates scope/evidence records; it does not execute or certify product tests.
+# exit: 0 finished 2026-11-01T21:34:16Z

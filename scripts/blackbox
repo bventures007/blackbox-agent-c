@@ -110,6 +110,17 @@ ensure_key_files() {
 }
 compose() { require_env; check_bind; ensure_key_files; docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" "$@"; }
 project_name() { local p; p="$(env_get COMPOSE_PROJECT_NAME)"; echo "${p:-$DEFAULT_PROJECT}"; }
+# Containers/volumes of a Compose project that this installation did not create (another install directory on the
+# same Docker host). Prints a one-line description or nothing. Setup never adopts them (it would re-bootstrap the
+# other installation's roles and run against its data); a second installation needs its own --project name.
+foreign_project_artifacts() { # foreign_project_artifacts <project>
+  local p="$1" vol cs created
+  vol="$(docker volume ls -q --filter "name=^${p}_pgdata$" 2>/dev/null | head -n1)"
+  cs="$(docker ps -aq --filter "label=com.docker.compose.project=${p}" 2>/dev/null | wc -l | tr -d ' ')"
+  [ -n "$vol" ] || [ "${cs:-0}" -gt 0 ] || return 0
+  created="$(docker volume inspect --format '{{.CreatedAt}}' "$vol" 2>/dev/null || true)"
+  printf 'project %s already has %s on this Docker host%s' "$p" "$([ -n "$vol" ] && printf 'database volume %s' "$vol"; [ -n "$vol" ] && [ "${cs:-0}" -gt 0 ] && printf ' and '; [ "${cs:-0}" -gt 0 ] && printf '%s container(s)' "$cs")" "${created:+ (volume created $created)}"
+}
 port() { local p; p="${BLACKBOX_PORT:-$(env_get BLACKBOX_PORT)}"; echo "${p:-$DEFAULT_PORT}"; }
 version_installed() { [ -f "$STATE_DIR/installed-release.json" ] && json_get "$STATE_DIR/installed-release.json" version || echo ""; }
 version_release() { [ -f "$RELEASE_JSON" ] && json_get "$RELEASE_JSON" version || echo "dev"; }
@@ -193,6 +204,8 @@ doctor() {
   # install state
   if [ ! -f "$ENV_FILE" ]; then
     rec OK DOC-SETUP "not set up yet" "run ./blackbox setup"
+    if have_docker; then local foreign; foreign="$(foreign_project_artifacts "${BLACKBOX_PROJECT:-$DEFAULT_PROJECT}")"
+      [ -z "$foreign" ] && rec OK DOC-PROJECT "no containers/volume of project ${BLACKBOX_PROJECT:-$DEFAULT_PROJECT} on this Docker host" || rec WARN DOC-PROJECT "$foreign" "setup would refuse: use --project <other-name> or remove that installation with its own ./blackbox destroy"; fi
   else
     rec OK DOC-SETUP "configured (project $(project_name), version $(version_installed))"
     if [ -d "$SECRETS_DIR" ]; then
@@ -304,6 +317,8 @@ setup() {
   require_docker
   [ "$(uname -m)" = "arm64" ] || fail "unsupported architecture $(uname -m) (Apple Silicon arm64 only)"
   say "blackbox setup ($MODE mode) → $INSTALL"
+  local foreign; foreign="$(foreign_project_artifacts "$opt_project")"
+  [ -z "$foreign" ] || fail "$foreign — setup never adopts another installation's data or re-keys its roles. For a second installation use ./blackbox setup --project <other-name> [--port <other-port>]; to reuse this project name, remove the other installation with its own ./blackbox destroy --i-understand first." 1
   umask 077
   mkdir -p "$INSTALL" "$SECRETS_DIR" "$DATA_DIR"/{logs,evidence,snapshots,backups,state,restore} "$INSTALL/logs"
   chmod 0700 "$SECRETS_DIR" "$DATA_DIR/restore"
@@ -655,7 +670,9 @@ EOF
   phase restore fence-credentials
   if api_has_cli; then
     say ""; say "Restored credentials are stale by policy: rotating the owner key and revoking all sessions/agent keys. New owner key shown ONCE:"
-    api_cli reset-access || warn "reset-access failed; run ./blackbox reset-access before use"
+    # The restore itself is the host authorization: pass the CLI's explicit confirmation flag. A failed rotation is a
+    # refusal, not a warning — restored credentials must never stay valid silently.
+    api_cli reset-access --yes || fail "credential rotation after restore failed; the restored owner/agent credentials are STALE. Run ./blackbox reset-access in $INSTALL before using the installation (fence kept)." 1
   else warn "TODO integration: api cli reset-access missing — restored owner/agent credentials are NOT yet rotated; run ./blackbox reset-access when available"; fi
   phase restore verify
   if api_has_cli; then api_cli -T verify && say "  representative answer verified" || warn "verify reported a failure"; else warn "representative answer check unavailable (api cli verify missing)"; fi

@@ -1,0 +1,552 @@
+{
+  "intent": "payouts.gross_to_net",
+  "params": {
+    "payout_id": "OUT-1-Q"
+  },
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "payouts.gross_to_net",
+      "question_id": "settlement-02",
+      "params": {
+        "payout_id": "OUT-1-Q"
+      },
+      "readiness": {
+        "question_id": "settlement-02",
+        "intent": "payouts.gross_to_net",
+        "status": "ready",
+        "required": [
+          "provider_ledger",
+          "payouts",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+            "provider": "shopify_payments",
+            "capability_id": "provider_ledger",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.955Z",
+            "last_new_event_at": "2026-11-01T22:45:23.955Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+            "provider": "replay",
+            "capability_id": "provider_ledger",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+            "last_new_event_at": "2026-11-02T03:46:46.171Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+            "provider": "shopify_payments",
+            "capability_id": "payouts",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.984Z",
+            "last_new_event_at": "2026-11-01T22:45:23.984Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+            "provider": "replay",
+            "capability_id": "payouts",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+            "last_new_event_at": "2026-11-02T03:46:46.171Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "payout_id": "OUT-1-Q",
+        "currency": "EUR",
+        "payout_minor": 9170,
+        "member_captures_minor": 11900,
+        "member_fees_minor": 350,
+        "member_refunds_minor": 2380,
+        "other_adjustments_minor": 0,
+        "computed_net_minor": 9170,
+        "unexplained_minor": 0,
+        "reconciled": true,
+        "membership_basis": "ledger_postings",
+        "postings": [
+          {
+            "ledger_entry_id": "L-1-Q",
+            "account_id": "acct-main-Q|EUR",
+            "transaction_id": "TX-L-Q",
+            "payout_id": "OUT-1-Q",
+            "posting_type": "charge",
+            "currency": "EUR",
+            "gross_minor": 11900,
+            "fee_minor": 350,
+            "net_minor": 11550,
+            "effective_at": "2026-10-31T01:02:00.000Z",
+            "links": [
+              {
+                "type": "account",
+                "id": "acct-main-Q|EUR"
+              },
+              {
+                "type": "transaction",
+                "id": "TX-L-Q"
+              },
+              {
+                "type": "payout",
+                "id": "OUT-1-Q"
+              }
+            ],
+            "last_sequence": 75527
+          },
+          {
+            "ledger_entry_id": "L-2-Q",
+            "account_id": "acct-main-Q|EUR",
+            "transaction_id": "TX-L-Q",
+            "payout_id": "OUT-1-Q",
+            "posting_type": "refund",
+            "currency": "EUR",
+            "gross_minor": -2380,
+            "fee_minor": 0,
+            "net_minor": -2380,
+            "effective_at": "2026-10-31T01:03:00.000Z",
+            "links": [
+              {
+                "type": "account",
+                "id": "acct-main-Q|EUR"
+              },
+              {
+                "type": "transaction",
+                "id": "TX-L-Q"
+              },
+              {
+                "type": "payout",
+                "id": "OUT-1-Q"
+              }
+            ],
+            "last_sequence": 75530
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "net",
+          "formula": "computed_net = captures − fees − refunds + other adjustments (payout members only); unexplained = payout − computed_net",
+          "values": {
+            "captures": 11900,
+            "fees": 350,
+            "refunds": 2380,
+            "other": 0,
+            "payout": 9170,
+            "unexplained": 0
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+        "journal:f5f0bf2a-8f64-48a3-a8f1-f7339fbbdde9",
+        "journal:99a6673e-fd2b-43f3-8098-52b61113e015",
+        "journal:64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+        "journal:d3f0c789-508d-4f69-b05c-835f2520b40d",
+        "journal:e3ae69a3-4a39-4203-adfe-a4f65dbb8e7b",
+        "journal:9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+        "journal:5523d162-8e3c-4f15-971b-8654f1b5bf57",
+        "journal:f4cd2fec-07ef-4671-8aa3-608414bb7a10",
+        "journal:1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+        "journal:c574b72d-2f23-40e9-b9fa-0d3702a9d6d1",
+        "journal:e7b790e1-b10e-45c6-a9c9-5c68b130e403",
+        "journal:fcdf0c9d-c854-455a-837c-2e545c675559",
+        "journal:b78d58aa-3add-45db-80a7-4a0d299c7967",
+        "journal:da7ddfc1-580a-472a-b95d-e980c8a9c7a3"
+      ],
+      "entry_ids": [
+        "e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+        "f5f0bf2a-8f64-48a3-a8f1-f7339fbbdde9",
+        "99a6673e-fd2b-43f3-8098-52b61113e015",
+        "64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+        "d3f0c789-508d-4f69-b05c-835f2520b40d",
+        "e3ae69a3-4a39-4203-adfe-a4f65dbb8e7b",
+        "9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+        "5523d162-8e3c-4f15-971b-8654f1b5bf57",
+        "f4cd2fec-07ef-4671-8aa3-608414bb7a10",
+        "1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+        "c574b72d-2f23-40e9-b9fa-0d3702a9d6d1",
+        "e7b790e1-b10e-45c6-a9c9-5c68b130e403",
+        "fcdf0c9d-c854-455a-837c-2e545c675559",
+        "b78d58aa-3add-45db-80a7-4a0d299c7967",
+        "da7ddfc1-580a-472a-b95d-e980c8a9c7a3"
+      ],
+      "missing_inputs": [],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "provider_ledger",
+          "payouts"
+        ],
+        "datasets_missing": [
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 2,
+          "returned": 2
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "historical",
+        "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+        "effective_cutoff": null,
+        "mode": "as_of"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 2,
+        "total": 2,
+        "snapshot_cursor": 75561
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "payouts.gross_to_net",
+      "question_id": "settlement-02",
+      "params": {
+        "payout_id": "OUT-1-Q"
+      },
+      "readiness": {
+        "question_id": "settlement-02",
+        "intent": "payouts.gross_to_net",
+        "status": "ready",
+        "required": [
+          "provider_ledger",
+          "payouts",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+            "provider": "shopify_payments",
+            "capability_id": "provider_ledger",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.955Z",
+            "last_new_event_at": "2026-11-01T22:45:23.955Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+            "provider": "replay",
+            "capability_id": "provider_ledger",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+            "last_new_event_at": "2026-11-02T03:46:46.171Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "5d9e2c84-e30d-49ad-b73a-eeeab8196e12",
+            "provider": "shopify_payments",
+            "capability_id": "payouts",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.984Z",
+            "last_new_event_at": "2026-11-01T22:45:23.984Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+            "provider": "replay",
+            "capability_id": "payouts",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.171Z",
+            "last_new_event_at": "2026-11-02T03:46:46.171Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "payout_id": "OUT-1-Q",
+        "currency": "EUR",
+        "payout_minor": 9170,
+        "member_captures_minor": 11900,
+        "member_fees_minor": 350,
+        "member_refunds_minor": 2380,
+        "other_adjustments_minor": 0,
+        "computed_net_minor": 9170,
+        "unexplained_minor": 0,
+        "reconciled": true,
+        "membership_basis": "ledger_postings",
+        "postings": [
+          {
+            "ledger_entry_id": "L-1-Q",
+            "account_id": "acct-main-Q|EUR",
+            "transaction_id": "TX-L-Q",
+            "payout_id": "OUT-1-Q",
+            "posting_type": "charge",
+            "currency": "EUR",
+            "gross_minor": 11900,
+            "fee_minor": 350,
+            "net_minor": 11550,
+            "effective_at": "2026-10-31T01:02:00.000Z",
+            "links": [
+              {
+                "type": "account",
+                "id": "acct-main-Q|EUR"
+              },
+              {
+                "type": "transaction",
+                "id": "TX-L-Q"
+              },
+              {
+                "type": "payout",
+                "id": "OUT-1-Q"
+              }
+            ],
+            "last_sequence": 75527
+          },
+          {
+            "ledger_entry_id": "L-2-Q",
+            "account_id": "acct-main-Q|EUR",
+            "transaction_id": "TX-L-Q",
+            "payout_id": "OUT-1-Q",
+            "posting_type": "refund",
+            "currency": "EUR",
+            "gross_minor": -2380,
+            "fee_minor": 0,
+            "net_minor": -2380,
+            "effective_at": "2026-10-31T01:03:00.000Z",
+            "links": [
+              {
+                "type": "account",
+                "id": "acct-main-Q|EUR"
+              },
+              {
+                "type": "transaction",
+                "id": "TX-L-Q"
+              },
+              {
+                "type": "payout",
+                "id": "OUT-1-Q"
+              }
+            ],
+            "last_sequence": 75530
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "net",
+          "formula": "computed_net = captures − fees − refunds + other adjustments (payout members only); unexplained = payout − computed_net",
+          "values": {
+            "captures": 11900,
+            "fees": 350,
+            "refunds": 2380,
+            "other": 0,
+            "payout": 9170,
+            "unexplained": 0
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+        "journal:f5f0bf2a-8f64-48a3-a8f1-f7339fbbdde9",
+        "journal:99a6673e-fd2b-43f3-8098-52b61113e015",
+        "journal:64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+        "journal:d3f0c789-508d-4f69-b05c-835f2520b40d",
+        "journal:e3ae69a3-4a39-4203-adfe-a4f65dbb8e7b",
+        "journal:9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+        "journal:5523d162-8e3c-4f15-971b-8654f1b5bf57",
+        "journal:f4cd2fec-07ef-4671-8aa3-608414bb7a10",
+        "journal:1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+        "journal:c574b72d-2f23-40e9-b9fa-0d3702a9d6d1",
+        "journal:e7b790e1-b10e-45c6-a9c9-5c68b130e403",
+        "journal:fcdf0c9d-c854-455a-837c-2e545c675559",
+        "journal:b78d58aa-3add-45db-80a7-4a0d299c7967",
+        "journal:da7ddfc1-580a-472a-b95d-e980c8a9c7a3"
+      ],
+      "entry_ids": [
+        "e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+        "f5f0bf2a-8f64-48a3-a8f1-f7339fbbdde9",
+        "99a6673e-fd2b-43f3-8098-52b61113e015",
+        "64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+        "d3f0c789-508d-4f69-b05c-835f2520b40d",
+        "e3ae69a3-4a39-4203-adfe-a4f65dbb8e7b",
+        "9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+        "5523d162-8e3c-4f15-971b-8654f1b5bf57",
+        "f4cd2fec-07ef-4671-8aa3-608414bb7a10",
+        "1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+        "c574b72d-2f23-40e9-b9fa-0d3702a9d6d1",
+        "e7b790e1-b10e-45c6-a9c9-5c68b130e403",
+        "fcdf0c9d-c854-455a-837c-2e545c675559",
+        "b78d58aa-3add-45db-80a7-4a0d299c7967",
+        "da7ddfc1-580a-472a-b95d-e980c8a9c7a3"
+      ],
+      "missing_inputs": [],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "provider_ledger",
+          "payouts"
+        ],
+        "datasets_missing": [
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 2,
+          "returned": 2
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "historical",
+        "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+        "effective_cutoff": null,
+        "mode": "as_of"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 2,
+        "total": 2,
+        "snapshot_cursor": 75561
+      }
+    }
+  }
+}

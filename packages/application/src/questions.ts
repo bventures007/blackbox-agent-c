@@ -5,61 +5,78 @@ import { EngineError, type ConsistencyRequest, type EngineClient } from "./engin
 import type { QuestionReadiness, ReadinessService } from "./readiness.js";
 
 /** Entity identifier parameters contributed by each dataset a question depends on. */
-const DATASET_PARAMS: Record<string, string[]> = {
-  orders: ["order_id", "customer_id"],
-  stock: ["item_id", "location_id"],
-  allocations: ["reservation_id", "order_id", "item_id"],
-  supply: ["supply_id", "item_id"],
-  promises: ["promise_id", "order_id"],
-  fulfillments: ["shipment_id", "order_id"],
-  tracking: ["shipment_id"],
-  communications: ["order_id", "customer_id"],
-  invoices: ["invoice_id", "order_id", "customer_id"],
-  invoice_dispatch: ["invoice_id"],
-  payments: ["transaction_id", "order_id"],
-  payment_allocations: ["transaction_id", "invoice_id"],
-  policy: [],
-  cases: ["case_id"],
-  provider_ledger: ["transaction_id", "payout_id"],
-  positions: ["account_ref"],
-  payouts: ["payout_id"],
-  bank: ["bank_entry_id", "payout_id"],
-  holds: ["hold_id"],
-  returns: ["return_id", "order_id"],
-  receipts: ["return_id"],
-  entitlements: ["entitlement_id", "order_id"],
-  refunds: ["refund_id", "transaction_id", "order_id"],
-  disputes: ["dispute_id", "transaction_id"],
-  coverage: [],
-  identity: [],
+/**
+ * Per-intent parameter contract mirrored from the engine (crates/query/src/intents.rs `param_specs`):
+ * the engine rejects unknown names, so the API must advertise and validate exactly this set. A unit test
+ * parses intents.rs and fails when the two drift apart. Types: str | int | decimal | bool | time | str_list.
+ */
+type EngineParamType = "str" | "int" | "decimal" | "bool" | "time" | "str_list";
+type EngineParam = { name: string; type: EngineParamType; required: boolean };
+const P = (name: string, type: EngineParamType, required = false): EngineParam => ({ name, type, required });
+const NOW = P("now", "time");
+const ORDER_FILTER = P("order_id", "str");
+const CUSTOMER_FILTER = P("customer_id", "str");
+const CURRENCY_FILTER = P("currency", "str");
+export const ENGINE_PARAMS: Record<string, EngineParam[]> = {
+  "inventory.available_to_sell": [P("item_id", "str", true), P("requested_quantity", "decimal"), P("location_id", "str"), NOW],
+  "orders.fulfillable": [P("item_id", "str"), P("priority", "str_list"), NOW],
+  "orders.reservation_variance": [ORDER_FILTER, NOW],
+  "orders.inbound_delay_impact": [P("promise_id", "str"), P("include_undelayed", "bool"), NOW],
+  "shipments.attention": [ORDER_FILTER, P("stale_after_seconds", "int"), NOW],
+  "shipments.promise_risk": [ORDER_FILTER, P("risk_hours", "int"), NOW],
+  "orders.partial_delivery_gaps": [ORDER_FILTER, NOW],
+  "customer.delivery_reply": [P("order_id", "str"), CUSTOMER_FILTER, NOW],
+  "invoices.outstanding": [CUSTOMER_FILTER, CURRENCY_FILTER, P("due_before", "time"), NOW],
+  "orders.missing_invoice": [ORDER_FILTER, P("rule", "str"), NOW],
+  "invoices.order_amount_variance": [ORDER_FILTER, P("invoice_id", "str"), NOW],
+  "invoices.dispatch_evidence": [P("invoice_id", "str"), NOW],
+  "orders.payment_state": [ORDER_FILTER, CUSTOMER_FILTER, NOW],
+  "payments.recovered_attempts": [ORDER_FILTER, NOW],
+  "invoices.payment_variance": [P("invoice_id", "str"), CUSTOMER_FILTER, NOW],
+  "receivables.review_queue": [CURRENCY_FILTER, CUSTOMER_FILTER, NOW],
+  "providers.money_positions": [CURRENCY_FILTER, P("account_ref", "str"), NOW],
+  "payouts.gross_to_net": [P("payout_id", "str", true), NOW],
+  "payouts.missing_bank_confirmation": [CURRENCY_FILTER, P("tolerance_minor", "int"), NOW],
+  "providers.holds_and_releases": [CURRENCY_FILTER, P("account_ref", "str"), NOW],
+  "returns.lifecycle": [ORDER_FILTER, P("return_id", "str"), NOW],
+  "credits.refund_gaps": [ORDER_FILTER, NOW],
+  "cancellations.outstanding_steps": [P("order_id", "str", true), NOW],
+  "refunds.chargeback_overlap": [ORDER_FILTER, P("transaction_id", "str"), NOW],
 };
-
-/** Intent-specific additions/requirements (kept small and declarative). */
-const INTENT_OVERRIDES: Record<string, { required?: string[]; extra?: Record<string, z.ZodTypeAny> }> = {
-  "inventory.available_to_sell": { required: ["item_id", "requested_quantity"], extra: { requested_quantity: z.number().positive().max(1_000_000_000) } },
-  "orders.fulfillable": { extra: { priority: z.array(z.string().max(200)).max(500).optional() } },
-  "orders.inbound_delay_impact": { extra: { supply_id: z.string().max(200).optional() } },
-  "shipments.promise_risk": { extra: { now: z.string().datetime({ offset: true }).optional() } },
-  "shipments.attention": { extra: { now: z.string().datetime({ offset: true }).optional() } },
-  "receivables.review_queue": { extra: { today: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() } },
-  "payouts.gross_to_net": { required: ["payout_id"] },
-  "payouts.missing_bank_confirmation": { extra: { bank_import_complete_through: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() } },
-  "providers.holds_and_releases": {},
-  "customer.delivery_reply": { required: ["order_id"] },
+/** Product-level narrowing of an engine parameter's type (never widening; the engine still validates). */
+const API_PARAM_OVERRIDES: Record<string, Record<string, z.ZodTypeAny>> = {
+  "inventory.available_to_sell": { requested_quantity: z.number().positive().max(1_000_000_000) },
 };
+/** Product-level requirement on top of the engine's optional parameter (the UI asks for an order). */
+const API_REQUIRED_EXTRA: Record<string, string[]> = { "customer.delivery_reply": ["order_id"], "inventory.available_to_sell": ["requested_quantity"] };
 
-const COMMON_PARAMS: Record<string, z.ZodTypeAny> = {
+function zodFor(t: EngineParamType): z.ZodTypeAny {
+  switch (t) {
+    case "str":
+      return z.string().min(1).max(200);
+    case "int":
+      return z.number().int().min(-1_000_000_000).max(1_000_000_000);
+    case "decimal":
+      return z.number().finite().min(-1_000_000_000_000).max(1_000_000_000_000);
+    case "bool":
+      return z.boolean();
+    case "time":
+      return z.string().datetime({ offset: true });
+    case "str_list":
+      return z.array(z.string().min(1).max(200)).max(500);
+  }
+}
+
+/**
+ * Parameters the API itself consumes (consistency cutoff and paging); they are never forwarded to the engine,
+ * which rejects unknown names.
+ */
+const API_PARAMS: Record<string, z.ZodTypeAny> = {
   as_of: z.string().datetime({ offset: true }).optional(),
-  from: z.string().datetime({ offset: true }).optional(),
-  to: z.string().datetime({ offset: true }).optional(),
-  currency: z
-    .string()
-    .regex(/^[A-Z]{3}$/)
-    .optional(),
-  unit: z.string().min(1).max(32).optional(),
   limit: z.number().int().min(1).max(500).optional(),
   cursor: z.string().max(2000).optional(),
 };
+const API_PARAM_NAMES = new Set(Object.keys(API_PARAMS));
 
 export interface QuestionTemplate {
   id: string;
@@ -97,17 +114,13 @@ export function buildIntents(): Map<string, BuiltIntent> {
   const contracts = loadQuestionContracts();
   const out = new Map<string, BuiltIntent>();
   for (const q of contracts.questions) {
-    const override = INTENT_OVERRIDES[q.intent] ?? {};
-    const shape: Record<string, z.ZodTypeAny> = { ...COMMON_PARAMS };
-    const entityParams = new Set<string>();
-    for (const ds of [...q.required_datasets, ...q.optional_datasets]) for (const p of DATASET_PARAMS[ds] ?? []) entityParams.add(p);
-    for (const p of entityParams) shape[p] = z.string().min(1).max(200).optional();
-    for (const [k, v] of Object.entries(override.extra ?? {})) shape[k] = v;
-    const required = override.required ?? [];
-    for (const r of required) {
-      const existing = shape[r];
-      if (!existing) throw new Error(`intent ${q.intent}: required param ${r} has no schema`);
-      shape[r] = existing instanceof z.ZodOptional ? (existing as z.ZodOptional<z.ZodTypeAny>).unwrap() : existing;
+    const engineParams = ENGINE_PARAMS[q.intent];
+    if (!engineParams) throw new Error(`intent ${q.intent}: no engine parameter contract mirrored in ENGINE_PARAMS`);
+    const shape: Record<string, z.ZodTypeAny> = { ...API_PARAMS };
+    const required = [...engineParams.filter((p) => p.required).map((p) => p.name), ...(API_REQUIRED_EXTRA[q.intent] ?? [])];
+    for (const p of engineParams) {
+      const base = API_PARAM_OVERRIDES[q.intent]?.[p.name] ?? zodFor(p.type);
+      shape[p.name] = required.includes(p.name) ? base : base.optional();
     }
     const schema = z.object(shape).strict();
     const properties: QuestionTemplate["params_schema"]["properties"] = {};
@@ -195,12 +208,13 @@ export class QuestionService {
 
   async answer(tenantId: string, intent: string, rawParams: unknown, consistency?: Partial<ConsistencyRequest>, principalKind: "owner" | "agent" = "owner"): Promise<QuestionAnswer> {
     const { built, params } = this.validate(intent, rawParams);
-    const cons: ConsistencyRequest = { mode: consistency?.mode ?? (params.as_of ? "as_of" : "latest_committed"), cursor: consistency?.cursor ?? null, as_of_recorded: consistency?.as_of_recorded ?? null, as_of_effective: consistency?.as_of_effective ?? (typeof params.as_of === "string" ? params.as_of : null), deadline_ms: Math.min(5000, consistency?.deadline_ms ?? 5000) };
+    const engineParams: Record<string, unknown> = Object.fromEntries(Object.entries(params).filter(([k]) => !API_PARAM_NAMES.has(k)));
+    const cons: ConsistencyRequest = { mode: consistency?.mode ?? (params.as_of ? "as_of" : "latest_committed"), cursor: consistency?.cursor ?? null, as_of_recorded: consistency?.as_of_recorded ?? (typeof params.as_of === "string" ? params.as_of : null), as_of_effective: consistency?.as_of_effective ?? (typeof params.as_of === "string" ? params.as_of : null), deadline_ms: Math.min(5000, consistency?.deadline_ms ?? 5000) };
     const readiness = await this.readiness.forIntent(tenantId, intent);
     const started = process.hrtime.bigint();
     const base = { intent, question_id: built.question.id, params, readiness };
     try {
-      const res = (await this.engine.query({ tenant_id: tenantId, intent, params, consistency: cons, page: { limit: typeof params.limit === "number" ? params.limit : 100, cursor: typeof params.cursor === "string" ? params.cursor : null } })) as Record<string, unknown>;
+      const res = (await this.engine.query({ tenant_id: tenantId, intent, params: engineParams, consistency: cons, page: { limit: typeof params.limit === "number" ? params.limit : 100, cursor: typeof params.cursor === "string" ? params.cursor : null } })) as Record<string, unknown>;
       const consistencyOut = res.consistency as { applied_cursor?: number } | undefined;
       this.log.info("query.served", "Question served", { tenant_id: tenantId, operation_id: built.question.id, duration_ms: Math.round(Number(process.hrtime.bigint() - started) / 1e6), applied_cursor: consistencyOut?.applied_cursor, action_code: principalKind });
       return {

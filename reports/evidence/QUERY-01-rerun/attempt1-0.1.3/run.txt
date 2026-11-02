@@ -1,0 +1,147 @@
+# question coverage run  2026-11-02T03:46:42Z  install blackbox-agent-c-ops2 at http://127.0.0.1:19185  load 20.49 31.60 36.25
+## egress sample before
+api external established peers: none
+worker external established peers: none
+engine external established peers: none
+host com.docker.backend external established: 0 []
+## sparse tenant + read-only agent key (host CLI, test-only; key written 0600 outside the repo, never printed)
+sparse tenant: 90f48d21…
+sparse agent key: status created prefix bba_ len 47
+## phase positive  2026-11-02T03:46:44Z
+{
+  "positive_passed": 20,
+  "positive_total": 24,
+  "parity_ok": 22,
+  "asof_passed": 18,
+  "missing_passed": 20,
+  "missing_total": 24,
+  "missing_parity_ok": 22,
+  "ingest": {
+    "accepted": 72,
+    "duplicate": 0,
+    "rejected": 0,
+    "conflict": 0,
+    "committed_cursor": 75561,
+    "problems": []
+  }
+}
+FAILED inventory.available_to_sell 200 complete [{"name":"entry ids","pass":false}] []
+FAILED customer.delivery_reply 200 complete [{"name":"prior message","pass":false}] []
+FAILED receivables.review_queue 422 null [{"name":"status complete","pass":false},{"name":"I-1 in review","pass":false},{"name":"no reminder","pass":false}] null
+FAILED providers.holds_and_releases 422 null [{"name":"status complete","pass":false},{"name":"held 9700","pass":false},{"name":"released 0","pass":false},{"name":"release only promised","pass":false}] null
+FAILED orders.missing_invoice 422 null [{"name":"unknown","pass":false},{"name":"missing_invoice null","pass":false}] null
+FAILED receivables.review_queue 422 null [{"name":"unknown/partial","pass":false}] null
+FAILED providers.money_positions 200 unknown [{"name":"unknown not zero","pass":false}] ["provider_ledger"]
+FAILED cancellations.outstanding_steps 200 complete [{"name":"partial/unknown","pass":false},{"name":"reservation unknown","pass":false}] []
+positive exit: 0
+## ./blackbox down && ./blackbox up  2026-11-02T03:47:13Z
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+running at http://127.0.0.1:19185/ (project blackbox-agent-c-ops2)
+api /health 200 after 1 probes
+engine healthy after 1 probes
+## phase restart  2026-11-02T03:47:32Z
+[
+  {
+    "group": "order",
+    "intent": "inventory.available_to_sell",
+    "api_status": 200,
+    "status": "complete",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "delivery",
+    "intent": "shipments.attention",
+    "api_status": 200,
+    "status": "partial",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "invoice",
+    "intent": "invoices.outstanding",
+    "api_status": 200,
+    "status": "complete",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "collection",
+    "intent": "payments.recovered_attempts",
+    "api_status": 200,
+    "status": "partial",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "settlement",
+    "intent": "providers.money_positions",
+    "api_status": 200,
+    "status": "complete",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  },
+  {
+    "group": "reversal",
+    "intent": "returns.lifecycle",
+    "api_status": 200,
+    "status": "complete",
+    "identical_to_pre_restart": true,
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T03:46:48.133Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    }
+  }
+]
+restart exit: 0
+## egress sample after
+api external established peers: none
+worker external established peers: none
+engine external established peers: none
+host com.docker.backend external established: 0 []
+# finished 2026-11-02T03:47:36Z  load 14.59 28.22 34.73

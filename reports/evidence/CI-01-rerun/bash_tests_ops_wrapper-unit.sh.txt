@@ -1,0 +1,64 @@
+# command: bash tests/ops/wrapper-unit.sh
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65
+# started: 2026-11-01T21:33:27Z
+wrapper syntax (bash 3.2 compatible)
+  ok   /bin/bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox
+  ok   /bin/bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/release/build.sh
+  ok   /bin/bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/release/check-manifest.sh
+  ok   /bin/bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/release/verify-download.sh
+  ok   bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/backup/backup.sh
+  ok   bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/backup/common.sh
+  ok   bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/backup/restore.sh
+  ok   bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/backup/retention.sh
+  ok   bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/backup/scheduler.sh
+  ok   bash -n /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/backup/usage.sh
+help / unknown command
+  ok   exit_is 0 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox help
+  ok   exit_is 0 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox --help
+  ok   contains doctor /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox help
+  ok   exit_is 2 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox no-such-command
+non-loopback bind refusal
+  ok   exit_is 2 env BLACKBOX_BIND=0.0.0.0 BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i1 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox setup
+  ok   contains public/LAN binding is unsupported env BLACKBOX_BIND=0.0.0.0 BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i1 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox setup
+  ok   contains public/LAN binding is unsupported env BLACKBOX_BIND=192.168.1.5 BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i1 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox doctor
+  ok   exit_is 2 env BLACKBOX_BIND=0.0.0.0 BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i1 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox doctor
+  ok   [ ! -e /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i1/secrets ]
+doctor on a fresh directory (exit 0 or 1 depending on Docker; never 2 when prerequisites exist)
+  ok   [ 0 -le 1 ]
+  ok   grep -q DOC-ARCH /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/doc.out
+  ok   grep -q not set up yet /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/doc.out
+  ok   [ ! -e /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i2/.env ]
+  ok   grep -q "exit_code" /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/doc.json
+commands that need a setup refuse cleanly
+  ok   exit_is 1 env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox up
+  ok   exit_is 1 env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox down
+  ok   exit_is 1 env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox status
+  ok   exit_is 1 env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox backup
+  ok   exit_is 1 env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox verify
+  ok   exit_is 1 env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox demo
+  ok   contains not set up yet env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox up
+  ok   exit_is 2 env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox destroy
+  ok   exit_is 2 env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox restore /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/nonexistent.tar.age
+  ok   contains recovery env BLACKBOX_INSTALL_DIR=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/i3 BLACKBOX_RECOVERY_KEY_FILE=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/missing /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox restore /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/blackbox
+release manifest checker
+  ok   exit_is 0 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/release/check-manifest.sh /Users/benediktsauter/GitHub/blackbox-agent-c/release/release-manifest.template.json
+  ok   exit_is 2 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/release/check-manifest.sh /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/bad.json
+  ok   exit_is 2 /Users/benediktsauter/GitHub/blackbox-agent-c/scripts/release/check-manifest.sh /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-ops-unit.HQASnZ/bad2.json
+compose file: loopback only, internal networks, no extra published ports
+  ok   [ 1 = 1 ]
+  ok   grep -q internal: true /Users/benediktsauter/GitHub/blackbox-agent-c/infra/compose/docker-compose.yml
+  ok   [ 1 = 1 ]
+  ok   grep -q postgres:16.6-alpine@sha256: /Users/benediktsauter/GitHub/blackbox-agent-c/infra/compose/docker-compose.yml
+  ok   [ 5 -ge 5 ]
+  ok   docker compose -f /Users/benediktsauter/GitHub/blackbox-agent-c/infra/compose/docker-compose.yml --env-file /Users/benediktsauter/GitHub/blackbox-agent-c/infra/compose/.env.example config --quiet
+dockerfiles pinned by digest
+  ok   grep -q @sha256: /Users/benediktsauter/GitHub/blackbox-agent-c/infra/docker/api.Dockerfile
+  ok   grep -q -E USER 10001 /Users/benediktsauter/GitHub/blackbox-agent-c/infra/docker/api.Dockerfile
+  ok   grep -q @sha256: /Users/benediktsauter/GitHub/blackbox-agent-c/infra/docker/worker.Dockerfile
+  ok   grep -q -E USER 10001 /Users/benediktsauter/GitHub/blackbox-agent-c/infra/docker/worker.Dockerfile
+  ok   grep -q @sha256: /Users/benediktsauter/GitHub/blackbox-agent-c/infra/docker/engine.Dockerfile
+  ok   grep -q -E USER 10001 /Users/benediktsauter/GitHub/blackbox-agent-c/infra/docker/engine.Dockerfile
+  ok   grep -q @sha256: /Users/benediktsauter/GitHub/blackbox-agent-c/infra/docker/backup.Dockerfile
+  ok   grep -q -E USER 10001 /Users/benediktsauter/GitHub/blackbox-agent-c/infra/docker/backup.Dockerfile
+result: 51 passed, 0 failed
+# exit: 0 finished 2026-11-01T21:33:45Z

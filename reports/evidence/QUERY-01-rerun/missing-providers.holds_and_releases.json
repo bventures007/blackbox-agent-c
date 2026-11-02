@@ -1,0 +1,170 @@
+{
+  "intent": "providers.holds_and_releases",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "providers.holds_and_releases",
+      "question_id": "settlement-04",
+      "params": {},
+      "readiness": {
+        "question_id": "settlement-04",
+        "intent": "providers.holds_and_releases",
+        "status": "blocked",
+        "required": [
+          "holds",
+          "positions",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "holds",
+          "positions"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: holds, positions"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "held_minor": null,
+        "holds": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "holds"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "holds"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "holds",
+          "positions",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "providers.holds_and_releases",
+      "question_id": "settlement-04",
+      "params": {},
+      "readiness": {
+        "question_id": "settlement-04",
+        "intent": "providers.holds_and_releases",
+        "status": "blocked",
+        "required": [
+          "holds",
+          "positions",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "holds",
+          "positions"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: holds, positions"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "held_minor": null,
+        "holds": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "holds"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "holds"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "holds",
+          "positions",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

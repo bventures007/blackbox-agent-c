@@ -53,17 +53,19 @@ test.describe('system & diagnostics', () => {
     const firstBefore = await rows.first().innerText();
     await page.getByRole('button', { name: 'Live', exact: true }).click();
     await expect(page.getByRole('button', { name: /Live · on/ })).toBeVisible({ timeout: 10_000 });
-    // The 5 s health probes of this very view produce INFO records, so new rows arrive without external activity.
-    await expect.poll(async () => rows.first().innerText(), { timeout: 20_000 }).not.toBe(firstBefore);
+    // An idle workspace logs nothing at INFO (health probes are not request-logged), so a served query is the
+    // deterministic record source: every entity-state read logs `query.served` and must arrive on the live stream.
+    const produce = async () => { await page.request.get('/api/entities/order/%231001/state'); };
+    await expect.poll(async () => { await produce(); return rows.first().innerText(); }, { timeout: 30_000, intervals: [1000] }).not.toBe(firstBefore);
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
     await expect(page.getByRole('button', { name: /Resume \(\d+ new\)/ })).toBeVisible();
     const frozenFirst = await rows.first().innerText();
-    await expect.poll(async () => page.getByRole('button', { name: /Resume \((\d+) new\)/ }).innerText(), { timeout: 20_000 }).toMatch(/Resume \([1-9]\d* new\)/);
+    await expect.poll(async () => { await produce(); return page.getByRole('button', { name: /Resume \((\d+) new\)/ }).innerText(); }, { timeout: 30_000, intervals: [1000] }).toMatch(/Resume \([1-9]\d* new\)/);
     expect(await rows.first().innerText()).toBe(frozenFirst);
     await screenshot(page, testInfo, 'en', '67-diagnostics-live-paused');
     await page.getByRole('button', { name: /Resume \(/ }).click();
     await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
-    await expect.poll(async () => rows.first().innerText()).not.toBe(frozenFirst);
+    await expect.poll(async () => rows.first().innerText(), { timeout: 30_000 }).not.toBe(frozenFirst);
   });
 
   test('debug controls bound minutes to 15 and show expiry; export dialog previews before download', async ({ page }) => {

@@ -1,0 +1,1207 @@
+restoring into fresh isolated installation: /Users/benediktsauter/blackbox-pilot-ops2-restore (port 19192)
+  [start] blackbox-backup-20261101T224643Z.tar.age
+  [inspect]
+[?25l[0G[2K[+] run 0/1
+[2K [33m⠋[0m Network blackbox-agent-c-ops2-restore_backend Creating                   [34m0.1s[0m
+[?25h[?25l[2A[0G[2K[+] run 1/1
+[2K [32m✔[0m Network blackbox-agent-c-ops2-restore_backend [32mCreated[0m                    [34m0.2s[0m
+[?25hContainer blackbox-agent-c-ops2-restore-backup-run-0d58816ea86c [32mCreating[0m 
+Container blackbox-agent-c-ops2-restore-backup-run-0d58816ea86c [32mCreated[0m 
+{"generation":"blackbox-backup-20261101T224643Z","created_at":"2026-11-01T22:46:43Z","blackbox_version":"0.1.0","bytes":266504,"sha256":"60f465a2628797281572af6c85e1af7784e77e680227c4f7151fbc9c4ee8cab4","cutoff_committed":[{"tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","committed_sequence":54}],"install_id":"09530ba15ed8cbd80a0a2ea6bc37050f"}
+  [unpack]
+Container blackbox-agent-c-ops2-restore-backup-run-b008128d296f [32mCreating[0m 
+Container blackbox-agent-c-ops2-restore-backup-run-b008128d296f [32mCreated[0m 
+2026-11-01T23:31:47Z backup decrypting outer container
+2026-11-01T23:31:51Z backup restoring key material to /secrets
+2026-11-01T23:31:52Z backup restoring evidence
+2026-11-01T23:31:52Z backup restoring snapshots
+  manifest: {"generation":"blackbox-backup-20261101T224643Z","created_at":"2026-11-01T22:46:43Z","blackbox_version":"0.1.0","cutoff":{"committed":[{"tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","committed_sequence":54}],"applied":[{"tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","applied_sequence":54,"reducer_version":1}]},"applied_migrations":["0001_journal","0002_identity","0003_operations","0004_scoped_references","0100_worker","0101_maintenance_lease"],"redaction_ledger_included":false,"release":{"version":"0.1.0","tested_commit":"df8cfbb5e41fb3da483270651823cf470aaf1a65","api_version":"0.1.0","worker_version":"0.1.0","engine_version":"0.1.0","mcp_version":1,"journal_schema_version":1,"reducer_version":1,"snapshot_version":1,"backup_format_version":1,"postgres_major":16}}
+  [postgres-start]
+[?25l[0G[2K[+] up 1/2
+[2K [32m✔[0m Volume blackbox-agent-c-ops2-restore_pgdata      [32mCreated[0m                 [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.0s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.1s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.2s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.3s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.4s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.5s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.6s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.7s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.8s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m0.9s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m1.0s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m1.1s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m1.2s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-postgres Creating                [34m1.3s[0m
+[?25h[?25l[3A[0G[2K[+] up 2/2
+
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-postgres [32mCreated[0m                 [34m1.4s[0m
+[?25h[?25l[3A[0G[2K[+] up 1/2
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m1.8s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m1.9s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.0s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.1s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.2s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.3s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.4s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.5s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.6s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.7s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.8s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m2.9s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m3.0s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m3.1s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m3.2s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m3.3s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-postgres Starting                [34m3.4s[0m
+[?25h[?25l[3A[0G[2K[+] up 2/2
+
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-postgres [32mStarted[0m                 [34m3.5s[0m
+[?25h  postgres ready (11s)
+  [db-roles]
+  [database]
+Container blackbox-agent-c-ops2-restore-backup-run-cc39d5090355 [32mCreating[0m 
+Container blackbox-agent-c-ops2-restore-backup-run-cc39d5090355 [32mCreated[0m 
+2026-11-01T23:32:31Z backup restoring database (streamed; no plaintext dump written)
+2026-11-01T23:32:36Z backup database restored
+  [db-migrate]
+[?25l[0G[2K[+] run 0/1
+[2K [33m⠋[0m Network blackbox-agent-c-ops2-restore_egress Creating                    [34m0.1s[0m
+[?25h[?25l[2A[0G
+[2K [33m⠙[0m Network blackbox-agent-c-ops2-restore_egress Creating                    [34m0.2s[0m
+[?25h[?25l[2A[0G[2K[+] run 1/1
+[2K [32m✔[0m Network blackbox-agent-c-ops2-restore_egress [32mCreated[0m                     [34m0.2s[0m
+[?25hContainer blackbox-agent-c-ops2-restore-api-run-5d21c88b5abf [32mCreating[0m 
+Container blackbox-agent-c-ops2-restore-api-run-5d21c88b5abf [32mCreated[0m 
+{"applied":[],"skipped":["0001_journal.sql","0002_identity.sql","0003_operations.sql","0004_scoped_references.sql","0100_worker.sql","0101_maintenance_lease.sql"]}
+  [services-start]
+[?25l[0G[2K[+] up 1/3
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-postgres         [32mRunning[0m         [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.0s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.1s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.2s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.3s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.4s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.4s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.5s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.6s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.7s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.7s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.8s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.8s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m0.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m0.9s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.0s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.1s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.2s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.3s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.4s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.4s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.5s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.6s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.7s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.7s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.8s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.8s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Creating        [34m1.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-engine           Creating        [34m1.9s[0m
+[?25h[?25l[4A[0G[2K[+] up 3/4
+
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-backup-scheduler [32mCreated[0m         [34m1.9s[0m
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-engine           [32mCreated[0m         [34m2.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m0.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m1.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m2.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m3.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m3.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m3.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m3.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m3.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m3.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Creating        [34m3.6s[0m
+[?25h[?25l[5A[0G[2K[+] up 4/4
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-api              [32mCreated[0m         [34m3.7s[0m
+[?25h[?25l[5A[0G[2K[+] up 3/4
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting         [34m6.1s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting         [34m6.2s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting         [34m6.4s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting         [34m6.4s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting         [34m6.5s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting         [34m6.6s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-postgres         [32mHealthy[0m         [34m6.7s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m6.7s[0m
+
+[?25h[?25l[5A[0G[2K[+] up 2/4
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m6.8s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m6.8s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m6.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m6.9s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.0s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.1s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.2s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.3s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.4s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.4s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.5s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.6s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.7s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.7s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.8s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.8s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m7.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m7.9s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.0s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.1s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.2s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.3s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.4s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.4s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.5s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.6s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.7s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.7s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.8s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.8s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m8.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m8.9s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.0s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.1s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.2s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.3s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.4s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.4s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.5s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.6s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.7s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.7s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.8s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.8s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting        [34m9.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-engine           Starting        [34m9.9s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-engine           Starting       [34m10.0s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-engine           Starting       [34m10.1s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-engine           Starting       [34m10.2s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-engine           Starting       [34m10.3s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.4s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-engine           Starting       [34m10.4s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-engine           Starting       [34m10.5s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-engine           Starting       [34m10.6s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.7s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-engine           Starting       [34m10.7s[0m
+
+[?25h[?25l[5A[0G
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting        [34m10.8s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m10.8s[0m
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-engine           [32mStarted[0m        [34m10.7s[0m
+
+[?25h[?25l[5A[0G
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting        [34m11.0s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.0s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting        [34m11.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.0s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting        [34m11.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.1s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting        [34m11.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.2s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting        [34m11.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.3s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-postgres         Waiting        [34m11.4s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.4s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-postgres         [32mHealthy[0m        [34m11.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.5s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting        [34m9.5s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.6s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting        [34m9.6s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.7s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting        [34m9.7s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.8s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting        [34m9.8s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m11.9s[0m
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting        [34m9.9s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.0s[0m
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.0s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.1s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.1s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.2s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.2s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.3s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.3s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.4s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.4s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.5s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.5s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.6s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.6s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.7s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.8s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.8s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.8s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m12.9s[0m
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m10.9s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.0s[0m
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.0s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.1s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.1s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.2s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.2s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.3s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.3s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.4s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.4s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.5s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.5s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.6s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.6s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.7s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.7s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.8s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m11.9s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m13.9s[0m
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.0s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.0s[0m
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.0s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.1s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.1s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.2s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.2s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.3s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.3s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.4s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.4s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.5s[0m
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.5s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.6s[0m
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.6s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.7s[0m
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.7s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.8s[0m
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.8s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m14.9s[0m
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m12.9s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m15.0s[0m
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.0s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m15.1s[0m
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.1s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m15.2s[0m
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.2s[0m
+[?25h[?25l[5A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-backup-scheduler Starting       [34m15.3s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.3s[0m
+[?25h[?25l[5A[0G[2K[+] up 3/4
+
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-backup-scheduler [32mStarted[0m        [34m15.3s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m13.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m14.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m15.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m16.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m17.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m18.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.5s[0m
+[?25h[?25l[5A[0G[2K[+] up 4/4
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-api              [32mStarted[0m        [34m19.6s[0m
+[?25h  api ready (7s)
+  [fence-credentials]
+
+Restored credentials are stale by policy: rotating the owner key and revoking all sessions/agent keys. New owner key shown ONCE:
+reset-access rotates the owner key and revokes ALL sessions and agent keys. Re-run with --yes to confirm.
+
+[1mWhat's next:[0m
+    Debug this Compose error with Gordon → docker ai "help me fix this compose error"
+blackbox: reset-access failed; run ./blackbox reset-access before use
+  [verify]
+{"level":"INFO","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","operation_id":"verify:order","applied_cursor":54,"schema_version":1,"record_id":"06779847-8f9b-4704-be5e-44f248e8d8fd","occurred_at":"2026-11-01T23:34:24.646Z","observed_at":"2026-11-01T23:34:24.646Z","event_name":"query.served","component":"api","service_version":"0.1.0","instance_id":"a4d62784-f6ea-4b12-a21a-ad60e3c19e5a","scope":"workspace","message":"Golden verify served"}
+physical_stock         observed="112" expected=112
+available_stock        observed="112" expected=112
+captured_minor         observed=11900 expected=11900
+fees_minor             observed=350 expected=350
+refunded_minor         observed=2380 expected=2380
+bank_confirmed_minor   observed=9170 expected=9170
+consistency: {"applied_cursor":54,"required_cursor":54,"reducer_version":1,"status":"current","recorded_cutoff":"2026-11-01T22:45:23.794Z","effective_cutoff":null,"mode":"latest_committed"}
+verify: passed (golden order state matches)
+  representative answer verified
+  [done]
+
+Restore complete into project blackbox-agent-c-ops2-restore at http://127.0.0.1:19192/
+  machine processing: 194s (unpack/db/start 168s, fence/verify 26s); operator input: 0s; full elapsed: 195s
+  provider workers stay PAUSED (fence: restore_pending_review). Check account bindings and the redaction policy, then: ./blackbox resume-sources
+  raw evidence access is blocked until the owner reconciles the restore's policy/cutoff in Settings.

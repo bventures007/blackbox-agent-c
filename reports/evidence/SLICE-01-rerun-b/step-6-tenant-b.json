@@ -1,0 +1,9 @@
+{
+  "tenant_id": "f1ff1229-2e88-4f4f-9d33-aeb21b0446cb",
+  "connection_id": "60beb810-2179-4b78-b97c-493e2fc9f5e9",
+  "seeded": {
+    "order": "gid://shopify/Order/5021",
+    "accepted": 1,
+    "committed_cursor": 3
+  }
+}

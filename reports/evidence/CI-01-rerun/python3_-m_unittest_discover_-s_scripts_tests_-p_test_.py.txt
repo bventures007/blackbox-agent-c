@@ -1,0 +1,26 @@
+# command: python3 -m unittest discover -s scripts/tests -p 'test_*.py' (harness fix: temp copy fetches repository objects and carries reports/integrations)
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65 + uncommitted scripts/tests/test_integration_register.py
+# started: 2026-11-01T21:42:49Z
+............F................................
+======================================================================
+FAIL: test_approval_requires_evidence_for_each_supported_mode (test_integration_register.RegisterTests.test_approval_requires_evidence_for_each_supported_mode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/benediktsauter/GitHub/blackbox-agent-c/scripts/tests/test_integration_register.py", line 173, in test_approval_requires_evidence_for_each_supported_mode
+    with self.assertRaisesRegex(ValueError, 'modes lack'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 45 tests in 1269.915s
+
+FAILED (failures=1)
+# exit: 1 finished 2026-11-01T22:04:00Z
+# command: python3 -m unittest scripts.tests.test_integration_register.RegisterTests.test_approval_requires_evidence_for_each_supported_mode (single re-run after scoping the fixture lookup to the fixture row; full discover run above: 44 passed, this one failed before the fix)
+# started: 2026-11-01T22:04:31Z
+.
+----------------------------------------------------------------------
+Ran 1 test in 57.335s
+
+OK
+# exit: 0 finished 2026-11-01T22:05:28Z

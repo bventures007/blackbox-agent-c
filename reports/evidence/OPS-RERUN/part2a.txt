@@ -1,0 +1,83 @@
+# ops2 part 2a  started 2026-11-01T23:00:33Z  load 80.25 77.24 90.96
+## key layout before
+-rw-------@ 32 anchor.key
+-rw-------@ 32 data.key
+-rw-------@ 2 data.key.version
+generation: 1
+data.key sha256 (first 12): 042b1339ad3f
+## ./blackbox rotate-data-key
+  [prepare] from=1
+Rotating the installation data key: generation 1 -> 2 (writers fenced, sources paused).
+  [reencrypt]
+ Container blackbox-agent-c-ops2-api-run-5115355a11cc Creating 
+ Container blackbox-agent-c-ops2-api-run-5115355a11cc Created 
+{"level":"INFO","action_code":"data_key_rotated","record_count":5,"schema_version":1,"record_id":"ce5cebb9-9b50-4efe-9916-1705fb1228b2","occurred_at":"2026-11-01T23:01:13.594Z","observed_at":"2026-11-01T23:01:13.594Z","event_name":"data_key.rotated","component":"api","service_version":"0.1.0","instance_id":"094879d5-b181-40bb-bb5c-389c340e2c2b","scope":"installation","message":"Stored secrets re-sealed with the next data-key generation (database committed; host swaps the key files)"}
+re-sealed 1 connection secret(s) and 4 producer secret(s) across 1 workspace(s): generation 1 -> 2, 5 verified with the new key before commit
+  [swap]
+  [restart]
+  api ready (4s)
+  [verify]
+{"level":"INFO","action_code":"data_key_verified","record_count":5,"schema_version":1,"record_id":"c31db705-ec31-4e2a-9b54-9516aa26f7a1","occurred_at":"2026-11-01T23:01:48.221Z","observed_at":"2026-11-01T23:01:48.221Z","event_name":"data_key.verified","component":"api","service_version":"0.1.0","instance_id":"e05aa502-381b-46f4-b1a2-b54c408f6ea3","scope":"installation","message":"Every stored secret opens with the live data key"}
+data key generation 2: 5 stored secret(s) across 1 workspace(s) verified
+  [done] to=2
+Data key rotated to generation 2; generation 1 retired and removed from this installation.
+Backups created before this rotation stay restorable with their own recovery key (they carry their own key material).
+Create a new backup now so the newest generation is protected: ./blackbox backup
+rotate exit 0 after 79 s
+## key layout after
+-rw-------@ 32 anchor.key
+-rw-------@ 32 data.key
+-rw-------@ 2 data.key.version
+generation: 2
+data.key sha256 (first 12): c156c395bdc6
+no key-rotation state file (completed)
+fence released
+## containers
+blackbox-agent-c-ops2-api	Up 21 seconds (healthy)
+blackbox-agent-c-ops2-backup-scheduler	Up 15 minutes
+blackbox-agent-c-ops2-engine	Up 20 minutes (healthy)
+blackbox-agent-c-ops2-postgres	Up 22 minutes (healthy)
+blackbox-agent-c-ops2-worker	Up 23 seconds
+## secrets in the database carry the new generation
+shopify|2
+producer|2
+producer|2
+producer|2
+producer|2
+## security audit
+{'data_key.rotated': 1}
+## ./blackbox verify (golden answer after rotation)
+verify: passed (golden order state matches)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+verify exit 0
+## api cli rotate-data-key --verify-only (every stored secret opens with the live key)
+{"level":"INFO","action_code":"data_key_verified","record_count":5,"schema_version":1,"record_id":"c018a22b-8dee-485a-814c-411e81a273ce","occurred_at":"2026-11-01T23:02:15.834Z","observed_at":"2026-11-01T23:02:15.834Z","event_name":"data_key.verified","component":"api","service_version":"0.1.0","instance_id":"4788fe56-05c8-49a6-bb20-8b08d217ac96","scope":"installation","message":"Every stored secret opens with the live data key"}
+data key generation 2: 5 stored secret(s) across 1 workspace(s) verified
+## PILOT-08: restrict one raw evidence object
+evidence id: 671efdbc-7ee5-444b-8ead-6aa6f5a0799d
+before:
+{"status":"available","evidence":{"evidence_id":"671efdbc-7ee5-444b-8ead-6aa6f5a0799d","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","connection_id":"6a641f31-5d7c-44c2-ab5c-5cfd9f0f1a52","kind":
+POST restrict:
+201
+{"status":"restricted","evidence_id":"671efdbc-7ee5-444b-8ead-6aa6f5a0799d","redaction_id":"46193de0-68e4-4884-a395-2854c0ed2974","already_restricted":false,"content_removed":true,"audited":true}
+after (owner):
+{"status":"restricted","reason":"Owner removed the raw provider payload on request (pilot PILOT-08 proof)","evidence":{"evidence_id":"671efdbc-7ee5-444b-8ead-6aa6f5a0799d","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","connection_id":"6a641f31-5d7c-44c2-ab5c-5cfd9f0f1a52","kind":"observation.inventory.snapshot","media_type":"application/json","byte_size":296,"content_hash":"13a6057e225eaf90ca
+content endpoint:
+410
+agent key (API-created, saved to /Users/benediktsauter/blackbox-pilot-ops2/agent.key 0600):
+{'credential_id': '0f3f4c38-9eaf-49f8-b6a3-6acdf5565ee6', 'grant': 'workspace.read_business', 'notice': 'Shown once. Provide it to the MCP bridge through BLACKBOX_AGENT_KEY or a key file; never as a command argument.'}
+after (agent, API):
+{"status":"restricted","reason":"Owner removed the raw provider payload on request (pilot PILOT-08 proof)","evidence":{"evidence_id":"671efdbc-7ee5-444b-8ead-6aa6f5a0799d","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","connection_id":"6a641f31-5d7c-44c2-ab5c-5cfd9f0f1a52","kind":"observation.in
+after (agent, MCP get_evidence via Inspector CLI):
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{"schema_version":1,"occurred_at":"2026-11-01T23:02:34.619Z","level":"INFO","event_name":"mcp.started","message":"MCP bridge connected over stdio","component":"mcp","service_version":"0.1.0","scope":"installation","action_code":"stdio"}
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"status\": \"restricted\",\n  \"reason\": \"Owner removed the raw p
+ledger rows:
+restricted|owner_restriction|Owner removed the raw provider payload on request (pilot PILOT-08 proof)
+# finished 2026-11-01T23:02:35Z

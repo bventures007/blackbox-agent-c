@@ -1,78 +1,686 @@
 {
   "schema_version": "1.0",
-  "note": "Smoke profile attempted by the ops verifier on 2026-11-01: corpus generated partially, load runs not executed (see profiles.smoke.limitations); reference_10m and scale_100m remain deferred and unmeasured.",
+  "note": "Smoke profile measured by the P4 re-run verifier on 2026-11-02 on the second install (see profiles.smoke: every target carries its verdict; the latency, success, ingestion and memory targets fail on the shared host); reference_10m and scale_100m remain deferred and unmeasured.",
   "contract": "benchmarks/performance-contract.json",
   "profiles": {
     "smoke": {
-      "status": "implemented_unverified",
-      "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177",
-      "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with the containers of three other Blackbox projects), Docker 27.3.1, images blackbox/*:0.1.0-rc6 on the ops install (project blackbox-agent-c-ops, 127.0.0.1:19185); during the run the host was saturated by other agents' workloads (load average 700-840 on 8 cores, 14.7 GiB swap in use) and the Docker VM load average was 40-60; docker commands took minutes",
+      "status": "failed",
+      "tested_commit": "df8cfbb5e41fb3da483270651823cf470aaf1a65",
+      "environment": "macOS 27.2 Apple Silicon host (8 cores, 24 GiB) running Docker Desktop daemon 29.9.2 with a VM of 8 vCPU / 9.7 GiB shared with ~40 containers of three other Blackbox projects; host load averages 7-132 (1 min) during the runs; second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185) on release 0.1.3 (fixed-arrival runs) and 0.1.4 (closed-loop runs) of the df8cfbb tree plus the uncommitted fixes listed in reports/evidence/RERUN/README.md; container limits api 1 GiB, worker 1 GiB, engine 1.5 GiB, backup-scheduler 256 MiB; PostgreSQL 16.6-alpine on a Docker volume (fsync on, default durability); node v25.9.0 driver on the host with the stdio MCP bridge packages/mcp/dist/server.js (one bridge per principal)",
       "commands": [
-        "PGHOST=127.0.0.1 PGPORT=19186 PGDATABASE=blackbox PGUSER=bb_api PGPASSWORD_FILE=<install>/secrets/pg_api_password target/release/corpus --seed 42 --tenants 50 --min-entries 250000 --min-orders 10000 --parallel 6 --manifest reports/evidence/PILOT-09/corpus-manifest.json  (corpus-v2, stopped after ~43 min; see corpus-generation.txt)",
-        "DATABASE_URL=postgres://postgres:***@127.0.0.1:19186/blackbox node tests/perf/manifest-from-db.mjs --out reports/evidence/PILOT-09/corpus-manifest.json --since 2026-11-01T12:22:00Z --seed 42",
-        "NOT EXECUTED: node tests/perf/prepare.mjs ...; node tests/perf/smoke.mjs --mode closed|fixed --transport api|mcp --duration 600 ...; node tests/perf/verdict.mjs ...; node tests/perf/report.mjs ... (driver, verdict and report scripts are committed and syntax-checked but no load run happened: the api of the ops install was unreachable on its published port until the rc6b upgrade (LOCAL-05 defect) and the upgrade itself was still loading images on the saturated host when the run was wrapped up)"
+        "cargo run --release -p blackbox-engine --bin corpus -- --parallel ... (corpus generation, see corpus-generation.txt) ; node tests/perf/prepare.mjs ; node tests/perf/manifest-from-db.mjs > corpus-manifest.json",
+        "node tests/perf/smoke.mjs --pools <keys>/pools.json --mode closed --transport api --duration 600 --clients 20 --rate 40 --ingest-obs-per-second 20 --warmup 60 --project blackbox-agent-c-ops2 --owner-key-file <ops2>/owner.key --out reports/evidence/PILOT-09-rerun/run-api-closed.json",
+        "node tests/perf/smoke.mjs ... --mode fixed --transport api ... --out run-api-fixed.json",
+        "node tests/perf/smoke.mjs ... --mode closed --transport mcp ... --out run-mcp-closed.json (re-run after the driver fix)",
+        "node tests/perf/smoke.mjs ... --mode fixed --transport mcp ... --out run-mcp-fixed.json (re-run after the driver fix)",
+        "scripts/verify/ops2-restart-rebuild.sh (restart with a 3,000-entry unapplied tail; no-snapshot rebuild) -> restart.json, rebuild.json",
+        "./blackbox restore <generation> --into ~/blackbox-pilot-ops2-restore --port 19192 --project blackbox-agent-c-ops2-restore (OPS-RERUN/part2b.txt) -> restore.json",
+        "node tests/perf/verdict.mjs --api-closed run-api-closed.json --api-fixed run-api-fixed.json --mcp-closed run-mcp-closed.json --mcp-fixed run-mcp-fixed.json --restart restart.json --rebuild rebuild.json --restore restore.json --manifest corpus-manifest.json > verdict.json",
+        "node tests/perf/report.mjs --runs-dir reports/evidence/PILOT-09-rerun --verdict verdict.json --manifest corpus-manifest.json --commit df8cfbb5e41fb3da483270651823cf470aaf1a65 --environment \"...\" --limitations-file limitations.txt --commands-file commands.txt"
       ],
-      "dataset_manifest": "reports/evidence/PILOT-09/corpus-manifest.json",
+      "dataset_manifest": "reports/evidence/PILOT-09-rerun/corpus-manifest.json",
       "measurements": {
+        "runs": {
+          "api-closed": {
+            "transport": "api",
+            "mode": "closed",
+            "duration_s": 600,
+            "clients": 20,
+            "fixed_rate_rps": null,
+            "achieved_rps": 8.7,
+            "requests_total": 5230,
+            "success_fraction": 0.91415,
+            "classes": {
+              "hot": {
+                "requests": 2691,
+                "success_fraction": 0.91602,
+                "p50_ms": 1400.7,
+                "p95_ms": 7001.7,
+                "p99_ms": 7003.5,
+                "max_ms": 7106.9,
+                "errors": {
+                  "client_timeout": 185,
+                  "database_busy": 28,
+                  "overloaded": 8,
+                  "deadline_exceeded": 5
+                }
+              },
+              "cold": {
+                "requests": 1026,
+                "success_fraction": 0.88694,
+                "p50_ms": 1841.8,
+                "p95_ms": 7002.5,
+                "p99_ms": 7005.5,
+                "max_ms": 7229.7,
+                "errors": {
+                  "client_timeout": 99,
+                  "database_busy": 13,
+                  "overloaded": 4
+                }
+              },
+              "history": {
+                "requests": 981,
+                "success_fraction": 0.92253,
+                "p50_ms": 1394.8,
+                "p95_ms": 7001.6,
+                "p99_ms": 7003.8,
+                "max_ms": 7014.2,
+                "errors": {
+                  "client_timeout": 63,
+                  "database_busy": 13
+                }
+              },
+              "summary": {
+                "requests": 532,
+                "success_fraction": 0.94173,
+                "p50_ms": 1269.9,
+                "p95_ms": 6843.2,
+                "p99_ms": 7003.4,
+                "max_ms": 7032,
+                "errors": {
+                  "client_timeout": 26,
+                  "database_busy": 2,
+                  "deadline_exceeded": 3
+                }
+              }
+            },
+            "ingestion": {
+              "entries_per_second": 52.38,
+              "durable_ack_p50_ms": 29158.1,
+              "durable_ack_p95_ms": 42422.3,
+              "lag_p50_ms": 2378.2,
+              "lag_p95_ms": 8522,
+              "lag_max_ms": 13021.8,
+              "errors": {
+                "lag_http_503": 17,
+                "http_503": 104
+              }
+            },
+            "memory": {
+              "engine_mib_steady_median": 1484.8,
+              "engine_mib_peak": 1536,
+              "total_stack_mib_peak": 2370.9,
+              "per_container_peak_mib": {
+                "postgres": 550.8,
+                "engine": 1536,
+                "api": 393.6,
+                "worker": 87.9,
+                "backup-scheduler": 2.9
+              },
+              "engine_rss_bytes_last": 1573171200
+            },
+            "mode_info": {
+              "clients": 20
+            },
+            "warmup": {
+              "touched": 2369,
+              "seconds": 40.237
+            }
+          },
+          "api-fixed": {
+            "transport": "api",
+            "mode": "fixed",
+            "duration_s": 600,
+            "clients": 20,
+            "fixed_rate_rps": 40,
+            "achieved_rps": 39.54,
+            "requests_total": 24001,
+            "success_fraction": 0.00792,
+            "classes": {
+              "hot": {
+                "requests": 12202,
+                "success_fraction": 0.00803,
+                "p50_ms": 7002.5,
+                "p95_ms": 7005.7,
+                "p99_ms": 7083.4,
+                "max_ms": 7734.8,
+                "errors": {
+                  "client_timeout": 12095,
+                  "deadline_exceeded": 9
+                }
+              },
+              "cold": {
+                "requests": 4797,
+                "success_fraction": 0.00938,
+                "p50_ms": 7002.5,
+                "p95_ms": 7005.6,
+                "p99_ms": 7063.7,
+                "max_ms": 7610.6,
+                "errors": {
+                  "client_timeout": 4746,
+                  "deadline_exceeded": 6
+                }
+              },
+              "history": {
+                "requests": 4634,
+                "success_fraction": 0.01014,
+                "p50_ms": 7002.6,
+                "p95_ms": 7005.8,
+                "p99_ms": 7077.8,
+                "max_ms": 7661.7,
+                "errors": {
+                  "client_timeout": 4587
+                }
+              },
+              "summary": {
+                "requests": 2368,
+                "success_fraction": 0,
+                "p50_ms": 7002.6,
+                "p95_ms": 7006.6,
+                "p99_ms": 7096,
+                "max_ms": 7685.2,
+                "errors": {
+                  "invalid_params": 19,
+                  "client_timeout": 2348,
+                  "deadline_exceeded": 1
+                }
+              }
+            },
+            "ingestion": {
+              "entries_per_second": 0.46,
+              "durable_ack_p50_ms": 121995.3,
+              "durable_ack_p95_ms": 290210.7,
+              "lag_p50_ms": 250.1,
+              "lag_p95_ms": 363.1,
+              "lag_max_ms": 363.1,
+              "errors": {
+                "lag_http_503": 2,
+                "network": 301
+              }
+            },
+            "memory": {
+              "engine_mib_steady_median": 1473.5,
+              "engine_mib_peak": 1494,
+              "total_stack_mib_peak": 2592,
+              "per_container_peak_mib": {
+                "postgres": 430.3,
+                "engine": 1494,
+                "api": 658.7,
+                "worker": 61.2,
+                "backup-scheduler": 1.4
+              },
+              "engine_rss_bytes_last": null
+            },
+            "mode_info": {
+              "scheduled": 24001,
+              "max_inflight": 306,
+              "unfinished_at_end": 0
+            },
+            "warmup": {
+              "touched": 2369,
+              "seconds": 34.274
+            }
+          },
+          "mcp-closed": {
+            "transport": "mcp",
+            "mode": "closed",
+            "duration_s": 600,
+            "clients": 20,
+            "fixed_rate_rps": null,
+            "achieved_rps": 5.39,
+            "requests_total": 3261,
+            "success_fraction": 0.7832,
+            "classes": {
+              "hot": {
+                "requests": 1672,
+                "success_fraction": 0.79605,
+                "p50_ms": 3484.7,
+                "p95_ms": 7002.5,
+                "p99_ms": 7003.4,
+                "max_ms": 7030.1,
+                "errors": {
+                  "bridge": 285,
+                  "database_busy": 29,
+                  "overloaded": 21,
+                  "projection_behind": 1,
+                  "deadline_exceeded": 5
+                }
+              },
+              "cold": {
+                "requests": 653,
+                "success_fraction": 0.65697,
+                "p50_ms": 4596.7,
+                "p95_ms": 7002.9,
+                "p99_ms": 7005.5,
+                "max_ms": 7046.6,
+                "errors": {
+                  "bridge": 188,
+                  "database_busy": 10,
+                  "overloaded": 17,
+                  "deadline_exceeded": 9
+                }
+              },
+              "history": {
+                "requests": 607,
+                "success_fraction": 0.88138,
+                "p50_ms": 2716.4,
+                "p95_ms": 7001.9,
+                "p99_ms": 7002.7,
+                "max_ms": 7004.2,
+                "errors": {
+                  "database_busy": 13,
+                  "bridge": 59
+                }
+              },
+              "summary": {
+                "requests": 329,
+                "success_fraction": 0.78723,
+                "p50_ms": 2774.3,
+                "p95_ms": 7002.2,
+                "p99_ms": 7004,
+                "max_ms": 7149.4,
+                "errors": {
+                  "database_busy": 6,
+                  "deadline_exceeded": 1,
+                  "bridge": 53,
+                  "overloaded": 10
+                }
+              }
+            },
+            "ingestion": {
+              "entries_per_second": 47.67,
+              "durable_ack_p50_ms": 36594.7,
+              "durable_ack_p95_ms": 51456.9,
+              "lag_p50_ms": 5660.4,
+              "lag_p95_ms": 11449.1,
+              "lag_max_ms": 15336.4,
+              "errors": {
+                "http_503": 157,
+                "lag_http_503": 90
+              }
+            },
+            "memory": {
+              "engine_mib_steady_median": 1487.9,
+              "engine_mib_peak": 1536,
+              "total_stack_mib_peak": 2510.1,
+              "per_container_peak_mib": {
+                "postgres": 624.2,
+                "engine": 1536,
+                "api": 391.5,
+                "worker": 91.9,
+                "backup-scheduler": 2.8
+              },
+              "engine_rss_bytes_last": 1542692864
+            },
+            "mode_info": {
+              "clients": 20
+            },
+            "warmup": {
+              "touched": 2172,
+              "seconds": 60.645
+            }
+          },
+          "mcp-fixed": {
+            "transport": "mcp",
+            "mode": "fixed",
+            "duration_s": 600,
+            "clients": 20,
+            "fixed_rate_rps": 40,
+            "achieved_rps": 39.54,
+            "requests_total": 24001,
+            "success_fraction": 0.00858,
+            "classes": {
+              "hot": {
+                "requests": 12202,
+                "success_fraction": 0.0091,
+                "p50_ms": 7001.9,
+                "p95_ms": 7007,
+                "p99_ms": 7168.3,
+                "max_ms": 8473.4,
+                "errors": {
+                  "bridge": 12091
+                }
+              },
+              "cold": {
+                "requests": 4797,
+                "success_fraction": 0.01001,
+                "p50_ms": 7001.9,
+                "p95_ms": 7008,
+                "p99_ms": 7173.6,
+                "max_ms": 8198.7,
+                "errors": {
+                  "bridge": 4749
+                }
+              },
+              "history": {
+                "requests": 4634,
+                "success_fraction": 0.01014,
+                "p50_ms": 7001.9,
+                "p95_ms": 7007.2,
+                "p99_ms": 7122.6,
+                "max_ms": 8423.5,
+                "errors": {
+                  "bridge": 4587
+                }
+              },
+              "summary": {
+                "requests": 2368,
+                "success_fraction": 0,
+                "p50_ms": 7001.9,
+                "p95_ms": 7006.6,
+                "p99_ms": 7132,
+                "max_ms": 8348.6,
+                "errors": {
+                  "invalid_params": 24,
+                  "bridge": 2344
+                }
+              }
+            },
+            "ingestion": {
+              "entries_per_second": 0.41,
+              "durable_ack_p50_ms": 12558.8,
+              "durable_ack_p95_ms": 174183.3,
+              "lag_p50_ms": 635.3,
+              "lag_p95_ms": 1924.6,
+              "lag_max_ms": 1924.6,
+              "errors": {
+                "lag_http_503": 2,
+                "network": 298
+              }
+            },
+            "memory": {
+              "engine_mib_steady_median": 1446.9,
+              "engine_mib_peak": 1535,
+              "total_stack_mib_peak": 3160.3,
+              "per_container_peak_mib": {
+                "postgres": 1033.2,
+                "engine": 1535,
+                "api": 670.2,
+                "worker": 63.2,
+                "backup-scheduler": 3
+              },
+              "engine_rss_bytes_last": null
+            },
+            "mode_info": {
+              "scheduled": 24001,
+              "max_inflight": 316,
+              "unfinished_at_end": 0
+            },
+            "warmup": {
+              "touched": 2369,
+              "seconds": 25.352
+            }
+          }
+        },
+        "recovery": {
+          "restart": {
+            "ready_seconds": 5,
+            "unapplied_tail_entries": 3000,
+            "unapplied_tail_observations": 1000,
+            "engine_rss_bytes_after": 1088221184,
+            "committed_cursor_owner_tenant": {
+              "before": 35745,
+              "after": 38745
+            },
+            "measured_at": "2026-11-02T03:18:16.335506+00:00",
+            "source": "scripts/verify/ops2-restart-rebuild.sh (part4.txt); 1,000 observations = 3,000 journal entries ingested while the engine was stopped"
+          },
+          "rebuild": {
+            "ready_seconds": 196,
+            "engine_rss_bytes_after": 1524891648,
+            "snapshots_removed": "engine_snapshots table (51 rows) + data/snapshots files",
+            "measured_at": "2026-11-02T03:21:38.607572+00:00",
+            "source": "scripts/verify/ops2-restart-rebuild.sh (part4.txt)"
+          },
+          "restore": {
+            "machine_seconds": 200,
+            "note": "./blackbox restore of generation blackbox-backup-20261101T224643Z (corpus-populated ops2, isolated project blackbox-agent-c-ops2-restore on 19192 with the recovery key): wall 200 s from command start to exit 0 with api ready; writers fenced restore_pending_review by policy. Not a separately timed query-ready probe.",
+            "measured_at": "2026-11-01T23:33:00Z",
+            "source": "reports/evidence/OPS-RERUN/part2b.txt"
+          }
+        },
+        "verdicts": [
+          {
+            "target": "dataset.tenants",
+            "limit": 50,
+            "observed": 50,
+            "comparator": ">=",
+            "holds": true
+          },
+          {
+            "target": "dataset.minimum_journal_entries",
+            "limit": 250000,
+            "observed": 552798,
+            "comparator": ">=",
+            "holds": true
+          },
+          {
+            "target": "dataset.minimum_distinct_orders",
+            "limit": 10000,
+            "observed": 10000,
+            "comparator": ">=",
+            "holds": true
+          },
+          {
+            "target": "dataset.order_history_entries_p95_minimum",
+            "limit": 50,
+            "observed": 69,
+            "comparator": ">=",
+            "holds": true
+          },
+          {
+            "target": "hot_current_state_api_p95_ms",
+            "limit": 200,
+            "observed": 7005.7,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "hot_current_state_api_p99_ms",
+            "limit": 500,
+            "observed": 7083.4,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "hot_current_state_mcp_p95_ms",
+            "limit": 350,
+            "observed": 7007,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "hot_current_state_mcp_p99_ms",
+            "limit": 900,
+            "observed": 7168.3,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "cold_order_state_api_p95_ms",
+            "limit": 1000,
+            "observed": 7005.6,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "cold_order_state_mcp_p95_ms",
+            "limit": 1250,
+            "observed": 7008,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "entity_history_100_entries_api_p95_ms",
+            "limit": 500,
+            "observed": 7005.8,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "entity_history_100_entries_mcp_p95_ms",
+            "limit": 750,
+            "observed": 7007.2,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "bounded_30_day_summary_api_p95_ms",
+            "limit": 1000,
+            "observed": 7006.6,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "bounded_30_day_summary_mcp_p95_ms",
+            "limit": 1500,
+            "observed": 7006.6,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "current_state_api_p95_ms (mixed ceiling)",
+            "limit": 2000,
+            "observed": 7005.7,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "successful_query_fraction_minimum",
+            "limit": 0.999,
+            "observed": 0.00792,
+            "comparator": ">=",
+            "holds": false
+          },
+          {
+            "target": "durable_ack_p95_ms",
+            "limit": 500,
+            "observed": 290210.7,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "projection_lag_p95_ms",
+            "limit": 2000,
+            "observed": 11449.1,
+            "comparator": "<=",
+            "holds": false,
+            "note": "barrier wait + one point read after each durable ack"
+          },
+          {
+            "target": "engine_steady_rss_mib_maximum",
+            "limit": 1024,
+            "observed": 1487.9,
+            "comparator": "<=",
+            "holds": false,
+            "note": "docker stats container memory (cgroup, includes page cache) median over the run"
+          },
+          {
+            "target": "engine_peak_rss_mib_maximum",
+            "limit": 1536,
+            "observed": 1536,
+            "comparator": "<=",
+            "holds": true
+          },
+          {
+            "target": "total_stack_peak_memory_mib_maximum",
+            "limit": 6144,
+            "observed": 3160.3,
+            "comparator": "<=",
+            "holds": true,
+            "note": "sum of docker stats memory of postgres+engine+api+worker+backup-scheduler"
+          },
+          {
+            "target": "snapshot_restart_ready_seconds_maximum",
+            "limit": 30,
+            "observed": 5,
+            "comparator": "<=",
+            "holds": true,
+            "note": "tail of 3000 unapplied entries"
+          },
+          {
+            "target": "no_snapshot_rebuild_ready_seconds_maximum",
+            "limit": 180,
+            "observed": 196,
+            "comparator": "<=",
+            "holds": false
+          },
+          {
+            "target": "backup_restore_query_ready_seconds_maximum",
+            "limit": 600,
+            "observed": 200,
+            "comparator": "<=",
+            "holds": true
+          },
+          {
+            "target": "load.ingested_journal_entries_per_second (achieved)",
+            "limit": 20,
+            "observed": 0.41,
+            "comparator": ">=",
+            "holds": false
+          },
+          {
+            "target": "measurement_rules.min_1000_samples_per_class_transport_mode",
+            "limit": 1000,
+            "observed": {
+              "api_closed": {
+                "hot": 2691,
+                "cold": 1026,
+                "history": 981,
+                "summary": 532
+              },
+              "api_fixed": {
+                "hot": 12202,
+                "cold": 4797,
+                "history": 4634,
+                "summary": 2368
+              },
+              "mcp_closed": {
+                "hot": 1672,
+                "cold": 653,
+                "history": 607,
+                "summary": 329
+              },
+              "mcp_fixed": {
+                "hot": 12202,
+                "cold": 4797,
+                "history": 4634,
+                "summary": 2368
+              }
+            },
+            "comparator": ">=",
+            "holds": false
+          }
+        ],
         "dataset": {
           "tenants": 50,
-          "orders": 6305,
-          "journal_entries": 348233,
-          "largest_tenant_order_fraction": 0.207,
+          "orders": 10000,
+          "journal_entries": 552798,
+          "largest_tenant_order_fraction": 0.5,
           "order_history_entries": {
             "p50": 63,
             "p95": 69,
-            "max": 71,
+            "max": 73,
             "min": 31
           },
-          "hot_set": 1305,
-          "cold_sample": 490,
-          "reconstructed": true,
-          "requirements_met": false,
-          "note": "generator stopped before the largest tenant was complete: 50 tenants and 348,233 five-track entries exist (above the 250k minimum) but only 6,305 distinct orders (minimum 10,000) and the largest tenant holds 20.7% of the orders (required 50%); one orphan tenant from an aborted sequential run is excluded"
-        },
-        "engine_observed_during_generation": {
-          "rss_mib": 1220,
-          "status": "degraded",
-          "tenants": 52,
-          "note": "engine /health read from inside the api container while the corpus was applied on the saturated host; the 1024 MiB steady target would not hold at this RSS (structural budget 512 MiB, two copies per tenant); not a load-run measurement"
-        },
-        "ingestion_observed": {
-          "append_journal_entries_rate_per_connection_entries_per_second": "~50 (single connection, PostgreSQL CPU-bound) rising to ~300 with 6 concurrent tenants before the host saturated",
-          "note": "generator-side measurement through the same append_journal_entries(jsonb) boundary the API uses; not the 20 entries/s replay-API workload of the contract"
-        },
-        "latency": null,
-        "success_fraction": null,
-        "lag": null,
-        "memory_runs": null,
-        "restart": null,
-        "rebuild": null,
-        "restore": null,
-        "postgres_reference": {
-          "tail_read_ms": 1.9,
-          "high_water_mark_point_read_ms": 0.16,
-          "entity_gin_read_ms": 1.85,
-          "indexed_sql_reference_aggregate_ms": 0.81,
-          "forced_sequential_scan_ms": 42260,
-          "evidence": "reports/evidence/PERF-01/postgres-explain.txt"
-        },
-        "engine_only_sample": "docs/engine.md measured sample 2026-11-01 (release binary p50 55.8 ms / p95 125.3 ms / p99 162.1 ms engine RPC only, 16 clients over 2 workspaces); not the API/MCP measurement"
+          "hot_set": 2000,
+          "cold_sample": 990,
+          "reconstructed": false,
+          "requirements_met": true
+        }
       },
       "evidence_paths": [
-        "reports/evidence/PILOT-09/corpus-manifest.json",
-        "reports/evidence/PILOT-09/corpus-generation.txt",
-        "reports/evidence/PILOT-09/corpus-generation-aborted-sequential-v1.txt",
-        "reports/evidence/PERF-01/postgres-explain.txt",
-        "reports/evidence/CI-01/cargo-test-release.txt"
+        "reports/evidence/PILOT-09-rerun/corpus-manifest.json",
+        "reports/evidence/PILOT-09-rerun/run-api-closed.json",
+        "reports/evidence/PILOT-09-rerun/run-api-fixed.json",
+        "reports/evidence/PILOT-09-rerun/run-mcp-closed.json",
+        "reports/evidence/PILOT-09-rerun/run-mcp-fixed.json",
+        "reports/evidence/PILOT-09-rerun/verdict.json",
+        "reports/evidence/PILOT-09-rerun/restart.json",
+        "reports/evidence/PILOT-09-rerun/rebuild.json",
+        "reports/evidence/PILOT-09-rerun/restore.json",
+        "reports/evidence/PILOT-09-rerun/corpus-generation.txt"
       ],
       "limitations": [
-        "No per-class API/MCP latency, success fraction, lag, memory, restart, rebuild or restore measurement exists: every smoke target is unmeasured and the gate is not passed.",
-        "The corpus does not meet the dataset minimums (orders 6,305 < 10,000; largest tenant 20.7% < 50%); the manifest was reconstructed from the database after the generator was stopped and its hot/cold sets are drawn by hash order, not by the generator RNG.",
-        "Host conditions were not representative of the reference host: other agents ran Playwright/Docker workloads concurrently (load average 700-840, 14.7 GiB swap); a repeat on a quiet host with the committed scripts (tests/perf/*.mjs) is required before any number is reported.",
-        "The ops install was on rc6 images whose api rejected every request on a non-default published port (defect fixed in the working tree, rc6b image); the upgrade to rc6b was still in progress at wrap-up."
+        "Host is a developer Mac shared with ~40 containers of three other Blackbox projects; host load averages ranged 10–120 (1 min) during the runs, far above the contract's dedicated 4 vCPU / 8 GiB reference host. Docker Desktop VM: 8 vCPU / 9.7 GiB for every project together.",
+        "Second install (ops2) ran release 0.1.3 built from the same tree as 0.1.0 plus the fixes listed in reports/evidence/RERUN/README.md (hot-path scans, 503 backpressure, readiness memo); the archive promoted to testers is 0.1.0 build #8 of that tree.",
+        "Closed-loop runs (API and MCP) were re-measured on the 0.1.4 install after the parameter-contract fix (D22) so the summary class produces real answers; the fixed-arrival runs are from the 0.1.3 install where the summary class failed on invalid_params (its latency sample is a validation round-trip, success 0). API runs were measured first on the 0.1.3 install; the MCP runs crashed on the first attempt because of a driver defect (undici HeadersTimeoutError in the ingestion barrier read, tests/perf/smoke.mjs) and were re-run after the fix at 03:22–03:46 UTC. Between the attempts the api served the orphaned backlog for >40 min and was restarted (observation D21).",
+        "Engine container memory limit 1.5 GiB; the corpus (50 tenants) exceeds the 1,024 MiB steady target by design of the bounded working set (evictions observed), so memory targets are reported, not met.",
+        "Restore timing is the wall time of the isolated restore command (200 s incl. pg_restore and container start), not a separate query-ready probe. Rebuild timing (196 s) was measured on the shared host.",
+        "Latency figures include client-side queueing in the driver (scheduled arrival to completion) as the contract requires."
       ],
       "delivery_scope": "local_pilot",
-      "measured_at": "2026-11-01T15:10:00Z"
+      "measured_at": "2026-11-02T04:54:26.345Z"
     },
     "reference_10m": {
       "status": "not_started",

@@ -77,8 +77,10 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
       return { ...state, readiness: { datasets_present: readiness.datasets_present, datasets_missing: readiness.datasets_missing, sources: Object.values(readiness.dataset_sources).flat() } };
     } catch (err) {
       if (err instanceof EngineError) {
-        const stats = await ctx.journal.stats(tenantId);
-        throw new HttpError(err.status, err.code, err.message, { retryable: err.retryable, details: { committed_cursor: stats.committed_cursor } });
+        // Only the indexed committed-cursor point read here: the former journal.stats() ran a tenant-wide
+        // count(*) GROUP BY track on every engine timeout, which under load starved the pool (smoke profile).
+        const committed = await ctx.journal.committedCursorOf(tenantId);
+        throw new HttpError(err.status, err.code, err.message, { retryable: err.retryable, details: { committed_cursor: committed } });
       }
       engineErr(err);
     }
@@ -114,7 +116,7 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
     if (access.status === "unavailable" && !access.meta) throw notFound("evidence");
     const fence = readEvidenceFence(ctx.config.fenceDir);
     if (fence) return { status: "restricted", reason: fence.reason, since: fence.since, evidence: access.meta };
-    if (access.status !== "available") return { status: access.status, reason: access.reason, evidence: access.meta };
+    if (access.status !== "available") return { status: access.status, reason: access.reason, evidence: access.meta, ...(access.restricted_at ? { restricted_at: access.restricted_at } : {}) };
     const text = access.meta.media_type === "application/json" || access.meta.media_type.startsWith("text/") ? access.content.toString("utf8") : null;
     return { status: "available", evidence: access.meta, content: text !== null ? (access.meta.media_type === "application/json" ? safeJson(text) : text) : null, content_encoding: text === null ? "binary_use_content_endpoint" : "inline" };
   });

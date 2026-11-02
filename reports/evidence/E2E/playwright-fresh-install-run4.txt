@@ -1,0 +1,406 @@
+# command: E2E_NO_MOCK=1 BASE_URL=http://127.0.0.1:19180 LANDING_URL=http://127.0.0.1:19181/ BLACKBOX_E2E_KEY=$(cat ~/blackbox-pilot-fresh/owner.key) pnpm --filter e2e test  (run 4: fresh-folder install of the final 0.1.0 archive #7 sha256 cffa9b06…, projects desktop 1440x1000 + mobile 390x844, EN + DE)
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65 + uncommitted deltas listed in reports/evidence/RERUN/README.md
+# started: 2026-11-02T01:19:09Z load: 269.38 278.76 286.03
+$ playwright test
+
+Running 68 tests using 1 worker
+
+  ✓   1 [desktop] › tests/01-auth.spec.ts:5:3 › access-key sign-in › rejects an invalid key with a localized error and never stores the key in localStorage (6.2s)
+  ✓   2 [desktop] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access (14.2s)
+  ✓   3 [desktop] › tests/01-auth.spec.ts:37:3 › access-key sign-in › German login copy (2.0s)
+  ✓   4 [desktop] › tests/01-auth.spec.ts:46:3 › access-key sign-in › logout ends the session (3.6s)
+  ✓   5 [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en (50.4s)
+  ✓   6 [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de (42.4s)
+  ✓   7 [desktop] › tests/02-demo-question.spec.ts:65:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero (7.0s)
+  ✓   8 [desktop] › tests/02-demo-question.spec.ts:80:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history (4.2s)
+  ✓   9 [desktop] › tests/02-demo-question.spec.ts:96:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it (16.4s)
+  ✓  10 [desktop] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action (2.9s)
+  ✓  11 [desktop] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (17.7s)
+  ✓  12 [desktop] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (8.1s)
+  ✓  13 [desktop] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form (3.5s)
+  ✓  14 [desktop] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence (5.9s)
+  ✓  15 [desktop] › tests/03-views.spec.ts:100:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config (53.3s)
+  ✓  16 [desktop] › tests/03-views.spec.ts:116:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls (14.2s)
+  ✓  17 [desktop] › tests/03-views.spec.ts:126:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle (4.2s)
+  ✓  18 [desktop] › tests/03-views.spec.ts:136:5 › views in en › keyboard navigation of the main nav and of a dialog (11.5s)
+  ✓  19 [desktop] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action (4.3s)
+  ✓  20 [desktop] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (5.7s)
+  ✓  21 [desktop] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (4.9s)
+  ✓  22 [desktop] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form (5.9s)
+  ✓  23 [desktop] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence (4.9s)
+  ✓  24 [desktop] › tests/03-views.spec.ts:100:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config (3.7s)
+  ✓  25 [desktop] › tests/03-views.spec.ts:116:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls (7.0s)
+  ✓  26 [desktop] › tests/03-views.spec.ts:126:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle (3.5s)
+  ✓  27 [desktop] › tests/03-views.spec.ts:136:5 › views in de › keyboard navigation of the main nav and of a dialog (33.2s)
+  ✓  28 [desktop] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings (36.7s)
+  ✓  29 [desktop] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges (6.1s)
+  ✓  30 [desktop] › tests/04-diagnostics.spec.ts:71:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download (3.7s)
+  ✓  31 [desktop] › tests/04-diagnostics.spec.ts:94:3 › system & diagnostics › view logs deep link from a source applies the connection filter (3.6s)
+  ✓  32 [desktop] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in en (4.9s)
+  ✓  33 [desktop] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in de (2.1s)
+  ✓  34 [desktop] › tests/05-landing.spec.ts:52:3 › landing page (served from a separate static base URL) › the HTML contains no embedded credentials or private tokens (1.0s)
+  ✓  35 [mobile] › tests/01-auth.spec.ts:5:3 › access-key sign-in › rejects an invalid key with a localized error and never stores the key in localStorage (1.5s)
+  ✓  36 [mobile] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access (2.1s)
+  ✓  37 [mobile] › tests/01-auth.spec.ts:37:3 › access-key sign-in › German login copy (826ms)
+  ✓  38 [mobile] › tests/01-auth.spec.ts:46:3 › access-key sign-in › logout ends the session (1.7s)
+  ✓  39 [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en (7.6s)
+  ✓  40 [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de (7.5s)
+  ✓  41 [mobile] › tests/02-demo-question.spec.ts:65:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero (4.1s)
+  ✓  42 [mobile] › tests/02-demo-question.spec.ts:80:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history (2.8s)
+  ✓  43 [mobile] › tests/02-demo-question.spec.ts:96:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it (9.2s)
+  ✓  44 [mobile] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action (2.0s)
+  ✓  45 [mobile] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (8.4s)
+  ✓  46 [mobile] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (8.0s)
+  ✓  47 [mobile] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form (3.7s)
+  ✓  48 [mobile] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence (5.3s)
+  ✓  49 [mobile] › tests/03-views.spec.ts:100:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config (14.2s)
+  ✓  50 [mobile] › tests/03-views.spec.ts:116:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls (6.4s)
+  ✓  51 [mobile] › tests/03-views.spec.ts:126:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle (2.2s)
+  ✓  52 [mobile] › tests/03-views.spec.ts:136:5 › views in en › keyboard navigation of the main nav and of a dialog (1.2s)
+  ✓  53 [mobile] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action (1.3s)
+  ✓  54 [mobile] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (10.7s)
+  ✘  55 [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (10.3m)
+  ✓  56 [mobile] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form (12.8s)
+  ✓  57 [mobile] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence (14.4s)
+  ✓  58 [mobile] › tests/03-views.spec.ts:100:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config (8.7s)
+  ✓  59 [mobile] › tests/03-views.spec.ts:116:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls (9.5s)
+  ✓  60 [mobile] › tests/03-views.spec.ts:126:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle (9.9s)
+  ✓  61 [mobile] › tests/03-views.spec.ts:136:5 › views in de › keyboard navigation of the main nav and of a dialog (6.9s)
+  ✓  62 [mobile] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings (7.8s)
+  ✓  63 [mobile] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges (10.4s)
+  ✓  64 [mobile] › tests/04-diagnostics.spec.ts:71:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download (22.4s)
+  ✓  65 [mobile] › tests/04-diagnostics.spec.ts:94:3 › system & diagnostics › view logs deep link from a source applies the connection filter (10.1s)
+  ✓  66 [mobile] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in en (3.1s)
+  ✓  67 [mobile] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in de (3.1s)
+  ✓  68 [mobile] › tests/05-landing.spec.ts:52:3 › landing page (served from a separate static base URL) › the HTML contains no embedded credentials or private tokens (1.6s)
+
+
+  1) [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+
+    Test timeout of 600000ms exceeded.
+
+    Error: locator.click: Test timeout of 600000ms exceeded.
+    Browser logs:
+
+    <launching> /Users/benediktsauter/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T/playwright_chromiumdev_profile-97Pjdm --remote-debugging-pipe --no-startup-window
+    <launched> pid=74091
+    [pid=74091][err] [1102/022609.205900:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022609.367267:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022609.728487:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022610.581405:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022610.748886:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022611.031753:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022612.500740:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022612.504363:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022612.663348:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022612.768264:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022613.073605:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022613.485432:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022613.651770:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022613.902590:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022615.025591:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022615.052105:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022615.187501:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022615.351851:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022615.618727:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022618.637044:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022618.660848:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022622.847694:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022622.947854:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022623.148701:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022625.869615:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022625.870238:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022630.368979:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022630.534498:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022630.823087:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022632.404150:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022632.548720:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022634.448744:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022634.583650:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022634.757169:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022636.134312:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022636.138514:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022636.798295:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022636.801540:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022637.265069:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022637.433370:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022637.779621:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022640.153778:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022640.278331:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022642.531441:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022642.552706:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022644.569249:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022644.621223:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022646.455612:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022646.621895:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022646.817868:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022648.517538:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022648.787257:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022649.075317:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022650.454808:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022650.507715:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022657.281939:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022658.782282:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022659.236896:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022702.722353:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022702.759598:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022705.215523:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022705.484176:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022705.835049:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022708.235778:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022708.246549:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022708.915219:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022709.048562:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022709.280143:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022712.868977:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022713.004246:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022714.253523:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022714.383166:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022714.549785:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022718.105201:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022718.153870:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022728.484128:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022728.651515:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022729.010238:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022732.770410:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022732.918220:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022734.930044:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022735.037548:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022735.310527:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022736.570052:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022736.599222:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022737.099213:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022737.231309:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022737.455037:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022738.136250:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022738.140233:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022738.365401:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022738.465199:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022738.618600:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022739.750238:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022739.851616:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022740.090242:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022746.915976:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022746.974602:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022750.518051:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022750.684318:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022750.941636:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091][err] [1102/022752.436283:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=74091][err] [1102/022752.505838:INFO:CONSOLE:67] "🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙", source: http://127.0.0.1:19180/assets/index-C7SmZ-Fy.js (67)
+    [pid=74091] <gracefully close start>
+    Call log:
+      - waiting for getByRole('dialog').getByRole('button', { name: 'Plan speichern und starten' })
+        - locator resolved to <button type="button" class="btn primary">Plan speichern und starten</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <p class="field-hint">Wird mit dem Plan gespeichert. Eine spätere Änder…</p> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        55 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="field-hint">Wird mit dem Plan gespeichert. Eine spätere Änder…</p> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <p class="field-hint">Wird mit dem Plan gespeichert. Eine spätere Änder…</p> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      132 × retrying click action
+            - waiting 500ms
+            - waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+            - waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+            - waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <p class="field-hint">Wird mit dem Plan gespeichert. Eine spätere Änder…</p> from <div class="modal-body">…</div> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+            - waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+      2 × retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <p class="field-hint">Wird mit dem Plan gespeichert. Eine spätere Änder…</p> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      27 × retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="field-hint">Wird mit dem Plan gespeichert. Eine spätere Änder…</p> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      57 × retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <p class="field-hint">Wird mit dem Plan gespeichert. Eine spätere Änder…</p> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+           - waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <small>Beginnt um lokale Mitternacht des gewählten Datum…</small> from <div class="modal-body">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      58 |       await screenshot(page, testInfo, locale, '65-import-plan');
+      59 |       await dialog.getByRole('radio').first().check();
+    > 60 |       await dialog.getByRole('button', { name: locale === 'en' ? 'Save plan and start' : 'Plan speichern und starten' }).click();
+         |                                                                                                                          ^
+      61 |       await expect(page.locator('.toast.show')).toBeVisible();
+      62 |       await expect(page.getByText('UTC').first()).toBeVisible();
+      63 |       await expect(page.getByText(locale === 'en' ? 'Last 30 days' : 'Letzte 30 Tage').first()).toBeVisible();
+        at /Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e/tests/03-views.spec.ts:60:122
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/03-views-views-in-de-conne-2c45a-ility-health-view-logs-link-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link 
+  67 passed (21.5m)
+/Users/benediktsauter/GitHub/blackbox-agent-c/tests/e2e:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] e2e@0.1.0 test: `playwright test`
+Exit status 1
+# exit: 1 finished 2026-11-02T01:40:51Z load: 32.53 71.88 171.47

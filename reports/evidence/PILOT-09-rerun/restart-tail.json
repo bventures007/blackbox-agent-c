@@ -1,0 +1,7 @@
+{
+ "class": "restart_with_unapplied_tail",
+ "tail_entries": 1000,
+ "time_to_ready_seconds": 5,
+ "engine_rss_bytes": 1088221184,
+ "measured_at": "2026-11-02T03:18:16.335506+00:00"
+}

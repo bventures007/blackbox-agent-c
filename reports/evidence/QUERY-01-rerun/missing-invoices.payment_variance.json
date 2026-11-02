@@ -1,0 +1,180 @@
+{
+  "intent": "invoices.payment_variance",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "invoices.payment_variance",
+      "question_id": "collection-03",
+      "params": {},
+      "readiness": {
+        "question_id": "collection-03",
+        "intent": "invoices.payment_variance",
+        "status": "blocked",
+        "required": [
+          "invoices",
+          "payments",
+          "payment_allocations",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "invoices",
+          "payments",
+          "payment_allocations"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: invoices, payments, payment_allocations"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "fee_added_to_customer_debt": 0,
+        "remaining_minor": null,
+        "unallocated_payments_separate": true,
+        "invoices": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "payment_allocations"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "payment_allocations"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "invoices",
+          "payments",
+          "payment_allocations",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "invoices.payment_variance",
+      "question_id": "collection-03",
+      "params": {},
+      "readiness": {
+        "question_id": "collection-03",
+        "intent": "invoices.payment_variance",
+        "status": "blocked",
+        "required": [
+          "invoices",
+          "payments",
+          "payment_allocations",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "invoices",
+          "payments",
+          "payment_allocations"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: invoices, payments, payment_allocations"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "fee_added_to_customer_debt": 0,
+        "remaining_minor": null,
+        "unallocated_payments_separate": true,
+        "invoices": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "payment_allocations"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "payment_allocations"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "invoices",
+          "payments",
+          "payment_allocations",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

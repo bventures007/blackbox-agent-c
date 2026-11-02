@@ -1,0 +1,8 @@
+# command: pnpm exec vitest run --config tests/backend/vitest.unit.config.ts (after the question parameter-contract mirror; new tests/backend/unit/question-params-contract.test.ts parses crates/query/src/intents.rs)
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65 + uncommitted deltas
+ Test Files  4 passed (4)
+      Tests  143 passed (143)
+   Start at  04:59:19
+   Duration  1.96s (transform 1.10s, setup 0ms, import 4.05s, tests 2.01s, environment 0ms)
+
+# exit: 0 finished 2026-11-02T03:59:21Z

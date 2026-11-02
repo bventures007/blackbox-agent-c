@@ -152,6 +152,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
   // ----- ingestion producers -----
   app.post("/api/ingest/replay", { preHandler: [guards.requireOwner] }, async (request) => {
     guards.requireIngestionReady();
+    await guards.requireStorageCapacity(request);
     const body = replayBody.safeParse(request.body);
     if (!body.success) throw validation("connection_id and events[] are required", body.error.issues);
     try {
@@ -183,6 +184,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
     if (!body.success) throw validation("connection_id and records[] are required", body.error.issues);
     // The producer is bound to exactly one connection; the body cannot redirect it (INGEST-01).
     if (body.data.connection_id !== verified.connection_id) throw new HttpError(403, "connection_mismatch", "producer is not bound to this connection");
+    await guards.requireStorageCapacity(request, verified.tenant_id); // the producer's workspace thresholds, after verification
     try {
       const r = await ctx.ingestion!.ingest({ tenantId: verified.tenant_id, connectionId: verified.connection_id, producer: "generic", observations: body.data.records.map(toObservation), traceId: request.traceId });
       return { accepted: r.accepted, duplicate: r.duplicate, conflict: r.conflict, rejected: r.rejected, committed_cursor: r.committed_cursor, outcomes: r.outcomes };
@@ -193,6 +195,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
 
   app.post("/api/ingest/bank-csv", { preHandler: [guards.requireOwner] }, async (request) => {
     guards.requireIngestionReady();
+    await guards.requireStorageCapacity(request);
     const body = bankBody.safeParse(request.body);
     if (!body.success) throw validation("connection_id and csv are required", body.error.issues);
     const tenantId = guards.tenantOf(request);
@@ -227,6 +230,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
 
   app.post("/api/ingest/policy", { preHandler: [guards.requireOwner] }, async (request) => {
     guards.requireIngestionReady();
+    await guards.requireStorageCapacity(request);
     const body = policyBody.safeParse(request.body);
     if (!body.success) throw validation("connection_id and policy {version, rules[]} are required", body.error.issues);
     const tenantId = guards.tenantOf(request);
@@ -248,6 +252,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
 
   app.post("/api/demo/run", { preHandler: [guards.requireOwner] }, async (request) => {
     guards.requireIngestionReady();
+    await guards.requireStorageCapacity(request);
     const body = demoBody.safeParse(request.body ?? {});
     if (!body.success) throw validation("confirm (boolean) and up_to (Gnn) are optional");
     const tenantId = guards.tenantOf(request);

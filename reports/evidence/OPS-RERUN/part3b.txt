@@ -1,0 +1,41 @@
+# ops2 part 3b  started 2026-11-01T23:54:00Z  load 229.69 166.10 141.60
+## container-side figures vs host (Docker Desktop bind mounts): evidence total 232 TiB free 45 TiB | host: total 926 GiB free 181 GiB
+## force critical: critical_min_bytes = 100 TB (above the reported free space)
+200
+volumes: evidence=critical logs=critical snapshots=critical (after 5 s)
+## health cards
+  postgres healthy - connection, read and write readiness probes succeeded -> 
+  api healthy - this response was served by the API -> 
+  worker working - 1 import run(s) in progress -> 
+  engine healthy - engine healthy; reducer_version 1; applied 57 of committed 57 -> 
+  sources healthy - 135 capabilities healthy (last successful check differs from last new event) -> 
+  mcp unknown - no authorized agent request observed since start (a configured endpoint is not a connected -> connect a local MCP client with an agent key
+  diagnostics degraded - collector healthy -> check free space on the logs volume
+## existing check run on the shopify connection:
+  check running import_records None None attempt 4
+## request a new backfill run while critical
+{"error":{"code":"import_plan_required","message":"create an import plan before starting a backfill","retryable":false}}
+
+runs after 30 s:
+  check running import_records None None attempt 4
+## ingestion while critical (POST /api/ingest/replay):
+200
+{"accepted":1,"duplicate":0,"conflict":0,"rejected":0,"committed_cursor":60,"outcomes":[{"provider_event_id":"p06-2","status":"accepted","entry_ids":["4e0450ad-5ab7-4ef1-bf11-7a3783532458","547c74c3-7900-41d2-8ca0-a828c9dbf55a","36737acc-38
+## cursors retained? connection health before/after (last_successful_check, cursor):
+  shopify.allocations None cursor None
+  shopify.fulfillments None cursor None
+  shopify.orders None cursor None
+  shopify.payments None cursor None
+## restore thresholds
+200
+volumes: evidence=ok logs=ok snapshots=ok (after 5 s)
+runs after recovery:
+  check running import_records None None attempt 4
+## PILOT-05: revoke agent key ops2-reader and call the MCP bridge with the revoked key
+204
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{"schema_version":1,"occurred_at":"2026-11-01T23:56:28.420Z","level":"INFO","event_name":"mcp.started","message":"MCP bridge connected over stdio","component":"mcp","serv
+## PILOT-05: scheduler log after the 90 s stop/restart (coalesced resume, no storm):
+  [('storage.state_changed', 1), ('worker.started', 1), ('worker.heartbeat.failed', 1), ('outbox.dispatch.failed', 1), ('scheduler.tick.failed', 1)]
+# finished 2026-11-01T23:56:31Z

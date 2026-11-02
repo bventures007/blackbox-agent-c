@@ -1,28 +1,33 @@
 [
   {
     "id": "INSTALL-01",
-    "status": "implemented_unverified",
-    "command": "not run (planned: curl download -> /Users/benediktsauter/blackbox-pilot-dist, ./blackbox doctor, scripts/release/setup-with-key-capture.py, ./blackbox up/status, docker compose -p blackbox-agent-c ps)",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "No fresh install was performed: the 0.1.0 archive does not exist yet (build stuck) and the time-box ended. The existing rc6 install (~/blackbox-pilot-int) is running.",
+    "status": "passed",
+    "command": "scripts/verify/fresh-install.sh http://127.0.0.1:19181 ~/blackbox-pilot-fresh reports/evidence/INSTALL-01 (final archive) and ./blackbox setup --port 19185 --project blackbox-agent-c-ops2 in ~/blackbox-pilot-ops2 (second independent install) ; repeated for build #9 into ~/blackbox-pilot-fresh2 (INSTALL-01-b)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Fresh folder (archive #7): doctor 0, setup 227 s, up 6 s, api/engine healthy, worker/scheduler/postgres running, owner key shown once (captured 0600, never logged). Second install alongside on port 19185 / project blackbox-agent-c-ops2: api and engine healthy, isolated ports/volumes/keys. Host-level finding: a second install with the SAME project name adopted the other installation's volume and re-keyed its roles; fixed with a setup refusal + doctor DOC-PROJECT (the final archive carries the guard). Build #9 (final) fresh folder ~/blackbox-pilot-fresh2: doctor 0, setup 28 s, up 2 s, api and engine healthy, worker/scheduler/postgres running, owner key captured 0600; this install is the one left running for the owner.",
     "evidence_paths": [
-      "reports/evidence/DIST-03/build-0.1.0-partial.log",
-      "scripts/release/setup-with-key-capture.py"
+      "reports/evidence/INSTALL-01/fresh-install.txt",
+      "reports/evidence/INSTALL-01/ops2-install.txt",
+      "reports/evidence/INSTALL-01/first-attempt-adopted-int-volume.txt",
+      "reports/evidence/INSTALL-01-b/fresh-install.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). no 0.1.0 artifact",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "INSTALL-02",
-    "status": "implemented_unverified",
-    "command": "not run (planned: scripts/release/answer-snapshot.sh before/after ./blackbox down && ./blackbox up)",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Restart persistence was not exercised in this slot.",
+    "status": "passed",
+    "command": "scripts/release/answer-snapshot.sh (order-01 answer before) ; ./blackbox down ; ./blackbox up ; answer-snapshot.sh (after) ; byte comparison ; GET /api/journal/<id> for the first three cited entries ; GET /api/diagnostics/health (scripts/verify/fresh-part5.sh first attempt, re-run via the INSTALL-02 transcript after fixing a quoting bug in the snapshot helper)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Fresh install (archive #8) restarted twice: first attempt restart wall 30 s, re-run 17 s (api /health 200 on the first probe). order-01 (CUP-OLV/100) before and after: status complete, available 112, applied_cursor 514 = required 514, 54 evidence refs, datasets stock+allocations; the two snapshot files are byte-identical. The first three cited journal entries resolve after the restart (200 with entry/derivations/links). No reseeding: the demo stayed at its cursor, volumes preserved by ./blackbox down. Health after restart: postgres/api/engine healthy, worker working. Observation (not a restart defect): the answer's coverage block lists required datasets coverage/identity under datasets_missing while readiness says ready/missing []; recorded as D20 in reports/evidence/RERUN/README.md.",
     "evidence_paths": [
-      "scripts/release/answer-snapshot.sh"
+      "reports/evidence/INSTALL-02/restart-transcript.txt",
+      "reports/evidence/INSTALL-02/answer-before.json",
+      "reports/evidence/INSTALL-02/answer-after.json",
+      "reports/evidence/INSTALL-02/envelope-before.json",
+      "reports/evidence/INSTALL-02/envelope-after.json",
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). no fresh install",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "TENANT-01",
@@ -280,31 +285,32 @@
   },
   {
     "id": "QUERY-01",
-    "status": "implemented_unverified",
-    "command": "cargo test --workspace --release (intents_http.rs: 24/24 intents positive + missing data) + pnpm test:backend:integration (sources.test.ts question boundary) + SLICE-01 (API/MCP parity for order state); installed-stack per-intent API/MCP run NOT executed (tests/questions/coverage.mjs prepared)",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "All 24 intents return typed results with calculation/evidence/cutoffs/coverage at the engine boundary and reject unknown parameters at the API boundary; per-intent evidence through the installed API and MCP, parity and the as_of re-check after restart are not recorded (reports/question-coverage.json says so per question).",
+    "status": "passed",
+    "command": "scripts/verify/coverage-run.sh on the second install (ops2, release 0.1.4 of the tree): api cli create-tenant --seed-order '#M' + create-tenant-agent-key (sparse synthetic workspace, host CLI only) ; node tests/questions/coverage.mjs --phase positive (24 intents through the HTTP API and the stdio MCP bridge with the official SDK client on the -Q scenario ported from apps/engine/tests/intents_http.rs: positive, as_of and missing-data cases) ; ./blackbox down && ./blackbox up ; --phase restart (as_of re-check per group) ; node tests/questions/report.mjs → reports/question-coverage.json ; engine-boundary suites cargo test --release (intents_http) on df8cfbb",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Installed-stack run on 0.1.4: positive 24/24 intents pass their typed-value checks through the API, API/MCP parity 24/24, missing-data 24/24 on the sparse tenant with parity 24/24, after ./blackbox down/up the as_of answer of every group (6/6) is byte-identical to the pre-restart snapshot; the second run re-ingested the scenario as 72 duplicates / 0 new (idempotent ingestion through PostgreSQL and the Rust engine). as_of-vs-latest agreement 21/24: shipments.attention, shipments.promise_risk and payments.recovered_attempts answer partial under as_of because the scoped (order-only) as_of replay does not carry the tenant-wide tracking/policy datasets — recorded as observation D26, not hidden. The first run on 0.1.3 (20/24, 20/24) exposed D22 (API parameter contract diverged from the engine) and D23 (evicted history cited no evidence); both fixed, rebuilt and re-run; the memory-bound install now discloses history.evicted_use_cold_read with coverage.evidence_source postgresql_cold_read (entity-ref-keyed cold reads cannot reach payload-derived account entities: residual noted). Per-intent evidence in reports/question-coverage.json (counts object unchanged; run tallies under run.tallies).",
     "evidence_paths": [
       "reports/question-coverage.json",
-      "reports/evidence/CI-01/cargo-test-release.txt",
-      "reports/evidence/CI-01/test-backend-integration.txt",
-      "reports/evidence/SLICE-01/results.json"
+      "reports/evidence/QUERY-01-rerun/run.txt",
+      "reports/evidence/QUERY-01-rerun/state.json",
+      "reports/evidence/QUERY-01-rerun/attempt1-0.1.3/run.txt",
+      "reports/evidence/CI-01-rerun/cargo-test-release-run2.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "QUERY-02",
-    "status": "implemented_unverified",
-    "command": "as QUERY-01 (missing-data cases of intents_http.rs: stock.basis, policy.priority_method, allocations, tracking.coverage, promises, fulfillments, communications, invoices chain/links, payments.status, payment_allocations, cases.coverage, provider ledger membership, bank, holds, entitlements)",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Unknown/partial answers name the exact missing capabilities and never fabricate zeros at the engine boundary (24/24); not re-run through the installed API/MCP.",
+    "status": "passed",
+    "command": "as QUERY-01 (missing-data set of tests/questions/coverage.mjs on the sparse synthetic workspace: one accepted order #M, no payments/bank/invoices/supply/communications; API and MCP) ; engine-boundary intents_http missing-data cases",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "All 24 missing-data cases pass through API and MCP on 0.1.4: unknown/partial statuses name the exact missing capability (e.g. stock.basis, payments.status, provider_ledger, invoices.correction_chain_coverage, communications), money values stay null instead of zero (net_assets_minor null, collected null, held null), available inventory null when the basis is missing, the return intent does not claim a warehouse receipt, a non-cancelled order answers cancelled=false with no steps invented, promises are reported as not checked when communications are absent, and no fabricated dates appear. Freshness/consistency blocks are scoped per answer; the sparse tenant never sees the owner workspace (parity 24/24 against the API with the same read-only key).",
     "evidence_paths": [
       "reports/question-coverage.json",
-      "reports/evidence/CI-01/cargo-test-release.txt"
+      "reports/evidence/QUERY-01-rerun/run.txt",
+      "reports/evidence/QUERY-01-rerun/missing-providers.money_positions.json",
+      "reports/evidence/QUERY-01-rerun/missing-inventory.available_to_sell.json"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "MCP-01",
@@ -322,35 +328,38 @@
   },
   {
     "id": "MCP-03",
-    "status": "implemented_unverified",
-    "command": "npx --yes @modelcontextprotocol/inspector --cli -e BLACKBOX_API_URL=http://127.0.0.1:19180 -e BLACKBOX_AGENT_KEY_FILE=<0600 file> node packages/mcp/dist/server.js --method tools/list | --method tools/call --tool-name get_business_state ...",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "tools/list PASSED (10 tools) with Inspector 2.13.0, SDK 1.32.2, node v25.9.0, stdio, API-created (not UI-created) agent key, revoked afterwards. tools/call get_business_state returned bridge_error timeout (10 s bridge limit under load). Claude Desktop not launched; config snippet in docs/tester-guide.md.",
+    "status": "passed",
+    "command": "agent key created through the Agents & MCP page of the installed UI (Playwright-driven real UI flow, key shown once, saved 0600 outside the repo, never printed); npx --yes @modelcontextprotocol/inspector --cli -e BLACKBOX_API_URL=http://127.0.0.1:19180 -e BLACKBOX_AGENT_KEY_FILE=<file> node packages/mcp/dist/server.js --method tools/list; --method tools/call --tool-name get_business_state --tool-arg entity_type=order --tool-arg entity_id=#1001; --method tools/call --tool-name answer_question --tool-args-json '{\"intent\":\"inventory.available_to_sell\",\"params\":{\"item_id\":\"CUP-OLV\",\"requested_quantity\":100}}' ; supplementary check on the final build-#9 install (API-created key, Inspector CLI): tools/list, answer_question invoices.outstanding {customer_id}, answer_question inventory.available_to_sell, answer_question with an unknown parameter; key revoked afterwards",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "tools/list: 10 tools (describe_business_schema, list_journal_entries, get_journal_entry, get_entity_history, search_events, get_business_state, get_evidence, get_readiness, answer_question, query_business). get_business_state order #1001: physical/available 112, captured 11900, fees 350, refunded 2380, bank-confirmed 9170, consistency current at applied cursor 74, 54 evidence refs, five tracks. answer_question inventory.available_to_sell CUP-OLV/100: status complete, available 112, shortfall 0, can_fulfill true, two calculation steps, readiness ready (optional supply absent disclosed), consistency current. Usage note recorded: nested params need --tool-args-json (a key=value --tool-arg passes a string). Claude Desktop itself was not launched by the project. Build #9 check: 10 tools listed; invoices.outstanding {customer_id: C-1001} → complete with 1 invoice and 8 evidence refs (the parameter contract now matches the engine, D22); available_to_sell → complete 112 with 54 evidence refs, consistency current; an unknown parameter (from) is refused as a typed 422 invalid_params error through the bridge; revoke 204.",
     "evidence_paths": [
-      "reports/evidence/MCP-03/README.md",
-      "reports/evidence/MCP-03/inspector-version.txt"
+      "reports/evidence/MCP-03-rerun/inspector.txt",
+      "reports/evidence/MCP-03-rerun-b/mcp-check.txt"
     ],
-    "blocker": "tools/call not completed under host load; UI-created key not used",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "UI-01",
-    "status": "failed",
-    "command": "E2E_NO_MOCK=1 BASE_URL=http://127.0.0.1:19180 LANDING_URL=http://127.0.0.1:19181/ BLACKBOX_E2E_KEY=$(cat ~/blackbox-pilot-int/owner.key) pnpm --filter e2e test (8 runs against the rc6 stack; no fresh-install run)",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Baseline run exposed that every view crashed against the real API (built against the mock shapes). Fixed: types/adapters/all views, demo confirmation_required flow, landing download_url resolution, serve-landing manifest placement, record-id overflow, poll overlap. Re-runs on the saturated host never completed: best run (run3) 4/4 sign-in tests passed, demo/question tests failed on API latency (demo >5 min), later runs failed on login timeouts/500s and ERR_NETWORK_CHANGED. No complete pass for desktop+mobile EN+DE. A headless probe after the fixes showed all nine views render without page errors. Browser screen comparison not completed (comparison.md holds the deviations list and the fix log, the per-capture table and keyboard rows are PENDING).",
+    "status": "passed",
+    "command": "E2E_NO_MOCK=1 BASE_URL=http://127.0.0.1:19180 LANDING_URL=http://127.0.0.1:19181/ BLACKBOX_E2E_KEY=$(cat ~/blackbox-pilot-fresh/owner.key) pnpm --filter e2e test (run 5 on the archive-#8 fresh-folder install; run 6 on the final build-#9 install ~/blackbox-pilot-fresh2 after the D22/D23 fixes); node scripts/verify/ui-capture.mjs (126 screens EN/DE × 1440/390 in real Chromium with keyboard/focus/clipping checks); per-capture comparison of all 67 reference captures in reports/evidence/UI-01/comparison.md; built-in browser pass for the landing states",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Playwright: 68 passed / 0 failed in 5.2 min on the build-#8 fresh install and again 68 passed / 0 failed in 2.5 min (run 6) on the final build-#9 install (runs 1–4 on earlier builds of the same tree found and fixed four product defects — focus-trap re-run on every poll, unreachable dialog action on narrow screens, dialog anchoring on mobile, test assumptions — and are kept as run1/run3/run4 logs). Capture pass: 126 screens; sidebar Tab/Enter, dialog focus trap/Escape/focus restore and mobile drawer aria-expanded all pass in EN and DE at both widths; the only geometry flags are controls inside horizontally scrolling tables (the reference's own mobile pattern). Comparison: 26 match, 2 match with additions, 24 match with documented deviations, 10 intentional deviations (signup/onboarding/simulation/ChatGPT concepts), 5 not reproducible (planned providers DHL/easybill, dispute/refund-hold states absent from the demo data). Four cosmetic findings recorded as follow-ups (tall source cards with raw capability ids and repeated notes, storage figure shown next to the unknown badge, optional parameters above required fields, empty recorder nav badge). Limitation: the owner key could not be typed into the built-in browser pane (credential must not be materialised), so authenticated screens were captured by Playwright-driven Chromium and reviewed image by image; the landing was checked by hand in the pane.",
     "evidence_paths": [
-      "reports/evidence/E2E/playwright-int-stack-baseline.txt",
-      "reports/evidence/E2E/playwright-int-stack-run3.txt",
-      "reports/evidence/E2E/playwright-int-stack-run8.txt",
-      "reports/evidence/UI-01/screens/en",
-      "reports/evidence/UI-01/screens/de",
+      "reports/evidence/E2E/playwright-fresh-install-run6.txt",
+      "reports/evidence/E2E/playwright-report-run6/index.html",
+      "reports/evidence/E2E/playwright-fresh-install.txt",
+      "reports/evidence/E2E/playwright-report/index.html",
       "reports/evidence/UI-01/comparison.md",
-      "reports/evidence/E2E/playwright-int-stack-run2.txt",
-      "reports/evidence/E2E/playwright-int-stack-run6.txt"
+      "reports/evidence/UI-01/verdicts.json",
+      "reports/evidence/UI-01/capture/capture-report.json",
+      "reports/evidence/UI-01/capture/en/1440/08-recorder.png",
+      "reports/evidence/UI-01/capture/de/390/22-answer-inventory.png",
+      "reports/evidence/UI-01/screens/en/22-answer-inventory.png",
+      "reports/evidence/E2E/playwright-fresh-install-run1.txt",
+      "reports/evidence/E2E/playwright-fresh-install-run3.txt",
+      "reports/evidence/E2E/playwright-fresh-install-run4.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). full suite never finished; 0.1.0 archive not built",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "SOURCE-01",
@@ -383,45 +392,46 @@
   },
   {
     "id": "OPS-01",
-    "status": "implemented_unverified",
-    "command": "./blackbox backup-config ~/blackbox-pilot-ops-backups --label ...; ./blackbox upgrade ... (pre-upgrade generation blackbox-backup-20261101T134732Z); restore NOT executed",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Backup half proven on the populated install: destination outside data/secrets enrolled (same-device labeled, marker with install id, recipient stored, recovery identity shown once and captured only to a protected scratch file), fenced generation with the worker paused, pg_dump + evidence + snapshots + key material sealed, written to .partial, finalized atomically with a sidecar meta (128,656,232 bytes, sha256 8a9117f3...), retention bookkeeping; the fence was released. The dump took 40 minutes on the saturated host. Recovery (isolated restore with the recovery key, original data key removed, golden answer via API, machine time) was not executed in the time available; tests/ops/backup-roundtrip.sh covers it only in ops-only mode per docs/operations.md and was not re-run.",
+    "status": "passed",
+    "command": "scripts/verify/ops2-part1.sh (./blackbox backup-config <dir> --label ops2-same-device; scheduler recreate proof; scheduled backup; status after a scheduler tick); scripts/verify/ops2-part2b.sh (./blackbox restore <generation> --into ~/blackbox-pilot-ops2-restore --port 19192 --project blackbox-agent-c-ops2-restore with BLACKBOX_RECOVERY_KEY_FILE); pre-upgrade generation via ./blackbox upgrade (upgrade.txt)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Enrollment outside data/secrets with the install-id marker and the recovery identity shown once (captured 0600, redacted in evidence); the pre-enrollment scheduler was recreated with the destination mounted and created the first scheduled generation itself (266 KB, fenced writers, atomic rename + sidecar); status.json stayed scheduled after the next tick (fix for the previous failure); the pre-upgrade generation of the 553k-entry corpus took 112 s (162 MB). Isolated restore with the recovery identity only into a fresh dir/port/project: machine processing 194 s (unpack/db/start 168 s, fence/verify 26 s), golden answer verified, restored key = generation 1 (backup material, differs from the live generation-2 key), 5 restored secrets verified, writers fence + evidence fence present. Defect found and fixed in the wrapper: the credential rotation after restore was refused (missing --yes) and only warned; now mandatory. Sleep/unmounted-volume/retention-pruning cases were not exercised (destination on the same device; fewer than 7 generations).",
     "evidence_paths": [
-      "reports/evidence/PILOT-01/backup-config.txt",
-      "reports/evidence/OPS-02/upgrade-run1.txt"
+      "reports/evidence/OPS-RERUN/part1.txt",
+      "reports/evidence/OPS-RERUN/part2b.txt",
+      "reports/evidence/OPS-RERUN/part2b-restore-transcript-redacted.txt",
+      "reports/evidence/OPS-RERUN/upgrade-run1.txt"
     ],
-    "blocker": "restore rehearsal pending (host saturation; see PILOT-02)",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "OPS-02",
-    "status": "implemented_unverified",
-    "command": "./blackbox upgrade <same rc6 archive>; ./blackbox upgrade /nonexistent; ./blackbox upgrade <dir with postgres_major 17>; ./blackbox upgrade <dir without journal_schema_version>; ./blackbox upgrade release/dist-rc6b/blackbox-0.1.0-rc6b-mac-arm64.tar.gz (interrupted in phase images); ./blackbox doctor; ./blackbox up; ./blackbox upgrade --resume (still loading images at wrap-up)",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Refusals: same version exit 1, missing source exit 2, PostgreSQL major 17 refused with an actionable message exit 2; a release.json without journal_schema_version was refused but silently (exit 1, no message) because json_get aborted under set -eo pipefail — fixed in scripts/blackbox (|| true) and in the re-packed rc6b archive; refused preflights leave data/state/upgrade-stage behind (untidy, harmless). Populated upgrade (386k entries): preflight, lease, pre-upgrade backup (40 min), writers fenced + worker/api stopped, previous release files preserved, new wrapper exec'd; killed in phase images; doctor reports DOC-UPGRADE interrupted (exit 1), ./blackbox up refuses (exit 1); --resume continued from the recorded phase but docker load of the 234 MB api image had not finished after 35 minutes on the saturated host when the run was wrapped up, so migrate/start/verify/release and the rc6b wrapper refusal message are unverified.",
+    "status": "passed",
+    "command": "scripts/verify/ops2-upgrade.sh release/dist/blackbox-0.1.3-mac-arm64.tar.gz on the populated ops2 install: ./blackbox upgrade <same version> (refused), ./blackbox upgrade /nonexistent (refused), ./blackbox upgrade <0.1.3> killed with SIGKILL in the images phase, ./blackbox doctor, ./blackbox up (refused), ./blackbox upgrade --resume, status/verify/compose ps ; second populated upgrade 0.1.3 -> 0.1.4 (uninterrupted) on the same install",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Same version exit 1, missing source exit 2; fenced upgrade 0.1.0 -> 0.1.3: preflight, lease, pre-upgrade generation (162 MB of the 553,866-entry journal in 112 s), pause, stage-files, images — wrapper killed after 167 s; doctor DOC-UPGRADE 'upgrade in progress/interrupted (phase images)' and DOC-FENCE; up refused; --resume completed in 57 s (images, migrate, start, verify golden answer, release): installed=0.1.3, release.json 0.1.3, all five containers on the 0.1.3 images and healthy, upgrade state file removed, fence released, previous release files kept, journal entries unchanged (553,866). Second upgrade 0.1.3 -> 0.1.4 (same tree plus the D22/D23 fixes) completed uninterrupted in 134 s with the pre-upgrade generation, api/engine healthy on the 0.1.4 images, release.json 0.1.4, golden answer verified (./blackbox verify exit 0), journal unchanged (applied = committed 75,561 on the owner tenant).",
     "evidence_paths": [
-      "reports/evidence/OPS-02/refusals.txt",
-      "reports/evidence/OPS-02/upgrade-run1.txt",
-      "reports/evidence/OPS-02/upgrade-interrupted.txt",
-      "reports/evidence/OPS-02/upgrade-run2-resume.txt",
-      "reports/evidence/OPS-02/build-rc6b.txt"
+      "reports/evidence/OPS-RERUN/upgrade.txt",
+      "reports/evidence/OPS-RERUN/upgrade-run1.txt",
+      "reports/evidence/OPS-RERUN/upgrade-run2-resume.txt",
+      "reports/evidence/OPS-02/build-0.1.3.log",
+      "reports/evidence/OPS-RERUN/upgrade-0.1.4.txt"
     ],
-    "blocker": "resume completion pending (host saturation)",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "OPS-05",
-    "status": "implemented_unverified",
-    "command": "as PILOT-09",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Hardware, commands, dataset distribution and the PostgreSQL reference path are recorded; p95 latency/lag/invariant checks under load were not measured; no capacity claim is made.",
+    "status": "failed",
+    "command": "as PILOT-09 (documented 50-tenant / 250k-event baseline with concurrent ingestion and reads through API and MCP; reports/performance.json records hardware, commands, dataset distribution, per-class p95/p99, lag, failures, memory and recovery)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Hardware, commands, dataset distribution, per-class p95/p99 latency, scheduled-arrival accounting, lag, failures, whole-stack memory peaks and invariant checks are reported with reproducible evidence; the target failures stay visible (verdict failed, 18 of 26 targets fail) and no capacity claim is made. Measured on the shared developer host (load 7–132), not the reference hardware; the reference_10m/scale_100m profiles remain deferred and unmeasured.",
     "evidence_paths": [
       "reports/performance.json",
-      "reports/evidence/PERF-01/postgres-explain.txt"
+      "reports/evidence/PILOT-09-rerun/verdict.json",
+      "reports/evidence/PILOT-09-rerun/limitations.txt",
+      "reports/evidence/PILOT-09-rerun/commands.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": "baseline measured only on the shared developer host; targets fail there"
   },
   {
     "id": "SEC-01",
@@ -438,16 +448,15 @@
   },
   {
     "id": "SEC-02",
-    "status": "implemented_unverified",
-    "command": "apps/api/src/routes/auth.ts GET/PATCH /api/settings/retention (owner-only, bounded days, audit retention.updated) and backups retention; not exercised on the install",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Retention settings and their audit entry exist in code with validated bounds; tenant boundaries hold (TENANT suites); no run against the install (API unreachable on rc6) and no job enforces evidence expiry (see PILOT-08).",
+    "status": "failed",
+    "command": "PATCH /api/settings/retention + audit (backend integration suite on df8cfbb) ; POST /api/evidence/<id>/restrict (PILOT-08 runtime, audited evidence.restricted) ; authorized tenant export flow: no such feature exists in the product",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Retention settings persist with validated bounds and an audit entry (suite-level), and the configured redaction flow (owner evidence restriction) was executed at runtime on the second install with its audit record and tenant boundary retained (PILOT-08). The check's authorized tenant export does not exist (no route, CLI or UI), so the case cannot pass; recorded as failed with the missing capability named rather than as unverified.",
     "evidence_paths": [
-      "docs/api-contract.md",
-      "reports/evidence/CI-01/test-backend-integration.txt"
+      "reports/evidence/OPS-RERUN/",
+      "reports/evidence/CI-01-rerun/test-backend-integration.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": "tenant export flow not implemented"
   },
   {
     "id": "SEC-03",
@@ -478,24 +487,18 @@
   {
     "id": "CI-01",
     "status": "passed",
-    "command": "see reports/evidence/CI-01/README.md: pnpm test:backend; pnpm test:backend:integration; pnpm test:worker; cargo test --workspace --release; bash tests/ops/wrapper-unit.sh; python3 scripts/validate-question-catalogue.py; python3 scripts/integration-register.py check; python3 scripts/validate-delivery-profile.py; python3 -m unittest discover -s scripts/tests; python3 integrations/mappings/validate-mappings.py",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
-    "observed_result": "all suites passed on the committed tree (backend unit 138, backend integration 49, worker 32, Rust 25 test functions incl. proptests, wrapper unit 51, tooling 45, 14 mapping artifacts valid); outputs with command/exit/timestamps saved per suite; suite-to-acceptance-id map in the README",
+    "command": "On df8cfbb with the uncommitted verifier deltas (see README): pnpm test:backend:unit (141; 143 after the question-contract mirror test was added, run 2) ; pnpm test:backend:integration (53 twice: run 1 after the readiness/storage/backups fixes, run 2 after the question parameter-contract mirror and evicted-evidence disclosure; plus sources 12 and diagnostics 9) ; pnpm test:worker ; cargo test --workspace --release (run 1: ops_http load sample re-run on a quieter host 5/5; run 2 after the evicted-evidence change: all 11 test binaries ok) ; bash tests/ops/wrapper-unit.sh (51) ; python3 -m unittest discover -s scripts/tests (45) ; validate-delivery-profile.py ; validate-question-catalogue.py ; integration-register.py check ; integrations/mappings/validate-mappings.py ; scripts/release/build.sh 0.1.0 (image hygiene guard) and check-manifest.sh ; migrations applied by the release image during the fresh setup",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "All suites and validators passed on the tree that the release image was built from: backend unit 141/141 then 143/143 (run 2 adds tests/backend/unit/question-params-contract.test.ts, which parses crates/query/src/intents.rs), integration 53/53 in both runs (+12 sources, +9 diagnostics), worker suite passed, Rust release tests passed in both runs (the ops_http load-sample test failed once under host load 48-120 and passed 5/5 on re-run at load ~30 — recorded, not hidden; run 2 after the engine change: every test binary ok), wrapper unit 51/51, tooling unit 45/45, register/profile/catalogue/mappings validators exit 0, release archive built with the image-hygiene guard and installed on a fresh folder where the migrations ran. Every active acceptance ID maps to a status in reports/evidence/results-rerun.json; no skipped check is reported as success. Caveat: the suites ran on the working tree (HEAD df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md), not on a clean checkout of a single commit; a final run on the commit that carries those deltas is still required.",
     "evidence_paths": [
-      "reports/evidence/CI-01/README.md",
-      "reports/evidence/CI-01/test-backend-unit.txt",
-      "reports/evidence/CI-01/test-backend-integration.txt",
-      "reports/evidence/CI-01/test-worker.txt",
-      "reports/evidence/CI-01/cargo-test-release.txt",
-      "reports/evidence/CI-01/bash_tests_ops_wrapper-unit.sh.txt",
-      "reports/evidence/CI-01/python3_scripts_validate-question-catalogue.py.txt",
-      "reports/evidence/CI-01/python3_scripts_integration-register.py_check.txt",
-      "reports/evidence/CI-01/python3_scripts_validate-delivery-profile.py.txt",
-      "reports/evidence/CI-01/python3_-m_unittest_discover_-s_scripts_tests_-p_test_.py.txt",
-      "reports/evidence/CI-01/python3_integrations_mappings_validate-mappings.py.txt"
+      "reports/evidence/CI-01-rerun/",
+      "reports/evidence/CI-01-rerun/test-backend-unit-run2.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration-run2.txt",
+      "reports/evidence/CI-01-rerun/cargo-test-release-run2.txt",
+      "reports/evidence/RERUN/README.md",
+      "reports/evidence/DIST-03/"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "JOURNAL-01",
@@ -556,16 +559,15 @@
   {
     "id": "PERF-01",
     "status": "implemented_unverified",
-    "command": "cargo test --workspace --release (single Rust reducer implementation, ADR-0004; no TypeScript reducer); SLICE-01 step 4/5 (API and MCP agree); docker exec psql EXPLAIN (ANALYZE, BUFFERS) on the 370k-entry install plus an indexed SQL reference path",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "One reducer implementation; API/MCP answers agree; hot lookups use the tenant-sequence index (1.9 ms), the high-water point read (0.16 ms) and the entity_refs GIN index (1.85 ms; indexed SQL reference aggregate 0.81 ms) versus 42.3 s for a forced sequential scan; full request latency through API/MCP and the engine's measured benefit/overhead were not measured on the install (only the engine-only sample in docs/engine.md exists).",
+    "command": "tests/perf/smoke.mjs through API and MCP on the second install (hot/cold/history/aggregate classes, full request latency) ; tests/questions/coverage.mjs (API/MCP agreement per intent) ; apps/engine shared reducers (one implementation, crates/*) ; EXPLAIN comparison against an indexed PostgreSQL reference path: not executed",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "One reducer implementation in Rust serves API and MCP and both return identical values (MCP-03, question coverage). Full request latency per class through API and MCP is measured and reported in reports/performance.json (hot p95 ≈ 7 s against the 200 ms API / 350 ms MCP targets on the shared host, see PILOT-09); hot reads use the engine's working state (no journal scan: the two full-journal scans found on the hot/error paths were removed in this pass, D-list). The required comparison with an indexed PostgreSQL reference path and inspection of execution plans was not performed in this re-run, so the engine's measured benefit/overhead is not evidenced; status stays implemented_unverified.",
     "evidence_paths": [
-      "reports/evidence/PERF-01/postgres-explain.txt",
-      "reports/evidence/CI-01/cargo-test-release.txt",
-      "reports/evidence/SLICE-01/results.json"
+      "reports/performance.json",
+      "reports/evidence/PILOT-09-rerun/",
+      "reports/question-coverage.json"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": "no indexed PostgreSQL reference-path comparison or EXPLAIN inspection executed"
   },
   {
     "id": "IMPORT-01",
@@ -599,27 +601,31 @@
   },
   {
     "id": "IMPORT-03",
-    "status": "implemented_unverified",
-    "command": "connection detail view on the SLICE-01 fixture connection",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Runs show counters (requested/loaded/committed/applied/failed/duplicates), totals_known, percent only when known, attempt number, error_code provider_unavailable with next_action retry, phases. Restart/pause/cancel matrix not exercised.",
+    "status": "passed",
+    "command": "tests/slice/slice-01.sh on the fresh install (52/52: fixture backfill with exact/unknown totals, duplicate page retry, quarantined records, restart at commit/projection boundaries) ; connection detail runs table in the UI (03-views.spec.ts, UI-01 screens 16/61/65) ; backend integration suite on df8cfbb (pause/cancel/resume, revised totals, restart cohorts)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Run counters on the fixture connection stay logical-record cohorts: shopify:orders completed_with_gaps requested 31 / loaded 31 / committed 99 entries / applied 99 / duplicates 0 / rejected 5 (explicit unsupported_event dead letters) over 5 pages, stock and allocations completed; counters survive ./blackbox down/up unchanged and the five rejected inputs never count as orders. Percentages appear only with exact scoped totals, otherwise counts and phase; loaded, committed and query-ready are shown separately in the run history and the answer data status. Pause/cancel/resume of history and revised totals with live events arriving are covered by the backend integration suite (53/53 on df8cfbb).",
     "evidence_paths": [
-      "reports/evidence/UI-01/screens/en/61-connection-detail.png"
+      "reports/evidence/SLICE-01-rerun/README.md",
+      "reports/evidence/SLICE-01-rerun/run-output.txt",
+      "reports/evidence/UI-01/screens/en/61-connection-detail.png",
+      "reports/evidence/CI-01-rerun/test-backend-integration.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "IMPORT-04",
-    "status": "implemented_unverified",
-    "command": "GET /api/questions readiness + order-01 answer",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Readiness per question is ready/partial/blocked from actual datasets (9 ready, settlement-04 blocked); order-01 answered while supply (optional) was missing and flagged 'optional datasets absent'. UI/API shown; MCP path not re-run.",
+    "status": "passed",
+    "command": "GET /api/questions (readiness per question) and POST /api/questions/inventory.available_to_sell on the fresh install with payments/bank/supply absent ; 02-demo-question.spec.ts (answer with missing optional source disclosed) ; MCP get_readiness/answer_question (MCP-03) ; backend integration suite on df8cfbb (order-only, payment-dependent, full-money and zero-result intents during backfill)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Readiness is computed from the datasets actually present: order-01 is ready with the optional supply dataset absent and disclosed, settlement/bank-dependent questions stay partial/blocked naming the missing capability (9 ready / others partial or blocked on the demo workspace), and an unrelated disconnected source does not block the order answer (available 112 = GOLDEN). No zero balances are fabricated for the blocked money questions (status unknown with missing capabilities). The same readiness is served to the UI, API and MCP. Observation D20: the engine's coverage block lists coverage/identity under datasets_missing while readiness says ready; the answer itself is complete and correct.",
     "evidence_paths": [
-      "reports/evidence/UI-01/screens/en/21-answers-empty.png"
+      "reports/evidence/INSTALL-02/envelope-before.json",
+      "reports/evidence/MCP-03-rerun/",
+      "reports/evidence/E2E/playwright-fresh-install.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "IMPORT-05",
@@ -638,56 +644,60 @@
   },
   {
     "id": "IMPORT-06",
-    "status": "implemented_unverified",
-    "command": "design/code review of docs/engine.md (bounded RAM, cold reads), docs/connectors.md (strict from-now, expansion) and the worker suite (strict from-now imports nothing; expansion appends without doubles)",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Import selection, view filters, RAM working set and retention are separate by construction and partially tested (strict from-now, expansion, cold reads in cargo ops_http); no dedicated end-to-end test of display-vs-collection separation on the install.",
+    "status": "passed",
+    "command": "POST /api/sources/connections/<id>/import-plan with presets (30-day default with open context, from_now strict, include_open_context false) and the UI import-plan dialog (03-views.spec.ts 'From now on (advanced)', UI-01 screens 16/65) ; workspace analysis-window and retention settings (Settings view, 03-views.spec.ts) ; backend integration suite on df8cfbb (RAM working-set bound separate from view filter; retention/redaction behaviour; strict from-now restrictions)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Import selection, view window, RAM working set and retention are separate settings: changing the dashboard window never deletes journal data (journal rows and counters unchanged in the e2e views spec), the from_now preset marks strict_from_now true with restrictions opening_state_declined so dependent answers show gaps, open/related context is a disclosed explicit choice, and cold history stays addressable (as_of reads in MCP-03/LOCAL-09). Provider retention/redaction: evidence restriction audited (PILOT-08). UI and API in EN/DE at both widths (Playwright 68/68).",
     "evidence_paths": [
-      "reports/evidence/CI-01/test-worker.txt",
-      "reports/evidence/CI-01/cargo-test-release.txt",
-      "docs/engine.md"
+      "reports/evidence/E2E/playwright-fresh-install.txt",
+      "reports/evidence/UI-01/screens/en/65-import-plan.png",
+      "reports/evidence/CI-01-rerun/test-backend-integration-sources.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "HEALTH-01",
     "status": "passed",
-    "command": "pnpm test:backend:integration (sources.test.ts HEALTH-01) + pnpm test:worker (pipeline/scheduler: successful check vs new event, credential check never a sync, no-plan reasons, next_check_at with reasons)",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "last successful scoped check and last new event stay distinct; failures and credential checks never claim a sync; per-capability schedules/thresholds and nullable next checks with reasons; observed values from the ops install could not be captured through the API (unreachable on rc6, LOCAL-05); SLICE-01 on the 19180 install records the same fields after a real backfill.",
+    "command": "GET /api/sources on the fresh install after SLICE-01 (per-capability last_successful_check_at vs last_new_event_at, next_check_at + reason) ; backend integration suites on df8cfbb (pnpm test:backend:integration — sources/health cases: empty successful poll, partial failure, credential-only check, webhook, delayed reconciliation, stopped status updates, CSV, internal producer)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Runtime: the SLICE-01 fixture connection shows per-capability state with distinct timestamps — shopify.orders degraded, last successful check 02:25:32Z vs last new event 02:25:24Z, next check 02:30:48Z reason scheduled; allocations healthy with last_ok 02:12:04Z vs last_new 02:09:13Z and next_check null with reason producer_driven (no scheduled poll); shopify.payments unknown with next null reason no_import_plan. No universal green: the connection is catching_up/degraded while the workspace's health card says sources=degraded. Scenario matrix (empty successful check current, failed/credential checks not claiming sync, webhook not proving completeness, gaps and recovery actions) is proven by the backend integration suite on df8cfbb (53/53, reports/evidence/CI-01-rerun).",
     "evidence_paths": [
-      "reports/evidence/CI-01/test-backend-integration.txt",
-      "reports/evidence/CI-01/test-worker.txt",
-      "reports/evidence/SLICE-01/results.json"
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration-sources.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "HEALTH-02",
-    "status": "implemented_unverified",
-    "command": "headless probe + partial e2e",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Sources overview, connection detail (per-capability health table, import plan with timezone/UTC, runs) and answer data status render from the real API after the contract alignment; EN/DE/narrow/keyboard coverage is in tests/e2e/tests/03-views.spec.ts but no complete run exists.",
+    "status": "passed",
+    "command": "E2E_NO_MOCK=1 BASE_URL=http://127.0.0.1:19180 LANDING_URL=http://127.0.0.1:19181 pnpm e2e (desktop 1440x1000 + mobile 390x844, EN + DE; tests/e2e/tests/02-demo-question.spec.ts and 03-views.spec.ts: sources overview, connection detail with per-capability health table/import plan/runs, answer data status) ; node scripts/verify/ui-capture.mjs (keyboard navigation + clipped-control checks) ; reports/evidence/UI-01/comparison.md rows for screens 11/16/61/65 (sources, connection, import plan)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Playwright 68/68 on the fresh install: Sources overview, connection detail (capability table with last/next checks and reasons, import plan with timezone/UTC boundaries and the from-now advanced option, run history with requested/loaded/committed/applied counters and phase) and the answer data-status panel render from the real API in EN and DE at both widths; status text accompanies every colour badge; exact timestamps are shown. Keyboard: sidebar Tab/Enter, dialog focus trap and Escape/focus restore pass; no clipped essential control (only controls inside the reference's own horizontally scrolling tables are flagged). Cross-tenant/read-only import controls refused at the API (agent keys 403 on import-plan/replay routes, backend integration suite). Comparison: sources/import screens match the reference with documented deviations (D-rows in comparison.md).",
     "evidence_paths": [
+      "reports/evidence/E2E/playwright-fresh-install.txt",
+      "reports/evidence/UI-01/comparison.md",
       "reports/evidence/UI-01/screens/en/11-sources.png",
-      "reports/evidence/UI-01/screens/en/61-connection-detail.png"
+      "reports/evidence/UI-01/screens/de/11-sources.png",
+      "reports/evidence/UI-01/capture-run.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "HEALTH-03",
-    "status": "implemented_unverified",
-    "command": "headless probe",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Answer envelope shows applied/required cursor, recorded cutoff, coverage population and per-source coverage intervals (real order-01 answer, available 112 = GOLDEN checkpoint). Concurrent-import cutoff behaviour not exercised.",
+    "status": "passed",
+    "command": "POST /api/questions/inventory.available_to_sell (consistency latest_committed) on the fresh install before/after restart ; same question with the engine stopped ; MCP answer_question (MCP-03) ; backend integration suite on df8cfbb (fixed-cutoff reads while imports progress, disjoint coverage intervals, skewed provider timestamps)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Answer envelope reports consistency {status current, applied_cursor 514, required_cursor 514, reducer_version 1, recorded_cutoff 2026-11-02T02:27:03Z, mode latest_committed}, coverage {datasets_present, datasets_missing, population, evidence_truncated false, coverage_assertions} and readiness per question; API and MCP (MCP-03) return the same values. With the engine stopped the same question returns status unavailable with consistency {status unavailable, applied_cursor null, required_cursor null} and error {code overloaded, message 'query engine unavailable', retryable true} — no stale value is presented as current. Per-source coverage intervals are empty for the replay-loaded demo (no import plan); interval reporting on imported sources and the latency-sample limits are covered by the backend integration suite (53/53 on df8cfbb). Observation D20: datasets_missing names coverage/identity while readiness is ready.",
     "evidence_paths": [
-      "reports/evidence/UI-01/screens/en/22-answer-inventory.png"
+      "reports/evidence/INSTALL-02/envelope-before.json",
+      "reports/evidence/HEALTH-DIAG/engine-down-answer.json",
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt",
+      "reports/evidence/MCP-03-rerun/",
+      "reports/evidence/CI-01-rerun/test-backend-integration.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "LOCAL-01",
@@ -766,16 +776,18 @@
   },
   {
     "id": "LOCAL-06",
-    "status": "implemented_unverified",
-    "command": "scripts in reports/evidence/LOCAL-06/key-rotation-int-stack.txt (curl rotate-key proof)",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Rotation proof aborted: POST /api/auth/login returned 500 after 3 min (PostgreSQL 'timeout exceeded when trying to connect' under host load). Code review: rotateOwnerKey revokes the previous owner_key verifier and all owner sessions (packages/auth/src/service.ts). EN/DE locale persistence works (PATCH /api/workspace) but a locale switch immediately followed by a reload loses the preference until the PATCH completes (observed; test now waits for the PATCH).",
+    "status": "passed",
+    "command": "pnpm e2e 01-auth.spec.ts + 03-views.spec.ts (first start, save key, login, remember, logout, reset guidance, agents settings; EN/DE, desktop/mobile) ; owner key rotation on the fresh install: POST /api/auth/login (old key, remember) ; docker compose -p blackbox-agent-c exec -T api node /app/apps/api/dist/cli.js rotate-key --json < owner.key (the wrapper's api_cli call without a TTY; new key written to a 0600 file, never printed) ; GET /api/auth/session with the old cookie ; login with the old key ; login with the new key ; GET /api/settings/security",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "One automatic owner/workspace; the UI flows pass in EN and DE at 1440 and 390 px with keyboard navigation (Playwright 68/68, capture pass). Rotation at runtime: rotate-key exit 0 in 9 s and returned a new bbk_ key of 47 chars once; the old remembered session then gets 401 unauthenticated on /api/auth/session, the old key 401 invalid_key, the new key 204; the security audit shows owner.key_rotated 1. The retired key stays 0600 outside the repository. Agent keys: permissions, last use, revoke and local reachability shown in Settings > Agents (UI-01 screens 46-47; MCP-03 used a UI-created key). The first rotation attempt hung because the verifier's pty helper did not forward stdin — a tooling issue, not a product defect.",
     "evidence_paths": [
-      "reports/evidence/LOCAL-06/key-rotation-int-stack.txt",
-      "reports/evidence/E2E/playwright-int-stack-run3.txt"
+      "reports/evidence/LOCAL-06-rerun/rerun-transcript.txt",
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt",
+      "reports/evidence/E2E/playwright-fresh-install.txt",
+      "reports/evidence/UI-01/screens/en/46-agents.png",
+      "reports/evidence/UI-01/screens/de/47-agent-key-shown.png"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "LOCAL-07",
@@ -793,27 +805,35 @@
   },
   {
     "id": "LOCAL-08",
-    "status": "implemented_unverified",
-    "command": "not run",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Fresh-folder install on this Mac not performed (no 0.1.0 archive, time-box).",
-    "evidence_paths": [],
-    "blocker": "no 0.1.0 artifact; host saturated",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "status": "passed",
+    "command": "Real Apple Silicon Mac: landing download of archive 0.1.0 build #8 -> ~/blackbox-pilot-fresh (doctor, setup, up, status; INSTALL-01) ; ./blackbox down/up with answer comparison (INSTALL-02) ; docker compose ps ; ./blackbox logs/doctor/diagnostics export with services down (DIAG-04) ; second independent install ~/blackbox-pilot-ops2 on 19185 / project blackbox-agent-c-ops2 with backup, isolated restore and populated upgrade 0.1.0 -> 0.1.3 (OPS-01/02, PILOT-01/02/03) ; docs/tester-guide.md followed for every step",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "The versioned Compose/wrapper product runs from the browser-downloaded archive without native packaging, Passkeys, identity service or public hosting: doctor exit 0, setup 112 s (final archive), up 6 s, api/engine healthy, worker/scheduler/postgres running; restart 17-30 s with identical business state; browser close does not affect supervised ingestion (SLICE-01 backfill and the scheduled polls run in the worker without a browser session). Two installs coexist with separate ports (19180/19185), Compose projects, volumes and keys; a same-project-name install was refused (guard added after the first attempt adopted the other volume). Backup/restore/upgrade on populated data proven on the second install. Versions recorded: macOS 27.2, Docker daemon 29.9.2, images blackbox/api|worker|engine 0.1.0 (ops2 upgraded to 0.1.3), postgres 16.6-alpine, node v25.9.0 on the host. No silent global install, reseed or destructive volume reset observed (destroy requires a TTY confirmation).",
+    "evidence_paths": [
+      "reports/evidence/INSTALL-01/fresh-install.txt",
+      "reports/evidence/INSTALL-02/restart-transcript.txt",
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt",
+      "reports/evidence/OPS-RERUN/",
+      "reports/evidence/DIST-02/",
+      "docs/tester-guide.md"
+    ],
+    "blocker": null
   },
   {
     "id": "LOCAL-09",
-    "status": "implemented_unverified",
-    "command": "cargo test --workspace --release (ops_http: snapshot restart, corrupt snapshot rebuild to identical state/chain hash, 1000-entry unapplied tail applied within 30 s with concurrent ingestion, projection_behind barrier, admission limits); SLICE-01 step 5 (down/up, corrupted snapshot, same-cutoff answer identical); engine /health read on the ops install during corpus application",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Engine-boundary recovery behaviour passed; on the install with 52 tenants / ~380k entries the engine reported status degraded with RSS 1,220 MiB (container limit 1,536 MiB; contract steady target 1,024 MiB) while tailing the corpus on the saturated host, and slow-statement/pool-acquire warnings; restart-with-1000-tail timing, docker stats of the whole stack and a worker kill mid-ingestion were not measured on the install.",
+    "status": "passed",
+    "command": "scripts/verify/ops2-restart-rebuild.sh on the second install with the smoke corpus (50 tenants): engine stopped, 1,000 observations (3,000 journal entries) ingested through the owner replay path while down, engine started, time to all-tenants-ready + applied=committed, RSS ; all engine snapshots deleted (table + files), engine restarted, time to ready + RSS ; ./blackbox verify afterwards ; SLICE-01 step 5 (restart + corrupted snapshot rejected) ; engine-boundary kill/replay cases in the Rust and backend suites on df8cfbb (cargo test ops_http / golden_http; backend integration 53/53)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Restart with an unapplied tail: 1,000 observations accepted durably while the engine was down (committed cursor 35,745 -> 38,745); after start the engine was healthy with applied = committed 38,745 for every tenant in 5 s, RSS 1.04 GiB. No-snapshot rebuild from the journal: healthy after 196 s, RSS 1.42 GiB (container limit 1.5 GiB; engine.batch_applied 956, tenant_ready 152, evicted 714 as the bounded working set hydrated/evicted tenants); the golden answer verified afterwards (./blackbox verify exit 0). Corrupted snapshot rejected and rebuilt in SLICE-01 step 5. No acknowledged input was lost and no double effect appeared (applied cursor equals committed, golden values unchanged). Memory during the smoke runs: engine steady median 1,485–1,488 MiB and peak 1,536 MiB of the 1.5 GiB limit (above the 1,024 MiB steady target: the bounded working set evicts and re-hydrates under the 50-tenant corpus), whole stack peak 2.4–3.2 GiB (reports/performance.json). Kill-before/after-commit cases for API/worker/engine, cold eviction/hydration and revoke-while-reading are proven at the suite level (Rust ops_http + backend integration on df8cfbb), not re-run as a live kill on this install.",
     "evidence_paths": [
-      "reports/evidence/CI-01/cargo-test-release.txt",
-      "reports/evidence/SLICE-01/results.json",
-      "reports/performance.json"
+      "reports/evidence/PILOT-09-rerun/part4.txt",
+      "reports/evidence/PILOT-09-rerun/restart-tail.json",
+      "reports/evidence/PILOT-09-rerun/rebuild.json",
+      "reports/evidence/SLICE-01-rerun/README.md",
+      "reports/evidence/CI-01-rerun/cargo-test-ops-http-rerun.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "LOCAL-10",
@@ -830,39 +850,46 @@
   },
   {
     "id": "LOCAL-11",
-    "status": "implemented_unverified",
-    "command": "docs/tester-guide.md written (EN + DE); export preview exercised via POST /api/diagnostics/export?preview=1",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Tester guide covers install/key/demo/question/agent/restart/backup/diagnostics/limitations/feedback checklist. Export preview answered {size_bytes:16145, records:340, categories:[logs,health]} on the rc6 stack; a downloaded bundle was not inspected for leakage in this slot.",
+    "status": "passed",
+    "command": "docs/tester-guide.md (EN + DE) followed for the fresh-folder journey: download/install (INSTALL-01), save key, demo + first answer (SLICE-01, INSTALL-02), local agent key + MCP client (MCP-03), restart (INSTALL-02), recovery (DIAG-04, ops2 backup/restore) ; ./blackbox diagnostics export after the engine-down query failure and POST /api/diagnostics/export?preview=1 + UI export (04-diagnostics.spec.ts) ; bundle canary scan ; scripts/verify/pilot10-egress.sh (container/VM external peers and interface counters during a question burst)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "The guide's steps matched the installed product at every stage (commands, key notice, demo, question, agent key, restart, backup/restore/upgrade, diagnostics, feedback checklist); actual blockers are reported in the guide's limitations (no live Shopify, performance targets not met on the shared host). The explicitly exported bundle after the query failure contains only versions/health/error-counts/sanitized log excerpts (23,700 bytes, 4 members) with 0 canary matches for keys, cookies, tokens, home paths and order payloads. Network: api/worker/engine had no external established peer and the Docker VM no external connection before/during/after the burst; only the host's own published-port traffic moved. No automatic upload exists (export is a user-saved file). Feedback observations: none collected yet — no tester has used the build; nothing is invented.",
     "evidence_paths": [
-      "docs/tester-guide.md"
+      "docs/tester-guide.md",
+      "reports/evidence/HEALTH-DIAG/diagnostics-export-containers-down.zip",
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt",
+      "reports/evidence/PILOT-10/egress-observation.txt",
+      "reports/evidence/E2E/playwright-fresh-install.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "DIAG-01",
-    "status": "implemented_unverified",
-    "command": "tests/e2e/tests/04-diagnostics.spec.ts (never reached in a completed run)",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Filters/live/pause/debug/export rewritten to the real contract (components auth/ingestion/query/cli, export categories versions/health/errors/logs, record siblings). Not executed to completion.",
+    "status": "passed",
+    "command": "pnpm e2e tests/e2e/tests/04-diagnostics.spec.ts (EN/DE, desktop + mobile): level/time/component/connection/run/correlation/text filters, combine/clear, pagination, follow/pause/resume, export preview ; scripts/verify/ui-capture.mjs keyboard pass ; UI-01 screens 62/66/67 (System & Diagnostics)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "System & Diagnostics renders from the real collector on the fresh install: default last hour INFO+, filter form with documented AND/OR semantics, stable bounded pages, live follow with pause that does not stop collection (new records appear after resume), distinct empty/stale/disconnected/never-recorded DEBUG states, localized explanations with English engineering logs, copy details and View-logs links from source/run details that re-authorize. 68/68 Playwright in EN and DE at 1440 and 390 px; keyboard navigation and focus checks pass; screens 62/66/67 captured in both locales at both widths (no reference capture exists for this view — recorded as D12).",
     "evidence_paths": [
-      "reports/evidence/UI-01/screens/en/62-system-diagnostics.png"
+      "reports/evidence/E2E/playwright-fresh-install.txt",
+      "reports/evidence/UI-01/comparison.md",
+      "reports/evidence/UI-01/screens/en/62-system-diagnostics.png",
+      "reports/evidence/UI-01/screens/de/62-system-diagnostics.png"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "DIAG-02",
-    "status": "implemented_unverified",
-    "command": "observation during runs",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Seven health cards come from real probes with observed_at/reason; stale after stale_after_seconds from the API; top-bar status showed 'degraded' while the SLICE-01 fixture connection was unavailable (truthful). Fault injection not performed.",
+    "status": "passed",
+    "command": "GET /api/diagnostics/health sampled every second while docker compose stop engine / start engine (scripts/verify/fresh-part5.sh) ; question while the engine is down ; GET /api/diagnostics/health after ./blackbox down/up (worker card from worker_heartbeat) ; backend integration diagnostics suite on df8cfbb (failed API/worker/database/MCP probes, no-progress queues, 429/expired permission, empty successful check, committed/applied gap, observation age > 30 s)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Engine card flips healthy -> unavailable within 2 s of the container stop (reason carried on the card, observed_at advancing every poll) and back to healthy 11 s after start; the API reports refresh_interval_seconds 5 and stale_after_seconds 30 and the top bar uses them. While the engine is down the answer is status unavailable/retryable with null cursors (no stale green). Worker card comes from the durable worker_heartbeat (healthy/working/degraded/unavailable/unknown; shows 'working' after the restart) instead of absence of errors. Source freshness keeps last successful check and last new event separate (HEALTH-01). MCP card stays 'unknown' (configured, not self-tested) rather than green. Probe-injection matrix: tests/backend/integration diagnostics suite 9/9 on df8cfbb.",
     "evidence_paths": [
-      "reports/evidence/UI-01/screens/en/62-system-diagnostics.png"
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt",
+      "reports/evidence/HEALTH-DIAG/engine-down-answer.json",
+      "reports/evidence/INSTALL-02/restart-transcript.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration-diagnostics.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "DIAG-03",
@@ -881,17 +908,18 @@
   },
   {
     "id": "DIAG-04",
-    "status": "implemented_unverified",
-    "command": "pnpm test:backend:integration (diagnostics.test.ts \"CLI fallback\": logs reads retained files without the database with --level/--since/--run/--format, doctor exit codes, diagnostics export capped zip while the database is down); bash tests/ops/wrapper-unit.sh (doctor on a fresh dir, refusals); ./blackbox doctor during the interrupted upgrade (exit 1 with DOC-* codes)",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "CLI fallback semantics proven in the suites and doctor's degraded state observed on the install; the full sequence ./blackbox down -> logs --since 1h -> doctor -> diagnostics export (zip <=10 MiB, sanitized contents) with containers stopped was not run because the install was mid-upgrade on the saturated host.",
+    "status": "passed",
+    "command": "./blackbox down ; ./blackbox logs --since 1h --level warn ; ./blackbox logs --since 1h --format json ; ./blackbox doctor ; ./blackbox diagnostics export --since 2h --output <file> (all with api, worker, engine and postgres stopped) ; ./blackbox up ; setup/doctor negative paths from INSTALL-01 (foreign-project volume refusal, DOC-PROJECT) ; tests/ops/wrapper-unit.sh 51/51 and backend unit CLI tests on df8cfbb",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "With every container stopped the host wrapper still reads the retained sanitized files: logs filtered by level/time return the last engine.call_failed / query.unavailable WARN records, JSON format emits one record per line, doctor reports degraded exit 1 with DOC-SERVICES 'services stopped -> run ./blackbox up', and diagnostics export writes a 23,700-byte bundle whose manifest lists unavailable ['health: runtime probes unavailable (API/database down)'] instead of pretending; no login, API or database was needed. Setup refusal with an accessible message was exercised in INSTALL-01 (foreign-project artifacts). Filter validation, exit codes, no silent install/reset and no key/env capture are covered by the wrapper unit suite (51/51) and the backend unit suite (141/141). Not exercised at runtime: deliberately unreadable log files and interrupting follow (suite-level only).",
     "evidence_paths": [
-      "reports/evidence/CI-01/test-backend-integration.txt",
-      "reports/evidence/CI-01/bash_tests_ops_wrapper-unit.sh.txt",
-      "reports/evidence/OPS-02/upgrade-interrupted.txt"
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt",
+      "reports/evidence/HEALTH-DIAG/diagnostics-export-containers-down.zip",
+      "reports/evidence/INSTALL-01/first-attempt-adopted-int-volume.txt",
+      "reports/evidence/CI-01-rerun/bash_tests_ops_wrapper-unit.sh.txt",
+      "reports/evidence/CI-01-rerun/test-backend-unit.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "DIAG-05",
@@ -925,84 +953,102 @@
   },
   {
     "id": "DIAG-07",
-    "status": "implemented_unverified",
-    "command": "NOT executed: node tests/diag/log-corpus.mjs (synthetic contract-shaped corpus up to the cap) + first-page/text-search timings + read-only LOGS_DIR commit test",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "The log-corpus helper is written; the collector enforces 100 MiB / 7 days (unit suite logging rotation) and uses bounded async buffers with dropped counts; no corpus run, no p95 first-page measurement and no failed-sink test happened on the install.",
+    "status": "passed",
+    "command": "node tests/diag/log-corpus.mjs --dir ~/blackbox-pilot-ops2/data/logs --total-mib 96 --days 6 (197,966 synthetic contract-shaped records, 144 files) + api restart (collector re-index) + node scripts/verify/diag-timing.mjs --api http://127.0.0.1:19185 --n 30",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Retained store 100.8 MB / 150 files (collector state degraded = above 90 % of the 100 MiB cap, dropped 0). With the index: first page (200 rows, last hour, INFO+) p95 114 ms, warnings preset p95 89 ms, literal search over 6 days p95 684 ms, component filter p95 53 ms; live delivery p95 26 ms (8/8 served queries arrived on the SSE stream). A first measurement during a concurrent image build (load 130) showed first page p95 2.13 s (timing-ops2-after-restart.txt) — recorded as the loaded-host figure, not the verdict.",
     "evidence_paths": [
-      "tests/diag/log-corpus.mjs",
-      "reports/evidence/CI-01/test-backend-unit.txt"
+      "reports/evidence/DIAG-07/corpus-generation.txt",
+      "reports/evidence/DIAG-07/timing-ops2-run2.txt",
+      "reports/evidence/DIAG-07/timing-ops2-after-restart.txt",
+      "reports/evidence/DIAG-07/timing-ops2.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "DIAG-08",
     "status": "passed",
-    "command": "pnpm test:backend (logging contract/redaction/rotation/query) + pnpm test:backend:integration (diagnostics.test.ts DIAG-03 lifecycle records, DIAG-05 temporary debug + rotation, DIAG-06 canaries/access, DIAG-08 export) + SEC-01 canary grep on the ops install logs",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, images blackbox/*:0.1.0-rc6 (install upgraded to 0.1.0-rc6b = rebuilt api image with the public-port fix + retagged rc6 worker/engine/backup), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes listed in the handover; host heavily loaded during the run (load average 700-840, 14.7 GiB swap in use, other agents' Playwright/Docker workloads)",
-    "observed_result": "journal commits logged after COMMIT with cursor/count/run ids, queries log their applied cutoff; debug off by default, server-enforced <=15 min, reset on restart; canaries never reach any sink; logs owner-only and workspace-scoped; export previews then produces a bounded pseudonymized zip without credentials/paths; canary grep of the installed stack logs after login/agent creation: 0 matches",
+    "command": "./blackbox diagnostics export --since 2h (services down) ; POST /api/diagnostics/export?preview=1 and export through the UI (04-diagnostics.spec.ts) after the engine-down query failure ; bundle member listing and canary scan (owner key, agent key, session cookie, Shopify token, home path, order payload) ; backend integration diagnostics suite on df8cfbb (10 MiB cap, truncation, older schemas, unsafe paths, temp cleanup)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Export is explicit and local only (host CLI and UI; nothing is uploaded, PILOT-10 egress observation). Bundle members: versions.json, error-counts.json, logs-excerpt.jsonl, README.txt; manifest carries categories versions/health/errors/logs, since/until, size_bytes 23700, truncated false and the unavailable notice. Canary scan of the bundle: 0 matches for owner key, agent key, session cookie, Shopify token pattern, home path and order payload. Cap/truncation/pseudonym/temp-cleanup behaviour: diagnostics integration suite 9/9 on df8cfbb.",
     "evidence_paths": [
-      "reports/evidence/CI-01/test-backend-unit.txt",
-      "reports/evidence/CI-01/test-backend-integration.txt",
-      "reports/evidence/CI-01/README.md",
-      "reports/evidence/SEC-01/log-canary-scan.txt"
+      "reports/evidence/HEALTH-DIAG/diagnostics-export-containers-down.zip",
+      "reports/evidence/HEALTH-DIAG/fresh-part5.txt",
+      "reports/evidence/E2E/playwright-fresh-install.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration-diagnostics.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "DIST-01",
-    "status": "implemented_unverified",
-    "command": "scripts/release/serve-landing.sh (19181 released rc6 manifest; 19188 pending; 19187 invalid sha256); Playwright captures + built-in browser",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Landing fixed so all three CTAs resolve to the real artifact when the manifest is released (relative download_url against the manifest URL; serve-landing puts manifest+archive next to index.html). Built-in browser showed the released rc6 state ('Download for Mac 0.1.0-rc6', EN) and the pending/invalid states (EN/DE): hero CTA disabled with 'Download not available yet' / 'Download noch nicht verfügbar', invalid metadata message. Not re-verified for 0.1.0 and the e2e landing spec never ran to completion.",
+    "status": "passed",
+    "command": "scripts/release/serve-landing.sh on 19181 (released), 19188 (pending template), 19187 (non-hex sha256), 19189 (well-formed wrong sha256), 19186 (artifact missing); node scripts/verify/landing-capture.mjs per host (EN/DE, 1440x1000 and 390x844); built-in browser pass EN/DE; scripts/release/verify-download.sh per host",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Released: three CTA copies (nav/hero/closing) are real links to the exact artifact href resolved from the relative download_url against the manifest, release card shows version/date/platform arm64/format/size/tested commit/prerequisites/SHA-256/notes and the checksum-is-not-a-signature note, EN and DE, desktop and mobile; clicks from the real browser produced GET 200 of the archive on the host. Pending and invalid-metadata states show disabled 'Download not available yet' CTAs with guide/demo reachable; wrong-hash and missing-artifact manifests cannot be detected client-side (ordinary link navigation; the release workflow refuses: sha256 mismatch exit 2, artifact download failed exit 2, pending exit 2).",
     "evidence_paths": [
-      "reports/evidence/DIST-01/landing-pending-en-desktop.png",
-      "reports/evidence/DIST-01/landing-pending-de-mobile.png",
-      "reports/evidence/DIST-01/landing-invalid-sha256-en-desktop.png",
-      "reports/evidence/DIST-01/landing-invalid-sha256-de-mobile.png"
+      "reports/evidence/DIST-01/README.md",
+      "reports/evidence/DIST-01/released-ctas.json",
+      "reports/evidence/DIST-01/released-en-desktop-page.png",
+      "reports/evidence/DIST-01/released-de-mobile-page.png",
+      "reports/evidence/DIST-01/pending-ctas.json",
+      "reports/evidence/DIST-01/invalid-sha256-ctas.json",
+      "reports/evidence/DIST-01/wrong-sha256-ctas.json",
+      "reports/evidence/DIST-01/artifact-404-ctas.json",
+      "reports/evidence/DIST-03/verify-download-pending.txt",
+      "reports/evidence/DIST-03/verify-download-invalid-sha256.txt",
+      "reports/evidence/DIST-03/verify-download-wrong-sha256.txt",
+      "reports/evidence/DIST-03/verify-download-artifact-404.txt"
     ],
-    "blocker": "0.1.0 archive not built",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "DIST-02",
-    "status": "implemented_unverified",
-    "command": "not run",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Browser download of the exact advertised 0.1.0 archive, checksum, extract, doctor/setup/up on a fresh folder: not performed (no 0.1.0 artifact; the browser pane cannot save downloads, so curl of the CTA href was the planned fallback).",
-    "evidence_paths": [],
-    "blocker": "no 0.1.0 artifact",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "status": "passed",
+    "command": "built-in browser: click 'Download for Mac' on http://127.0.0.1:19181 (EN hero, DE closing); the browser pane cannot persist downloads, so scripts/verify/fresh-install.sh fetched the exact href read from the DOM into the empty folder ~/blackbox-pilot-fresh, verified byte size + sha256 against the manifest, extracted, ./blackbox doctor, ./blackbox setup (pty key capture), ./blackbox up, ./blackbox status, docker compose -p blackbox-agent-c ps, ./blackbox doctor ; repeated for build #9: scripts/verify/fresh-install.sh http://127.0.0.1:19181 ~/blackbox-pilot-fresh2 reports/evidence/INSTALL-01-b (manifest read from the restarted landing host, exact advertised href fetched, size + sha256 verified, extract, doctor, setup with pty key capture, up, status, compose ps, doctor)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Landing host logged GET 200 of the archive for both browser clicks; curl of the same href (final archive #7): 529,957,518 bytes, sha256 equal to the manifest; doctor 0 before setup; setup 227 s (images loaded from the archive, roles, migrations, owner key shown once and captured to a 0600 file outside the repo, never printed); up 6 s; compose ps: api healthy, engine healthy, worker, backup-scheduler, postgres healthy; doctor 1 (degraded) only because no backup destination is enrolled. First attempt on this host adopted a stale project volume (defect found and fixed: install-collision guard). Build #9 into the new empty folder ~/blackbox-pilot-fresh2: advertised and downloaded 530,045,630 bytes, sha256 2e665fe3… MATCH; doctor 0; setup 28 s (images already present in the daemon from the build, so docker load was fast); up 2 s; compose ps api/engine healthy, worker/scheduler/postgres running; doctor 1 only for the unprotected-backups warning. The first attempt ran before the restarted landing host listened (verifier race, no product defect) and was repeated.",
+    "evidence_paths": [
+      "reports/evidence/INSTALL-01/fresh-install.txt",
+      "reports/evidence/INSTALL-01/setup-transcript-redacted.txt",
+      "reports/evidence/DIST-02/download-fresh.txt",
+      "reports/evidence/DIST-01/README.md",
+      "reports/evidence/INSTALL-01/first-attempt-adopted-int-volume.txt",
+      "reports/evidence/INSTALL-01-b/fresh-install.txt",
+      "reports/evidence/INSTALL-01-b/setup-transcript-redacted.txt"
+    ],
+    "blocker": null
   },
   {
     "id": "DIST-03",
-    "status": "failed",
-    "command": "scripts/release/build.sh 0.1.0 (running since 2026-11-01T14:24Z, still in docker build pnpm install at 16:52 local); scripts/release/verify-download.sh negative cases",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "Negative cases enforce the contract: pending manifest -> FAIL exit 2; corrupted (non-hex) sha256 -> landing shows invalid state, verify-download fails (artifact 404); wrong but well-formed sha256 -> 'sha256 mismatch' exit 2; missing manifest path -> exit 2. The 0.1.0 archive/manifest do not exist yet; the only existing artifact is rc6 (release/dist/blackbox-0.1.0-rc6-mac-arm64.tar.gz, sha256 b2068460b8c4cc32624a35687d22ad9b4f8e06509e47de4bb3eeb644aa486432, 594309750 bytes, tested_commit aa18411 = pre-integration tree).",
+    "status": "passed",
+    "command": "scripts/release/build.sh 0.1.0 (6 builds: #1 discarded for shipping 1.5 GB of Playwright outputs, #4/#5 failed typecheck in packages/testing, #6 final); scripts/release/check-manifest.sh; scripts/release/verify-download.sh http://127.0.0.1:19181 (final) and the four negative hosts ; build #9 (scripts/release/build.sh 0.1.0 after the D22/D23 fixes) + check-manifest.sh + a 0.1.4 archive of the same tree for the ops2 upgrade",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Final archive check-manifest PASS (status released, bytes/sha256 match, bundled images, release.json/compose pins consistent with 0.1.0 @ df8cfbb); verify-download PASS on the final archive (checksum ok, extracted, bundled doctor exit 0); negative hosts refused with exit 2 and the documented messages. Image-hygiene guard added to build.sh after build #1. Build #9 (final): check-manifest PASS (release.json and compose pins consistent with 0.1.0 @ df8cfbb), 530,045,630 bytes, sha256 2e665fe3…; served by the independent landing host and installed by the DIST-02 journey; 0.1.4 archive check-manifest PASS.",
     "evidence_paths": [
-      "reports/evidence/DIST-03/verify-download-negative.txt",
-      "reports/evidence/DIST-03/build-tree-state-0.1.0.txt",
-      "reports/evidence/DIST-03/build-0.1.0-partial.log"
+      "reports/evidence/DIST-03/build-0.1.0.log",
+      "reports/evidence/DIST-03/verify-download-released-final.txt",
+      "reports/evidence/DIST-03/build-0.1.0-discarded-bloat.log",
+      "reports/evidence/RERUN/README.md",
+      "reports/evidence/DIST-03/build-0.1.0-ninth.log",
+      "reports/evidence/DIST-03/check-manifest-ninth.txt",
+      "reports/evidence/DIST-03/build-0.1.4.log"
     ],
-    "blocker": "docker build cannot fetch npm packages at usable speed inside the saturated Docker VM (UND_ERR_SOCKET, 50-100 s per request)",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "SLICE-01",
     "status": "passed",
-    "command": "scripts/release/build.sh 0.1.0-rc6; ./blackbox doctor && ./blackbox setup && ./blackbox status (install dir); INSTALL_DIR=~/blackbox-pilot-int OWNER_KEY_FILE=~/blackbox-pilot-int/owner.key tests/slice/slice-01.sh",
-    "environment": "macOS 27.2 arm64, Docker 27.3.1 / Compose v2.30.3, release 0.1.0-rc6 images (api/worker/engine/backup + postgres:16.6-alpine), Compose project blackbox-agent-c on 127.0.0.1:19180, synthetic Shopify-shaped fixture on 127.0.0.1:19182; uncommitted working tree at the recorded commit",
-    "observed_result": "52/52 checks passed: backfill through worker+journal/outbox (437 entries, dedupe on rerun), order state identical via API and MCP, committed=applied=437, cutoff answer identical after full restart + corrupted-snapshot engine rebuild, late correction current-vs-historical, revoked agent denied within 2 s, no cross-tenant disclosure for a colliding order id, correlated logs",
+    "command": "INSTALL_DIR=~/blackbox-pilot-fresh OWNER_KEY_FILE=~/blackbox-pilot-fresh/owner.key SLICE_OUT=reports/evidence/SLICE-01-rerun tests/slice/slice-01.sh (fresh-folder install of archive #8, fixture on 127.0.0.1:19182, stdio MCP bridge with the official SDK client) ; repeated on the build-#9 install: INSTALL_DIR=~/blackbox-pilot-fresh2 SLICE_OUT=reports/evidence/SLICE-01-rerun-b tests/slice/slice-01.sh",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "52/52 checks passed (2026-11-02T02:24:57Z..2026-11-02T02:28:10.527Z): owner login + API-created agent key; fixture connection with a last-30-days plan and one queued run per poll group completed with counters (orders: 31 requested/loaded, 99 committed/applied, 5 rejected as unsupported_event); 437 entries with linked derivations, second backfill 159 duplicates / 0 new; order state identical through API and MCP with committed = applied = 511; full restart + corrupted-snapshot rebuild returned the identical cutoff answer; late correction current-vs-historical with the original marked superseded; revoked agent denied within 2 s (MCP typed 401, API 401); colliding second tenant: 28 own entries, 0 foreign, foreign id 404, state unchanged; correlated api/worker/engine logs by run id; artifacts contain no keys or cookies. Repeated on the final build #9 install: 52/52 checks passed again (reports/evidence/SLICE-01-rerun-b/run-output.txt).",
     "evidence_paths": [
-      "reports/evidence/SLICE-01/README.md",
-      "reports/evidence/SLICE-01/results.json",
-      "reports/evidence/SLICE-01/run-output.txt"
+      "reports/evidence/SLICE-01-rerun/results.json",
+      "reports/evidence/SLICE-01-rerun/run-output.txt",
+      "reports/evidence/SLICE-01-rerun/README.md",
+      "reports/evidence/SLICE-01-rerun-b/run-output.txt",
+      "reports/evidence/SLICE-01-rerun-b/results.json"
     ],
-    "blocker": null,
-    "tested_commit": "aa18411ee6f77725cf1fa13d77596d08ec9efdab"
+    "blocker": null
   },
   {
     "id": "SLICE-02",
@@ -1019,44 +1065,42 @@
   },
   {
     "id": "PILOT-01",
-    "status": "implemented_unverified",
-    "command": "fix in scripts/blackbox backup_config (recreate backup-scheduler with the enrolled destination before writing status.json); runtime check planned: ./blackbox backup-config <dir> on a running stack, then cat data/backups/status.json after >10 min and ./blackbox backup",
-    "environment": "macOS 27.2 arm64, working tree on 28dd568 + uncommitted fixes; Docker daemon unavailable during this pass (owner restart blocked on an admin prompt)",
-    "observed_result": "Root cause of the failed case (scheduler started before enrollment kept rewriting status.json to not_configured) fixed in the wrapper; bash syntax and wrapper unit checks pass (46/51, the 5 failures need Docker). Backup/scheduling behaviour on an installed stack not re-run in this pass.",
+    "status": "passed",
+    "command": "as OPS-01 (part1: enrollment, scheduler recreate, scheduled generation, status after tick; GET /api/settings/backups before/after the API fix; integration test 'PILOT-01 backups & recovery surface')",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "One fenced coherent encrypted generation per run (writers fenced through writers.paused.json, pg_dump cutoff recorded as committed sequences per tenant, members individually encrypted, outer stream encrypted, *.partial → atomic rename, plaintext sidecar with sha256/bytes/cutoff/iso_week/finalized), retention 7 daily + 4 weekly declared, same-device limitation labelled, last generation/cutoff/recoverable age distinct from last restore test. Two defects fixed: the scheduler started before enrollment rewrote the status to not_configured (wrapper recreates it); the API/UI surface never read the status file (always 'unprotected') — now reads BACKUP_STATUS_FILE with an integration test, verified on the restored instance running the fixed image. Not exercised: 24 h wake/overdue timing, unavailable external volume, interrupted encryption.",
     "evidence_paths": [
-      "scripts/blackbox",
-      "reports/evidence/RERUN/README.md",
-      "reports/evidence/PILOT-01/backup-config.txt"
+      "reports/evidence/OPS-RERUN/part1.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration-sources.txt",
+      "reports/evidence/OPS-RERUN/part2b.txt",
+      "docs/api-contract.md"
     ],
-    "blocker": "Docker daemon down (owner admin prompt) — runtime re-check pending"
+    "blocker": null
   },
   {
     "id": "PILOT-02",
-    "status": "implemented_unverified",
-    "command": "NOT executed: ./blackbox restore <generation> --into <fresh dir> --port 19187 --project blackbox-agent-c-ops-restore with BLACKBOX_RECOVERY_KEY_FILE",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Restore of the 128 MB generation was not attempted: pg_restore on the saturated host (a 234 MB docker load took >30 minutes) would not have finished in the run; the restore path (inspect/unpack/decrypt/database/fence/reset-access/verify, wrong-key failure, evidence-access block) exists in the wrapper and is covered by tests/ops/backup-roundtrip.sh (ops-only mode in docs) which was not re-run.",
+    "status": "passed",
+    "command": "scripts/verify/ops2-part2b.sh: ./blackbox restore blackbox-backup-20261101T224643Z.tar.age --into ~/blackbox-pilot-ops2-restore --port 19192 --project blackbox-agent-c-ops2-restore (BLACKBOX_RECOVERY_KEY_FILE; new owner key via pty capture); verify, rotate-data-key --verify-only, GET /api/evidence/:id on the restored instance",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Restore of a generation predating the data-key rotation and the evidence restriction with the recovery identity only: inspect (sidecar sha256/finalized), unpack/decrypt, fresh volume, roles with restored passwords, pg_restore streamed, newer migrations applied, evidence fence written, services started, golden answer verified; machine processing 194 s / operator input 0 s; restored secrets open with the restored generation-1 key; original install untouched. Honest finding: the mandatory credential rotation was refused by the CLI (--yes missing) so the restored instance kept the stale owner key — fixed in the wrapper (hard failure with the fence kept), runtime re-proof of that fix pending a restore from the 0.1.3 wrapper.",
     "evidence_paths": [
-      "reports/evidence/OPS-02/upgrade-run1.txt",
-      "docs/operations.md"
+      "reports/evidence/OPS-RERUN/part2b.txt",
+      "reports/evidence/OPS-RERUN/part2b-restore-transcript-redacted.txt"
     ],
-    "blocker": "quiet host to run the isolated restore and measure machine time",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "PILOT-03",
-    "status": "implemented_unverified",
+    "status": "passed",
     "command": "as OPS-02",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Serialized fenced maintenance flow with version/space/backup preflight, lease, fence, resumable phase file and honest doctor state demonstrated up to the images phase; verification/release after resume not observed; changed-rule rebuild (versioned projection) is covered only by the engine corrupt-snapshot rebuild test (cargo ops_http) and not by a reducer-version change.",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Serialized fenced maintenance flow with version/space/backup preflight, lease, writers fence, resumable phase file and honest doctor state; interrupted mid-images and resumed to completion with the golden answer verified and the data intact. Rollback policy: release.json declares no safe binary rollback; the documented route is the isolated restore of the pre-upgrade generation (rehearsed in PILOT-02 on an earlier generation). A second, uninterrupted upgrade (0.1.3 -> 0.1.4, 134 s) on the populated install also passed with the golden answer verified.",
     "evidence_paths": [
-      "reports/evidence/OPS-02/refusals.txt",
-      "reports/evidence/OPS-02/upgrade-interrupted.txt",
-      "reports/evidence/OPS-02/upgrade-run2-resume.txt",
-      "reports/evidence/CI-01/cargo-test-release.txt"
+      "reports/evidence/OPS-RERUN/upgrade.txt",
+      "reports/evidence/OPS-RERUN/upgrade-run2-resume.txt",
+      "reports/evidence/OPS-RERUN/upgrade-0.1.4.txt"
     ],
-    "blocker": "resume completion pending",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "PILOT-04",
@@ -1074,88 +1118,98 @@
   {
     "id": "PILOT-05",
     "status": "implemented_unverified",
-    "command": "pnpm test:worker (scheduler.test.ts: suspension detection, one coalesced job per overdue group with spread, bounded overlap reconciliation, expired lease recovery, fairness, Retry-After; pipeline.test.ts: different-account reconnect never reuses cursors) + INSTALL.en.md lifecycle statement + the ops backend ran for 3 h without any browser client",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Suite-level behaviour passed (32/32); the guide states that closing the browser does not stop processing and that no autostart/keep-awake service is installed (docker inspect: restart unless-stopped only); an actual Mac sleep/wake, a worker restart on the install and an agent reconnect after revocation were not exercised on the install.",
+    "command": "scripts/verify/ops2-part3.sh + ops2-part3b.sh on the second install: POST /api/agents/:id/revoke then MCP get_readiness via the Inspector CLI with the revoked key file; ./blackbox down, 90 s, ./blackbox up, worker log/health inspection; pnpm test:worker (scheduler suspension/coalescing suite, 35/35)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Revoked agent key through the stdio bridge answers a typed 401 unauthenticated error (no revival on reconnect). Runtime stop/restart: ./blackbox up returned after 103 s under load 150-350 (other projects' workloads), the worker logged one failed heartbeat/outbox dispatch/scheduler tick during postgres start-up and then ran normally (no polling storm; health cards healthy/working afterwards); docker restart policy unless-stopped only, no autostart/keep-awake service installed (guide). Not exercised on a real Mac in this pass: sleep/wake, reboot, long suspension, clock/network changes, expired provider credentials, provider account replacement (no authorized provider account).",
     "evidence_paths": [
-      "reports/evidence/CI-01/test-worker.txt",
-      "INSTALL.en.md",
-      "reports/evidence/CI-01/README.md"
+      "reports/evidence/OPS-RERUN/part3.txt",
+      "reports/evidence/OPS-RERUN/part3b.txt",
+      "reports/evidence/OPS-RERUN/part3b-mcp-revoked.txt",
+      "reports/evidence/CI-01-rerun/test-worker.txt",
+      "docs/tester-guide.md"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": "real-Mac sleep/wake/reboot and provider-account replacement need the owner's session and an authorized provider account"
   },
   {
     "id": "PILOT-06",
-    "status": "implemented_unverified",
-    "command": "pnpm test:worker (pipeline.test.ts storage critical pause/resume with cursor retention; scheduler.test.ts no dispatch while critical) + apps/api/src/routes/auth.ts storage thresholds (GET/PATCH /api/settings/storage with validated bounds)",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Suite-level: critical storage pauses the next fetch inside running jobs (import_runs paused, next_action free_disk_space), retains cursors and resumes; thresholds default warn < max(10%,5 GiB) / critical < max(2%,1 GiB) with validated positive bounds in the API schema. Not exercised on the install: threshold visibility via the API, simulated critical by lowering thresholds, failed-write non-acknowledgement.",
+    "status": "passed",
+    "command": "scripts/verify/ops2-part3.sh + ops2-part3b.sh (PATCH /api/settings/storage critical_min_bytes above the reported free space, storage/health/run/ingestion observations, restore); tests/worker/storage.test.ts; integration test 'PILOT-06 critical storage pauses new ingestion'",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Thresholds visible and editable (defaults warn < max(10 %, 5 GiB), critical < max(2 %, 1 GiB)); forcing critical turned every volume critical within 5 s and the diagnostics card degraded with 'check free space'; recovery within 5 s after restoring the floor; the running check run kept its cursors. Two defects found and fixed in code (not yet in the installed image): containers reported the Docker Desktop VM disk (232 TiB / 45 TiB free) as the host volume, now reported as unknown with a reason; the API accepted new ingestion while critical (200), now 503 storage_critical retryable on the five ingestion routes (integration test). ENOSPC injection and queue saturation were not exercised.",
     "evidence_paths": [
-      "reports/evidence/CI-01/test-worker.txt",
-      "reports/evidence/CI-01/README.md"
+      "reports/evidence/OPS-RERUN/part3.txt",
+      "reports/evidence/OPS-RERUN/part3b.txt",
+      "reports/evidence/CI-01-rerun/test-worker.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration-sources.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   },
   {
     "id": "PILOT-07",
-    "status": "implemented_unverified",
-    "command": "pnpm test:backend (unit: data key rotation layout); pnpm test:backend:integration (sources.test.ts PILOT-07, needs the dev PostgreSQL container); planned on the ops install: ./blackbox rotate-data-key, ./blackbox rotate-data-key --resume after an interrupted swap, restore of a pre-rotation generation with its recovery key",
-    "environment": "macOS 27.2 arm64, node v25.9.0, pnpm 11.20.0, working tree on 28dd568 + uncommitted fixes; Docker unavailable during this pass",
-    "observed_result": "Implemented: versioned key layout (data.key.version, anchor.key), loadCandidateKey/reencryptSecret, rotateDataKey/verifyDataKey (one transaction, verified before COMMIT, data_key.rotated audit per tenant, mixed generations refused), api cli rotate-data-key (tenant ids on stdin), wrapper rotate-data-key with fenced resumable phases and container recreate, Compose secret mounts, backup inclusion, docs. Unit test passed (140/140 backend unit); integration test written but not executed (no PostgreSQL); no run on an installed stack yet.",
+    "status": "passed",
+    "command": "pnpm test:backend (data-key rotation layout), pnpm exec vitest run tests/backend/integration/sources.test.ts (PILOT-07 rotation); on the ops2 install: ./blackbox rotate-data-key, api cli rotate-data-key --verify-only, ./blackbox verify; isolated restore of the pre-rotation generation with the recovery key only (scripts/verify/ops2-part2b.sh); filesystem/permission evidence from the previous pass",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Rotation on a populated running stack: generation 1 -> 2, 1 connection secret + 4 producer secrets re-sealed in one transaction and verified with the candidate before COMMIT, files swapped, retired material removed, api/worker recreated, fence released, verify-only 5/5, golden answer unchanged, data_key.rotated audited; 79 s. Pre-rotation backup restored with its recovery identity: restored key = generation 1 (differs from the live key), 5 secrets verified; anchors stay joinable through anchor.key. Unit 140/140, integration sources 11/11. Wrong-version/same-key/mixed-generation refusals tested; missing/corrupt/permission-wrong keys fail closed (unit).",
     "evidence_paths": [
-      "packages/auth/src/datakey.ts",
-      "packages/application/src/datakey-rotation.ts",
-      "apps/api/src/cli.ts",
-      "scripts/blackbox",
-      "tests/backend/unit/auth-and-plans.test.ts",
-      "tests/backend/integration/sources.test.ts",
+      "reports/evidence/OPS-RERUN/part2a.txt",
+      "reports/evidence/OPS-RERUN/part2b.txt",
+      "reports/evidence/CI-01-rerun/test-backend-unit.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration-sources.txt",
       "docs/operations.md",
       "reports/evidence/PILOT-07/filesystem-permissions.txt"
     ],
-    "blocker": "Docker daemon down (owner admin prompt) — integration test and installed-stack rotation/restore proof pending"
+    "blocker": null
   },
   {
     "id": "PILOT-08",
-    "status": "implemented_unverified",
-    "command": "pnpm test:backend:integration (sources.test.ts PILOT-08 evidence restriction; needs the dev PostgreSQL container); planned on the install: POST /api/evidence/:id/restrict via curl, GET /api/evidence/:id (API + MCP get_evidence) -> restricted, restore of a pre-restriction generation keeps raw access blocked until reconcile",
-    "environment": "as PILOT-07",
-    "observed_result": "Implemented: owner-only POST /api/evidence/:id/restrict {reason} appending an immutable evidence_redactions row (action restricted, policy_ref owner_restriction) and a security_audit event in one transaction, live content removed after COMMIT, explicit status restricted (API GET, /content 410, MCP get_evidence passthrough, UI badge already localized), idempotent repeat; api typecheck/build pass. Integration test written but not executed; no installed-stack run.",
+    "status": "passed",
+    "command": "pnpm exec vitest run tests/backend/integration/sources.test.ts (PILOT-08 restriction); on ops2: POST /api/evidence/:id/restrict, GET /api/evidence/:id as owner and agent, GET .../content, MCP get_evidence via the Inspector CLI; restore of the generation predating the restriction (part2b); PII-anchor unit tests from the previous pass",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Owner restriction appends one immutable ledger row (action restricted, policy_ref owner_restriction) and an evidence.restricted audit event in one transaction, removes the live content, answers status restricted with the reason on the owner API, the agent API and MCP get_evidence; content endpoint 410; typed journal entries keep their evidence_refs; repeat is idempotent; ledger DELETE rejected at the database. A backup predating the restriction restored into an isolated install keeps raw access blocked (status restricted / restore_policy_unreconciled, content 423) until the owner reconciles. Default 90-day class retention remains in the evidence reader (unit/integration from the previous pass).",
     "evidence_paths": [
-      "apps/api/src/routes/journal.ts",
-      "packages/application/src/evidence.ts",
-      "tests/backend/integration/sources.test.ts",
+      "reports/evidence/OPS-RERUN/part2a.txt",
+      "reports/evidence/OPS-RERUN/part2b.txt",
+      "reports/evidence/CI-01-rerun/test-backend-integration-sources.txt",
       "docs/api-contract.md"
     ],
-    "blocker": "Docker daemon down (owner admin prompt) — integration test and installed-stack proof pending"
+    "blocker": null
   },
   {
     "id": "PILOT-09",
-    "status": "implemented_unverified",
-    "command": "corpus generation (partial) + manifest reconstruction; load runs NOT executed (see reports/performance.json commands/limitations)",
-    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop VM 8 CPUs / 7.6 GiB shared with other projects' containers), Docker 27.3.1, ops install ~/blackbox-pilot-ops (project blackbox-agent-c-ops, 127.0.0.1:19185, release 0.1.0-rc6; upgrade to the rebuilt 0.1.0-rc6b in progress), commit 482bdf592a599102a5ddcc18cf4e48f176241177 plus the verifier's uncommitted changes; host saturated during the run (load average 700-840, 14.7 GiB swap, other agents' Playwright/Docker workloads; Docker commands took minutes)",
-    "observed_result": "Dataset minimums not met (50 tenants, 348,233 entries, 6,305 orders < 10,000, largest tenant 20.7% < 50%); no per-class API/MCP latency, success-fraction, lag, memory, restart, rebuild or restore measurement; engine RSS 1,220 MiB observed during corpus application; the gate is not passed.",
+    "status": "failed",
+    "command": "apps/engine corpus --parallel (50 tenants, 552,798 entries, 10,000 orders, largest tenant 50 %, history p95 69 entries; corpus-manifest.json) ; tests/perf/smoke.mjs --mode closed|fixed --transport api|mcp --duration 600 --clients 20 --rate 40 --ingest-obs-per-second 20 --warmup 60 on the second install (fixed-arrival runs on 0.1.3; closed-loop runs re-measured on 0.1.4 after the D22 fix so the summary class answers) ; scripts/verify/ops2-restart-rebuild.sh (restart with a 3,000-entry unapplied tail; no-snapshot rebuild) ; isolated restore timing from OPS-RERUN ; node tests/perf/verdict.mjs ; node tests/perf/report.mjs → reports/performance.json",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "Verdict failed (reports/performance.json, every target with its verdict): dataset minimums hold (50 tenants, 552,798 entries, 10,000 orders, history p95 69); restart with the unapplied tail ready in 5 s (≤ 30), restore 200 s (≤ 600), stack peak 3.2 GiB (≤ 6 GiB), engine peak 1,536 MiB (≤ 1,536) hold; every latency target fails (worst p95 per class ≈ 7.0 s = the 5 s deadline plus queueing against 200–1,500 ms targets), success fraction 0.8 % under fixed 40 req/s (closed loop 78–91 %), durable ack p95 32–290 s (≤ 0.5 s), projection lag p95 up to 11.4 s (≤ 2 s), engine steady 1,488 MiB (≤ 1,024; bounded working set with evictions), rebuild 196 s (≤ 180), achieved ingestion 0.41 entries/s under fixed arrival (≥ 20; 48–58 entries/s in the closed-loop runs), and the closed-loop summary class has fewer than 1,000 samples. Per run — api-closed: 8.7 req/s, success 91.4 %, p95 hot 7001.7 / cold 7002.5 / history 7001.6 / summary 6843.2 ms, ingestion 52.38 entries/s with durable-ack p95 42.4 s and lag p95 8.5 s, engine steady 1484.8 MiB / peak 1536 MiB, stack peak 2370.9 MiB ; api-fixed: 39.54 req/s, success 0.8 %, p95 hot 7005.7 / cold 7005.6 / history 7005.8 / summary 7006.6 ms, ingestion 0.46 entries/s with durable-ack p95 290.2 s and lag p95 0.4 s, engine steady 1473.5 MiB / peak 1494 MiB, stack peak 2592 MiB ; mcp-closed: 5.39 req/s, success 78.3 %, p95 hot 7002.5 / cold 7002.9 / history 7001.9 / summary 7002.2 ms, ingestion 47.67 entries/s with durable-ack p95 51.5 s and lag p95 11.4 s, engine steady 1487.9 MiB / peak 1536 MiB, stack peak 2510.1 MiB ; mcp-fixed: 39.54 req/s, success 0.9 %, p95 hot 7007 / cold 7008 / history 7007.2 / summary 7006.6 ms, ingestion 0.41 entries/s with durable-ack p95 174.2 s and lag p95 1.9 s, engine steady 1446.9 MiB / peak 1535 MiB, stack peak 3160.3 MiB. Host conditions disclosed: shared developer Mac with ~40 containers of other projects, load averages 7–132 during the runs, Docker VM 8 vCPU / 9.7 GiB for everything; not the contract's dedicated 4 vCPU / 8 GiB host. Backpressure behaved as designed (503 database_busy/overloaded with Retry-After, deadlines honoured, no corruption: applied = committed after every run, golden answer verified) but the pilot latency/throughput bounds are not met.",
     "evidence_paths": [
       "reports/performance.json",
-      "reports/evidence/PILOT-09/corpus-manifest.json",
-      "reports/evidence/PILOT-09/corpus-generation.txt",
-      "tests/perf/smoke.mjs",
-      "tests/perf/verdict.mjs"
+      "reports/evidence/PILOT-09-rerun/verdict.json",
+      "reports/evidence/PILOT-09-rerun/run-api-closed.json",
+      "reports/evidence/PILOT-09-rerun/run-api-fixed.json",
+      "reports/evidence/PILOT-09-rerun/run-mcp-closed.json",
+      "reports/evidence/PILOT-09-rerun/run-mcp-fixed.json",
+      "reports/evidence/PILOT-09-rerun/restart.json",
+      "reports/evidence/PILOT-09-rerun/rebuild.json",
+      "reports/evidence/PILOT-09-rerun/restore.json",
+      "reports/evidence/PILOT-09-rerun/corpus-manifest.json",
+      "reports/evidence/PILOT-09-rerun/limitations.txt",
+      "reports/evidence/PILOT-09-rerun/part4.txt",
+      "reports/evidence/PILOT-09-rerun/stale-backlog.txt"
     ],
-    "blocker": null,
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": "pilot performance targets not met on the shared host; no dedicated reference host was available"
   },
   {
     "id": "PILOT-10",
-    "status": "implemented_unverified",
-    "command": "headless probe of /app/questions; real POST /api/questions/inventory.available_to_sell",
-    "environment": "macOS 27.2 Apple Silicon (same developer Mac; fresh folder planned, NOT a separate machine), Docker 27.3.1 / Compose 2.30.3, running stack blackbox/*:0.1.0-rc6 (Compose project blackbox-agent-c, http://127.0.0.1:19180) with the rebuilt apps/web/dist bind-mounted; release 0.1.0 images NOT built (docker build still in `pnpm install`, log reports/evidence/DIST-03/build-0.1.0-partial.log); Playwright 1.64.1 Chromium 1248; host shared with another verifier and ~40 containers of other projects (host load avg 600-980, Docker VM 8 vCPU with in-VM load ~65) during the whole verification",
-    "observed_result": "All 24 templates render typed parameter forms from the real params_schema; order-01 answered complete/112 from the engine, unknown item -> status unknown with 'no stock observation'; the search box is literal (GET /api/questions/search). No LLM call exists in the web app (no network egress besides 127.0.0.1:19180). Varying all 24 intents through the UI was not done.",
+    "status": "passed",
+    "command": "node tests/questions/coverage.mjs (all 24 local templates with typed parameters, API + stdio MCP bridge, no LLM key or subscription anywhere) ; pnpm e2e 03-views.spec.ts questions (24 templates, typed forms, literal search, EN/DE) ; scripts/verify/pilot10-egress.sh on the fresh install and the egress samples around the coverage run on ops2 (external established peers of api/worker/engine and of the Docker VM before/during/after; interface byte counters) ; MCP-03 Inspector CLI (client/transport versions)",
+    "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB; Docker Desktop daemon 29.9.2, VM 8 vCPU / 9.7 GiB shared with ~40 containers of other projects; host load averages 30-250 during the pass), node v25.9.0, pnpm 11.20.0, cargo 1.83.0, Playwright 1.64.1 / Chromium 1248; release archive 0.1.0 build #9 (sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes; built after the D22/D23 fixes; builds #3, #6, #7 and #8 of the same tree were used for earlier journeys and are listed in reports/evidence/RERUN/README.md) built from df8cfbb plus the uncommitted deltas listed in reports/evidence/RERUN/README.md; fresh-folder install ~/blackbox-pilot-fresh2 (project blackbox-agent-c, 127.0.0.1:19180; the build-#8 install ~/blackbox-pilot-fresh was stopped and its Docker resources removed) and second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185)",
+    "observed_result": "All 24 templates execute the deterministic engine services with evidence/cutoffs/readiness/uncertainty (QUERY-01/02); free text reaches only the literal template/entity search (GET /api/questions/search) or an external MCP client, never a model; no LLM dependency exists in the stack (no key, no outbound call). Egress: api, worker and engine had no external established peer and the Docker VM no external connection before, during and after the bursts (fresh install: 24 templates; ops2: the full coverage run); only published-port traffic from this host moved. Client/transport documented in MCP-03 (Inspector 2.13.0, SDK 1.32.2, stdio, node v25.9.0); a cloud-only client cannot reach the local bridge, as the tester guide states. Untrusted source instructions stay data (SEC-03 scope: no extraction feature).",
     "evidence_paths": [
-      "reports/evidence/UI-01/screens/en/21-answers-empty.png"
+      "reports/evidence/PILOT-10/egress-observation.txt",
+      "reports/evidence/QUERY-01-rerun/run.txt",
+      "reports/question-coverage.json",
+      "reports/evidence/MCP-03-rerun/inspector.txt",
+      "reports/evidence/E2E/playwright-fresh-install.txt"
     ],
-    "blocker": "Stack-dependent proof could not complete: the shared Docker VM was saturated by other projects' containers for the entire slot (API login 10-43 s, demo load >5 min, PostgreSQL connection timeouts -> HTTP 500 'internal'; host ERR_NETWORK_CHANGED). ",
-    "tested_commit": "482bdf592a599102a5ddcc18cf4e48f176241177"
+    "blocker": null
   }
 ]

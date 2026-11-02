@@ -1,0 +1,6 @@
+check-manifest: ok  status=released
+check-manifest: ok  artifact bytes/sha256 match (530045630 bytes)
+check-manifest: ok  bundled images present
+check-manifest: ok  release.json and compose pins consistent with 0.1.0 @ df8cfbb5e41fb3da483270651823cf470aaf1a65
+check-manifest: PASS blackbox-0.1.0-mac-arm64.tar.gz
+check-manifest exit 0

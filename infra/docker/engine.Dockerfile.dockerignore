@@ -33,3 +33,11 @@ tests/e2e
 tests/ops
 tests/worker
 *.log
+scripts
+infra
+fixtures
+tests/perf
+tests/questions
+tests/diag
+tests/slice
+release

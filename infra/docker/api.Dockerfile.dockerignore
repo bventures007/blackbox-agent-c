@@ -3,6 +3,11 @@
 **/dist
 **/*.tsbuildinfo
 **/.vite
+# runtime outputs of the Playwright suite are never product content (traces/reports/screenshots)
+tests/e2e/test-results
+tests/e2e/playwright-report
+tests/e2e/screenshots
+tests/e2e/.auth
 target
 .git
 .local

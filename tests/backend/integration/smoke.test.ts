@@ -51,7 +51,7 @@ describe("smoke", () => {
     expect(r.datasets_present).toEqual(expect.arrayContaining(["orders", "stock", "payments", "invoices", "bank", "payouts", "refunds", "identity", "coverage"]));
     expect(r.questions.find((q) => q.intent === "invoices.outstanding")!.status).toBe("ready");
     expect(r.questions.find((q) => q.intent === "shipments.attention")!.status).toBe("partial"); // tracking/policy missing
-    const question = await c.post("/api/questions/invoices.outstanding", { params: { invoice_id: "INV-1001" } });
+    const question = await c.post("/api/questions/invoices.outstanding", { params: { customer_id: "C-1" } }); // the intent takes customer/currency/due_before/now (engine contract), not invoice_id
     expect(question.status).toBe(200);
     const q = question.json as { status: string; error?: { code: string }; readiness: { status: string } };
     expect(q.status).toBe("unavailable"); // stub engine: projection_behind, never a fabricated number

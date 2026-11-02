@@ -1,0 +1,656 @@
+{
+  "intent": "invoices.dispatch_evidence",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "invoices.dispatch_evidence",
+      "question_id": "invoice-04",
+      "params": {},
+      "readiness": {
+        "question_id": "invoice-04",
+        "intent": "invoices.dispatch_evidence",
+        "status": "ready",
+        "required": [
+          "invoices",
+          "invoice_dispatch",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "657bc500-aa6b-48fa-b09c-f623194fe889",
+            "provider": "generic",
+            "capability_id": "invoices",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.875Z",
+            "last_new_event_at": "2026-11-01T22:45:23.875Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "07931a6a-81a7-4c15-93a7-ffb3856e2693",
+            "provider": "replay",
+            "capability_id": "invoices",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.080Z",
+            "last_new_event_at": "2026-11-02T03:46:46.080Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "07931a6a-81a7-4c15-93a7-ffb3856e2693",
+            "provider": "replay",
+            "capability_id": "invoice_dispatch",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.080Z",
+            "last_new_event_at": "2026-11-02T03:46:46.080Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "without_send_evidence_population_complete": true,
+        "without_send_evidence": [
+          "INV-1001",
+          "I-X-Q",
+          "I-C-Q"
+        ],
+        "invoices": [
+          {
+            "invoice_id": "INV-1001",
+            "evidence": "no_evidence_in_scope",
+            "recipient_delivery_proven": false,
+            "dispatches": []
+          },
+          {
+            "invoice_id": "I-1-Q",
+            "evidence": "provider_reported_sent",
+            "recipient_delivery_proven": false,
+            "dispatches": [
+              {
+                "dispatch_id": "DSP-1-Q",
+                "channel": "email",
+                "provider_status": "ok",
+                "processed_at": "2026-10-31T04:08:00Z"
+              }
+            ]
+          },
+          {
+            "invoice_id": "I-X-Q",
+            "evidence": "no_evidence_in_scope",
+            "recipient_delivery_proven": false,
+            "dispatches": []
+          },
+          {
+            "invoice_id": "I-C-Q",
+            "evidence": "no_evidence_in_scope",
+            "recipient_delivery_proven": false,
+            "dispatches": []
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "evidence",
+          "formula": "provider-reported send evidence per finalized invoice; absence is not proof of unsent",
+          "values": {
+            "invoices": 4,
+            "without": 3
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:14f1513d-181a-4d0e-a110-a504cb22f3fc",
+        "journal:81893256-3e3a-4078-9495-196202d9598e",
+        "journal:265252ab-c53e-4d38-bd22-923a0c875890",
+        "journal:4060c11c-43f2-403d-b4ea-e9aa18b296d4",
+        "journal:d804d476-ee41-401b-935b-3c2bef1d7375",
+        "journal:7d83b22f-c63c-480a-85c7-2f335a453408",
+        "journal:bf70c81d-22cc-46a1-9302-dc606b38dc15",
+        "journal:731058de-f6e4-49e1-83a5-c910fde70bc3",
+        "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+        "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+        "journal:8e139855-0371-4b9d-b299-292980abc132",
+        "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+        "journal:4c80a788-061a-4a70-bc95-bb9c77fc83c0",
+        "journal:0fce9f6e-6c23-46d7-8a1b-09021a53961f",
+        "journal:6ba689f6-3517-4be8-b747-300aadb8c054",
+        "journal:8de24798-e7df-4edf-8039-9947bd96b5e5",
+        "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+        "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+        "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+        "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+        "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+        "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+        "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+        "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+        "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+        "journal:f4e63630-d077-4296-9227-92915240847f",
+        "journal:14acfbc1-3f8c-494d-90b6-10621eb4536d",
+        "journal:7460ab9d-b47d-4ef3-9541-68a49a7e1aa0",
+        "journal:886beb7e-8ab3-4b89-a463-4de0ee6b37bc",
+        "journal:253c235f-7b9b-437e-8ede-c197f9623dd3",
+        "journal:4c4d0ebd-fb5e-40f3-bd56-037ef687f622",
+        "journal:cf86e382-641b-412b-8ace-4eded0973dd6"
+      ],
+      "entry_ids": [
+        "14f1513d-181a-4d0e-a110-a504cb22f3fc",
+        "81893256-3e3a-4078-9495-196202d9598e",
+        "265252ab-c53e-4d38-bd22-923a0c875890",
+        "4060c11c-43f2-403d-b4ea-e9aa18b296d4",
+        "d804d476-ee41-401b-935b-3c2bef1d7375",
+        "7d83b22f-c63c-480a-85c7-2f335a453408",
+        "bf70c81d-22cc-46a1-9302-dc606b38dc15",
+        "731058de-f6e4-49e1-83a5-c910fde70bc3",
+        "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+        "8843165e-50ae-4c4a-b355-9825ae80452f",
+        "8e139855-0371-4b9d-b299-292980abc132",
+        "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+        "4c80a788-061a-4a70-bc95-bb9c77fc83c0",
+        "0fce9f6e-6c23-46d7-8a1b-09021a53961f",
+        "6ba689f6-3517-4be8-b747-300aadb8c054",
+        "8de24798-e7df-4edf-8039-9947bd96b5e5",
+        "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+        "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+        "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+        "5db0573d-277a-4bd3-8cd6-733c88a30973",
+        "c3743166-74ad-45b0-8744-89cebe2d5936",
+        "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+        "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+        "d8406e07-4552-4b81-a08b-d230704b846b",
+        "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+        "f4e63630-d077-4296-9227-92915240847f",
+        "14acfbc1-3f8c-494d-90b6-10621eb4536d",
+        "7460ab9d-b47d-4ef3-9541-68a49a7e1aa0",
+        "886beb7e-8ab3-4b89-a463-4de0ee6b37bc",
+        "253c235f-7b9b-437e-8ede-c197f9623dd3",
+        "4c4d0ebd-fb5e-40f3-bd56-037ef687f622",
+        "cf86e382-641b-412b-8ace-4eded0973dd6"
+      ],
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "invoices",
+          "invoice_dispatch",
+          "coverage",
+          "identity"
+        ],
+        "datasets_missing": [],
+        "population": {
+          "records_considered": 4,
+          "returned": 4
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": [
+          {
+            "coverage_id": "carrier|tracking",
+            "status": "backfill_complete",
+            "connection": "carrier",
+            "capability": "tracking",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75455
+          },
+          {
+            "coverage_id": "invoice|invoices",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoices",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75465
+          },
+          {
+            "coverage_id": "invoice|invoice_dispatch",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoice_dispatch",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75467
+          },
+          {
+            "coverage_id": "payment|payments",
+            "status": "backfill_complete",
+            "connection": "payment",
+            "capability": "payments",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75469
+          },
+          {
+            "coverage_id": "generic|cases",
+            "status": "backfill_complete",
+            "connection": "generic",
+            "capability": "cases",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75471
+          },
+          {
+            "coverage_id": "bank_csv|bank",
+            "status": "backfill_complete",
+            "connection": "bank_csv",
+            "capability": "bank",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T09:00:00.000Z",
+            "links": [],
+            "last_sequence": 75475
+          }
+        ],
+        "evidence_evicted_entities": 5,
+        "evidence_source": "postgresql_cold_read"
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 4,
+        "total": 4,
+        "snapshot_cursor": 75561
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "invoices.dispatch_evidence",
+      "question_id": "invoice-04",
+      "params": {},
+      "readiness": {
+        "question_id": "invoice-04",
+        "intent": "invoices.dispatch_evidence",
+        "status": "ready",
+        "required": [
+          "invoices",
+          "invoice_dispatch",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "657bc500-aa6b-48fa-b09c-f623194fe889",
+            "provider": "generic",
+            "capability_id": "invoices",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.875Z",
+            "last_new_event_at": "2026-11-01T22:45:23.875Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "07931a6a-81a7-4c15-93a7-ffb3856e2693",
+            "provider": "replay",
+            "capability_id": "invoices",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.080Z",
+            "last_new_event_at": "2026-11-02T03:46:46.080Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "07931a6a-81a7-4c15-93a7-ffb3856e2693",
+            "provider": "replay",
+            "capability_id": "invoice_dispatch",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.080Z",
+            "last_new_event_at": "2026-11-02T03:46:46.080Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "without_send_evidence_population_complete": true,
+        "without_send_evidence": [
+          "INV-1001",
+          "I-X-Q",
+          "I-C-Q"
+        ],
+        "invoices": [
+          {
+            "invoice_id": "INV-1001",
+            "evidence": "no_evidence_in_scope",
+            "recipient_delivery_proven": false,
+            "dispatches": []
+          },
+          {
+            "invoice_id": "I-1-Q",
+            "evidence": "provider_reported_sent",
+            "recipient_delivery_proven": false,
+            "dispatches": [
+              {
+                "dispatch_id": "DSP-1-Q",
+                "channel": "email",
+                "provider_status": "ok",
+                "processed_at": "2026-10-31T04:08:00Z"
+              }
+            ]
+          },
+          {
+            "invoice_id": "I-X-Q",
+            "evidence": "no_evidence_in_scope",
+            "recipient_delivery_proven": false,
+            "dispatches": []
+          },
+          {
+            "invoice_id": "I-C-Q",
+            "evidence": "no_evidence_in_scope",
+            "recipient_delivery_proven": false,
+            "dispatches": []
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "evidence",
+          "formula": "provider-reported send evidence per finalized invoice; absence is not proof of unsent",
+          "values": {
+            "invoices": 4,
+            "without": 3
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:14f1513d-181a-4d0e-a110-a504cb22f3fc",
+        "journal:81893256-3e3a-4078-9495-196202d9598e",
+        "journal:265252ab-c53e-4d38-bd22-923a0c875890",
+        "journal:4060c11c-43f2-403d-b4ea-e9aa18b296d4",
+        "journal:d804d476-ee41-401b-935b-3c2bef1d7375",
+        "journal:7d83b22f-c63c-480a-85c7-2f335a453408",
+        "journal:bf70c81d-22cc-46a1-9302-dc606b38dc15",
+        "journal:731058de-f6e4-49e1-83a5-c910fde70bc3",
+        "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+        "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+        "journal:8e139855-0371-4b9d-b299-292980abc132",
+        "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+        "journal:4c80a788-061a-4a70-bc95-bb9c77fc83c0",
+        "journal:0fce9f6e-6c23-46d7-8a1b-09021a53961f",
+        "journal:6ba689f6-3517-4be8-b747-300aadb8c054",
+        "journal:8de24798-e7df-4edf-8039-9947bd96b5e5",
+        "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+        "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+        "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+        "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+        "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+        "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+        "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+        "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+        "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+        "journal:f4e63630-d077-4296-9227-92915240847f",
+        "journal:14acfbc1-3f8c-494d-90b6-10621eb4536d",
+        "journal:7460ab9d-b47d-4ef3-9541-68a49a7e1aa0",
+        "journal:886beb7e-8ab3-4b89-a463-4de0ee6b37bc",
+        "journal:253c235f-7b9b-437e-8ede-c197f9623dd3",
+        "journal:4c4d0ebd-fb5e-40f3-bd56-037ef687f622",
+        "journal:cf86e382-641b-412b-8ace-4eded0973dd6"
+      ],
+      "entry_ids": [
+        "14f1513d-181a-4d0e-a110-a504cb22f3fc",
+        "81893256-3e3a-4078-9495-196202d9598e",
+        "265252ab-c53e-4d38-bd22-923a0c875890",
+        "4060c11c-43f2-403d-b4ea-e9aa18b296d4",
+        "d804d476-ee41-401b-935b-3c2bef1d7375",
+        "7d83b22f-c63c-480a-85c7-2f335a453408",
+        "bf70c81d-22cc-46a1-9302-dc606b38dc15",
+        "731058de-f6e4-49e1-83a5-c910fde70bc3",
+        "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+        "8843165e-50ae-4c4a-b355-9825ae80452f",
+        "8e139855-0371-4b9d-b299-292980abc132",
+        "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+        "4c80a788-061a-4a70-bc95-bb9c77fc83c0",
+        "0fce9f6e-6c23-46d7-8a1b-09021a53961f",
+        "6ba689f6-3517-4be8-b747-300aadb8c054",
+        "8de24798-e7df-4edf-8039-9947bd96b5e5",
+        "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+        "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+        "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+        "5db0573d-277a-4bd3-8cd6-733c88a30973",
+        "c3743166-74ad-45b0-8744-89cebe2d5936",
+        "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+        "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+        "d8406e07-4552-4b81-a08b-d230704b846b",
+        "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+        "f4e63630-d077-4296-9227-92915240847f",
+        "14acfbc1-3f8c-494d-90b6-10621eb4536d",
+        "7460ab9d-b47d-4ef3-9541-68a49a7e1aa0",
+        "886beb7e-8ab3-4b89-a463-4de0ee6b37bc",
+        "253c235f-7b9b-437e-8ede-c197f9623dd3",
+        "4c4d0ebd-fb5e-40f3-bd56-037ef687f622",
+        "cf86e382-641b-412b-8ace-4eded0973dd6"
+      ],
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "invoices",
+          "invoice_dispatch",
+          "coverage",
+          "identity"
+        ],
+        "datasets_missing": [],
+        "population": {
+          "records_considered": 4,
+          "returned": 4
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": [
+          {
+            "coverage_id": "carrier|tracking",
+            "status": "backfill_complete",
+            "connection": "carrier",
+            "capability": "tracking",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75455
+          },
+          {
+            "coverage_id": "invoice|invoices",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoices",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75465
+          },
+          {
+            "coverage_id": "invoice|invoice_dispatch",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoice_dispatch",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75467
+          },
+          {
+            "coverage_id": "payment|payments",
+            "status": "backfill_complete",
+            "connection": "payment",
+            "capability": "payments",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75469
+          },
+          {
+            "coverage_id": "generic|cases",
+            "status": "backfill_complete",
+            "connection": "generic",
+            "capability": "cases",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75471
+          },
+          {
+            "coverage_id": "bank_csv|bank",
+            "status": "backfill_complete",
+            "connection": "bank_csv",
+            "capability": "bank",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T09:00:00.000Z",
+            "links": [],
+            "last_sequence": 75475
+          }
+        ],
+        "evidence_evicted_entities": 5,
+        "evidence_source": "postgresql_cold_read"
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 4,
+        "total": 4,
+        "snapshot_cursor": 75561
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+# stale backlog observation 2026-11-02T03:16:22Z
+After the smoke MCP runs aborted client-side (HeadersTimeoutError), the ops2 api kept serving queued requests for >40 min with no established inbound connection on its listener (container /proc/net/tcp: only TIME_WAIT entries on :19180; outbound pool sockets to postgres 172.23.0.2 and engine 172.23.0.3). api CPU 440 %, ~100 query.served + ~30 query.unavailable + 20 engine.call_failed (deadline_exceeded 6 s) per minute, 5-6 api.request_rejected (503 database_busy) per minute. Node/Fastify does not abort handler work when the client disconnects; the backlog is bounded by what the client had already sent. Remedy here: docker compose restart api (discard the orphaned backlog) before part 4.
+ Container blackbox-agent-c-ops2-api Started 
+api healthy again after 3 probes: 2026-11-02T03:16:58Z
+ 4:16  up 6 days, 18:57, 2 users, load averages: 39.96 44.63 49.93
+# second occurrence 2026-11-02T03:46:05Z: after the re-run MCP fixed-rate smoke (client finished 03:44:54Z) the ops2 api is again at ~520 % CPU draining the orphaned backlog ({'journal.batch_committed': 40, 'engine.call_failed': 27, 'query.unavailable': 20, 'api.request_rejected': 7, 'ingest.batch_processed': 2}). Restarted the api container again before the question-coverage run.
+ Container blackbox-agent-c-ops2-api Started 
+api healthy after 2 probes 2026-11-02T03:46:38Z

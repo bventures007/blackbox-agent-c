@@ -25,7 +25,7 @@ What it is not: not a native `.app`/DMG, not signed or notarized, not reachable 
 
 `./blackbox setup` prints your **personal owner key** (`bbk_…`) exactly once. Put it into your password manager immediately; it is never written to a file or log. Then open `http://127.0.0.1:19180/`, paste the key and optionally tick **Stay signed in on this computer** (revocable session, 30 days / 7 days idle). Sign out is in the sidebar. The key gives owner access — never paste it into chats, URLs or configuration files; agents get their own read-only keys (section 5).
 
-Lost the key? On this Mac only: `./blackbox reset-access` issues a new one and signs everyone out. There is no web or e-mail reset.
+Lost the key? On this Mac only: `./blackbox reset-access` issues a new one and signs everyone out. There is no web or e-mail reset. Still have the key but want a new one? `./blackbox rotate-key` asks for the current key in the terminal, shows the replacement once and signs out every earlier session; the old key stops working immediately.
 
 ## 3. Demo data or first import
 
@@ -134,7 +134,7 @@ Was er nicht ist: keine native `.app`/DMG, nicht signiert oder notarisiert, von 
 
 `./blackbox setup` zeigt deinen **persönlichen Inhaberschlüssel** (`bbk_…`) genau einmal. Lege ihn sofort im Passwortmanager ab; er wird nie in eine Datei oder ein Log geschrieben. Öffne dann `http://127.0.0.1:19180/`, füge den Schlüssel ein und setze optional **Auf diesem Computer angemeldet bleiben** (widerrufbare Sitzung, 30 Tage / 7 Tage inaktiv). Abmelden findest du in der Seitenleiste. Der Schlüssel gewährt Inhaberzugriff — nie in Chats, URLs oder Konfigurationsdateien einfügen; Agenten bekommen eigene schreibgeschützte Schlüssel (Abschnitt 5).
 
-Schlüssel verloren? Nur auf diesem Mac: `./blackbox reset-access` erzeugt einen neuen und meldet alle ab. Es gibt keinen Web- oder E-Mail-Reset.
+Schlüssel verloren? Nur auf diesem Mac: `./blackbox reset-access` erzeugt einen neuen und meldet alle ab. Es gibt keinen Web- oder E-Mail-Reset. Schlüssel vorhanden, aber ein neuer gewünscht? `./blackbox rotate-key` fragt im Terminal nach dem aktuellen Schlüssel, zeigt den Ersatz einmal an und meldet alle bisherigen Sitzungen ab; der alte Schlüssel ist sofort ungültig.
 
 ## 3. Demo-Daten oder erster Import
 

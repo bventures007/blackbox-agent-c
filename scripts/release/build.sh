@@ -53,6 +53,9 @@ if [ $SKIP_IMAGES = 0 ]; then
     docker build --platform linux/arm64 -f "$ROOT/infra/docker/$svc.Dockerfile" \
       --build-arg BLACKBOX_VERSION="$VERSION" --build-arg BLACKBOX_COMMIT="$COMMIT" \
       -t "blackbox/$svc:$VERSION" "$ROOT"
+    # image hygiene: a release image carries product files only (no runtime test outputs, env files, secrets or data)
+    docker run --rm --entrypoint sh "blackbox/$svc:$VERSION" -c 'for p in /app/tests/e2e/test-results /app/tests/e2e/playwright-report /app/tests/e2e/screenshots /app/.env /app/secrets /app/data /app/release /app/.local; do [ ! -e "$p" ] || { echo "image hygiene: $p must not be in the image" >&2; exit 2; }; done' \
+      || { echo "image hygiene check failed for blackbox/$svc:$VERSION" >&2; exit 2; }
     docker save "blackbox/$svc:$VERSION" -o "$STAGE/images/$svc.tar"
     eval "DIGEST_$svc=\"$(docker image inspect --format '{{.Id}}' "blackbox/$svc:$VERSION")\""
   done

@@ -1,0 +1,220 @@
+{
+  "intent": "shipments.promise_risk",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "shipments.promise_risk",
+      "question_id": "delivery-02",
+      "params": {},
+      "readiness": {
+        "question_id": "delivery-02",
+        "intent": "shipments.promise_risk",
+        "status": "partial",
+        "required": [
+          "orders",
+          "promises",
+          "fulfillments",
+          "tracking",
+          "policy",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "promises",
+          "fulfillments",
+          "tracking",
+          "policy"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: promises, fulfillments, tracking, policy"
+        ],
+        "sources": [
+          {
+            "connection_id": "3a01b6e2-5d45-48dc-b7ee-a18524e0caf1",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T04:08:26.501Z",
+            "last_new_event_at": "2026-11-02T04:08:26.501Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "unknown",
+      "result": {
+        "promise_breached": null,
+        "commitments": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "promises.promised_at"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "promises.promised_at"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders"
+        ],
+        "datasets_missing": [
+          "promises",
+          "fulfillments",
+          "tracking",
+          "policy",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "shipments.promise_risk",
+      "question_id": "delivery-02",
+      "params": {},
+      "readiness": {
+        "question_id": "delivery-02",
+        "intent": "shipments.promise_risk",
+        "status": "partial",
+        "required": [
+          "orders",
+          "promises",
+          "fulfillments",
+          "tracking",
+          "policy",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "promises",
+          "fulfillments",
+          "tracking",
+          "policy"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: promises, fulfillments, tracking, policy"
+        ],
+        "sources": [
+          {
+            "connection_id": "3a01b6e2-5d45-48dc-b7ee-a18524e0caf1",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T04:08:26.501Z",
+            "last_new_event_at": "2026-11-02T04:08:26.501Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "unknown",
+      "result": {
+        "promise_breached": null,
+        "commitments": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "promises.promised_at"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "promises.promised_at"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders"
+        ],
+        "datasets_missing": [
+          "promises",
+          "fulfillments",
+          "tracking",
+          "policy",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

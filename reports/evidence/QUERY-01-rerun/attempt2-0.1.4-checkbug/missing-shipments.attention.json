@@ -1,0 +1,178 @@
+{
+  "intent": "shipments.attention",
+  "params": {},
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "shipments.attention",
+      "question_id": "delivery-01",
+      "params": {},
+      "readiness": {
+        "question_id": "delivery-01",
+        "intent": "shipments.attention",
+        "status": "blocked",
+        "required": [
+          "fulfillments",
+          "tracking",
+          "policy",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "fulfillments",
+          "tracking",
+          "policy"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: fulfillments, tracking, policy"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "delivery_status": "unknown",
+        "attention": null,
+        "shipments": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "tracking.coverage"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "tracking.coverage"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "fulfillments",
+          "tracking",
+          "policy",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "shipments.attention",
+      "question_id": "delivery-01",
+      "params": {},
+      "readiness": {
+        "question_id": "delivery-01",
+        "intent": "shipments.attention",
+        "status": "blocked",
+        "required": [
+          "fulfillments",
+          "tracking",
+          "policy",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [
+          "fulfillments",
+          "tracking",
+          "policy"
+        ],
+        "missing_optional": [],
+        "reasons": [
+          "missing required datasets: fulfillments, tracking, policy"
+        ],
+        "sources": []
+      },
+      "status": "unknown",
+      "result": {
+        "delivery_status": "unknown",
+        "attention": null,
+        "shipments": []
+      },
+      "calculation": [
+        {
+          "step": "status",
+          "formula": "no calculation performed: required inputs are missing or the scope is unknown",
+          "values": {
+            "status": "unknown",
+            "missing_inputs": [
+              "tracking.coverage"
+            ]
+          }
+        }
+      ],
+      "evidence_refs": [],
+      "entry_ids": [],
+      "missing_inputs": [
+        "tracking.coverage"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [],
+        "datasets_missing": [
+          "fulfillments",
+          "tracking",
+          "policy",
+          "coverage",
+          "identity"
+        ],
+        "population": {
+          "records_considered": 0,
+          "returned": 0
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": []
+      },
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:08:26.495Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 0,
+        "total": 0,
+        "snapshot_cursor": 3
+      }
+    }
+  }
+}

@@ -585,7 +585,40 @@ async fn query_handler(State(app): State<App>, headers: HeaderMap, body: Bytes) 
         };
         let st = resolved.state();
         let env = blackbox_query::run(st, tenant, &req.intent, &req.params, &req.page, now, consistency.applied_cursor)?;
+        let applied_sequence = st.applied_sequence;
         let mut out = serde_json::to_value(&env).unwrap_or(Value::Null);
+        // Evicted history on a touched entity: cite the entries from the indexed cold path (PostgreSQL), bounded
+        // like the hot path, instead of returning an answer without evidence.
+        if !env.cold_entities.is_empty() {
+            let mut seen = std::collections::HashSet::new();
+            let mut locs: Vec<(i64, Uuid)> = Vec::new();
+            for (kind, id) in &env.cold_entities {
+                let entries = app
+                    .store
+                    .entity_entries(tenant, kind, id, 0, applied_sequence, None, blackbox_query::MAX_EVIDENCE as i64)
+                    .await
+                    .map_err(ApiError::db)?;
+                for e in entries {
+                    if seen.insert(e.entry_id) {
+                        locs.push((e.journal_sequence, e.entry_id));
+                    }
+                }
+            }
+            for id in env.entry_ids.iter() {
+                if seen.insert(*id) {
+                    locs.push((i64::MAX, *id));
+                }
+            }
+            locs.sort_unstable();
+            let truncated = locs.len() > blackbox_query::MAX_EVIDENCE;
+            locs.truncate(blackbox_query::MAX_EVIDENCE);
+            out["entry_ids"] = json!(locs.iter().map(|(_, id)| *id).collect::<Vec<Uuid>>());
+            out["evidence_refs"] = json!(locs.iter().map(|(_, id)| format!("journal:{id}")).collect::<Vec<String>>());
+            out["coverage"]["evidence_source"] = json!("postgresql_cold_read");
+            if truncated {
+                out["coverage"]["evidence_truncated"] = json!(true);
+            }
+        }
         out["consistency"] = serde_json::to_value(&consistency).unwrap_or(Value::Null);
         out["duration_ms"] = json!(started.elapsed().as_millis() as u64);
         Ok(Json(out).into_response())

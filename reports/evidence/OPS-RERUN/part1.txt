@@ -1,0 +1,98 @@
+# ops2 part 1  started 2026-11-01T22:44:45Z  load 181.36 152.76 114.62
+## ./blackbox demo --confirm
+{"level":"INFO","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","run_id":"4b70e124-a726-43a3-aed3-eddfddf52680","record_count":19,"committed_cursor":54,"schema_version":1,"record_id":"caad9149-473e-461a-8e4f-03d4c3108238","occurred_at":"2026-11-01T22:45:24.039Z","observed_at":"2026-11-01T22:45:24.039Z","event_name":"demo.loaded","component":"api","service_version":"0.1.0","instance_id":"2dd3d8bf-cd23-443f-ab07-abcfbc9f0194","scope":"workspace","message":"Golden demo scenario loaded through the replay path (CLI)"}
+demo scenario loaded: accepted=19 duplicate=0 conflict=0 rejected=0 committed_cursor=54 run=4b70e124-a726-43a3-aed3-eddfddf52680
+labeled GOLDEN demo scenario loaded into demo connections (never over user data)
+exit 0
+## ./blackbox verify
+consistency: {"applied_cursor":54,"required_cursor":54,"reducer_version":1,"status":"current","recorded_cutoff":"2026-11-01T22:45:23.794Z","effective_cutoff":null,"mode":"latest_committed"}
+verify: passed (golden order state matches)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+verify exit 0
+## sealed source secret + signed producer via the API (owner session)
+201
+{"connection":{"connection_id":"ef3f8db3-184e-46c7-8fd7-8f3513652810","provider":"shopify","display_name":"rotation shop","account_ref":null,"status":"configured","config":{"shop_domain":"rotation-ops2.myshopify.com"},"has_secret":true,"created_at":"2026-11-01T22:45:56.761Z","updated_at":"2026-11-01T22:45:56.761Z","disconnected_at":null}}
+
+201
+{"connection":{"connection_id":"3545af16-f9ec-498e-a9f7-de117276ed7a","provider":"generic","display_name":"rotation producer","account_ref":null,"status":"configured","config":{"producer_name":"ops2-rotation"},"has_secret":false,"created_at":"2026-11-01T22:45:57.216Z","updated_at":"2026-11-01T22:45:57.216Z","disconnected_at":null},"producer":{"producer_id":"3ad15454-a141-456d-86cf-62e9d81f5251
+## scheduler container before enrollment
+created=2026-11-01T22:40:48.690148804Z dest-mount=/Users/benediktsauter/blackbox-pilot-ops2/data/backups/unconfigured
+## ./blackbox backup-config /Users/benediktsauter/blackbox-pilot-ops2-backups --label ops2-same-device  (recovery identity captured to /Users/benediktsauter/blackbox-pilot-ops2/recovery.key 0600, redacted here)
+exit 0
+Enrolling backup destination: /Users/benediktsauter/blackbox-pilot-ops2-backups
+  note: same device as the installation — convenient, but does not protect against device loss. Prefer a separate volume.
+  [recovery-key]
+ Container blackbox-agent-c-ops2-backup-run-77a57ffff5c8 Creating 
+ Container blackbox-agent-c-ops2-backup-run-77a57ffff5c8 Created 
+
+=== BACKUP RECOVERY KEY — shown once, not stored anywhere by Blackbox ===
+AGE-SECRET-KEY-1<redacted>
+=== Save it in your password manager, separately from the owner key. Without it, backups cannot be restored. ===
+
+  [scheduler-recreate]
+  [done]
+Destination enrolled. The scheduler creates one encrypted generation per 24 h while the backend runs.
+Create the first one now: ./blackbox backup
+recovery.key: -rw------- 75 bytes
+## scheduler container after enrollment (must be recreated with the enrolled destination mounted)
+created=2026-11-01T22:46:17.622124969Z dest-mount=/Users/benediktsauter/blackbox-pilot-ops2-backups
+## data/backups/status.json right after enrollment
+{"status":"scheduled","configured":true,"destination_label":"ops2-same-device","same_device":true,"last_completed_at":null,"next_due_at":"2026-11-01T22:46:36Z","retention":{"daily":7,"weekly":4}}
+## destination marker
+{"install_id":"09530ba15ed8cbd80a0a2ea6bc37050f","label":"ops2-same-device","same_device":true,"enrolled_at":"2026-11-01T22:46:10Z"}
+## ./blackbox backup (manual generation)
+blackbox: ERROR: writers already fenced ({  "reason": "scheduled_backup",  "since": "2026-11-01T22:46:37Z",  "owner": "backup-scheduler"}); finish that operation first
+backup exit 1 after 7 s
+## status.json after the manual backup
+{"status":"scheduled","configured":true,"destination_label":"ops2-same-device","same_device":true,"last_completed_at":null,"next_due_at":"2026-11-01T22:46:36Z","retention":{"daily":7,"weekly":4}}
+
+## destination listing
+drwxr-xr-x@  4 benediktsauter  staff   128 Nov  1 23:46 .
+drwxr-x---+ 82 benediktsauter  staff  2624 Nov  1 23:44 ..
+-rw-------@  1 benediktsauter  staff   133 Nov  1 23:46 .blackbox-backup-destination
+drwx------   2 benediktsauter  staff    64 Nov  1 23:46 .staging-blackbox-backup-20261101T224643Z
+## waiting for one scheduler tick (<= 11 min) to prove the status is not rewritten to not_configured (PILOT-01 fix)
+scheduler log (tail):
+2026-11-01T22:46:52Z backup archiving installation key material
+2026-11-01T22:46:52Z backup sealing generation
+2026-11-01T22:46:52Z backup generation finalized: /backup-dest/blackbox-backup-20261101T224643Z.tar.age (266504 bytes, sha256 60f465a2628797281572af6c85e1af7784e77e680227c4f7151fbc9c4ee8cab4)
+2026-11-01T22:46:52Z backup retention: 1 finalized generation(s); nothing to prune
+/backup-dest/blackbox-backup-20261101T224643Z.tar.age
+## status.json after the tick (2026-11-01T22:58:25Z)
+{
+  "status": "scheduled",
+  "configured": true,
+  "destination_label": "ops2-same-device",
+  "same_device": true,
+  "last_completed_at": "2026-11-01T22:46:53Z",
+  "next_due_at": "2026-11-02T22:46:43Z",
+  "retention": {
+    "daily": 7,
+    "weekly": 4
+  },
+  "last_attempt_at": "2026-11-01T22:46:43Z",
+  "last_attempt_kind": "scheduled",
+  "last_attempt_generation": "blackbox-backup-20261101T224643Z",
+  "destination_available": true,
+  "last_generation": "blackbox-backup-20261101T224643Z",
+  "last_generation_path": "/backup-dest/blackbox-backup-20261101T224643Z.tar.age",
+  "last_sha256": "60f465a2628797281572af6c85e1af7784e77e680227c4f7151fbc9c4ee8cab4",
+  "last_bytes": 266504,
+  "last_cutoff_at": "2026-11-01T22:46:43Z",
+  "last_cutoff_committed": [
+    {
+      "tenant_id": "9c299ace-2060-40ee-be20-8490f41bbcfe",
+      "committed_sequence": 54
+    }
+  ],
+  "last_kind": "scheduled",
+  "last_error": null,
+  "failures": 0
+}
+
+## GET /api/settings/backups
+200
+{"status":"not_configured","destination_label":null,"last_attempt_at":null,"last_completed_at":null,"last_cutoff":null,"next_due_at":null,"recoverable_age_seconds":null,"retention":{"daily":7,"weekly":4},"same_device":null,"last_restore_test_at":null,"protection":"unprotected: no backup destination enrolled"}
+
+# finished 2026-11-01T22:58:27Z

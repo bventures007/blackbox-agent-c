@@ -1,0 +1,90 @@
+# ops2 part 2b  started 2026-11-01T23:31:05Z  load 32.20 42.65 61.97
+## generation: blackbox-backup-20261101T224643Z.tar.age (266504 bytes, sidecar: {  "format": "blackbox-backup/1",  "generation": "blackbox-backup-20261101T224643Z",  "file": "blackbox-backup-20261101T224643Z.tar.age",  "created_at": "2026-11-01T22:46:43Z",  "finalized_at": "2026-…)
+## live install key generation now: 2; live data.key sha256 (first 12): c156c395bdc6
+## ./blackbox restore blackbox-backup-20261101T224643Z.tar.age --into /Users/benediktsauter/blackbox-pilot-ops2-restore --port 19192 --project blackbox-agent-c-ops2-restore  (BLACKBOX_RECOVERY_KEY_FILE=/Users/benediktsauter/blackbox-pilot-ops2/recovery.key; new owner key captured to /Users/benediktsauter/blackbox-pilot-ops2-restore.owner.key)
+command exit 0; owner key not shown; transcript (redacted): /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/OPS-RERUN/part2b-restore-transcript-redacted.txt
+restore exit 0 after 200 s wall
+[?25h[?25l[5A[0G
+[2K [33m⠋[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.1s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠙[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.1s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠹[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.2s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠸[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.3s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.5s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-ops2-restore-api              Starting       [34m19.5s[0m
+[?25h[?25l[5A[0G[2K[+] up 4/4
+[2K [32m✔[0m Container blackbox-agent-c-ops2-restore-api              [32mStarted[0m        [34m19.6s[0m
+[?25h  api ready (7s)
+  [fence-credentials]
+Restored credentials are stale by policy: rotating the owner key and revoking all sessions/agent keys. New owner key shown ONCE:
+[1mWhat's next:[0m
+  [verify]
+{"level":"INFO","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","operation_id":"verify:order","applied_cursor":54,"schema_version":1,"record_id":"06779847-8f9b-4704-be5e-44f248e8d8fd","occurred_at":"2026-11-01T23:34:24.646Z","observed_at":"2026-11-01T23:34:24.646Z","event_name":"query.served","component":"api","service_version":"0.1.0","instance_id":"a4d62784-f6ea-4b12-a21a-ad60e3c19e5a","scope":"workspace","message":"Golden verify served"}
+verify: passed (golden order state matches)
+  representative answer verified
+  [done]
+  machine processing: 194s (unpack/db/start 168s, fence/verify 26s); operator input: 0s; full elapsed: 195s
+  provider workers stay PAUSED (fence: restore_pending_review). Check account bindings and the redaction policy, then: ./blackbox resume-sources
+## restored install
+NAME                                             IMAGE                                                                                          COMMAND                  SERVICE            CREATED              STATUS                    PORTS
+blackbox-agent-c-ops2-restore-api                blackbox/api:0.1.0                                                                             "/usr/local/bin/blac…"   api                About a minute ago   Up 47 seconds (healthy)   127.0.0.1:19192->19180/tcp
+blackbox-agent-c-ops2-restore-backup-scheduler   blackbox/backup:0.1.0                                                                          "/bin/bash /scripts/…"   backup-scheduler   About a minute ago   Up 52 seconds             5432/tcp
+blackbox-agent-c-ops2-restore-engine             blackbox/engine:0.1.0                                                                          "/usr/local/bin/blac…"   engine             About a minute ago   Up 57 seconds (healthy)   7070/tcp
+blackbox-agent-c-ops2-restore-postgres           postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef   "docker-entrypoint.s…"   postgres           2 minutes ago        Up 2 minutes (healthy)    5432/tcp
+api health: {"status":"ok","version":"0.1.0"}
+writers fenced: {"reason":"restore_pending_review","since":"2026-11-01T23:31:56Z","owner":"wrapper"}
+backups: {  "status": "not_configured",  "configured": false}
+restored key generation: 1; restored data.key sha256 (first 12): 042b1339ad3f  -> differs from the live generation-2 key: restore used the backup material only
+## restored install: every stored secret opens with the restored (generation-1) key
+data key generation 1: 5 stored secret(s) across 1 workspace(s) verified
+## restored install: ./blackbox verify (golden answer)
+verify: passed (golden order state matches)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 1
+verify exit 1
+## restored install: raw evidence blocked until the restore policy is reconciled (evidence restricted AFTER this generation on the live install: 671efdbc-7ee5-444b-8ead-6aa6f5a0799d)
+Traceback (most recent call last):
+  File "/Users/benediktsauter/GitHub/blackbox-agent-c/scripts/verify/owner-api.py", line 13, in <module>
+    key = open(keyfile).read().strip()
+          ~~~~^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/benediktsauter/blackbox-pilot-ops2-restore.owner.key'
+
+Traceback (most recent call last):
+  File "/Users/benediktsauter/GitHub/blackbox-agent-c/scripts/verify/owner-api.py", line 13, in <module>
+    key = open(keyfile).read().strip()
+          ~~~~^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/benediktsauter/blackbox-pilot-ops2-restore.owner.key'
+evidence fence file:
+{"blocked":true,"reason":"restore_policy_unreconciled","since":"2026-11-01T23:33:08Z","generation":"blackbox-backup-20261101T224643Z.tar.age"}
+
+writers fence:
+{"reason":"restore_pending_review","since":"2026-11-01T23:31:56Z","owner":"wrapper"}
+
+## restored install: GET /api/settings/backups (restored status surface)
+Traceback (most recent call last):
+  File "/Users/benediktsauter/GitHub/blackbox-agent-c/scripts/verify/owner-api.py", line 13, in <module>
+    key = open(keyfile).read().strip()
+          ~~~~^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/benediktsauter/blackbox-pilot-ops2-restore.owner.key'
+
+## original install untouched: live key generation 2, status.json last_generation blackbox-backup-20261101T224643Z
+## stopping the restored stack (folder kept for inspection)
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+# finished 2026-11-01T23:35:13Z  load 141.66 86.62 75.76
+
+## follow-up 2026-11-01T23:37:20Z: because reset-access was refused (--yes missing), the ops2 owner key still signs in on the restored instance — demonstrating the stale-credential defect; used here only to show the evidence fence
+running at http://127.0.0.1:19192/ (project blackbox-agent-c-ops2-restore)
+login with the ops2 owner key on the restored instance:
+200
+GET /api/evidence/671efdbc-7ee5-444b-8ead-6aa6f5a0799d:
+{"status":"restricted","reason":"restore_policy_unreconciled","since":"2026-11-01T23:33:08Z","evidence":{"evidence_id":"671efdbc-7ee5-444b-8ead-6aa6f5a0799d","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","connection_id":"6a641f31-5d7c-
+GET /api/evidence/671efdbc-7ee5-444b-8ead-6aa6f5a0799d/content:
+423
+{"error":{"code":"evidence_restricted","message":"restore_policy_unreconciled","retryable":false}}
+GET /api/settings/backups (restored install has no enrolled destination yet):
+{"status":"not_configured","configured":false,"destination_label":null,"destination_available":null,"same_device":null,"last_attempt_at":null,"last_attempt_kind":null,"last_completed_at":null,"last_ge
+stopped; volumes and data preserved. Processing resumes with ./blackbox up

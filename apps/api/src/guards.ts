@@ -1,6 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { CSRF_HEADER, SESSION_COOKIE, hostAllowed, originAllowed, safeEqual } from "@blackbox/auth";
 import type { AppContext } from "./context.js";
+import { criticalVolumes } from "./storage.js";
 import { forbidden, HttpError, unauthenticated } from "./context.js";
 
 /**
@@ -101,7 +102,17 @@ export function createGuards(ctx: AppContext) {
     if (!ctx.ingestion) throw new HttpError(503, ctx.dataKeyError?.code ?? "data_key_unavailable", `${ctx.dataKeyError?.message ?? "installation data key unavailable"}. ${ctx.dataKeyError?.action ?? ""}`.trim(), { retryable: false });
   }
 
-  return { authenticate, requireOwner, requireRead, tenantOf, principalOf, stillAuthorized, checkHost, requireIngestionReady };
+  /** PILOT-06: critical capacity pauses new ingestion (nothing is acknowledged that could not be durably kept); reads stay available. */
+  async function requireStorageCapacity(request: FastifyRequest, tenantId?: string): Promise<void> {
+    const tenant = tenantId ?? tenantOf(request);
+    const critical = await criticalVolumes(ctx, tenant);
+    if (critical.length) {
+      ctx.logger.warn("storage.ingestion_refused", "Ingestion refused: storage critical", { error_code: "storage_critical", tenant_id: tenant, trace_id: request.traceId });
+      throw new HttpError(503, "storage_critical", `storage critical on ${critical.join(", ")}: new ingestion is paused until space is freed (next action: free_disk_space; ./blackbox doctor shows the host disk)`, { retryable: true });
+    }
+  }
+
+  return { authenticate, requireOwner, requireRead, tenantOf, principalOf, stillAuthorized, checkHost, requireIngestionReady, requireStorageCapacity };
 }
 
 export type Guards = ReturnType<typeof createGuards>;

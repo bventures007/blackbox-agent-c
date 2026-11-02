@@ -1,0 +1,6 @@
+# MCP check on build #9 2026-11-02T04:16:19Z: tools/list, answer_question invoices.outstanding {customer_id}, answer_question inventory.available_to_sell, get_readiness (Inspector CLI, stdio bridge packages/mcp/dist/server.js, API-created key, revoked afterwards)
+tools: 10 ['describe_business_schema', 'list_journal_entries', 'get_journal_entry', 'get_entity_history', 'search_events', 'get_business_state', 'get_evidence', 'get_readiness', 'answer_question', 'query_business']
+invoices.outstanding: complete invoices 1 missing [] evidence 8
+available_to_sell: complete available 112 evidence 54 consistency current
+unknown parameter from -> isError True {"error":{"status":422,"code":"invalid_params","message":"question parameters are invalid","retryable":false}}
+revoke http 204

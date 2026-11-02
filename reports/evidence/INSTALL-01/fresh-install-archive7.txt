@@ -1,0 +1,85 @@
+# landing: http://127.0.0.1:19181   install dir: /Users/benediktsauter/blackbox-pilot-fresh (empty)   started: 2026-11-02T01:14:25Z   load: 289.83 280.28 289.32
+# advertised: blackbox-0.1.0-mac-arm64.tar.gz 529957518 bytes sha256 cffa9b06ac8bbb13a4afdebac22e201904c96f6ed3ae603d380baebec6e46b0e from http://127.0.0.1:19181/blackbox-0.1.0-mac-arm64.tar.gz
+# download: http_code=200 bytes=529957518 seconds=3.745085
+# downloaded: 529957518 bytes sha256 cffa9b06ac8bbb13a4afdebac22e201904c96f6ed3ae603d380baebec6e46b0e -> MATCH
+# tar -xzf blackbox-0.1.0-mac-arm64.tar.gz --strip-components=1
+INSTALL.de.md INSTALL.en.md blackbox blackbox-0.1.0-mac-arm64.tar.gz examples images infra migrations release-manifest.json release.json 
+# ./blackbox doctor (before setup)
+blackbox doctor (release mode, install: /Users/benediktsauter/blackbox-pilot-fresh)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 29.9.2 (arm64)
+[OK  ] DOC-COMPOSE  Compose v5.6.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 168 GiB (18%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[OK  ] DOC-PORT     port 19180 free
+[OK  ] DOC-SETUP    not set up yet → run ./blackbox setup
+[OK  ] DOC-PROJECT  no containers/volume of project blackbox-agent-c on this Docker host
+doctor: ok
+# doctor exit: 0
+# ./blackbox setup  (pty; key -> /Users/benediktsauter/blackbox-pilot-fresh/owner.key 0600; transcript redacted -> /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/INSTALL-01/setup-transcript-redacted.txt)
+Backups are NOT configured yet (unprotected). Enroll a destination: ./blackbox backup-config <directory>
+
+setup exit code 0; owner key captured to /Users/benediktsauter/blackbox-pilot-fresh/owner.key (0600); transcript (redacted): /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/INSTALL-01/setup-transcript-redacted.txt
+# setup exit: 0 after 227 s
+# owner.key: -rw------- 48 bytes
+# ./blackbox up
+ Container blackbox-agent-c-engine Running 
+ Container blackbox-agent-c-api Running 
+ Container blackbox-agent-c-worker Running 
+ Container blackbox-agent-c-backup-scheduler Running 
+ Container blackbox-agent-c-postgres Running 
+ Container blackbox-agent-c-postgres Waiting 
+ Container blackbox-agent-c-postgres Waiting 
+ Container blackbox-agent-c-postgres Healthy 
+ Container blackbox-agent-c-postgres Healthy 
+ Container blackbox-agent-c-postgres Waiting 
+ Container blackbox-agent-c-postgres Waiting 
+ Container blackbox-agent-c-postgres Healthy 
+ Container blackbox-agent-c-postgres Healthy 
+  api ready (0s)
+running at http://127.0.0.1:19180/ (project blackbox-agent-c)
+# up exit: 0 after 6 s
+# ./blackbox status
+project: blackbox-agent-c   version: installed=0.1.0 release=0.1.0   url: http://127.0.0.1:19180/
+NAME                                IMAGE                                                                                          COMMAND                  SERVICE            CREATED          STATUS                    PORTS
+blackbox-agent-c-api                blackbox/api:0.1.0                                                                             "/usr/local/bin/blac…"   api                57 seconds ago   Up 51 seconds (healthy)   127.0.0.1:19180->19180/tcp
+blackbox-agent-c-backup-scheduler   blackbox/backup:0.1.0                                                                          "/bin/bash /scripts/…"   backup-scheduler   59 seconds ago   Up 52 seconds             5432/tcp
+blackbox-agent-c-engine             blackbox/engine:0.1.0                                                                          "/usr/local/bin/blac…"   engine             59 seconds ago   Up 54 seconds (healthy)   7070/tcp
+blackbox-agent-c-postgres           postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef   "docker-entrypoint.s…"   postgres           2 minutes ago    Up 2 minutes (healthy)    5432/tcp
+blackbox-agent-c-worker             blackbox/worker:0.1.0                                                                          "node /app/apps/work…"   worker             57 seconds ago   Up 48 seconds             
+api health: {"status":"ok","version":"0.1.0"}
+backups: {"status":"not_configured","configured":false}
+# status exit: 0
+# docker compose -p blackbox-agent-c ps
+NAME                                IMAGE                                                                                          COMMAND                  SERVICE            CREATED              STATUS                    PORTS
+blackbox-agent-c-api                blackbox/api:0.1.0                                                                             "/usr/local/bin/blac…"   api                About a minute ago   Up 52 seconds (healthy)   127.0.0.1:19180->19180/tcp
+blackbox-agent-c-backup-scheduler   blackbox/backup:0.1.0                                                                          "/bin/bash /scripts/…"   backup-scheduler   About a minute ago   Up 53 seconds             5432/tcp
+blackbox-agent-c-engine             blackbox/engine:0.1.0                                                                          "/usr/local/bin/blac…"   engine             About a minute ago   Up 55 seconds (healthy)   7070/tcp
+blackbox-agent-c-postgres           postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef   "docker-entrypoint.s…"   postgres           2 minutes ago        Up 2 minutes (healthy)    5432/tcp
+blackbox-agent-c-worker             blackbox/worker:0.1.0                                                                          "node /app/apps/work…"   worker             About a minute ago   Up 49 seconds             
+# ./blackbox doctor (after up)
+blackbox doctor (release mode, install: /Users/benediktsauter/blackbox-pilot-fresh)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 29.9.2 (arm64)
+[OK  ] DOC-COMPOSE  Compose v5.6.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 168 GiB (18%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[OK  ] DOC-PORT     port 19180 owned by the blackbox api container
+[OK  ] DOC-SETUP    configured (project blackbox-agent-c, version 0.1.0)
+[OK  ] DOC-SECRETS  secrets directory mode 0700
+[OK  ] DOC-SECRETF  secret files mode 0600
+[OK  ] DOC-DATA     data directories writable
+[OK  ] DOC-IMAGES   release images present (blackbox/api:0.1.0, ...)
+[OK  ] DOC-SERVICES api=running backup-scheduler=running engine=running postgres=running worker=running 
+[OK  ] DOC-API      api health: {"status":"ok","version":"0.1.0"}
+[WARN] DOC-BACKUP   backups not configured — this installation is unprotected → ./blackbox backup-config <dir>
+[OK  ] DOC-VERSION  release 0.1.0 installed
+doctor: degraded (exit 1)
+# doctor exit: 1
+# finished: 2026-11-02T01:18:50Z

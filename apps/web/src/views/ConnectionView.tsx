@@ -412,7 +412,21 @@ function ImportPlanDialog({ connectionId, current, onClose, onSaved }: { connect
   };
 
   return (
-    <Modal title={t('plan.title')} onClose={onClose} wide>
+    <Modal
+      title={t('plan.title')}
+      onClose={onClose}
+      wide
+      actions={
+        <div className="onboard-actions">
+          <button type="button" className="btn primary" disabled={busy || (preset === 'custom' && !from)} onClick={() => void save()}>
+            {busy ? t('common.working') : t('plan.save')}
+          </button>
+          <button type="button" className="btn secondary" onClick={onClose}>
+            {t('common.cancel')}
+          </button>
+        </div>
+      }
+    >
       <p>{t('plan.intro')}</p>
       <fieldset className="preset-list">
         <legend className="form-label">{t('plan.choose')}</legend>
@@ -469,14 +483,6 @@ function ImportPlanDialog({ connectionId, current, onClose, onSaved }: { connect
         </p>
       </div>
       <ErrorNote error={error} />
-      <div className="onboard-actions">
-        <button type="button" className="btn primary" disabled={busy || (preset === 'custom' && !from)} onClick={() => void save()}>
-          {busy ? t('common.working') : t('plan.save')}
-        </button>
-        <button type="button" className="btn secondary" onClick={onClose}>
-          {t('common.cancel')}
-        </button>
-      </div>
     </Modal>
   );
 }

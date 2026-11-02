@@ -74,6 +74,10 @@ pub struct Envelope {
     pub coverage: Value,
     pub effective_at: Option<DateTime<Utc>>,
     pub page: PageOut,
+    /// Touched entities whose history locators were evicted from RAM (kind, id). Not serialized: the
+    /// engine's HTTP layer uses it to serve the evidence from the indexed cold path instead of citing nothing.
+    #[serde(skip)]
+    pub cold_entities: Vec<(String, String)>,
 }
 
 #[derive(Debug, Clone)]
@@ -336,6 +340,17 @@ impl<'a> Answer<'a> {
                 json!({"status": self.status.as_str(), "missing_inputs": missing}),
             );
         }
+        // Evicted history is disclosed the same way the state path does it (`history.evicted_use_cold_read`)
+        // instead of silently answering with no evidence; the HTTP layer fills the evidence from PostgreSQL.
+        let cold_entities: Vec<(String, String)> = self
+            .entities
+            .iter()
+            .filter(|k| st.cold_history.contains(k))
+            .map(|k| (k.kind.as_str().to_string(), st.sym(k.id).to_string()))
+            .collect();
+        if !cold_entities.is_empty() && !self.missing_inputs.iter().any(|m| m == "history.evicted_use_cold_read") {
+            self.missing_inputs.push("history.evicted_use_cold_read".into());
+        }
         let hist: Vec<EntryLoc> = merged_history(st, &self.entities);
         let mut entry_ids: Vec<Uuid> = hist.iter().map(|l| l.entry_id).collect();
         let evidence_truncated = entry_ids.len() > MAX_EVIDENCE;
@@ -352,6 +367,9 @@ impl<'a> Answer<'a> {
         coverage.insert("population".into(), json!({"records_considered": total, "returned": returned}));
         coverage.insert("evidence_truncated".into(), json!(evidence_truncated));
         coverage.insert("coverage_assertions".into(), json!(coverage_assertions(st)));
+        if !cold_entities.is_empty() {
+            coverage.insert("evidence_evicted_entities".into(), json!(cold_entities.len()));
+        }
         for (k, v) in self.coverage_extra {
             coverage.insert(k, v);
         }
@@ -377,6 +395,7 @@ impl<'a> Answer<'a> {
                 total,
                 snapshot_cursor: snapshot,
             },
+            cold_entities,
         })
     }
 }

@@ -1,5 +1,7 @@
 import type { Pool, TenantClient } from "@blackbox/database";
 import { withTenant } from "@blackbox/database";
+
+export const READINESS_MEMO_MS = 5000;
 import { loadEventsContract, loadQuestionContracts } from "./contracts.js";
 import { JournalService } from "./journal.js";
 
@@ -59,8 +61,30 @@ export class ReadinessService {
     this.journal = new JournalService(pool);
   }
 
+  /**
+   * Per-tenant memo keyed by the committed cursor: readiness is derived from the journal (event families present,
+   * entity links) and the capability health rows. It is attached to every served state/answer, so recomputing it
+   * per request ran a GROUP BY over the whole source track on each hot query (observed on the smoke profile as a
+   * pool-starving full scan). The memo is reused while the committed cursor is unchanged and for at most
+   * READINESS_MEMO_MS (bounds the staleness of the capability-health part to a few seconds; the UI polls at 5 s).
+   */
+  private memo = new Map<string, { cursor: number; at: number; value: WorkspaceReadiness }>();
+
   async compute(tenantId: string): Promise<WorkspaceReadiness> {
-    return withTenant(this.pool, tenantId, (c) => this.computeIn(c, tenantId));
+    return withTenant(this.pool, tenantId, async (c) => {
+      const cursor = await this.journal.committedCursor(c, tenantId);
+      const hit = this.memo.get(tenantId);
+      if (hit && hit.cursor === cursor && Date.now() - hit.at <= READINESS_MEMO_MS) return hit.value;
+      const value = await this.computeIn(c, tenantId);
+      this.memo.set(tenantId, { cursor, at: Date.now(), value });
+      return value;
+    });
+  }
+
+  /** Drops the memo (tests, or after an operation that changes health without a journal commit). */
+  invalidate(tenantId?: string): void {
+    if (tenantId) this.memo.delete(tenantId);
+    else this.memo.clear();
   }
 
   async computeIn(c: TenantClient, tenantId: string): Promise<WorkspaceReadiness> {

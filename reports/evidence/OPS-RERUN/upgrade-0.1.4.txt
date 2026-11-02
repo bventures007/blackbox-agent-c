@@ -1,0 +1,54 @@
+# ops2 upgrade 0.1.3 -> 0.1.4 (uninterrupted; same tree plus the D22/D23 fixes)  2026-11-02T04:06:00Z  load 11.82 16.32 21.85
+## before: project: blackbox-agent-c-ops2   version: installed=0.1.3 release=0.1.3   url: http://127.0.0.1:19185/ api health: {"status":"ok","version":"0.1.3"} 
+ Container blackbox-agent-c-ops2-worker Recreate 
+ Container blackbox-agent-c-ops2-worker Recreated 
+ Container blackbox-agent-c-ops2-api Recreated 
+ Container blackbox-agent-c-ops2-backup-scheduler Recreated 
+ Container blackbox-agent-c-ops2-postgres Waiting 
+ Container blackbox-agent-c-ops2-postgres Waiting 
+ Container blackbox-agent-c-ops2-postgres Healthy 
+ Container blackbox-agent-c-ops2-backup-scheduler Starting 
+ Container blackbox-agent-c-ops2-postgres Healthy 
+ Container blackbox-agent-c-ops2-engine Starting 
+ Container blackbox-agent-c-ops2-backup-scheduler Started 
+ Container blackbox-agent-c-ops2-engine Started 
+ Container blackbox-agent-c-ops2-postgres Waiting 
+ Container blackbox-agent-c-ops2-postgres Waiting 
+ Container blackbox-agent-c-ops2-postgres Healthy 
+ Container blackbox-agent-c-ops2-worker Starting 
+ Container blackbox-agent-c-ops2-postgres Healthy 
+ Container blackbox-agent-c-ops2-api Starting 
+ Container blackbox-agent-c-ops2-worker Started 
+ Container blackbox-agent-c-ops2-api Started 
+  api ready (3s)
+blackbox verify
+  [OK] api health: {"status":"ok","version":"0.1.4"}
+  [OK] migrations current (/Users/benediktsauter/blackbox-pilot-ops2/migrations)
+  [OK] engine running
+  [OK] worker running
+{"level":"INFO","tenant_id":"9c299ace-2060-40ee-be20-8490f41bbcfe","operation_id":"verify:order","applied_cursor":75561,"schema_version":1,"record_id":"5377f07b-97e6-48b4-8eb1-862b397f92f1","occurred_at":"2026-11-02T04:08:10.898Z","observed_at":"2026-11-02T04:08:10.898Z","event_name":"query.served","component":"api","service_version":"0.1.4","instance_id":"dbcb6ad3-6a6f-41fb-aefa-452c66ba66b1","scope":"workspace","message":"Golden verify served"}
+physical_stock         observed="112" expected=112
+available_stock        observed="112" expected=112
+captured_minor         observed=11900 expected=11900
+fees_minor             observed=350 expected=350
+refunded_minor         observed=2380 expected=2380
+bank_confirmed_minor   observed=9170 expected=9170
+consistency: {"applied_cursor":75561,"required_cursor":75561,"reducer_version":1,"status":"current","recorded_cutoff":"2026-11-02T03:46:46.192Z","effective_cutoff":null,"mode":"latest_committed"}
+verify: passed (golden order state matches)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+  [done] 0.1.3->0.1.4
+upgrade complete: 0.1.3 → 0.1.4. Previous release files kept in /Users/benediktsauter/blackbox-pilot-ops2/data/state/previous-release/0.1.3; previous image tags remain in Docker.
+Rollback policy: see docs/operations.md — reverting images never reverts a database migration; use the pre-upgrade backup generation for an isolated restore.
+upgrade exit 0 after 134 s
+## after: project: blackbox-agent-c-ops2   version: installed=0.1.4 release=0.1.4   url: http://127.0.0.1:19185/ api health: {"status":"ok","version":"0.1.4"} 
+api blackbox/api:0.1.4 Up 19 seconds (healthy)
+backup-scheduler blackbox/backup:0.1.4 Up 22 seconds
+engine blackbox/engine:0.1.4 Up 22 seconds (healthy)
+postgres postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef Up 20 minutes (healthy)
+worker blackbox/worker:0.1.4 Up 20 seconds
+api /health 200 after 1 probes
+## golden after upgrade
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+# finished 2026-11-02T04:08:24Z

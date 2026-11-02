@@ -1,0 +1,6 @@
+# resolved CTA href (from the landing DOM, #download-hero): http://127.0.0.1:19181/blackbox-0.1.0-mac-arm64.tar.gz
+# started: 2026-11-01T22:13:17Z
+http_code=200 bytes=529984299 seconds=2.979050
+manifest sha256: f71210e8d886fe8be45abf9c8d003043086fbc68c1f790d93ec8efc9a1a4bff6
+downloaded sha256: f71210e8d886fe8be45abf9c8d003043086fbc68c1f790d93ec8efc9a1a4bff6
+size=529984299

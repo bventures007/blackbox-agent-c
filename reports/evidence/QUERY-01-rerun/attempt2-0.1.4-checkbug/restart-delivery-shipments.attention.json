@@ -1,0 +1,351 @@
+{
+  "pre_restart": {
+    "intent": "shipments.attention",
+    "question_id": "delivery-01",
+    "params": {
+      "order_id": "#S-Q",
+      "now": "2026-10-31T10:00:00Z"
+    },
+    "status": "partial",
+    "result": {
+      "attention": [
+        "S1-Q"
+      ],
+      "stale_after_seconds": null,
+      "attention_rule": null,
+      "shipments": [
+        {
+          "shipment_id": "S1-Q",
+          "order_id": "#S-Q",
+          "status": "exception",
+          "carrier": "dhl",
+          "tracking_number": "TRK-S1-Q",
+          "last_scan_code": "exception",
+          "last_scan_at": "2026-10-31T09:00:00Z",
+          "latest_scan_age_seconds": 3600,
+          "forecast_at": null,
+          "forecast_is_promise": false,
+          "needs_attention": true,
+          "reasons": [
+            "carrier_exception"
+          ]
+        }
+      ]
+    },
+    "calculation": [
+      {
+        "step": "attention",
+        "formula": "attention = carrier exception OR scan age > stale threshold OR forecast passed OR label without handover",
+        "values": {
+          "shipments": 1,
+          "attention": 1
+        }
+      }
+    ],
+    "evidence_refs": [
+      "journal:4220b800-bc1f-4c4d-8849-552960727d94",
+      "journal:e5cd2df0-0074-4b5f-841e-f42bd7891910",
+      "journal:7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+      "journal:b4b62d88-585e-4b7f-9591-eedf050233f8",
+      "journal:50c463e2-e5ba-4faf-9696-05d87ad2c770",
+      "journal:5cf60a9e-0847-4d2a-9fb1-9466a2927e15"
+    ],
+    "entry_ids": [
+      "4220b800-bc1f-4c4d-8849-552960727d94",
+      "e5cd2df0-0074-4b5f-841e-f42bd7891910",
+      "7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+      "b4b62d88-585e-4b7f-9591-eedf050233f8",
+      "50c463e2-e5ba-4faf-9696-05d87ad2c770",
+      "5cf60a9e-0847-4d2a-9fb1-9466a2927e15"
+    ],
+    "missing_inputs": [
+      "policy.attention_rule"
+    ],
+    "conflicts": [],
+    "coverage": {
+      "datasets_present": [
+        "fulfillments",
+        "tracking"
+      ],
+      "datasets_missing": [
+        "policy",
+        "coverage",
+        "identity"
+      ],
+      "population": {
+        "records_considered": 1,
+        "returned": 1
+      },
+      "evidence_truncated": false,
+      "coverage_assertions": []
+    },
+    "consistency": {
+      "status": "historical",
+      "mode": "as_of",
+      "reducer_version": 1
+    },
+    "page": {
+      "next_cursor": null,
+      "truncated": false,
+      "returned": 1,
+      "total": 1,
+      "snapshot_cursor": 75561
+    }
+  },
+  "post_restart": {
+    "intent": "shipments.attention",
+    "question_id": "delivery-01",
+    "params": {
+      "order_id": "#S-Q",
+      "now": "2026-10-31T10:00:00Z"
+    },
+    "readiness": {
+      "question_id": "delivery-01",
+      "intent": "shipments.attention",
+      "status": "ready",
+      "required": [
+        "fulfillments",
+        "tracking",
+        "policy",
+        "coverage",
+        "identity"
+      ],
+      "optional": [],
+      "missing": [],
+      "missing_optional": [],
+      "reasons": [],
+      "sources": [
+        {
+          "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+          "provider": "shopify",
+          "capability_id": "fulfillments",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-01T22:45:23.838Z",
+          "last_new_event_at": "2026-11-01T22:45:23.838Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": "2026-10-31T09:01:00.000Z",
+          "coverage_to": "2026-10-31T10:00:00.000Z",
+          "coverage_state": "complete_for_declared_scope",
+          "history_kind": "event_history",
+          "limitations": [
+            "synthetic demo fixture: no live provider"
+          ]
+        },
+        {
+          "connection_id": "eccffebf-2d50-4e60-9a19-302d99f8f701",
+          "provider": "generic",
+          "capability_id": "fulfillments",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-01T22:45:23.992Z",
+          "last_new_event_at": "2026-11-01T22:45:23.992Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": "2026-10-31T09:01:00.000Z",
+          "coverage_to": "2026-10-31T10:00:00.000Z",
+          "coverage_state": "complete_for_declared_scope",
+          "history_kind": "event_history",
+          "limitations": [
+            "synthetic demo fixture: no live provider"
+          ]
+        },
+        {
+          "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+          "provider": "replay",
+          "capability_id": "fulfillments",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+          "last_new_event_at": "2026-11-02T03:46:45.881Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "62ae8e86-0b81-4bd7-8236-7c19f796638d",
+          "provider": "replay",
+          "capability_id": "fulfillments",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:46.033Z",
+          "last_new_event_at": "2026-11-02T03:46:46.033Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "eccffebf-2d50-4e60-9a19-302d99f8f701",
+          "provider": "generic",
+          "capability_id": "tracking",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-01T22:45:24.002Z",
+          "last_new_event_at": "2026-11-01T22:45:24.002Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": "2026-10-31T09:01:00.000Z",
+          "coverage_to": "2026-10-31T10:00:00.000Z",
+          "coverage_state": "complete_for_declared_scope",
+          "history_kind": "event_history",
+          "limitations": [
+            "synthetic demo fixture: no live provider"
+          ]
+        },
+        {
+          "connection_id": "62ae8e86-0b81-4bd7-8236-7c19f796638d",
+          "provider": "replay",
+          "capability_id": "tracking",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:46.033Z",
+          "last_new_event_at": "2026-11-02T03:46:46.033Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "03b6486f-0e96-4f6e-b086-15e1b49eed29",
+          "provider": "replay",
+          "capability_id": "policy",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:46.008Z",
+          "last_new_event_at": "2026-11-02T03:46:46.008Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+          "provider": "replay",
+          "capability_id": "coverage",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+          "last_new_event_at": "2026-11-02T03:46:45.988Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        },
+        {
+          "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+          "provider": "replay",
+          "capability_id": "identity",
+          "status": "healthy",
+          "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+          "last_new_event_at": "2026-11-02T03:46:45.988Z",
+          "next_check_at": null,
+          "next_check_reason": "producer_driven: no scheduled poll",
+          "coverage_from": null,
+          "coverage_to": null,
+          "coverage_state": "unknown",
+          "history_kind": "event_history",
+          "limitations": []
+        }
+      ]
+    },
+    "status": "partial",
+    "result": {
+      "attention": [
+        "S1-Q"
+      ],
+      "stale_after_seconds": null,
+      "attention_rule": null,
+      "shipments": [
+        {
+          "shipment_id": "S1-Q",
+          "order_id": "#S-Q",
+          "status": "exception",
+          "carrier": "dhl",
+          "tracking_number": "TRK-S1-Q",
+          "last_scan_code": "exception",
+          "last_scan_at": "2026-10-31T09:00:00Z",
+          "latest_scan_age_seconds": 3600,
+          "forecast_at": null,
+          "forecast_is_promise": false,
+          "needs_attention": true,
+          "reasons": [
+            "carrier_exception"
+          ]
+        }
+      ]
+    },
+    "calculation": [
+      {
+        "step": "attention",
+        "formula": "attention = carrier exception OR scan age > stale threshold OR forecast passed OR label without handover",
+        "values": {
+          "shipments": 1,
+          "attention": 1
+        }
+      }
+    ],
+    "evidence_refs": [
+      "journal:4220b800-bc1f-4c4d-8849-552960727d94",
+      "journal:e5cd2df0-0074-4b5f-841e-f42bd7891910",
+      "journal:7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+      "journal:b4b62d88-585e-4b7f-9591-eedf050233f8",
+      "journal:50c463e2-e5ba-4faf-9696-05d87ad2c770",
+      "journal:5cf60a9e-0847-4d2a-9fb1-9466a2927e15"
+    ],
+    "entry_ids": [
+      "4220b800-bc1f-4c4d-8849-552960727d94",
+      "e5cd2df0-0074-4b5f-841e-f42bd7891910",
+      "7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+      "b4b62d88-585e-4b7f-9591-eedf050233f8",
+      "50c463e2-e5ba-4faf-9696-05d87ad2c770",
+      "5cf60a9e-0847-4d2a-9fb1-9466a2927e15"
+    ],
+    "missing_inputs": [
+      "policy.attention_rule"
+    ],
+    "conflicts": [],
+    "coverage": {
+      "datasets_present": [
+        "fulfillments",
+        "tracking"
+      ],
+      "datasets_missing": [
+        "policy",
+        "coverage",
+        "identity"
+      ],
+      "population": {
+        "records_considered": 1,
+        "returned": 1
+      },
+      "evidence_truncated": false,
+      "coverage_assertions": []
+    },
+    "consistency": {
+      "applied_cursor": 75561,
+      "required_cursor": 75561,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T04:08:28.856Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    },
+    "page": {
+      "next_cursor": null,
+      "truncated": false,
+      "returned": 1,
+      "total": 1,
+      "snapshot_cursor": 75561
+    }
+  }
+}

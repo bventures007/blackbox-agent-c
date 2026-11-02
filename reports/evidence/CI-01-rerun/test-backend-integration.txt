@@ -1,0 +1,14 @@
+# command: pnpm test:backend:integration (after the readiness memo, the error-path cursor read, the storage gate, restricted_at and the backups reader)
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65 + uncommitted deltas (reports/evidence/RERUN/README.md)
+# started: 2026-11-02T02:11:13Z load: 32.31 52.17 64.77
+$ vitest run --config tests/backend/vitest.integration.config.ts
+
+ RUN  v4.1.12 /Users/benediktsauter/GitHub/blackbox-agent-c
+
+
+ Test Files  6 passed (6)
+      Tests  53 passed (53)
+   Start at  03:11:16
+   Duration  108.59s (transform 7.85s, setup 0ms, import 29.60s, tests 244.31s, environment 1ms)
+
+# exit: 0 finished 2026-11-02T02:13:05Z

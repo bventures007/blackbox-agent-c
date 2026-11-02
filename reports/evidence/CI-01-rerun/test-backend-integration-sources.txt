@@ -1,0 +1,13 @@
+# command: pnpm exec vitest run --config tests/backend/vitest.integration.config.ts tests/backend/integration/sources.test.ts (PILOT-06 storage_critical gate; signed route gated after producer verification)
+# commit: df8cfbb5e41fb3da483270651823cf470aaf1a65 + uncommitted deltas (reports/evidence/RERUN/README.md)
+# started: 2026-11-02T00:02:57Z load: 235.64 289.11 231.20
+
+ RUN  v4.1.12 /Users/benediktsauter/GitHub/blackbox-agent-c
+
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  01:03:00
+   Duration  42.00s (transform 1.81s, setup 0ms, import 6.42s, tests 34.95s, environment 1ms)
+
+# exit: 0 finished 2026-11-02T00:03:42Z

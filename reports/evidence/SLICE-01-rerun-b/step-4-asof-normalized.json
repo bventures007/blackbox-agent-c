@@ -1,0 +1,345 @@
+{
+  "conflicts": [
+    {
+      "entry_id": "2587f3d7-75e8-4fa8-acef-db1ad27cc140",
+      "reason": "observation_content_conflict"
+    },
+    {
+      "entry_id": "8781890e-ad0d-420e-9be7-8df5c87da692",
+      "reason": "observation_content_conflict"
+    },
+    {
+      "entry_id": "bcbea980-d0ba-48e1-9929-3f0eccb84836",
+      "reason": "observation_content_conflict"
+    },
+    {
+      "entry_id": "c63116ee-2a0d-41fc-8f79-334b688cbb9b",
+      "reason": "observation_content_conflict"
+    },
+    {
+      "entry_id": "d00a2695-232e-43a9-8c79-ac9585e74db6",
+      "reason": "observation_content_conflict"
+    },
+    {
+      "entry_id": "e3f228d7-a2cf-4910-9771-b003349c8bc4",
+      "reason": "observation_content_conflict"
+    },
+    {
+      "entry_id": "e8dc85dc-6089-42ff-ae8d-e4dd129bad39",
+      "reason": "observation_content_conflict"
+    }
+  ],
+  "coverage": {
+    "datasets_missing": [
+      "stock",
+      "allocations",
+      "invoices",
+      "provider_ledger",
+      "payouts",
+      "bank"
+    ],
+    "datasets_present": [
+      "orders",
+      "payments",
+      "fulfillments",
+      "returns",
+      "receipts",
+      "refunds"
+    ]
+  },
+  "entity": {
+    "id": "gid://shopify/Order/5021",
+    "type": "order"
+  },
+  "entry_ids": [
+    "0eb0fc7e-87fa-4292-8902-095a6ee8f038",
+    "14d33d78-19b4-4d40-9e23-b54dfe593c13",
+    "2587f3d7-75e8-4fa8-acef-db1ad27cc140",
+    "2eb11ba5-c3eb-4b51-9478-7e0f4c5bfa53",
+    "31658eba-2f5b-4efc-8b11-d0ebd7981ce1",
+    "4f7aaeb1-1c7d-4983-95f9-6f0545db60dc",
+    "53884cd5-29c3-44fb-93e7-ffa64161bdac",
+    "59ce4a64-907a-4e7d-9c9e-931a665117c7",
+    "7dc8034d-a1d6-4c4f-acfa-bdf4cf17b2a8",
+    "8781890e-ad0d-420e-9be7-8df5c87da692",
+    "936b49e4-6512-4632-aca3-fceb036b4409",
+    "9e35011a-567d-46c2-8a75-65a9732622ad",
+    "9fb37605-d654-48c4-a916-24c6adc5142d",
+    "a02534dd-d4a8-45c0-ad96-97f5b823102f",
+    "bcbea980-d0ba-48e1-9929-3f0eccb84836",
+    "c5237099-23be-40be-bd03-d6059aa19bcd",
+    "c5c49028-6e9c-4c93-a576-2f203822ca30",
+    "c63116ee-2a0d-41fc-8f79-334b688cbb9b",
+    "d00a2695-232e-43a9-8c79-ac9585e74db6",
+    "d7d94da4-656a-48a9-b863-05ef10431ce5",
+    "e3f228d7-a2cf-4910-9771-b003349c8bc4",
+    "e8dc85dc-6089-42ff-ae8d-e4dd129bad39",
+    "eea793f5-60e7-4619-be7e-1efa9aa9efaf",
+    "f5dad486-859d-4709-b1db-26320b29b0af",
+    "fbcee617-f89a-4cd9-ada2-1929268c5220"
+  ],
+  "evidence_refs": [
+    "journal:0eb0fc7e-87fa-4292-8902-095a6ee8f038",
+    "journal:14d33d78-19b4-4d40-9e23-b54dfe593c13",
+    "journal:2587f3d7-75e8-4fa8-acef-db1ad27cc140",
+    "journal:2eb11ba5-c3eb-4b51-9478-7e0f4c5bfa53",
+    "journal:31658eba-2f5b-4efc-8b11-d0ebd7981ce1",
+    "journal:4f7aaeb1-1c7d-4983-95f9-6f0545db60dc",
+    "journal:53884cd5-29c3-44fb-93e7-ffa64161bdac",
+    "journal:59ce4a64-907a-4e7d-9c9e-931a665117c7",
+    "journal:7dc8034d-a1d6-4c4f-acfa-bdf4cf17b2a8",
+    "journal:8781890e-ad0d-420e-9be7-8df5c87da692",
+    "journal:936b49e4-6512-4632-aca3-fceb036b4409",
+    "journal:9e35011a-567d-46c2-8a75-65a9732622ad",
+    "journal:9fb37605-d654-48c4-a916-24c6adc5142d",
+    "journal:a02534dd-d4a8-45c0-ad96-97f5b823102f",
+    "journal:bcbea980-d0ba-48e1-9929-3f0eccb84836",
+    "journal:c5237099-23be-40be-bd03-d6059aa19bcd",
+    "journal:c5c49028-6e9c-4c93-a576-2f203822ca30",
+    "journal:c63116ee-2a0d-41fc-8f79-334b688cbb9b",
+    "journal:d00a2695-232e-43a9-8c79-ac9585e74db6",
+    "journal:d7d94da4-656a-48a9-b863-05ef10431ce5",
+    "journal:e3f228d7-a2cf-4910-9771-b003349c8bc4",
+    "journal:e8dc85dc-6089-42ff-ae8d-e4dd129bad39",
+    "journal:eea793f5-60e7-4619-be7e-1efa9aa9efaf",
+    "journal:f5dad486-859d-4709-b1db-26320b29b0af",
+    "journal:fbcee617-f89a-4cd9-ada2-1929268c5220"
+  ],
+  "missing_inputs": [
+    "stock.basis"
+  ],
+  "reducer_version": 1,
+  "state": {
+    "authorized_minor": 0,
+    "available_stock": null,
+    "bank_confirmed_minor": 0,
+    "captured_minor": 6250,
+    "currency": "EUR",
+    "customer_net_paid_minor": 3050,
+    "fees_minor": 0,
+    "in_transit_minor": 0,
+    "invoice_credit_minor": 0,
+    "invoice_net_minor": 0,
+    "invoice_original_minor": 0,
+    "open_receivable_minor": 0,
+    "payout_announced_minor": 0,
+    "physical_stock": null,
+    "provider_available_minor": 3050,
+    "provider_balance_minor": 3050,
+    "provider_held_minor": 0,
+    "quarantined_stock": null,
+    "refund_payable_minor": 0,
+    "refunded_minor": 3200,
+    "reserved_stock": null,
+    "shipment_status": "dispatched",
+    "unit": "piece"
+  },
+  "status": "partial",
+  "tracks": {
+    "commitment": {
+      "entries": [
+        {
+          "effect": "deduplicated",
+          "entry_id": "4f7aaeb1-1c7d-4983-95f9-6f0545db60dc",
+          "event_type": "order.revised",
+          "record_id": "order:gid://shopify/Order/5021",
+          "track": "commitment"
+        },
+        {
+          "effect": "deduplicated",
+          "entry_id": "f5dad486-859d-4709-b1db-26320b29b0af",
+          "event_type": "order.accepted",
+          "record_id": "order:gid://shopify/Order/5021",
+          "track": "commitment"
+        }
+      ],
+      "total": 2,
+      "truncated": false
+    },
+    "fact": {
+      "entries": [
+        {
+          "effect": "applied",
+          "entry_id": "0eb0fc7e-87fa-4292-8902-095a6ee8f038",
+          "event_type": "return.approved",
+          "record_id": "return:gid://shopify/Return/60004",
+          "track": "fact"
+        },
+        {
+          "effect": "applied",
+          "entry_id": "14d33d78-19b4-4d40-9e23-b54dfe593c13",
+          "event_type": "return.received",
+          "record_id": "receipt:gid://shopify/ReverseFulfillmentOrderDisposition/80003",
+          "track": "fact"
+        },
+        {
+          "effect": "deduplicated",
+          "entry_id": "2eb11ba5-c3eb-4b51-9478-7e0f4c5bfa53",
+          "event_type": "order.accepted",
+          "record_id": "order:gid://shopify/Order/5021",
+          "track": "fact"
+        },
+        {
+          "effect": "applied",
+          "entry_id": "31658eba-2f5b-4efc-8b11-d0ebd7981ce1",
+          "event_type": "order.revised",
+          "record_id": "order:gid://shopify/Order/5021",
+          "track": "fact"
+        },
+        {
+          "effect": "applied",
+          "entry_id": "936b49e4-6512-4632-aca3-fceb036b4409",
+          "event_type": "refund.completed",
+          "record_id": "refund:gid://shopify/Refund/50002",
+          "track": "fact"
+        },
+        {
+          "effect": "applied",
+          "entry_id": "9e35011a-567d-46c2-8a75-65a9732622ad",
+          "event_type": "return.restocked",
+          "record_id": "receipt:gid://shopify/ReverseFulfillmentOrderDisposition/80004",
+          "track": "fact"
+        },
+        {
+          "effect": "applied",
+          "entry_id": "a02534dd-d4a8-45c0-ad96-97f5b823102f",
+          "event_type": "payment.captured",
+          "record_id": "transaction:gid://shopify/OrderTransaction/20033",
+          "track": "fact"
+        },
+        {
+          "effect": "applied",
+          "entry_id": "fbcee617-f89a-4cd9-ada2-1929268c5220",
+          "event_type": "shipment.dispatched",
+          "record_id": "shipment:gid://shopify/Fulfillment/40035",
+          "track": "fact"
+        }
+      ],
+      "total": 8,
+      "truncated": false
+    },
+    "movement": {
+      "entries": [
+        {
+          "effect": "deduplicated",
+          "entry_id": "59ce4a64-907a-4e7d-9c9e-931a665117c7",
+          "event_type": "payment.captured",
+          "record_id": "transaction:gid://shopify/OrderTransaction/20033",
+          "track": "movement"
+        },
+        {
+          "effect": "deduplicated",
+          "entry_id": "7dc8034d-a1d6-4c4f-acfa-bdf4cf17b2a8",
+          "event_type": "refund.completed",
+          "record_id": "refund:gid://shopify/Refund/50002",
+          "track": "movement"
+        },
+        {
+          "effect": "deduplicated",
+          "entry_id": "9fb37605-d654-48c4-a916-24c6adc5142d",
+          "event_type": "return.restocked",
+          "record_id": "receipt:gid://shopify/ReverseFulfillmentOrderDisposition/80004",
+          "track": "movement"
+        },
+        {
+          "effect": "deduplicated",
+          "entry_id": "c5c49028-6e9c-4c93-a576-2f203822ca30",
+          "event_type": "return.received",
+          "record_id": "receipt:gid://shopify/ReverseFulfillmentOrderDisposition/80003",
+          "track": "movement"
+        },
+        {
+          "effect": "deduplicated",
+          "entry_id": "d7d94da4-656a-48a9-b863-05ef10431ce5",
+          "event_type": "shipment.dispatched",
+          "record_id": "shipment:gid://shopify/Fulfillment/40035",
+          "track": "movement"
+        }
+      ],
+      "total": 5,
+      "truncated": false
+    },
+    "reservation": {
+      "entries": [
+        {
+          "effect": "deduplicated",
+          "entry_id": "c5237099-23be-40be-bd03-d6059aa19bcd",
+          "event_type": "shipment.dispatched",
+          "record_id": "shipment:gid://shopify/Fulfillment/40035",
+          "track": "reservation"
+        },
+        {
+          "effect": "deduplicated",
+          "entry_id": "eea793f5-60e7-4619-be7e-1efa9aa9efaf",
+          "event_type": "refund.completed",
+          "record_id": "refund:gid://shopify/Refund/50002",
+          "track": "reservation"
+        }
+      ],
+      "total": 2,
+      "truncated": false
+    },
+    "source": {
+      "entries": [
+        {
+          "effect": "conflict",
+          "entry_id": "2587f3d7-75e8-4fa8-acef-db1ad27cc140",
+          "event_type": "payment.captured",
+          "record_id": "transaction:gid://shopify/OrderTransaction/20033",
+          "track": "source"
+        },
+        {
+          "effect": "applied",
+          "entry_id": "53884cd5-29c3-44fb-93e7-ffa64161bdac",
+          "event_type": "order.accepted",
+          "record_id": "order:gid://shopify/Order/5021",
+          "track": "source"
+        },
+        {
+          "effect": "conflict",
+          "entry_id": "8781890e-ad0d-420e-9be7-8df5c87da692",
+          "event_type": "return.received",
+          "record_id": "receipt:gid://shopify/ReverseFulfillmentOrderDisposition/80003",
+          "track": "source"
+        },
+        {
+          "effect": "conflict",
+          "entry_id": "bcbea980-d0ba-48e1-9929-3f0eccb84836",
+          "event_type": "refund.completed",
+          "record_id": "refund:gid://shopify/Refund/50002",
+          "track": "source"
+        },
+        {
+          "effect": "conflict",
+          "entry_id": "c63116ee-2a0d-41fc-8f79-334b688cbb9b",
+          "event_type": "return.approved",
+          "record_id": "return:gid://shopify/Return/60004",
+          "track": "source"
+        },
+        {
+          "effect": "conflict",
+          "entry_id": "d00a2695-232e-43a9-8c79-ac9585e74db6",
+          "event_type": "return.restocked",
+          "record_id": "receipt:gid://shopify/ReverseFulfillmentOrderDisposition/80004",
+          "track": "source"
+        },
+        {
+          "effect": "conflict",
+          "entry_id": "e3f228d7-a2cf-4910-9771-b003349c8bc4",
+          "event_type": "order.revised",
+          "record_id": "order:gid://shopify/Order/5021",
+          "track": "source"
+        },
+        {
+          "effect": "conflict",
+          "entry_id": "e8dc85dc-6089-42ff-ae8d-e4dd129bad39",
+          "event_type": "shipment.dispatched",
+          "record_id": "shipment:gid://shopify/Fulfillment/40035",
+          "track": "source"
+        }
+      ],
+      "total": 8,
+      "truncated": false
+    }
+  }
+}

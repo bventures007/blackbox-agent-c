@@ -22,3 +22,14 @@ fixtures/**/*.bin
 *.log
 .env*
 !.env.example
+tests/e2e
+scripts/verify
+scripts/release
+scripts/backup
+scripts/acceptance
+scripts/tests
+tests/perf
+tests/questions
+tests/diag
+tests/slice
+tests/ops

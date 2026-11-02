@@ -115,6 +115,11 @@ function rowToEntry(r: Record<string, unknown>): JournalEntry {
 export class JournalService {
   constructor(private readonly pool: Pool) {}
 
+  /** Indexed point read of the committed cursor in its own tenant transaction (cheap; used on error paths). */
+  async committedCursorOf(tenantId: string): Promise<number> {
+    return withTenant(this.pool, tenantId, (c) => this.committedCursor(c, tenantId));
+  }
+
   async committedCursor(c: TenantClient, tenantId: string): Promise<number> {
     const r = await c.query<{ last_sequence: string }>("SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1", [tenantId]);
     return Number(r.rows[0]?.last_sequence ?? 0);

@@ -233,3 +233,13 @@ describe("collector rotation and query", () => {
     expect(() => queryLogs(dir, { cursor: "garbage" })).toThrow(/cursor/);
   });
 });
+
+describe("backpressure classification (PILOT-09)", () => {
+  it("maps pg pool acquisition timeouts to a retryable database_busy, everything else stays internal", async () => {
+    const { classifyBackpressure } = await import("../../../apps/api/src/app.ts");
+    expect(classifyBackpressure(new Error("timeout exceeded when trying to connect"))).toEqual({ code: "database_busy", message: "database connection pool saturated; retry shortly" });
+    expect(classifyBackpressure(new Error("Connection terminated due to connection timeout"))?.code).toBe("database_busy");
+    expect(classifyBackpressure(new Error("relation does not exist"))).toBeNull();
+    expect(classifyBackpressure(null)).toBeNull();
+  });
+});

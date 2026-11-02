@@ -1,0 +1,92 @@
+# INSTALL-02  2026-11-02T02:29:23Z
+## answer snapshot before restart
+                          ^
+SyntaxError: unexpected character after line continuation character
+## ./blackbox down && ./blackbox up
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+running at http://127.0.0.1:19180/ (project blackbox-agent-c)
+restart wall: 30 s
+## answer snapshot after restart
+                          ^
+SyntaxError: unexpected character after line continuation character
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/INSTALL-02/answer-before.json'
+## evidence links resolvable after restart (first 3 citations of the answer)
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/INSTALL-02/answer-after.json'
+
+# HEALTH-01/02/03 + DIAG-02  2026-11-02T02:29:58Z
+## source health (fixture connection from SLICE-01): last successful check vs last new event
+  shopify Demo shop (Shopify-shaped) configured
+     allocations healthy last_ok 2026-11-02T02:12:04.463Z last_new 2026-11-02T02:09:13.385Z next None producer_driven: no scheduled poll
+     shopify.orders unknown last_ok None last_new None next None no_import_plan
+     shopify.orders degraded last_ok 2026-11-02T02:25:32.238Z last_new 2026-11-02T02:25:24.475Z next 2026-11-02T02:30:48.478Z scheduled
+     shopify.payments unknown last_ok None last_new None next None no_import_plan
+  shopify SLICE-01 fixture shop catching_up
+     allocations healthy last_ok 2026-11-02T02:12:04.463Z last_new 2026-11-02T02:09:13.385Z next None producer_driven: no scheduled poll
+     shopify.orders unknown last_ok None last_new None next None no_import_plan
+     shopify.orders degraded last_ok 2026-11-02T02:25:32.238Z last_new 2026-11-02T02:25:24.475Z next 2026-11-02T02:30:48.478Z scheduled
+     shopify.payments unknown last_ok None last_new None next None no_import_plan
+## readiness (answer data status) — order-01 answer consistency/coverage
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json; d=json.load(open('/Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/INSTALL-02/answer-after.json')); print(json.dumps({k:d.get(k) for k in ('consistency','coverage')}, default=str)[:600])
+                             ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/INSTALL-02/answer-after.json'
+## health cards baseline
+postgres=healthy | api=healthy | worker=unknown | engine=healthy | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:29:59.905Z
+## stop the engine; sample the cards every second for 8 s
+  +1s postgres=healthy | api=healthy | worker=unknown | engine=unavailable | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:01.909Z
+  +2s postgres=healthy | api=healthy | worker=unknown | engine=unavailable | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:03.222Z
+  +3s postgres=healthy | api=healthy | worker=unknown | engine=unavailable | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:04.583Z
+  +4s postgres=healthy | api=healthy | worker=unknown | engine=unavailable | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:06.581Z
+  +5s postgres=healthy | api=healthy | worker=unknown | engine=unavailable | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:08.413Z
+  +6s postgres=healthy | api=healthy | worker=unknown | engine=unavailable | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:09.889Z
+  +7s postgres=healthy | api=healthy | worker=unknown | engine=unavailable | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:11.336Z
+  +8s postgres=healthy | api=healthy | worker=unknown | engine=unavailable | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:12.738Z
+## question while the engine is down (must be explicit unavailable/retryable, never stale-as-current)
+200
+{"intent":"inventory.available_to_sell","question_id":"order-01","params":{"item_id":"CUP-OLV","requested_quantity":100},"readiness":{"question_id":"order-01","intent":"inventory.available_to_sell","status":"ready","required":["stock","coverage","identity"],"optional":["supply"],"missing":[],"missin
+## start the engine; cards until healthy
+  +2s postgres=healthy | api=healthy | worker=unknown | engine=healthy | sources=degraded | mcp=unknown | diagnostics=healthy | observed 2026-11-02T02:30:23.619Z
+## top-bar runtime status source: GET /api/diagnostics/health stale_after/refresh
+{'refresh_interval_seconds': 5, 'stale_after_seconds': 30}
+
+# DIAG-04  2026-11-02T02:30:24Z
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+## ./blackbox logs --since 1h --level warn (containers down)
+2026-11-02T02:30:11.301Z WARN  engine-client engine.call_failed — Engine unreachable (error=engine_unavailable 184ms)
+2026-11-02T02:30:12.735Z WARN  engine-client engine.call_failed — Engine unreachable (error=engine_unavailable 83ms)
+2026-11-02T02:30:16.426Z WARN  engine-client engine.call_failed — Engine unreachable (error=engine_unavailable 158ms)
+2026-11-02T02:30:16.451Z WARN  query ws:2b60bc6a query.unavailable — Question could not be evaluated by the engine (error=overloaded 178ms)
+exit 0
+## ./blackbox logs --since 1h --format json | head (containers down)
+{"tenant_id":"2b60bc6a-bab4-4540-bf50-3fdc7101d8ff","connection_id":"71916971-9265-42a7-9061-fdcfcfc59a4a","run_id":"a56e7977-a8e2-49d2-bcd6-627426353460","record_count":1,"duration_ms":112,"schema_ve
+{"tenant_id":"2b60bc6a-bab4-4540-bf50-3fdc7101d8ff","run_id":"a56e7977-a8e2-49d2-bcd6-627426353460","record_count":0,"schema_version":1,"record_id":"0d283cac-b2eb-4b07-9402-e1ccaed473b3","occurred_at"
+## ./blackbox doctor (containers down)
+[WARN] DOC-SERVICES services stopped → run ./blackbox up
+doctor: degraded (exit 1)
+## ./blackbox diagnostics export --since 2h --output <scratch> (containers down)
+{"output":"/host-out/diagnostics-export-containers-down.zip","size_bytes":23700,"truncated":false,"unavailable":["health: runtime probes unavailable (API/database down)"],"categories":["versions","health","errors","logs"],"since":"2026-11-02T00:31:34.108Z","until":"2026-11-02T02:31:34.109Z","records":505}
+sanitized diagnostics written to /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/HEALTH-DIAG/diagnostics-export-containers-down.zip (explicit export; nothing is uploaded)
+bundle bytes: 23700
+members: ['versions.json', 'error-counts.json', 'logs-excerpt.jsonl', 'README.txt'] count 4
+  owner key: 0 matches
+  agent key: 0 matches
+  session cookie: 0 matches
+  shopify token: 0 matches
+  home path: 0 matches
+  order payload: 0 matches
+running at http://127.0.0.1:19180/ (project blackbox-agent-c)
+
+# LOCAL-06 owner key rotation  2026-11-02T02:32:05Z
+## session with the current key, then ./blackbox rotate-key (current key on stdin, new key captured to owner.key.new 0600)
+login(old) 204
+(the pty-capture attempt above hung waiting for stdin and was stopped; see reports/evidence/LOCAL-06-rerun/rerun-transcript.txt for the completed rotation at 2026-11-02T03:10:53Z)
+# DIAG-02/HEALTH-03 engine-down answer probe 2026-11-02T03:22:49Z (the earlier transcript line was cut at 300 chars)
+engine stopped 2026-11-02T03:22:52Z
+200
+status unavailable | result None | consistency {'status': 'unavailable', 'applied_cursor': None, 'required_cursor': None} | error {'code': 'overloaded', 'message': 'query engine unavailable', 'retryable': True, 'retry_after_ms': None} | missing_inputs [] | evidence_refs 0
+engine healthy again after 1 probes 2026-11-02T03:22:59Z

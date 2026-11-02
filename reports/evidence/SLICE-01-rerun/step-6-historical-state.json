@@ -1,0 +1,40 @@
+{
+  "historical": {
+    "consistency": {
+      "applied_cursor": 511,
+      "required_cursor": 511,
+      "reducer_version": 1,
+      "status": "historical",
+      "recorded_cutoff": "2026-11-02T02:25:40.000Z",
+      "effective_cutoff": null,
+      "mode": "as_of"
+    },
+    "status": "partial",
+    "state": {
+      "physical_stock": null,
+      "reserved_stock": null,
+      "quarantined_stock": null,
+      "available_stock": null,
+      "authorized_minor": 0,
+      "captured_minor": 6250,
+      "fees_minor": 0,
+      "refunded_minor": 3200,
+      "refund_payable_minor": 0,
+      "invoice_original_minor": 0,
+      "invoice_credit_minor": 0,
+      "invoice_net_minor": 0,
+      "open_receivable_minor": 0,
+      "customer_net_paid_minor": 3050,
+      "provider_balance_minor": 3050,
+      "provider_held_minor": 0,
+      "provider_available_minor": 3050,
+      "payout_announced_minor": 0,
+      "in_transit_minor": 0,
+      "bank_confirmed_minor": 0,
+      "shipment_status": "dispatched",
+      "currency": "EUR",
+      "unit": "piece"
+    },
+    "commitment_entries": 2
+  }
+}

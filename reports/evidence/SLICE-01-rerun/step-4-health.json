@@ -1,0 +1,45 @@
+[
+  {
+    "area": "postgres",
+    "state": "healthy",
+    "reason": "connection, read and write readiness probes succeeded",
+    "details": {
+      "latency_ms": 2,
+      "writable": true
+    }
+  },
+  {
+    "area": "api",
+    "state": "healthy",
+    "reason": "this response was served by the API",
+    "details": {
+      "version": "0.1.0",
+      "uptime_seconds": 1044,
+      "last_probe_at": "2026-11-02T02:25:37.697Z"
+    }
+  },
+  {
+    "area": "worker",
+    "state": "unknown",
+    "reason": "no worker heartbeat; no queued work",
+    "details": {
+      "running": 0,
+      "failed": 0,
+      "oldest_pending_started_at": null,
+      "last_completed_at": "2026-11-02T02:25:34.647Z"
+    }
+  },
+  {
+    "area": "engine",
+    "state": "healthy",
+    "reason": "engine healthy; reducer_version 1; applied 511 of committed 511",
+    "details": {
+      "reducer_version": 1,
+      "phase": "ready",
+      "applied_cursor": 511,
+      "committed_cursor": 511,
+      "lag_entries": 0,
+      "rss_bytes": 11882496
+    }
+  }
+]

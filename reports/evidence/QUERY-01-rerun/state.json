@@ -1,0 +1,5873 @@
+{
+  "started_at": "2026-11-02T04:12:01.544Z",
+  "finished_at": "2026-11-02T04:13:13.299Z",
+  "api": "http://127.0.0.1:19185",
+  "tenant_id": "9c299ace-2060-40ee-be20-8490f41bbcfe",
+  "connections": {
+    "stock": "28ab1cfe-d8f7-416d-ac2e-cc799ef87cdb",
+    "shop": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+    "generic": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+    "policy": "03b6486f-0e96-4f6e-b086-15e1b49eed29",
+    "carrier": "62ae8e86-0b81-4bd7-8236-7c19f796638d",
+    "invoice": "07931a6a-81a7-4c15-93a7-ffb3856e2693",
+    "payment": "0b494ccf-412b-41aa-bc79-e34e1747b907",
+    "bank_csv": "835ed08c-fb8f-4706-b72a-104126cbfea8"
+  },
+  "ingest": {
+    "accepted": 0,
+    "duplicate": 72,
+    "conflict": 0,
+    "rejected": 0,
+    "outcomes": [],
+    "committed_cursor": 0,
+    "barrier_status": 200
+  },
+  "cutoff": "2026-11-02T04:12:02.936Z",
+  "agent_credential_id": "d37a42a8-faab-4f07-8e83-563b31c7611e",
+  "positive": [
+    {
+      "intent": "inventory.available_to_sell",
+      "question_id": "order-01",
+      "group": "order",
+      "params": {
+        "item_id": "CUP-OLV-Q",
+        "requested_quantity": 100
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "available 86",
+          "pass": true
+        },
+        {
+          "name": "shortfall 14",
+          "pass": true
+        },
+        {
+          "name": "incoming not counted",
+          "pass": true
+        },
+        {
+          "name": "incoming supply 50",
+          "pass": true
+        },
+        {
+          "name": "entry ids",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 66,
+      "evidence_refs": 66
+    },
+    {
+      "intent": "orders.fulfillable",
+      "question_id": "order-02",
+      "group": "order",
+      "params": {
+        "item_id": "MUG-BLK-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "#A2 first fully",
+          "pass": true
+        },
+        {
+          "name": "#B2 partial 4",
+          "pass": true
+        },
+        {
+          "name": "units used 10",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 8,
+      "evidence_refs": 8
+    },
+    {
+      "intent": "orders.reservation_variance",
+      "question_id": "order-03",
+      "group": "order",
+      "params": {
+        "order_id": "#V-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "remaining 5",
+          "pass": true
+        },
+        {
+          "name": "under reserved 1",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 13,
+      "evidence_refs": 13
+    },
+    {
+      "intent": "orders.inbound_delay_impact",
+      "question_id": "order-04",
+      "group": "order",
+      "params": {},
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "#D affected",
+          "pass": true
+        },
+        {
+          "name": "risk incoming after deadline",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 5,
+      "evidence_refs": 5
+    },
+    {
+      "intent": "shipments.attention",
+      "question_id": "delivery-01",
+      "group": "delivery",
+      "params": {
+        "now": "2026-10-31T10:00:00Z",
+        "order_id": "#S-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "attention S1",
+          "pass": true
+        },
+        {
+          "name": "scan age 3600",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 6,
+      "evidence_refs": 6
+    },
+    {
+      "intent": "shipments.promise_risk",
+      "question_id": "delivery-02",
+      "group": "delivery",
+      "params": {
+        "now": "2026-10-31T10:00:00+01:00",
+        "order_id": "#P-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "overdue",
+          "pass": true
+        },
+        {
+          "name": "arrival unknown",
+          "pass": true
+        },
+        {
+          "name": "in transit",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 13,
+      "evidence_refs": 13
+    },
+    {
+      "intent": "orders.partial_delivery_gaps",
+      "question_id": "delivery-03",
+      "group": "order",
+      "params": {
+        "order_id": "#G-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "remaining dispatch 3",
+          "pass": true
+        },
+        {
+          "name": "remaining deliver 5",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 12,
+      "evidence_refs": 12
+    },
+    {
+      "intent": "customer.delivery_reply",
+      "question_id": "delivery-04",
+      "group": "delivery",
+      "params": {
+        "order_id": "#P-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "facts",
+          "pass": true
+        },
+        {
+          "name": "no send action",
+          "pass": true
+        },
+        {
+          "name": "promises checked",
+          "pass": true
+        },
+        {
+          "name": "prior message",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 13,
+      "evidence_refs": 13
+    },
+    {
+      "intent": "invoices.outstanding",
+      "question_id": "invoice-01",
+      "group": "invoice",
+      "params": {
+        "customer_id": "C-I-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "open 4520",
+          "pass": true
+        },
+        {
+          "name": "no new cash from marker",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 14,
+      "evidence_refs": 14
+    },
+    {
+      "intent": "orders.missing_invoice",
+      "question_id": "invoice-02",
+      "group": "order",
+      "params": {},
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "#S missing",
+          "pass": true
+        },
+        {
+          "name": "#I not missing",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 47,
+      "evidence_refs": 47
+    },
+    {
+      "intent": "invoices.order_amount_variance",
+      "question_id": "invoice-03",
+      "group": "invoice",
+      "params": {
+        "invoice_id": "I-X-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "difference 100",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 8,
+      "evidence_refs": 8
+    },
+    {
+      "intent": "invoices.dispatch_evidence",
+      "question_id": "invoice-04",
+      "group": "invoice",
+      "params": {},
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "I-X without evidence",
+          "pass": true
+        },
+        {
+          "name": "I-1 provider reported",
+          "pass": true
+        },
+        {
+          "name": "recipient not proven",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 32,
+      "evidence_refs": 32
+    },
+    {
+      "intent": "orders.payment_state",
+      "question_id": "collection-01",
+      "group": "order",
+      "params": {
+        "order_id": "#I-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "collected 5000",
+          "pass": true
+        },
+        {
+          "name": "remaining 6900",
+          "pass": true
+        },
+        {
+          "name": "partially collected",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 25,
+      "evidence_refs": 25
+    },
+    {
+      "intent": "payments.recovered_attempts",
+      "question_id": "collection-02",
+      "group": "collection",
+      "params": {
+        "order_id": "#R-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "recovered",
+          "pass": true
+        },
+        {
+          "name": "failed attempt retained",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 8,
+      "evidence_refs": 8
+    },
+    {
+      "intent": "invoices.payment_variance",
+      "question_id": "collection-03",
+      "group": "invoice",
+      "params": {
+        "invoice_id": "I-1-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "remaining 4520",
+          "pass": true
+        },
+        {
+          "name": "fee not customer debt",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 22,
+      "evidence_refs": 22
+    },
+    {
+      "intent": "receivables.review_queue",
+      "question_id": "collection-04",
+      "group": "collection",
+      "params": {
+        "now": "2026-10-31T10:00:00Z"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "I-1 in review",
+          "pass": true
+        },
+        {
+          "name": "no reminder",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 14,
+      "evidence_refs": 14
+    },
+    {
+      "intent": "providers.money_positions",
+      "question_id": "settlement-01",
+      "group": "settlement",
+      "params": {
+        "account_ref": "acct-main-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete/partial",
+          "pass": true
+        },
+        {
+          "name": "conservation",
+          "pass": true
+        },
+        {
+          "name": "held 9700",
+          "pass": true
+        },
+        {
+          "name": "bank confirmed 9170",
+          "pass": true
+        },
+        {
+          "name": "in transit 5000",
+          "pass": true
+        },
+        {
+          "name": "unknown not zero",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "payouts.gross_to_net",
+      "question_id": "settlement-02",
+      "group": "settlement",
+      "params": {
+        "payout_id": "OUT-1-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "net 9170",
+          "pass": true
+        },
+        {
+          "name": "unexplained 0",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 15,
+      "evidence_refs": 15
+    },
+    {
+      "intent": "payouts.missing_bank_confirmation",
+      "question_id": "settlement-03",
+      "group": "settlement",
+      "params": {},
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "OUT-2 missing",
+          "pass": true
+        },
+        {
+          "name": "OUT-1 confirmed",
+          "pass": true
+        },
+        {
+          "name": "conclusion",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 3,
+      "evidence_refs": 3
+    },
+    {
+      "intent": "providers.holds_and_releases",
+      "question_id": "settlement-04",
+      "group": "settlement",
+      "params": {
+        "now": "2026-10-31T10:00:00Z"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "held 9700",
+          "pass": true
+        },
+        {
+          "name": "released 0",
+          "pass": true
+        },
+        {
+          "name": "release only promised",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 3,
+      "evidence_refs": 3
+    },
+    {
+      "intent": "returns.lifecycle",
+      "question_id": "reversal-01",
+      "group": "reversal",
+      "params": {
+        "return_id": "RET-L-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "received",
+          "pass": true
+        },
+        {
+          "name": "sellable 0",
+          "pass": true
+        },
+        {
+          "name": "refund not confirmed",
+          "pass": true
+        },
+        {
+          "name": "refund pending",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 8,
+      "evidence_refs": 8
+    },
+    {
+      "intent": "credits.refund_gaps",
+      "question_id": "reversal-02",
+      "group": "reversal",
+      "params": {
+        "order_id": "#I-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "cash refund due 2380",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 14,
+      "evidence_refs": 14
+    },
+    {
+      "intent": "cancellations.outstanding_steps",
+      "question_id": "reversal-03",
+      "group": "reversal",
+      "params": {
+        "order_id": "#C-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "remaining steps",
+          "pass": true
+        },
+        {
+          "name": "no receipt required",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 17,
+      "evidence_refs": 17
+    },
+    {
+      "intent": "refunds.chargeback_overlap",
+      "question_id": "reversal-04",
+      "group": "reversal",
+      "params": {
+        "transaction_id": "TX-O-Q"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "checks": [
+        {
+          "name": "status complete",
+          "pass": true
+        },
+        {
+          "name": "net repayments 20000",
+          "pass": true
+        },
+        {
+          "name": "excess 10000",
+          "pass": true
+        },
+        {
+          "name": "review required",
+          "pass": true
+        },
+        {
+          "name": "duplicate proven",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 12,
+      "evidence_refs": 12
+    }
+  ],
+  "as_of": [
+    {
+      "intent": "inventory.available_to_sell",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "inventory.available_to_sell",
+        "question_id": "order-01",
+        "params": {
+          "item_id": "CUP-OLV-Q",
+          "requested_quantity": 100
+        },
+        "status": "complete",
+        "result": {
+          "item_id": "CUP-OLV-Q",
+          "requested_quantity": "100",
+          "incoming_counted_as_stock": false,
+          "unit": "piece",
+          "basis_at": "2026-10-31T08:30:00Z",
+          "basis": "provider_available",
+          "physical": "120",
+          "quarantined": "0",
+          "reserved": "0",
+          "committed": "34",
+          "available": "86",
+          "incoming_supply": [
+            {
+              "promise_id": "P-S1-Q",
+              "quantity": "50",
+              "promised_at": "2026-11-05T00:00:00Z"
+            }
+          ],
+          "shortfall": "14",
+          "can_fulfill": false
+        },
+        "calculation": [
+          {
+            "step": "available",
+            "formula": "available = provider_available − active reservations recorded after the snapshot basis",
+            "values": {
+              "provider_available": "86",
+              "reservations_after_basis": "0",
+              "available": "86",
+              "committed_not_subtracted_again": "34"
+            }
+          },
+          {
+            "step": "shortfall",
+            "formula": "shortfall = max(0, requested − available)",
+            "values": {
+              "requested": "100",
+              "available": "86",
+              "shortfall": "14"
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:2e2494c3-1850-4cd6-9dd0-3424ce62d0d2",
+          "journal:64439624-f324-4ec5-b9c2-c7b664987cad",
+          "journal:b409a597-bc35-41ab-b872-bc2008b66c10",
+          "journal:067bec53-e641-499e-9c46-d778dbc0967d",
+          "journal:693633e1-9ffc-4432-ace4-196d0c1412da",
+          "journal:4d64ae1f-46c1-481b-b93d-b372e1562f58",
+          "journal:e3272f3c-eda5-4bac-9d7b-5221fcc7b45b",
+          "journal:08e6699f-84d4-4952-8abb-c5c8182acf50",
+          "journal:14128695-9cdf-4597-b136-a71a86ad33fe",
+          "journal:db3fe3cd-2a4b-4040-815f-f80b414dece7",
+          "journal:7931f059-c53e-459b-868c-8b13c38d1cb9",
+          "journal:e397700c-a87b-4767-a513-e073048b5aaa",
+          "journal:5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+          "journal:184a90ad-87dc-44dc-b241-ef63cbfcc609",
+          "journal:2257a948-2e26-4120-9392-0d05c75da1c7",
+          "journal:21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+          "journal:b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+          "journal:01b2a6f3-a978-4e28-ab98-7879d622821e",
+          "journal:145086fb-1de0-47a0-816f-b37eaaf133ea",
+          "journal:bbd81ed6-35c9-419d-a176-f77bde9060f4",
+          "journal:7cc68bb1-2b72-4679-bae4-aa7db2be11b1",
+          "journal:4220b800-bc1f-4c4d-8849-552960727d94",
+          "journal:e5cd2df0-0074-4b5f-841e-f42bd7891910",
+          "journal:7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+          "journal:b4b62d88-585e-4b7f-9591-eedf050233f8",
+          "journal:96a4ba0a-6372-4729-b106-fb03ff435fe2",
+          "journal:3b8bd07b-bdd9-4b37-a370-89e902aab129",
+          "journal:693ef351-f84c-4120-bd34-91d754e60628",
+          "journal:1fbef211-d0ad-4c61-abdb-d478e3026a68",
+          "journal:96a29a71-7ba4-484e-8e21-724f6d1a8595",
+          "journal:4da3fd8f-7f54-4458-a29c-ac8dda55371a",
+          "journal:d1558ef3-4d65-43b5-8405-2269b464df72",
+          "journal:878ee55c-31b5-4c5c-ae94-79b7ac1a5f12",
+          "journal:5ce8ae64-d3bc-46d0-b7e2-97fc3f41d4d7",
+          "journal:38fc1c1b-5896-4a92-afc7-4e639dc5a2f0",
+          "journal:7ef50ccb-5d1b-4f43-bc9b-0769db17a157",
+          "journal:eed9bfe3-4af2-466a-b62e-9543fdac862a",
+          "journal:deb3cb4a-13b5-45b9-9ff9-6e90d7d1eac5",
+          "journal:2e81f322-38ab-4c75-925f-1f6209332cee",
+          "journal:a7a162fa-77a6-4019-b42c-17528f3692ef",
+          "journal:3c4dd9f0-9d91-4977-9ff2-2d59e41c50d5",
+          "journal:e034a611-8160-4cb0-830d-08ae035defd5",
+          "journal:d74d38a2-1b6d-47eb-a883-32bdd9fcedeb",
+          "journal:814a9a6a-d181-429a-8355-c5341bca5b2e",
+          "journal:cdd885a8-9da8-4c99-bf90-e22a77b0685e",
+          "journal:b35edb0b-e98b-4da5-884d-25c926dfb7d8",
+          "journal:8e8b5ee7-5ab0-434c-ad86-c79d6f5b72a8",
+          "journal:0e9807b5-2123-48f9-ab5a-ab8262451272",
+          "journal:f354c406-52a1-4842-ad30-640394e92aef",
+          "journal:cac80484-b0d1-4c39-92ec-e6cc53a1ab5d",
+          "journal:700f5bac-ac81-4962-aaa1-0377d2c98233",
+          "journal:6afe3b1b-8e08-4775-9144-05c61f2b7103",
+          "journal:f331dbf4-171b-4005-a089-8745bc405ddc",
+          "journal:c559e3f4-2648-4bdc-b3ce-d5c3733bdaae",
+          "journal:eadc09d8-7fa4-4882-bf8a-70a896ac5022",
+          "journal:7ee0b4f8-ba50-4af2-b3bd-e1374d81ec1a",
+          "journal:2fd8b4fe-da7d-41bc-bc89-4af3a65bfb97",
+          "journal:49c257a1-ea35-4e72-b44b-dba997acf004",
+          "journal:55ebfe6b-7493-414d-9385-ee87feac568c",
+          "journal:60cd60fa-107a-4a8b-80de-06d4ee7eb5f4",
+          "journal:f442425f-c55b-4ee7-b9ca-749227a41b9d",
+          "journal:020496e0-fed6-4f8e-a619-c32440c1ac4b",
+          "journal:0f2b4b10-34b1-4630-8f3c-5024b4476c1f",
+          "journal:e5223319-fe24-487b-b9bd-3e4b2a9fbf1d",
+          "journal:98d10f9f-26de-4754-b43b-aa7ea1def20f",
+          "journal:2b0e0c5d-8541-4973-8cf7-11324d5f73cf"
+        ],
+        "entry_ids": [
+          "2e2494c3-1850-4cd6-9dd0-3424ce62d0d2",
+          "64439624-f324-4ec5-b9c2-c7b664987cad",
+          "b409a597-bc35-41ab-b872-bc2008b66c10",
+          "067bec53-e641-499e-9c46-d778dbc0967d",
+          "693633e1-9ffc-4432-ace4-196d0c1412da",
+          "4d64ae1f-46c1-481b-b93d-b372e1562f58",
+          "e3272f3c-eda5-4bac-9d7b-5221fcc7b45b",
+          "08e6699f-84d4-4952-8abb-c5c8182acf50",
+          "14128695-9cdf-4597-b136-a71a86ad33fe",
+          "db3fe3cd-2a4b-4040-815f-f80b414dece7",
+          "7931f059-c53e-459b-868c-8b13c38d1cb9",
+          "e397700c-a87b-4767-a513-e073048b5aaa",
+          "5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+          "184a90ad-87dc-44dc-b241-ef63cbfcc609",
+          "2257a948-2e26-4120-9392-0d05c75da1c7",
+          "21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+          "b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+          "01b2a6f3-a978-4e28-ab98-7879d622821e",
+          "145086fb-1de0-47a0-816f-b37eaaf133ea",
+          "bbd81ed6-35c9-419d-a176-f77bde9060f4",
+          "7cc68bb1-2b72-4679-bae4-aa7db2be11b1",
+          "4220b800-bc1f-4c4d-8849-552960727d94",
+          "e5cd2df0-0074-4b5f-841e-f42bd7891910",
+          "7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+          "b4b62d88-585e-4b7f-9591-eedf050233f8",
+          "96a4ba0a-6372-4729-b106-fb03ff435fe2",
+          "3b8bd07b-bdd9-4b37-a370-89e902aab129",
+          "693ef351-f84c-4120-bd34-91d754e60628",
+          "1fbef211-d0ad-4c61-abdb-d478e3026a68",
+          "96a29a71-7ba4-484e-8e21-724f6d1a8595",
+          "4da3fd8f-7f54-4458-a29c-ac8dda55371a",
+          "d1558ef3-4d65-43b5-8405-2269b464df72",
+          "878ee55c-31b5-4c5c-ae94-79b7ac1a5f12",
+          "5ce8ae64-d3bc-46d0-b7e2-97fc3f41d4d7",
+          "38fc1c1b-5896-4a92-afc7-4e639dc5a2f0",
+          "7ef50ccb-5d1b-4f43-bc9b-0769db17a157",
+          "eed9bfe3-4af2-466a-b62e-9543fdac862a",
+          "deb3cb4a-13b5-45b9-9ff9-6e90d7d1eac5",
+          "2e81f322-38ab-4c75-925f-1f6209332cee",
+          "a7a162fa-77a6-4019-b42c-17528f3692ef",
+          "3c4dd9f0-9d91-4977-9ff2-2d59e41c50d5",
+          "e034a611-8160-4cb0-830d-08ae035defd5",
+          "d74d38a2-1b6d-47eb-a883-32bdd9fcedeb",
+          "814a9a6a-d181-429a-8355-c5341bca5b2e",
+          "cdd885a8-9da8-4c99-bf90-e22a77b0685e",
+          "b35edb0b-e98b-4da5-884d-25c926dfb7d8",
+          "8e8b5ee7-5ab0-434c-ad86-c79d6f5b72a8",
+          "0e9807b5-2123-48f9-ab5a-ab8262451272",
+          "f354c406-52a1-4842-ad30-640394e92aef",
+          "cac80484-b0d1-4c39-92ec-e6cc53a1ab5d",
+          "700f5bac-ac81-4962-aaa1-0377d2c98233",
+          "6afe3b1b-8e08-4775-9144-05c61f2b7103",
+          "f331dbf4-171b-4005-a089-8745bc405ddc",
+          "c559e3f4-2648-4bdc-b3ce-d5c3733bdaae",
+          "eadc09d8-7fa4-4882-bf8a-70a896ac5022",
+          "7ee0b4f8-ba50-4af2-b3bd-e1374d81ec1a",
+          "2fd8b4fe-da7d-41bc-bc89-4af3a65bfb97",
+          "49c257a1-ea35-4e72-b44b-dba997acf004",
+          "55ebfe6b-7493-414d-9385-ee87feac568c",
+          "60cd60fa-107a-4a8b-80de-06d4ee7eb5f4",
+          "f442425f-c55b-4ee7-b9ca-749227a41b9d",
+          "020496e0-fed6-4f8e-a619-c32440c1ac4b",
+          "0f2b4b10-34b1-4630-8f3c-5024b4476c1f",
+          "e5223319-fe24-487b-b9bd-3e4b2a9fbf1d",
+          "98d10f9f-26de-4754-b43b-aa7ea1def20f",
+          "2b0e0c5d-8541-4973-8cf7-11324d5f73cf"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "stock",
+            "allocations",
+            "supply"
+          ],
+          "datasets_missing": [
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 0,
+            "returned": 0
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 0,
+          "total": 0,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "orders.fulfillable",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "orders.fulfillable",
+        "question_id": "order-02",
+        "params": {
+          "item_id": "MUG-BLK-Q"
+        },
+        "status": "complete",
+        "result": {
+          "priority_method": "accepted_at",
+          "units_used": "10",
+          "plan_is_tentative": true,
+          "orders": [
+            {
+              "order_id": "#A2-Q",
+              "classification": "fully_fulfillable",
+              "reasons": [],
+              "lines": [
+                {
+                  "line_id": "#A2-Q#1",
+                  "item_id": "MUG-BLK-Q",
+                  "remaining": "6",
+                  "own_reservation": "0",
+                  "need": "6",
+                  "allocated": "6",
+                  "covered": "6"
+                }
+              ],
+              "tentative": true
+            },
+            {
+              "order_id": "#B2-Q",
+              "classification": "partial",
+              "reasons": [
+                "insufficient_free_stock:MUG-BLK-Q"
+              ],
+              "lines": [
+                {
+                  "line_id": "#B2-Q#1",
+                  "item_id": "MUG-BLK-Q",
+                  "remaining": "6",
+                  "own_reservation": "0",
+                  "need": "6",
+                  "allocated": "4",
+                  "covered": "4"
+                }
+              ],
+              "tentative": true
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "plan",
+            "formula": "allocate free stock once across orders in declared priority; own reservations are not unavailable to their own order",
+            "values": {
+              "orders_considered": 2,
+              "units_used": "10"
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:62c1b33e-be81-4bbc-9faf-803fb98621e4",
+          "journal:6aba2619-17b9-4b16-bd4f-e80b4c3e4141",
+          "journal:f3e8c971-b9c2-4e98-8922-09ea5240f1aa",
+          "journal:3678931b-b53b-4036-acda-7d767c793fc9",
+          "journal:6d17ba79-c7bc-4dbc-b969-48586d3c9be3",
+          "journal:50195254-98a4-4f7c-b0dd-418e1538a717",
+          "journal:eec45ae9-0f7c-4733-bb4c-3018e6f20bb2",
+          "journal:cdd76159-1759-4ac9-b7db-980f1f436c25",
+          "journal:67e426d5-75ad-43cf-a795-78eaad4135d9"
+        ],
+        "entry_ids": [
+          "62c1b33e-be81-4bbc-9faf-803fb98621e4",
+          "6aba2619-17b9-4b16-bd4f-e80b4c3e4141",
+          "f3e8c971-b9c2-4e98-8922-09ea5240f1aa",
+          "3678931b-b53b-4036-acda-7d767c793fc9",
+          "6d17ba79-c7bc-4dbc-b969-48586d3c9be3",
+          "50195254-98a4-4f7c-b0dd-418e1538a717",
+          "eec45ae9-0f7c-4733-bb4c-3018e6f20bb2",
+          "cdd76159-1759-4ac9-b7db-980f1f436c25",
+          "67e426d5-75ad-43cf-a795-78eaad4135d9"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "stock",
+            "allocations",
+            "policy",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 2,
+            "returned": 2
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 2,
+          "total": 2,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "orders.reservation_variance",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "orders.reservation_variance",
+        "question_id": "order-03",
+        "params": {
+          "order_id": "#V-Q"
+        },
+        "status": "complete",
+        "result": {
+          "mismatched_lines": 1,
+          "lines": [
+            {
+              "order_id": "#V-Q",
+              "line_id": "#V-Q#1",
+              "item_id": "CUP-OLV-Q",
+              "original_quantity": "10",
+              "cancelled_quantity": "2",
+              "dispatched_quantity": "3",
+              "remaining_obligation": "5",
+              "active_reserved": "4",
+              "under_reserved": "1",
+              "over_reserved": "0"
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "variance",
+            "formula": "remaining_obligation = quantity − cancelled − dispatched; variance = active_reserved − remaining_obligation",
+            "values": {
+              "mismatched_lines": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:14128695-9cdf-4597-b136-a71a86ad33fe",
+          "journal:db3fe3cd-2a4b-4040-815f-f80b414dece7",
+          "journal:7931f059-c53e-459b-868c-8b13c38d1cb9",
+          "journal:e397700c-a87b-4767-a513-e073048b5aaa",
+          "journal:5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+          "journal:184a90ad-87dc-44dc-b241-ef63cbfcc609",
+          "journal:64e276b0-1dee-4ac2-95fc-815f39a94ea6",
+          "journal:71a02df7-a382-431d-87f9-83187464ade5",
+          "journal:b9065a89-bfd9-47be-b9fd-bec633be7bb6",
+          "journal:2257a948-2e26-4120-9392-0d05c75da1c7",
+          "journal:21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+          "journal:b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+          "journal:01b2a6f3-a978-4e28-ab98-7879d622821e"
+        ],
+        "entry_ids": [
+          "14128695-9cdf-4597-b136-a71a86ad33fe",
+          "db3fe3cd-2a4b-4040-815f-f80b414dece7",
+          "7931f059-c53e-459b-868c-8b13c38d1cb9",
+          "e397700c-a87b-4767-a513-e073048b5aaa",
+          "5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+          "184a90ad-87dc-44dc-b241-ef63cbfcc609",
+          "64e276b0-1dee-4ac2-95fc-815f39a94ea6",
+          "71a02df7-a382-431d-87f9-83187464ade5",
+          "b9065a89-bfd9-47be-b9fd-bec633be7bb6",
+          "2257a948-2e26-4120-9392-0d05c75da1c7",
+          "21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+          "b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+          "01b2a6f3-a978-4e28-ab98-7879d622821e"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "allocations",
+            "fulfillments"
+          ],
+          "datasets_missing": [
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "orders.inbound_delay_impact",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "orders.inbound_delay_impact",
+        "question_id": "order-04",
+        "params": {},
+        "status": "complete",
+        "result": {
+          "confirmed_affected_orders": [
+            "#D-Q"
+          ],
+          "unresolved_commitments": 0,
+          "commitments": [
+            {
+              "promise_id": "P-S1-Q",
+              "item_id": "CUP-OLV-Q",
+              "quantity": "50",
+              "previous_promised_at": "2026-11-03T00:00:00Z",
+              "promised_at": "2026-11-05T00:00:00Z",
+              "delayed": true,
+              "affected": [
+                {
+                  "order_id": "#D-Q",
+                  "customer_due": "2026-11-04T17:00:00Z",
+                  "risk": "incoming_after_customer_deadline"
+                }
+              ],
+              "potential_exposure": [
+                {
+                  "order_id": "#L-Q",
+                  "relationship": "potential_exposure_shared_item"
+                },
+                {
+                  "order_id": "#V-Q",
+                  "relationship": "potential_exposure_shared_item"
+                },
+                {
+                  "order_id": "#S-Q",
+                  "relationship": "potential_exposure_shared_item"
+                },
+                {
+                  "order_id": "#P-Q",
+                  "relationship": "potential_exposure_shared_item"
+                },
+                {
+                  "order_id": "#G-Q",
+                  "relationship": "potential_exposure_shared_item"
+                },
+                {
+                  "order_id": "#I-Q",
+                  "relationship": "potential_exposure_shared_item"
+                },
+                {
+                  "order_id": "#X-Q",
+                  "relationship": "potential_exposure_shared_item"
+                },
+                {
+                  "order_id": "#R-Q",
+                  "relationship": "potential_exposure_shared_item"
+                },
+                {
+                  "order_id": "#O-Q",
+                  "relationship": "potential_exposure_shared_item"
+                }
+              ]
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "impact",
+            "formula": "follow revised supply promise through explicit allocation links to orders; compare with customer deadline",
+            "values": {
+              "commitments": 1,
+              "unresolved": 0
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:4d64ae1f-46c1-481b-b93d-b372e1562f58",
+          "journal:e3272f3c-eda5-4bac-9d7b-5221fcc7b45b",
+          "journal:08e6699f-84d4-4952-8abb-c5c8182acf50",
+          "journal:0f2b4b10-34b1-4630-8f3c-5024b4476c1f",
+          "journal:98d10f9f-26de-4754-b43b-aa7ea1def20f",
+          "journal:dec93b7d-6433-40d7-b182-61f5d631f7ea",
+          "journal:613001d8-4906-41db-9c7f-47e2a79f66dd"
+        ],
+        "entry_ids": [
+          "4d64ae1f-46c1-481b-b93d-b372e1562f58",
+          "e3272f3c-eda5-4bac-9d7b-5221fcc7b45b",
+          "08e6699f-84d4-4952-8abb-c5c8182acf50",
+          "0f2b4b10-34b1-4630-8f3c-5024b4476c1f",
+          "98d10f9f-26de-4754-b43b-aa7ea1def20f",
+          "dec93b7d-6433-40d7-b182-61f5d631f7ea",
+          "613001d8-4906-41db-9c7f-47e2a79f66dd"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "supply",
+            "allocations",
+            "promises",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "shipments.attention",
+      "status": "partial",
+      "passed": false,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "shipments.attention",
+        "question_id": "delivery-01",
+        "params": {
+          "order_id": "#S-Q",
+          "now": "2026-10-31T10:00:00Z"
+        },
+        "status": "partial",
+        "result": {
+          "attention": [
+            "S1-Q"
+          ],
+          "stale_after_seconds": null,
+          "attention_rule": null,
+          "shipments": [
+            {
+              "shipment_id": "S1-Q",
+              "order_id": "#S-Q",
+              "status": "exception",
+              "carrier": "dhl",
+              "tracking_number": "TRK-S1-Q",
+              "last_scan_code": "exception",
+              "last_scan_at": "2026-10-31T09:00:00Z",
+              "latest_scan_age_seconds": 3600,
+              "forecast_at": null,
+              "forecast_is_promise": false,
+              "needs_attention": true,
+              "reasons": [
+                "carrier_exception"
+              ]
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "attention",
+            "formula": "attention = carrier exception OR scan age > stale threshold OR forecast passed OR label without handover",
+            "values": {
+              "shipments": 1,
+              "attention": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:4220b800-bc1f-4c4d-8849-552960727d94",
+          "journal:e5cd2df0-0074-4b5f-841e-f42bd7891910",
+          "journal:7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+          "journal:b4b62d88-585e-4b7f-9591-eedf050233f8",
+          "journal:50c463e2-e5ba-4faf-9696-05d87ad2c770",
+          "journal:5cf60a9e-0847-4d2a-9fb1-9466a2927e15"
+        ],
+        "entry_ids": [
+          "4220b800-bc1f-4c4d-8849-552960727d94",
+          "e5cd2df0-0074-4b5f-841e-f42bd7891910",
+          "7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+          "b4b62d88-585e-4b7f-9591-eedf050233f8",
+          "50c463e2-e5ba-4faf-9696-05d87ad2c770",
+          "5cf60a9e-0847-4d2a-9fb1-9466a2927e15"
+        ],
+        "missing_inputs": [
+          "policy.attention_rule"
+        ],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "fulfillments",
+            "tracking"
+          ],
+          "datasets_missing": [
+            "policy",
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "shipments.promise_risk",
+      "status": "partial",
+      "passed": false,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "shipments.promise_risk",
+        "question_id": "delivery-02",
+        "params": {
+          "order_id": "#P-Q",
+          "now": "2026-10-31T10:00:00+01:00"
+        },
+        "status": "partial",
+        "result": {
+          "overdue_count": 1,
+          "at_risk_count": 0,
+          "commitments": [
+            {
+              "promise_id": "P-P-Q",
+              "order_id": "#P-Q",
+              "promised_at": "2026-10-30T16:00:00Z",
+              "timezone": "Europe/Berlin",
+              "last_state": "in_transit",
+              "delivered": false,
+              "delivered_at": null,
+              "arrival_date": "unknown",
+              "forecast_is_promise": false,
+              "overdue": true,
+              "risk": "overdue"
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "risk",
+            "formula": "overdue = not delivered AND promised_at < now; at risk = forecast after promise or inside the configured window",
+            "values": {
+              "overdue": 1,
+              "at_risk": 0,
+              "risk_hours": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:96a4ba0a-6372-4729-b106-fb03ff435fe2",
+          "journal:3b8bd07b-bdd9-4b37-a370-89e902aab129",
+          "journal:693ef351-f84c-4120-bd34-91d754e60628",
+          "journal:1fbef211-d0ad-4c61-abdb-d478e3026a68",
+          "journal:96a29a71-7ba4-484e-8e21-724f6d1a8595",
+          "journal:4da3fd8f-7f54-4458-a29c-ac8dda55371a",
+          "journal:d1558ef3-4d65-43b5-8405-2269b464df72",
+          "journal:6732d516-a284-4602-aacb-4e5374616fc3",
+          "journal:cd4fbce3-9452-4c21-83f3-4a9ccacc8edc",
+          "journal:bdbc05fe-d368-4a80-8b8f-347ccae7f7f5",
+          "journal:ccc92f51-e747-4649-b5c6-8723e0a93d3b",
+          "journal:ffdbc38b-6d0c-49f9-b9d7-bc3abf799db8",
+          "journal:c0c2435a-d425-4d2f-bac0-32e77e824214"
+        ],
+        "entry_ids": [
+          "96a4ba0a-6372-4729-b106-fb03ff435fe2",
+          "3b8bd07b-bdd9-4b37-a370-89e902aab129",
+          "693ef351-f84c-4120-bd34-91d754e60628",
+          "1fbef211-d0ad-4c61-abdb-d478e3026a68",
+          "96a29a71-7ba4-484e-8e21-724f6d1a8595",
+          "4da3fd8f-7f54-4458-a29c-ac8dda55371a",
+          "d1558ef3-4d65-43b5-8405-2269b464df72",
+          "6732d516-a284-4602-aacb-4e5374616fc3",
+          "cd4fbce3-9452-4c21-83f3-4a9ccacc8edc",
+          "bdbc05fe-d368-4a80-8b8f-347ccae7f7f5",
+          "ccc92f51-e747-4649-b5c6-8723e0a93d3b",
+          "ffdbc38b-6d0c-49f9-b9d7-bc3abf799db8",
+          "c0c2435a-d425-4d2f-bac0-32e77e824214"
+        ],
+        "missing_inputs": [
+          "policy.risk_rule"
+        ],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "promises",
+            "fulfillments",
+            "tracking"
+          ],
+          "datasets_missing": [
+            "policy",
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "orders.partial_delivery_gaps",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "orders.partial_delivery_gaps",
+        "question_id": "delivery-03",
+        "params": {
+          "order_id": "#G-Q"
+        },
+        "status": "complete",
+        "result": {
+          "orders": [
+            {
+              "order_id": "#G-Q",
+              "shipments": 1,
+              "label_only_shipments": 0,
+              "lines": [
+                {
+                  "line_id": "#G-Q#1",
+                  "item_id": "CUP-OLV-Q",
+                  "ordered": "10",
+                  "cancelled": "2",
+                  "handed_over": "5",
+                  "delivered": "3",
+                  "remaining_to_dispatch": "3",
+                  "remaining_to_deliver": "5"
+                }
+              ]
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "gaps",
+            "formula": "remaining_to_dispatch = ordered − cancelled − handed_over; remaining_to_deliver = ordered − cancelled − delivered (labels count as neither)",
+            "values": {
+              "orders_with_gaps": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:878ee55c-31b5-4c5c-ae94-79b7ac1a5f12",
+          "journal:5ce8ae64-d3bc-46d0-b7e2-97fc3f41d4d7",
+          "journal:38fc1c1b-5896-4a92-afc7-4e639dc5a2f0",
+          "journal:3b00c02e-e1c5-487d-aa1f-a491e6a7dc10",
+          "journal:23a75532-f25d-4eef-bd26-a4a7f7763f60",
+          "journal:53a5360f-99cb-4715-9653-d791474e4733",
+          "journal:7ef50ccb-5d1b-4f43-bc9b-0769db17a157",
+          "journal:eed9bfe3-4af2-466a-b62e-9543fdac862a",
+          "journal:deb3cb4a-13b5-45b9-9ff9-6e90d7d1eac5",
+          "journal:2e81f322-38ab-4c75-925f-1f6209332cee",
+          "journal:7f4198fe-0a23-44d2-970f-da21a3db1394",
+          "journal:fed929eb-c14a-45f0-9117-8a95141ed2e9"
+        ],
+        "entry_ids": [
+          "878ee55c-31b5-4c5c-ae94-79b7ac1a5f12",
+          "5ce8ae64-d3bc-46d0-b7e2-97fc3f41d4d7",
+          "38fc1c1b-5896-4a92-afc7-4e639dc5a2f0",
+          "3b00c02e-e1c5-487d-aa1f-a491e6a7dc10",
+          "23a75532-f25d-4eef-bd26-a4a7f7763f60",
+          "53a5360f-99cb-4715-9653-d791474e4733",
+          "7ef50ccb-5d1b-4f43-bc9b-0769db17a157",
+          "eed9bfe3-4af2-466a-b62e-9543fdac862a",
+          "deb3cb4a-13b5-45b9-9ff9-6e90d7d1eac5",
+          "2e81f322-38ab-4c75-925f-1f6209332cee",
+          "7f4198fe-0a23-44d2-970f-da21a3db1394",
+          "fed929eb-c14a-45f0-9117-8a95141ed2e9"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "fulfillments"
+          ],
+          "datasets_missing": [
+            "tracking",
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "customer.delivery_reply",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "customer.delivery_reply",
+        "question_id": "delivery-04",
+        "params": {
+          "order_id": "#P-Q"
+        },
+        "status": "complete",
+        "result": {
+          "send_action": false,
+          "facts": [
+            "arrival_unknown",
+            "in_transit"
+          ],
+          "shipments": [
+            {
+              "shipment_id": "S-P-Q",
+              "status": "in_transit",
+              "carrier": "dhl",
+              "tracking_number": "TRK-P-Q",
+              "last_scan_at": "2026-10-31T07:00:00Z",
+              "forecast_at": null,
+              "delivered_at": null
+            }
+          ],
+          "known_promises": [
+            {
+              "promise_id": "P-P-Q",
+              "promised_at": "2026-10-30T16:00:00Z",
+              "kind": "delivery_date",
+              "active": true
+            }
+          ],
+          "prior_communications": [
+            {
+              "message_id": "communication:#P-Q",
+              "sent_at": "2026-10-31T07:30:00Z",
+              "actor": "support",
+              "reviewed": false,
+              "summary": "We will update you after the next scan."
+            }
+          ],
+          "prior_promises_checked": true,
+          "omitted_context": []
+        },
+        "calculation": [
+          {
+            "step": "reply_facts",
+            "formula": "structured evidenced facts only; no promise or apology is invented; sending is never automatic",
+            "values": {
+              "facts": 2,
+              "communications_known": true
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:96a4ba0a-6372-4729-b106-fb03ff435fe2",
+          "journal:3b8bd07b-bdd9-4b37-a370-89e902aab129",
+          "journal:693ef351-f84c-4120-bd34-91d754e60628",
+          "journal:1fbef211-d0ad-4c61-abdb-d478e3026a68",
+          "journal:96a29a71-7ba4-484e-8e21-724f6d1a8595",
+          "journal:4da3fd8f-7f54-4458-a29c-ac8dda55371a",
+          "journal:d1558ef3-4d65-43b5-8405-2269b464df72",
+          "journal:6732d516-a284-4602-aacb-4e5374616fc3",
+          "journal:cd4fbce3-9452-4c21-83f3-4a9ccacc8edc",
+          "journal:bdbc05fe-d368-4a80-8b8f-347ccae7f7f5",
+          "journal:ccc92f51-e747-4649-b5c6-8723e0a93d3b",
+          "journal:ffdbc38b-6d0c-49f9-b9d7-bc3abf799db8",
+          "journal:c0c2435a-d425-4d2f-bac0-32e77e824214"
+        ],
+        "entry_ids": [
+          "96a4ba0a-6372-4729-b106-fb03ff435fe2",
+          "3b8bd07b-bdd9-4b37-a370-89e902aab129",
+          "693ef351-f84c-4120-bd34-91d754e60628",
+          "1fbef211-d0ad-4c61-abdb-d478e3026a68",
+          "96a29a71-7ba4-484e-8e21-724f6d1a8595",
+          "4da3fd8f-7f54-4458-a29c-ac8dda55371a",
+          "d1558ef3-4d65-43b5-8405-2269b464df72",
+          "6732d516-a284-4602-aacb-4e5374616fc3",
+          "cd4fbce3-9452-4c21-83f3-4a9ccacc8edc",
+          "bdbc05fe-d368-4a80-8b8f-347ccae7f7f5",
+          "ccc92f51-e747-4649-b5c6-8723e0a93d3b",
+          "ffdbc38b-6d0c-49f9-b9d7-bc3abf799db8",
+          "c0c2435a-d425-4d2f-bac0-32e77e824214"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "fulfillments",
+            "tracking",
+            "communications",
+            "promises"
+          ],
+          "datasets_missing": [
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 0,
+            "returned": 0
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 0,
+          "total": 0,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "invoices.outstanding",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "invoices.outstanding",
+        "question_id": "invoice-01",
+        "params": {
+          "customer_id": "C-I-Q"
+        },
+        "status": "complete",
+        "result": {
+          "totals_open_by_currency": {
+            "EUR": 4520
+          },
+          "totals_credit_balance_by_currency": {},
+          "invoices": [
+            {
+              "invoice_id": "I-1-Q",
+              "order_id": "#I-Q",
+              "customer_id": "C-I-Q",
+              "currency": "EUR",
+              "gross_minor": 11900,
+              "credits_minor": 2380,
+              "reported_payments_minor": 5000,
+              "reported_open_minor": 4520,
+              "credit_balance_minor": 0,
+              "reconciled_open_minor": 4520,
+              "new_cash_from_marker": 0,
+              "due_date": "2026-10-30T00:00:00Z"
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "open",
+            "formula": "reported_open = gross − credits − reported payment markers (markers are not cash; negative = credit/overpayment, not negative debt)",
+            "values": {
+              "invoices": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+          "journal:8e139855-0371-4b9d-b299-292980abc132",
+          "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+          "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+          "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "journal:f4e63630-d077-4296-9227-92915240847f"
+        ],
+        "entry_ids": [
+          "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "8843165e-50ae-4c4a-b355-9825ae80452f",
+          "8e139855-0371-4b9d-b299-292980abc132",
+          "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "c3743166-74ad-45b0-8744-89cebe2d5936",
+          "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "d8406e07-4552-4b81-a08b-d230704b846b",
+          "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "f4e63630-d077-4296-9227-92915240847f"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "invoices",
+            "payment_allocations",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "orders.missing_invoice",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "orders.missing_invoice",
+        "question_id": "invoice-02",
+        "params": {},
+        "status": "complete",
+        "result": {
+          "rule": "after_confirmed_dispatch",
+          "missing_invoice": [
+            "#V-Q",
+            "#S-Q",
+            "#P-Q",
+            "#G-Q"
+          ],
+          "orders": [
+            {
+              "order_id": "#V-Q",
+              "state": "missing_invoice",
+              "order_gross_minor": 11900,
+              "invoiced_gross_minor": 0,
+              "currency": "EUR",
+              "valid_invoices": []
+            },
+            {
+              "order_id": "#S-Q",
+              "state": "missing_invoice",
+              "order_gross_minor": 1190,
+              "invoiced_gross_minor": 0,
+              "currency": "EUR",
+              "valid_invoices": []
+            },
+            {
+              "order_id": "#P-Q",
+              "state": "missing_invoice",
+              "order_gross_minor": 1190,
+              "invoiced_gross_minor": 0,
+              "currency": "EUR",
+              "valid_invoices": []
+            },
+            {
+              "order_id": "#G-Q",
+              "state": "missing_invoice",
+              "order_gross_minor": 11900,
+              "invoiced_gross_minor": 0,
+              "currency": "EUR",
+              "valid_invoices": []
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "selection",
+            "formula": "orders satisfying the invoicing trigger without a valid issued invoice (partial invoices listed separately)",
+            "values": {
+              "rule": "after_confirmed_dispatch",
+              "missing": 4
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:14128695-9cdf-4597-b136-a71a86ad33fe",
+          "journal:db3fe3cd-2a4b-4040-815f-f80b414dece7",
+          "journal:7931f059-c53e-459b-868c-8b13c38d1cb9",
+          "journal:e397700c-a87b-4767-a513-e073048b5aaa",
+          "journal:5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+          "journal:184a90ad-87dc-44dc-b241-ef63cbfcc609",
+          "journal:64e276b0-1dee-4ac2-95fc-815f39a94ea6",
+          "journal:71a02df7-a382-431d-87f9-83187464ade5",
+          "journal:b9065a89-bfd9-47be-b9fd-bec633be7bb6",
+          "journal:2257a948-2e26-4120-9392-0d05c75da1c7",
+          "journal:21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+          "journal:b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+          "journal:01b2a6f3-a978-4e28-ab98-7879d622821e",
+          "journal:145086fb-1de0-47a0-816f-b37eaaf133ea",
+          "journal:bbd81ed6-35c9-419d-a176-f77bde9060f4",
+          "journal:7cc68bb1-2b72-4679-bae4-aa7db2be11b1",
+          "journal:4220b800-bc1f-4c4d-8849-552960727d94",
+          "journal:e5cd2df0-0074-4b5f-841e-f42bd7891910",
+          "journal:7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+          "journal:b4b62d88-585e-4b7f-9591-eedf050233f8",
+          "journal:96a4ba0a-6372-4729-b106-fb03ff435fe2",
+          "journal:3b8bd07b-bdd9-4b37-a370-89e902aab129",
+          "journal:693ef351-f84c-4120-bd34-91d754e60628",
+          "journal:1fbef211-d0ad-4c61-abdb-d478e3026a68",
+          "journal:96a29a71-7ba4-484e-8e21-724f6d1a8595",
+          "journal:4da3fd8f-7f54-4458-a29c-ac8dda55371a",
+          "journal:d1558ef3-4d65-43b5-8405-2269b464df72",
+          "journal:878ee55c-31b5-4c5c-ae94-79b7ac1a5f12",
+          "journal:5ce8ae64-d3bc-46d0-b7e2-97fc3f41d4d7",
+          "journal:38fc1c1b-5896-4a92-afc7-4e639dc5a2f0",
+          "journal:3b00c02e-e1c5-487d-aa1f-a491e6a7dc10",
+          "journal:23a75532-f25d-4eef-bd26-a4a7f7763f60",
+          "journal:53a5360f-99cb-4715-9653-d791474e4733",
+          "journal:7ef50ccb-5d1b-4f43-bc9b-0769db17a157",
+          "journal:eed9bfe3-4af2-466a-b62e-9543fdac862a",
+          "journal:deb3cb4a-13b5-45b9-9ff9-6e90d7d1eac5",
+          "journal:2e81f322-38ab-4c75-925f-1f6209332cee",
+          "journal:6732d516-a284-4602-aacb-4e5374616fc3",
+          "journal:cd4fbce3-9452-4c21-83f3-4a9ccacc8edc",
+          "journal:bdbc05fe-d368-4a80-8b8f-347ccae7f7f5",
+          "journal:ccc92f51-e747-4649-b5c6-8723e0a93d3b",
+          "journal:67e426d5-75ad-43cf-a795-78eaad4135d9",
+          "journal:50c463e2-e5ba-4faf-9696-05d87ad2c770",
+          "journal:5cf60a9e-0847-4d2a-9fb1-9466a2927e15",
+          "journal:ffdbc38b-6d0c-49f9-b9d7-bc3abf799db8",
+          "journal:c0c2435a-d425-4d2f-bac0-32e77e824214",
+          "journal:7f4198fe-0a23-44d2-970f-da21a3db1394",
+          "journal:fed929eb-c14a-45f0-9117-8a95141ed2e9"
+        ],
+        "entry_ids": [
+          "14128695-9cdf-4597-b136-a71a86ad33fe",
+          "db3fe3cd-2a4b-4040-815f-f80b414dece7",
+          "7931f059-c53e-459b-868c-8b13c38d1cb9",
+          "e397700c-a87b-4767-a513-e073048b5aaa",
+          "5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+          "184a90ad-87dc-44dc-b241-ef63cbfcc609",
+          "64e276b0-1dee-4ac2-95fc-815f39a94ea6",
+          "71a02df7-a382-431d-87f9-83187464ade5",
+          "b9065a89-bfd9-47be-b9fd-bec633be7bb6",
+          "2257a948-2e26-4120-9392-0d05c75da1c7",
+          "21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+          "b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+          "01b2a6f3-a978-4e28-ab98-7879d622821e",
+          "145086fb-1de0-47a0-816f-b37eaaf133ea",
+          "bbd81ed6-35c9-419d-a176-f77bde9060f4",
+          "7cc68bb1-2b72-4679-bae4-aa7db2be11b1",
+          "4220b800-bc1f-4c4d-8849-552960727d94",
+          "e5cd2df0-0074-4b5f-841e-f42bd7891910",
+          "7bce118b-5f67-4067-9e88-ac16f8c8fa71",
+          "b4b62d88-585e-4b7f-9591-eedf050233f8",
+          "96a4ba0a-6372-4729-b106-fb03ff435fe2",
+          "3b8bd07b-bdd9-4b37-a370-89e902aab129",
+          "693ef351-f84c-4120-bd34-91d754e60628",
+          "1fbef211-d0ad-4c61-abdb-d478e3026a68",
+          "96a29a71-7ba4-484e-8e21-724f6d1a8595",
+          "4da3fd8f-7f54-4458-a29c-ac8dda55371a",
+          "d1558ef3-4d65-43b5-8405-2269b464df72",
+          "878ee55c-31b5-4c5c-ae94-79b7ac1a5f12",
+          "5ce8ae64-d3bc-46d0-b7e2-97fc3f41d4d7",
+          "38fc1c1b-5896-4a92-afc7-4e639dc5a2f0",
+          "3b00c02e-e1c5-487d-aa1f-a491e6a7dc10",
+          "23a75532-f25d-4eef-bd26-a4a7f7763f60",
+          "53a5360f-99cb-4715-9653-d791474e4733",
+          "7ef50ccb-5d1b-4f43-bc9b-0769db17a157",
+          "eed9bfe3-4af2-466a-b62e-9543fdac862a",
+          "deb3cb4a-13b5-45b9-9ff9-6e90d7d1eac5",
+          "2e81f322-38ab-4c75-925f-1f6209332cee",
+          "6732d516-a284-4602-aacb-4e5374616fc3",
+          "cd4fbce3-9452-4c21-83f3-4a9ccacc8edc",
+          "bdbc05fe-d368-4a80-8b8f-347ccae7f7f5",
+          "ccc92f51-e747-4649-b5c6-8723e0a93d3b",
+          "67e426d5-75ad-43cf-a795-78eaad4135d9",
+          "50c463e2-e5ba-4faf-9696-05d87ad2c770",
+          "5cf60a9e-0847-4d2a-9fb1-9466a2927e15",
+          "ffdbc38b-6d0c-49f9-b9d7-bc3abf799db8",
+          "c0c2435a-d425-4d2f-bac0-32e77e824214",
+          "7f4198fe-0a23-44d2-970f-da21a3db1394",
+          "fed929eb-c14a-45f0-9117-8a95141ed2e9"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "fulfillments",
+            "invoices",
+            "policy",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 4,
+            "returned": 4
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 4,
+          "total": 4,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "invoices.order_amount_variance",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "invoices.order_amount_variance",
+        "question_id": "invoice-03",
+        "params": {
+          "invoice_id": "I-X-Q"
+        },
+        "status": "complete",
+        "result": {
+          "invoices": [
+            {
+              "invoice_id": "I-X-Q",
+              "order_id": "#X-Q",
+              "currency": "EUR",
+              "comparison": "whole_order",
+              "agreed_covered_gross_minor": 11900,
+              "invoice_covered_gross_minor": 12000,
+              "difference_minor": 100,
+              "partial_invoice": false,
+              "differs": true
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "variance",
+            "formula": "difference = invoice covered gross − agreed covered gross (same currency, no conversion)",
+            "values": {
+              "invoices": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:d74d38a2-1b6d-47eb-a883-32bdd9fcedeb",
+          "journal:814a9a6a-d181-429a-8355-c5341bca5b2e",
+          "journal:cdd885a8-9da8-4c99-bf90-e22a77b0685e",
+          "journal:4c80a788-061a-4a70-bc95-bb9c77fc83c0",
+          "journal:0fce9f6e-6c23-46d7-8a1b-09021a53961f",
+          "journal:14acfbc1-3f8c-494d-90b6-10621eb4536d",
+          "journal:7460ab9d-b47d-4ef3-9541-68a49a7e1aa0",
+          "journal:886beb7e-8ab3-4b89-a463-4de0ee6b37bc"
+        ],
+        "entry_ids": [
+          "d74d38a2-1b6d-47eb-a883-32bdd9fcedeb",
+          "814a9a6a-d181-429a-8355-c5341bca5b2e",
+          "cdd885a8-9da8-4c99-bf90-e22a77b0685e",
+          "4c80a788-061a-4a70-bc95-bb9c77fc83c0",
+          "0fce9f6e-6c23-46d7-8a1b-09021a53961f",
+          "14acfbc1-3f8c-494d-90b6-10621eb4536d",
+          "7460ab9d-b47d-4ef3-9541-68a49a7e1aa0",
+          "886beb7e-8ab3-4b89-a463-4de0ee6b37bc"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "invoices",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "invoices.dispatch_evidence",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "invoices.dispatch_evidence",
+        "question_id": "invoice-04",
+        "params": {},
+        "status": "complete",
+        "result": {
+          "without_send_evidence_population_complete": true,
+          "without_send_evidence": [
+            "INV-1001",
+            "I-X-Q",
+            "I-C-Q"
+          ],
+          "invoices": [
+            {
+              "invoice_id": "INV-1001",
+              "evidence": "no_evidence_in_scope",
+              "recipient_delivery_proven": false,
+              "dispatches": []
+            },
+            {
+              "invoice_id": "I-1-Q",
+              "evidence": "provider_reported_sent",
+              "recipient_delivery_proven": false,
+              "dispatches": [
+                {
+                  "dispatch_id": "DSP-1-Q",
+                  "channel": "email",
+                  "provider_status": "ok",
+                  "processed_at": "2026-10-31T04:08:00Z"
+                }
+              ]
+            },
+            {
+              "invoice_id": "I-X-Q",
+              "evidence": "no_evidence_in_scope",
+              "recipient_delivery_proven": false,
+              "dispatches": []
+            },
+            {
+              "invoice_id": "I-C-Q",
+              "evidence": "no_evidence_in_scope",
+              "recipient_delivery_proven": false,
+              "dispatches": []
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "evidence",
+            "formula": "provider-reported send evidence per finalized invoice; absence is not proof of unsent",
+            "values": {
+              "invoices": 4,
+              "without": 3
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:14f1513d-181a-4d0e-a110-a504cb22f3fc",
+          "journal:81893256-3e3a-4078-9495-196202d9598e",
+          "journal:265252ab-c53e-4d38-bd22-923a0c875890",
+          "journal:4060c11c-43f2-403d-b4ea-e9aa18b296d4",
+          "journal:d804d476-ee41-401b-935b-3c2bef1d7375",
+          "journal:7d83b22f-c63c-480a-85c7-2f335a453408",
+          "journal:bf70c81d-22cc-46a1-9302-dc606b38dc15",
+          "journal:731058de-f6e4-49e1-83a5-c910fde70bc3",
+          "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+          "journal:8e139855-0371-4b9d-b299-292980abc132",
+          "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "journal:4c80a788-061a-4a70-bc95-bb9c77fc83c0",
+          "journal:0fce9f6e-6c23-46d7-8a1b-09021a53961f",
+          "journal:6ba689f6-3517-4be8-b747-300aadb8c054",
+          "journal:8de24798-e7df-4edf-8039-9947bd96b5e5",
+          "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+          "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+          "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "journal:f4e63630-d077-4296-9227-92915240847f",
+          "journal:14acfbc1-3f8c-494d-90b6-10621eb4536d",
+          "journal:7460ab9d-b47d-4ef3-9541-68a49a7e1aa0",
+          "journal:886beb7e-8ab3-4b89-a463-4de0ee6b37bc",
+          "journal:253c235f-7b9b-437e-8ede-c197f9623dd3",
+          "journal:4c4d0ebd-fb5e-40f3-bd56-037ef687f622",
+          "journal:cf86e382-641b-412b-8ace-4eded0973dd6"
+        ],
+        "entry_ids": [
+          "14f1513d-181a-4d0e-a110-a504cb22f3fc",
+          "81893256-3e3a-4078-9495-196202d9598e",
+          "265252ab-c53e-4d38-bd22-923a0c875890",
+          "4060c11c-43f2-403d-b4ea-e9aa18b296d4",
+          "d804d476-ee41-401b-935b-3c2bef1d7375",
+          "7d83b22f-c63c-480a-85c7-2f335a453408",
+          "bf70c81d-22cc-46a1-9302-dc606b38dc15",
+          "731058de-f6e4-49e1-83a5-c910fde70bc3",
+          "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "8843165e-50ae-4c4a-b355-9825ae80452f",
+          "8e139855-0371-4b9d-b299-292980abc132",
+          "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "4c80a788-061a-4a70-bc95-bb9c77fc83c0",
+          "0fce9f6e-6c23-46d7-8a1b-09021a53961f",
+          "6ba689f6-3517-4be8-b747-300aadb8c054",
+          "8de24798-e7df-4edf-8039-9947bd96b5e5",
+          "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "c3743166-74ad-45b0-8744-89cebe2d5936",
+          "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "d8406e07-4552-4b81-a08b-d230704b846b",
+          "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "f4e63630-d077-4296-9227-92915240847f",
+          "14acfbc1-3f8c-494d-90b6-10621eb4536d",
+          "7460ab9d-b47d-4ef3-9541-68a49a7e1aa0",
+          "886beb7e-8ab3-4b89-a463-4de0ee6b37bc",
+          "253c235f-7b9b-437e-8ede-c197f9623dd3",
+          "4c4d0ebd-fb5e-40f3-bd56-037ef687f622",
+          "cf86e382-641b-412b-8ace-4eded0973dd6"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "invoices",
+            "invoice_dispatch",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 4,
+            "returned": 4
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 4,
+          "total": 4,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "orders.payment_state",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "orders.payment_state",
+        "question_id": "collection-01",
+        "params": {
+          "order_id": "#I-Q"
+        },
+        "status": "complete",
+        "result": {
+          "collected_minor": 5000,
+          "remaining_minor": 6900,
+          "state": "partially_collected",
+          "counts_by_state": {
+            "partially_collected": 1
+          },
+          "orders": [
+            {
+              "order_id": "#I-Q",
+              "currency": "EUR",
+              "obligation_minor": 11900,
+              "authorized_minor": 11900,
+              "voided_minor": 0,
+              "collected_minor": 5000,
+              "remaining_minor": 6900,
+              "failed_attempts": 0,
+              "state": "partially_collected",
+              "attempts": [
+                {
+                  "transaction_id": "TX-I-Q",
+                  "status": "captured",
+                  "authorized_minor": 11900,
+                  "captured_minor": 5000,
+                  "voided_minor": 0,
+                  "failed_attempts": 0
+                }
+              ]
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "state",
+            "formula": "collected = confirmed captures; remaining = max(0, obligation − collected); authorizations and failures reported separately",
+            "values": {
+              "orders": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:a7a162fa-77a6-4019-b42c-17528f3692ef",
+          "journal:3c4dd9f0-9d91-4977-9ff2-2d59e41c50d5",
+          "journal:e034a611-8160-4cb0-830d-08ae035defd5",
+          "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+          "journal:8e139855-0371-4b9d-b299-292980abc132",
+          "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+          "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+          "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "journal:f4e63630-d077-4296-9227-92915240847f",
+          "journal:59b70fa0-b9b3-4926-85ab-f7089f3052a8",
+          "journal:fb974ac4-4769-4fa3-b113-133e322b7bcd",
+          "journal:7172890a-7aa6-4142-9520-4cc9bfc09772",
+          "journal:df2f2b64-f227-4ca4-82ee-09e5675e28de",
+          "journal:89d455a8-b2d1-4deb-9013-5780592620ea",
+          "journal:218ceb9b-48df-4a21-9dde-9b6b866c0ec8",
+          "journal:dc44c46c-d75d-41f1-b373-2c0ee2bf050c",
+          "journal:fcb3729b-b940-472c-941a-a16977472646"
+        ],
+        "entry_ids": [
+          "a7a162fa-77a6-4019-b42c-17528f3692ef",
+          "3c4dd9f0-9d91-4977-9ff2-2d59e41c50d5",
+          "e034a611-8160-4cb0-830d-08ae035defd5",
+          "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "8843165e-50ae-4c4a-b355-9825ae80452f",
+          "8e139855-0371-4b9d-b299-292980abc132",
+          "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "c3743166-74ad-45b0-8744-89cebe2d5936",
+          "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "d8406e07-4552-4b81-a08b-d230704b846b",
+          "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "f4e63630-d077-4296-9227-92915240847f",
+          "59b70fa0-b9b3-4926-85ab-f7089f3052a8",
+          "fb974ac4-4769-4fa3-b113-133e322b7bcd",
+          "7172890a-7aa6-4142-9520-4cc9bfc09772",
+          "df2f2b64-f227-4ca4-82ee-09e5675e28de",
+          "89d455a8-b2d1-4deb-9013-5780592620ea",
+          "218ceb9b-48df-4a21-9dde-9b6b866c0ec8",
+          "dc44c46c-d75d-41f1-b373-2c0ee2bf050c",
+          "fcb3729b-b940-472c-941a-a16977472646"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "payments"
+          ],
+          "datasets_missing": [
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "payments.recovered_attempts",
+      "status": "partial",
+      "passed": false,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "payments.recovered_attempts",
+        "question_id": "collection-02",
+        "params": {
+          "order_id": "#R-Q"
+        },
+        "status": "partial",
+        "result": {
+          "recovered_population_complete": false,
+          "orders": [
+            {
+              "order_id": "#R-Q",
+              "required_minor": 11900,
+              "collected_minor": 11900,
+              "deficit_minor": 0,
+              "recovered": true,
+              "state": "recovered",
+              "failed_history_retained": [
+                {
+                  "attempt_id": "T1-a-Q",
+                  "transaction_id": "T1-Q",
+                  "amount_minor": 11900,
+                  "occurred_at": "2026-10-31T02:01:00Z",
+                  "reason": "insufficient_funds"
+                }
+              ]
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "recovery",
+            "formula": "recovered = later confirmed captures >= required amount; all attempts retained",
+            "values": {
+              "orders_with_failures": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:b35edb0b-e98b-4da5-884d-25c926dfb7d8",
+          "journal:8e8b5ee7-5ab0-434c-ad86-c79d6f5b72a8",
+          "journal:0e9807b5-2123-48f9-ab5a-ab8262451272",
+          "journal:fa9810d2-661d-4b26-95fb-8c88375e9ed2",
+          "journal:3ee2987a-3f3d-4692-9bdc-cf7335f75b78",
+          "journal:9aa24b24-1262-464b-b47e-ef79dfcc48c4",
+          "journal:0733fce2-03a3-4f75-a209-8b07602a009b",
+          "journal:2d5be264-f881-46d7-88b9-4a73ce17679e"
+        ],
+        "entry_ids": [
+          "b35edb0b-e98b-4da5-884d-25c926dfb7d8",
+          "8e8b5ee7-5ab0-434c-ad86-c79d6f5b72a8",
+          "0e9807b5-2123-48f9-ab5a-ab8262451272",
+          "fa9810d2-661d-4b26-95fb-8c88375e9ed2",
+          "3ee2987a-3f3d-4692-9bdc-cf7335f75b78",
+          "9aa24b24-1262-464b-b47e-ef79dfcc48c4",
+          "0733fce2-03a3-4f75-a209-8b07602a009b",
+          "2d5be264-f881-46d7-88b9-4a73ce17679e"
+        ],
+        "missing_inputs": [
+          "payments.attempt_history_coverage"
+        ],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "payments"
+          ],
+          "datasets_missing": [
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "invoices.payment_variance",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "invoices.payment_variance",
+        "question_id": "collection-03",
+        "params": {
+          "invoice_id": "I-1-Q"
+        },
+        "status": "complete",
+        "result": {
+          "fee_added_to_customer_debt": 0,
+          "remaining_minor": 4520,
+          "unallocated_payments_by_currency": {
+            "EUR": 0
+          },
+          "unallocated_payments_separate": true,
+          "invoices": [
+            {
+              "invoice_id": "I-1-Q",
+              "currency": "EUR",
+              "invoice_minor": 11900,
+              "credit_minor": 2380,
+              "allocated_capture_minor": 5000,
+              "remaining_minor": 4520,
+              "reported_open_minor": 4520,
+              "reported_vs_reconciled_mismatch": false,
+              "provider_fee_minor": 350,
+              "fee_added_to_customer_debt": 0,
+              "unallocated_payments_minor": 0,
+              "overpayment_minor": 0
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "remaining",
+            "formula": "remaining = invoice − credits − allocated gross customer payments; provider fees never reduce the customer payment",
+            "values": {
+              "invoices": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+          "journal:8e139855-0371-4b9d-b299-292980abc132",
+          "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+          "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+          "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "journal:f4e63630-d077-4296-9227-92915240847f",
+          "journal:59b70fa0-b9b3-4926-85ab-f7089f3052a8",
+          "journal:fb974ac4-4769-4fa3-b113-133e322b7bcd",
+          "journal:7172890a-7aa6-4142-9520-4cc9bfc09772",
+          "journal:df2f2b64-f227-4ca4-82ee-09e5675e28de",
+          "journal:89d455a8-b2d1-4deb-9013-5780592620ea",
+          "journal:218ceb9b-48df-4a21-9dde-9b6b866c0ec8",
+          "journal:dc44c46c-d75d-41f1-b373-2c0ee2bf050c",
+          "journal:fcb3729b-b940-472c-941a-a16977472646"
+        ],
+        "entry_ids": [
+          "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "8843165e-50ae-4c4a-b355-9825ae80452f",
+          "8e139855-0371-4b9d-b299-292980abc132",
+          "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "c3743166-74ad-45b0-8744-89cebe2d5936",
+          "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "d8406e07-4552-4b81-a08b-d230704b846b",
+          "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "f4e63630-d077-4296-9227-92915240847f",
+          "59b70fa0-b9b3-4926-85ab-f7089f3052a8",
+          "fb974ac4-4769-4fa3-b113-133e322b7bcd",
+          "7172890a-7aa6-4142-9520-4cc9bfc09772",
+          "df2f2b64-f227-4ca4-82ee-09e5675e28de",
+          "89d455a8-b2d1-4deb-9013-5780592620ea",
+          "218ceb9b-48df-4a21-9dde-9b6b866c0ec8",
+          "dc44c46c-d75d-41f1-b373-2c0ee2bf050c",
+          "fcb3729b-b940-472c-941a-a16977472646"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "invoices",
+            "payments",
+            "payment_allocations",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "receivables.review_queue",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": false,
+      "snapshot": {
+        "intent": "receivables.review_queue",
+        "question_id": "collection-04",
+        "params": {
+          "now": "2026-10-31T10:00:00Z"
+        },
+        "status": "complete",
+        "result": {
+          "send_reminder": false,
+          "automatic_action": false,
+          "queue_label": "due_receivables_for_review",
+          "policy": "review_overdue",
+          "review": [
+            "I-1-Q"
+          ],
+          "queue": [
+            {
+              "invoice_id": "I-1-Q",
+              "customer_id": "C-I-Q",
+              "currency": "EUR",
+              "open_minor": 4520,
+              "due_date": "2026-10-30T00:00:00Z",
+              "days_overdue": 1,
+              "cases": [],
+              "extension_active": false,
+              "payment_uncertain": false,
+              "priority": "review_overdue",
+              "case_context_known": true
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "queue",
+            "formula": "due net receivables (open > 0, due_date <= now) with case/extension flags; a queue, never automatic dunning",
+            "values": {
+              "queued": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+          "journal:8e139855-0371-4b9d-b299-292980abc132",
+          "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "journal:67e426d5-75ad-43cf-a795-78eaad4135d9",
+          "journal:a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "journal:3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "journal:c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "journal:5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "journal:c3743166-74ad-45b0-8744-89cebe2d5936",
+          "journal:582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+          "journal:44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "journal:f4e63630-d077-4296-9227-92915240847f"
+        ],
+        "entry_ids": [
+          "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "8843165e-50ae-4c4a-b355-9825ae80452f",
+          "8e139855-0371-4b9d-b299-292980abc132",
+          "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "67e426d5-75ad-43cf-a795-78eaad4135d9",
+          "a99d5805-f0de-4fd3-97ad-3aece04ca35f",
+          "3988bc6e-27f4-4180-9e96-6c6cd1be4518",
+          "c85d0f60-b6f6-4f25-bcf8-5994d815d1b0",
+          "5db0573d-277a-4bd3-8cd6-733c88a30973",
+          "c3743166-74ad-45b0-8744-89cebe2d5936",
+          "582a8c87-7f73-4202-8daa-50bfad9f5c63",
+          "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "d8406e07-4552-4b81-a08b-d230704b846b",
+          "44685dca-e4bc-478f-b46e-62b9eddf0c60",
+          "f4e63630-d077-4296-9227-92915240847f"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "invoices",
+            "payment_allocations",
+            "payments",
+            "policy",
+            "cases",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "providers.money_positions",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "providers.money_positions",
+        "question_id": "settlement-01",
+        "params": {
+          "account_ref": "acct-main-Q"
+        },
+        "status": "complete",
+        "result": {
+          "net_assets_minor": 0,
+          "in_transit_minor": 5000,
+          "bank_confirmed_minor": 9170,
+          "provider_balance_minor": -14170,
+          "unknown_components": [],
+          "unknown_components_are_zero": false,
+          "accounts": [
+            {
+              "account_ref": "acct-main-Q",
+              "currency": "EUR",
+              "captured_minor": 0,
+              "fees_minor": 0,
+              "refunds_minor": 0,
+              "chargebacks_net_minor": 0,
+              "other_adjustments_minor": 0,
+              "provider_balance_minor": -14170,
+              "held_minor": 9700,
+              "processing_minor": 0,
+              "available_minor": -23870,
+              "payout_announced_minor": 0,
+              "in_transit_minor": 5000,
+              "bank_confirmed_minor": 9170,
+              "net_assets_minor": 0,
+              "observed_total_minor": 10000,
+              "reconciliation_residual_minor": 24170,
+              "observed_at": "2026-10-31T01:08:00Z",
+              "complete_partition": true,
+              "unknown_components": []
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "positions",
+            "formula": "provider_balance = captured − fees − refunds − payouts sent − chargebacks + adjustments; net_assets = balance + in_transit + bank_confirmed; unknown components are reported, never zeroed",
+            "values": {
+              "accounts": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:bdaa3a7d-1f5d-407c-beff-c0f52244a69d",
+          "journal:e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+          "journal:64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+          "journal:9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+          "journal:1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+          "journal:9302366d-be32-4e50-a0db-50c173e5f664",
+          "journal:6fbead23-de58-4d41-a739-208c4a81ef39",
+          "journal:fcdf0c9d-c854-455a-837c-2e545c675559"
+        ],
+        "entry_ids": [
+          "bdaa3a7d-1f5d-407c-beff-c0f52244a69d",
+          "e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+          "64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+          "9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+          "1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+          "9302366d-be32-4e50-a0db-50c173e5f664",
+          "6fbead23-de58-4d41-a739-208c4a81ef39",
+          "fcdf0c9d-c854-455a-837c-2e545c675559"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "provider_ledger",
+            "positions",
+            "payouts",
+            "bank",
+            "holds",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "payouts.gross_to_net",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "payouts.gross_to_net",
+        "question_id": "settlement-02",
+        "params": {
+          "payout_id": "OUT-1-Q"
+        },
+        "status": "complete",
+        "result": {
+          "payout_id": "OUT-1-Q",
+          "currency": "EUR",
+          "payout_minor": 9170,
+          "member_captures_minor": 11900,
+          "member_fees_minor": 350,
+          "member_refunds_minor": 2380,
+          "other_adjustments_minor": 0,
+          "computed_net_minor": 9170,
+          "unexplained_minor": 0,
+          "reconciled": true,
+          "membership_basis": "ledger_postings",
+          "postings": [
+            {
+              "ledger_entry_id": "L-1-Q",
+              "account_id": "acct-main-Q|EUR",
+              "transaction_id": "TX-L-Q",
+              "payout_id": "OUT-1-Q",
+              "posting_type": "charge",
+              "currency": "EUR",
+              "gross_minor": 11900,
+              "fee_minor": 350,
+              "net_minor": 11550,
+              "effective_at": "2026-10-31T01:02:00.000Z",
+              "links": [
+                {
+                  "type": "account",
+                  "id": "acct-main-Q|EUR"
+                },
+                {
+                  "type": "transaction",
+                  "id": "TX-L-Q"
+                },
+                {
+                  "type": "payout",
+                  "id": "OUT-1-Q"
+                }
+              ],
+              "last_sequence": 75527
+            },
+            {
+              "ledger_entry_id": "L-2-Q",
+              "account_id": "acct-main-Q|EUR",
+              "transaction_id": "TX-L-Q",
+              "payout_id": "OUT-1-Q",
+              "posting_type": "refund",
+              "currency": "EUR",
+              "gross_minor": -2380,
+              "fee_minor": 0,
+              "net_minor": -2380,
+              "effective_at": "2026-10-31T01:03:00.000Z",
+              "links": [
+                {
+                  "type": "account",
+                  "id": "acct-main-Q|EUR"
+                },
+                {
+                  "type": "transaction",
+                  "id": "TX-L-Q"
+                },
+                {
+                  "type": "payout",
+                  "id": "OUT-1-Q"
+                }
+              ],
+              "last_sequence": 75530
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "net",
+            "formula": "computed_net = captures − fees − refunds + other adjustments (payout members only); unexplained = payout − computed_net",
+            "values": {
+              "captures": 11900,
+              "fees": 350,
+              "refunds": 2380,
+              "other": 0,
+              "payout": 9170,
+              "unexplained": 0
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+          "journal:f5f0bf2a-8f64-48a3-a8f1-f7339fbbdde9",
+          "journal:99a6673e-fd2b-43f3-8098-52b61113e015",
+          "journal:64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+          "journal:d3f0c789-508d-4f69-b05c-835f2520b40d",
+          "journal:e3ae69a3-4a39-4203-adfe-a4f65dbb8e7b",
+          "journal:9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+          "journal:5523d162-8e3c-4f15-971b-8654f1b5bf57",
+          "journal:f4cd2fec-07ef-4671-8aa3-608414bb7a10",
+          "journal:1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+          "journal:c574b72d-2f23-40e9-b9fa-0d3702a9d6d1",
+          "journal:e7b790e1-b10e-45c6-a9c9-5c68b130e403",
+          "journal:fcdf0c9d-c854-455a-837c-2e545c675559",
+          "journal:b78d58aa-3add-45db-80a7-4a0d299c7967",
+          "journal:da7ddfc1-580a-472a-b95d-e980c8a9c7a3"
+        ],
+        "entry_ids": [
+          "e0b23eb1-4d4b-4ce3-bbc1-a40125b896f9",
+          "f5f0bf2a-8f64-48a3-a8f1-f7339fbbdde9",
+          "99a6673e-fd2b-43f3-8098-52b61113e015",
+          "64bf8c24-b7e3-4c63-b9a4-58e00a5fac8c",
+          "d3f0c789-508d-4f69-b05c-835f2520b40d",
+          "e3ae69a3-4a39-4203-adfe-a4f65dbb8e7b",
+          "9deb14fe-48d3-438d-a3cb-ac7e5146851b",
+          "5523d162-8e3c-4f15-971b-8654f1b5bf57",
+          "f4cd2fec-07ef-4671-8aa3-608414bb7a10",
+          "1aedfed2-eb70-4b94-b5b0-b1091a539abf",
+          "c574b72d-2f23-40e9-b9fa-0d3702a9d6d1",
+          "e7b790e1-b10e-45c6-a9c9-5c68b130e403",
+          "fcdf0c9d-c854-455a-837c-2e545c675559",
+          "b78d58aa-3add-45db-80a7-4a0d299c7967",
+          "da7ddfc1-580a-472a-b95d-e980c8a9c7a3"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "provider_ledger",
+            "payouts"
+          ],
+          "datasets_missing": [
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 2,
+            "returned": 2
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 2,
+          "total": 2,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "payouts.missing_bank_confirmation",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "payouts.missing_bank_confirmation",
+        "question_id": "settlement-03",
+        "params": {},
+        "status": "complete",
+        "result": {
+          "bank_import_complete_through": "2026-10-31T09:00:00Z",
+          "missing_confirmation": [
+            "OUT-2-Q"
+          ],
+          "conclusion": "no_evidence_in_imported_interval",
+          "payouts": [
+            {
+              "payout_id": "OUT-2-Q",
+              "state": "sent",
+              "amount_minor": 5000,
+              "currency": "EUR",
+              "bank_confirmed_minor": 0,
+              "sent_at": "2026-10-31T01:05:00Z",
+              "conclusion": "no_evidence_in_imported_interval",
+              "matching_booked_entries": [],
+              "pending_entries": []
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "match",
+            "formula": "a sent payout is confirmed only by a uniquely evidenced booked bank credit (reference/currency/amount); pending, ambiguous and out-of-interval cases are reported separately",
+            "values": {
+              "missing": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:9302366d-be32-4e50-a0db-50c173e5f664",
+          "journal:ced610b3-37a1-456b-af54-6a9c118daba9",
+          "journal:a6f515bd-daf5-4934-bb22-200d74e168c6"
+        ],
+        "entry_ids": [
+          "9302366d-be32-4e50-a0db-50c173e5f664",
+          "ced610b3-37a1-456b-af54-6a9c118daba9",
+          "a6f515bd-daf5-4934-bb22-200d74e168c6"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "payouts",
+            "bank",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "providers.holds_and_releases",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "providers.holds_and_releases",
+        "question_id": "settlement-04",
+        "params": {
+          "now": "2026-10-31T10:00:00Z"
+        },
+        "status": "complete",
+        "result": {
+          "held_minor": 9700,
+          "released_minor": 0,
+          "release_is_only_promised": true,
+          "held_by_currency": {
+            "EUR": 9700
+          },
+          "released_by_currency": {
+            "EUR": 0
+          },
+          "releases_only_promised": 1,
+          "observed_positions": [
+            {
+              "account_ref": "acct-main-Q",
+              "currency": "EUR",
+              "observed_held_minor": 9700,
+              "observed_at": "2026-10-31T01:08:00Z"
+            }
+          ],
+          "holds": [
+            {
+              "hold_id": "H1-Q",
+              "currency": "EUR",
+              "state": "active",
+              "amount_minor": 9700,
+              "held_minor": 9700,
+              "released_minor": 0,
+              "reason": "risk_review",
+              "transaction_id": null,
+              "release_promised_at": "2026-11-05T00:00:00Z",
+              "released_at": null,
+              "release_is_only_promised": true,
+              "promise_overdue": false
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "holds",
+            "formula": "held = current hold amount − released (current versions only); a promised release is not a release",
+            "values": {
+              "holds": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:bdaa3a7d-1f5d-407c-beff-c0f52244a69d",
+          "journal:e363c9f6-2209-4ed9-80fb-b9557a3626be",
+          "journal:6c7721ab-bfb9-45fc-b09d-ab6c321f17e7"
+        ],
+        "entry_ids": [
+          "bdaa3a7d-1f5d-407c-beff-c0f52244a69d",
+          "e363c9f6-2209-4ed9-80fb-b9557a3626be",
+          "6c7721ab-bfb9-45fc-b09d-ab6c321f17e7"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "holds",
+            "positions",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "returns.lifecycle",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "returns.lifecycle",
+        "question_id": "reversal-01",
+        "params": {
+          "return_id": "RET-L-Q"
+        },
+        "status": "complete",
+        "result": {
+          "returns": [
+            {
+              "return_id": "RET-L-Q",
+              "order_id": "#L-Q",
+              "item_id": "CUP-OLV-Q",
+              "unit": "piece",
+              "state": "approved",
+              "requested_quantity": "2",
+              "received_quantity": "2",
+              "quarantined_quantity": "2",
+              "restocked_quantity": "0",
+              "receipt_state": "received",
+              "physical_return_received": true,
+              "sellable_added": "0",
+              "disposition": null,
+              "expected_credit_minor": 2380,
+              "currency": "EUR",
+              "refund_state": "pending",
+              "refund_completed_minor": 0,
+              "refund_pending_minor": 2380,
+              "cash_refund_confirmed": false
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "lifecycle",
+            "formula": "requested, received, quarantined and restocked quantities are independent; refund money/status is separate; a request is not a receipt",
+            "values": {
+              "returns": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:b409a597-bc35-41ab-b872-bc2008b66c10",
+          "journal:067bec53-e641-499e-9c46-d778dbc0967d",
+          "journal:693633e1-9ffc-4432-ace4-196d0c1412da",
+          "journal:6afe3b1b-8e08-4775-9144-05c61f2b7103",
+          "journal:f331dbf4-171b-4005-a089-8745bc405ddc",
+          "journal:2001867a-022b-416a-83b7-28edf7faf9bb",
+          "journal:86a7a4e2-eeac-4d7e-b57d-a657887b827b",
+          "journal:05fba87c-0bb9-406e-9997-f4bb481c5768"
+        ],
+        "entry_ids": [
+          "b409a597-bc35-41ab-b872-bc2008b66c10",
+          "067bec53-e641-499e-9c46-d778dbc0967d",
+          "693633e1-9ffc-4432-ace4-196d0c1412da",
+          "6afe3b1b-8e08-4775-9144-05c61f2b7103",
+          "f331dbf4-171b-4005-a089-8745bc405ddc",
+          "2001867a-022b-416a-83b7-28edf7faf9bb",
+          "86a7a4e2-eeac-4d7e-b57d-a657887b827b",
+          "05fba87c-0bb9-406e-9997-f4bb481c5768"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "returns",
+            "receipts",
+            "refunds",
+            "invoices",
+            "tracking",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "credits.refund_gaps",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "credits.refund_gaps",
+        "question_id": "reversal-02",
+        "params": {
+          "order_id": "#I-Q"
+        },
+        "status": "complete",
+        "result": {
+          "credits_without_entitlement": [],
+          "cash_refund_due_minor": 2380,
+          "refund_due_by_currency": {
+            "EUR": 2380
+          },
+          "entitlements": [
+            {
+              "entitlement_id": "EN-1-Q",
+              "order_id": "#I-Q",
+              "credit_id": "CN-1-Q",
+              "original_transaction_id": "TX-I-Q",
+              "currency": "EUR",
+              "original_capture_minor": 5000,
+              "approved_cash_refund_minor": 2380,
+              "completed_cash_refund_minor": 0,
+              "pending_refund_minor": 0,
+              "cash_refund_due_minor": 2380,
+              "destination": "cash"
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "gap",
+            "formula": "cash_refund_due = approved cash entitlement − completed refunds on the same original payment; credit documents alone create no repayment",
+            "values": {
+              "entitlements": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "journal:8843165e-50ae-4c4a-b355-9825ae80452f",
+          "journal:8e139855-0371-4b9d-b299-292980abc132",
+          "journal:0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "journal:3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "journal:d8406e07-4552-4b81-a08b-d230704b846b",
+          "journal:59b70fa0-b9b3-4926-85ab-f7089f3052a8",
+          "journal:fb974ac4-4769-4fa3-b113-133e322b7bcd",
+          "journal:7172890a-7aa6-4142-9520-4cc9bfc09772",
+          "journal:df2f2b64-f227-4ca4-82ee-09e5675e28de",
+          "journal:89d455a8-b2d1-4deb-9013-5780592620ea",
+          "journal:218ceb9b-48df-4a21-9dde-9b6b866c0ec8",
+          "journal:dc44c46c-d75d-41f1-b373-2c0ee2bf050c",
+          "journal:fcb3729b-b940-472c-941a-a16977472646"
+        ],
+        "entry_ids": [
+          "f856b042-79a1-42e2-af8b-35be6bc6b9ae",
+          "8843165e-50ae-4c4a-b355-9825ae80452f",
+          "8e139855-0371-4b9d-b299-292980abc132",
+          "0ff39d19-83ee-47b5-8e26-c13cfb2bb562",
+          "3811eb4e-bfb6-43e2-b136-a6a3fad9a0df",
+          "d8406e07-4552-4b81-a08b-d230704b846b",
+          "59b70fa0-b9b3-4926-85ab-f7089f3052a8",
+          "fb974ac4-4769-4fa3-b113-133e322b7bcd",
+          "7172890a-7aa6-4142-9520-4cc9bfc09772",
+          "df2f2b64-f227-4ca4-82ee-09e5675e28de",
+          "89d455a8-b2d1-4deb-9013-5780592620ea",
+          "218ceb9b-48df-4a21-9dde-9b6b866c0ec8",
+          "dc44c46c-d75d-41f1-b373-2c0ee2bf050c",
+          "fcb3729b-b940-472c-941a-a16977472646"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "invoices",
+            "payments",
+            "entitlements"
+          ],
+          "datasets_missing": [
+            "refunds",
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "cancellations.outstanding_steps",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "cancellations.outstanding_steps",
+        "question_id": "reversal-03",
+        "params": {
+          "order_id": "#C-Q"
+        },
+        "status": "complete",
+        "result": {
+          "do_not_mark_complete": true,
+          "cancelled": true,
+          "branch": "unshipped_cancellation",
+          "stock_receipt_required": false,
+          "reservation_step": "release_reservation",
+          "remaining_steps": [
+            "release_reservation",
+            "correct_invoice",
+            "refund_payment"
+          ],
+          "checks": [
+            {
+              "check": "reservation",
+              "state": "release_reservation",
+              "active_reserved": "2"
+            },
+            {
+              "check": "stock",
+              "state": "not_applicable",
+              "shipped_quantity": "0"
+            },
+            {
+              "check": "invoice",
+              "state": "correct_invoice",
+              "invoice_minor": 2380,
+              "credit_minor": 0,
+              "cancelled_share_minor": 2380
+            },
+            {
+              "check": "payment",
+              "state": "refund_payment",
+              "captured_minor": 2380,
+              "refunded_minor": 0,
+              "pending_refund_minor": 0,
+              "open_authorization_minor": 0,
+              "approved_refund_minor": 2380
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "checks",
+            "formula": "independent reservation/stock/invoice/payment checks at one cutoff; a cancellation never reverses a shipment or payment by itself",
+            "values": {
+              "remaining": 3
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:c559e3f4-2648-4bdc-b3ce-d5c3733bdaae",
+          "journal:eadc09d8-7fa4-4882-bf8a-70a896ac5022",
+          "journal:7ee0b4f8-ba50-4af2-b3bd-e1374d81ec1a",
+          "journal:2fd8b4fe-da7d-41bc-bc89-4af3a65bfb97",
+          "journal:49c257a1-ea35-4e72-b44b-dba997acf004",
+          "journal:55ebfe6b-7493-414d-9385-ee87feac568c",
+          "journal:facdf953-38a1-4942-b82f-41f2f551272c",
+          "journal:25cf4dfe-7d4f-40df-9d22-6e4b29c5aa2e",
+          "journal:51c203ab-5398-44a8-9472-e3c3baca07db",
+          "journal:6ba689f6-3517-4be8-b747-300aadb8c054",
+          "journal:8de24798-e7df-4edf-8039-9947bd96b5e5",
+          "journal:253c235f-7b9b-437e-8ede-c197f9623dd3",
+          "journal:4c4d0ebd-fb5e-40f3-bd56-037ef687f622",
+          "journal:cf86e382-641b-412b-8ace-4eded0973dd6",
+          "journal:247fc8f2-7272-45de-81ad-6bf5f69b110f",
+          "journal:32ac7959-2ede-4108-9583-de5ab5754310",
+          "journal:12284506-b905-4b0a-8116-0d6b137991b9"
+        ],
+        "entry_ids": [
+          "c559e3f4-2648-4bdc-b3ce-d5c3733bdaae",
+          "eadc09d8-7fa4-4882-bf8a-70a896ac5022",
+          "7ee0b4f8-ba50-4af2-b3bd-e1374d81ec1a",
+          "2fd8b4fe-da7d-41bc-bc89-4af3a65bfb97",
+          "49c257a1-ea35-4e72-b44b-dba997acf004",
+          "55ebfe6b-7493-414d-9385-ee87feac568c",
+          "facdf953-38a1-4942-b82f-41f2f551272c",
+          "25cf4dfe-7d4f-40df-9d22-6e4b29c5aa2e",
+          "51c203ab-5398-44a8-9472-e3c3baca07db",
+          "6ba689f6-3517-4be8-b747-300aadb8c054",
+          "8de24798-e7df-4edf-8039-9947bd96b5e5",
+          "253c235f-7b9b-437e-8ede-c197f9623dd3",
+          "4c4d0ebd-fb5e-40f3-bd56-037ef687f622",
+          "cf86e382-641b-412b-8ace-4eded0973dd6",
+          "247fc8f2-7272-45de-81ad-6bf5f69b110f",
+          "32ac7959-2ede-4108-9583-de5ab5754310",
+          "12284506-b905-4b0a-8116-0d6b137991b9"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "orders",
+            "allocations",
+            "invoices",
+            "payments",
+            "entitlements",
+            "receipts"
+          ],
+          "datasets_missing": [
+            "refunds",
+            "coverage",
+            "identity"
+          ],
+          "population": {
+            "records_considered": 4,
+            "returned": 4
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": []
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 4,
+          "total": 4,
+          "snapshot_cursor": 75561
+        }
+      }
+    },
+    {
+      "intent": "refunds.chargeback_overlap",
+      "status": "complete",
+      "passed": true,
+      "api_mcp_parity": true,
+      "snapshot": {
+        "intent": "refunds.chargeback_overlap",
+        "question_id": "reversal-04",
+        "params": {
+          "transaction_id": "TX-O-Q"
+        },
+        "status": "complete",
+        "result": {
+          "duplicate_repayment_proven": true,
+          "review_required": [
+            "TX-O-Q"
+          ],
+          "net_customer_repayments_minor": 20000,
+          "excess_minor": 10000,
+          "transactions": [
+            {
+              "transaction_id": "TX-O-Q",
+              "order_id": "#O-Q",
+              "currency": "EUR",
+              "capture_minor": 10000,
+              "refund_completed_minor": 10000,
+              "refund_pending_minor": 0,
+              "chargeback_debit_minor": 10000,
+              "chargeback_reversed_minor": 0,
+              "chargeback_fee_minor_excluded": 1500,
+              "net_customer_repayments_minor": 20000,
+              "excess_minor": 10000,
+              "open_dispute_without_debit": false,
+              "pending_overlap_risk": false,
+              "review_required": true
+            }
+          ]
+        },
+        "calculation": [
+          {
+            "step": "overlap",
+            "formula": "net repayments = completed refunds + booked chargeback debits − reversals (fees excluded); excess = max(0, net − capture); open disputes and fees are not completed refunds",
+            "values": {
+              "transactions": 1,
+              "review": 1
+            }
+          }
+        ],
+        "evidence_refs": [
+          "journal:6b0c3bea-85a6-4479-a5ef-5e593b2a4b2b",
+          "journal:4067d060-3727-49b8-b905-f02fcb67f51d",
+          "journal:4fa73978-f8bf-4cdb-8558-6d3d1d2ddbba",
+          "journal:75c8d69b-06f4-458a-bf4f-9cd98b667c0c",
+          "journal:26c44c31-bddd-4950-9ba4-cdeb54edea9f",
+          "journal:c09bedd8-7aef-4bb3-8393-b17d2142bfd9",
+          "journal:e2299205-a320-48e5-8a14-b2770f0f5b35",
+          "journal:d548b368-6865-490d-a06e-16a7abd31589",
+          "journal:c2107f1b-e982-4f80-ae54-86656281ffb6",
+          "journal:a62039a0-04a6-4a33-bb31-8d13d1ecace1",
+          "journal:cf60f11c-7f26-49c1-9e0b-7f830f78c147",
+          "journal:35b47d1a-3a63-4efc-81eb-4fdf6f9a7bee"
+        ],
+        "entry_ids": [
+          "6b0c3bea-85a6-4479-a5ef-5e593b2a4b2b",
+          "4067d060-3727-49b8-b905-f02fcb67f51d",
+          "4fa73978-f8bf-4cdb-8558-6d3d1d2ddbba",
+          "75c8d69b-06f4-458a-bf4f-9cd98b667c0c",
+          "26c44c31-bddd-4950-9ba4-cdeb54edea9f",
+          "c09bedd8-7aef-4bb3-8393-b17d2142bfd9",
+          "e2299205-a320-48e5-8a14-b2770f0f5b35",
+          "d548b368-6865-490d-a06e-16a7abd31589",
+          "c2107f1b-e982-4f80-ae54-86656281ffb6",
+          "a62039a0-04a6-4a33-bb31-8d13d1ecace1",
+          "cf60f11c-7f26-49c1-9e0b-7f830f78c147",
+          "35b47d1a-3a63-4efc-81eb-4fdf6f9a7bee"
+        ],
+        "missing_inputs": [],
+        "conflicts": [],
+        "coverage": {
+          "datasets_present": [
+            "payments",
+            "refunds",
+            "disputes",
+            "coverage",
+            "identity"
+          ],
+          "datasets_missing": [],
+          "population": {
+            "records_considered": 1,
+            "returned": 1
+          },
+          "evidence_truncated": false,
+          "coverage_assertions": [
+            {
+              "coverage_id": "carrier|tracking",
+              "status": "backfill_complete",
+              "connection": "carrier",
+              "capability": "tracking",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75455
+            },
+            {
+              "coverage_id": "invoice|invoices",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoices",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75465
+            },
+            {
+              "coverage_id": "invoice|invoice_dispatch",
+              "status": "backfill_complete",
+              "connection": "invoice",
+              "capability": "invoice_dispatch",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75467
+            },
+            {
+              "coverage_id": "payment|payments",
+              "status": "backfill_complete",
+              "connection": "payment",
+              "capability": "payments",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75469
+            },
+            {
+              "coverage_id": "generic|cases",
+              "status": "backfill_complete",
+              "connection": "generic",
+              "capability": "cases",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T10:00:00.000Z",
+              "links": [],
+              "last_sequence": 75471
+            },
+            {
+              "coverage_id": "bank_csv|bank",
+              "status": "backfill_complete",
+              "connection": "bank_csv",
+              "capability": "bank",
+              "entity_scope": null,
+              "history_start": "2026-10-01T00:00:00.000Z",
+              "complete_through": "2026-10-31T09:00:00.000Z",
+              "links": [],
+              "last_sequence": 75475
+            }
+          ]
+        },
+        "consistency": {
+          "status": "historical",
+          "mode": "as_of",
+          "reducer_version": 1
+        },
+        "page": {
+          "next_cursor": null,
+          "truncated": false,
+          "returned": 1,
+          "total": 1,
+          "snapshot_cursor": 75561
+        }
+      }
+    }
+  ],
+  "missing": [
+    {
+      "intent": "inventory.available_to_sell",
+      "question_id": "order-01",
+      "group": "order",
+      "params": {
+        "item_id": "CUP-OLV",
+        "requested_quantity": 100
+      },
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "stock.basis"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "stock.basis missing",
+          "pass": true
+        },
+        {
+          "name": "available null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "orders.fulfillable",
+      "question_id": "order-02",
+      "group": "order",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "policy.priority_method"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "policy missing",
+          "pass": true
+        },
+        {
+          "name": "joint plan null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "orders.reservation_variance",
+      "question_id": "order-03",
+      "group": "order",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "allocations.order_line_ownership"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "allocations missing",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "orders.inbound_delay_impact",
+      "question_id": "order-04",
+      "group": "order",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "supply"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "affected null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "shipments.attention",
+      "question_id": "delivery-01",
+      "group": "delivery",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "tracking.coverage"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "tracking coverage missing",
+          "pass": true
+        },
+        {
+          "name": "delivery status unknown",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "shipments.promise_risk",
+      "question_id": "delivery-02",
+      "group": "delivery",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "promises.promised_at"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "promises missing",
+          "pass": true
+        },
+        {
+          "name": "breached null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "orders.partial_delivery_gaps",
+      "question_id": "delivery-03",
+      "group": "order",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "fulfillments.line_quantity_links"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "fulfillments missing",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "customer.delivery_reply",
+      "question_id": "delivery-04",
+      "group": "delivery",
+      "params": {
+        "order_id": "#M"
+      },
+      "api_status": 200,
+      "status": "partial",
+      "missing_inputs": [
+        "communications",
+        "tracking"
+      ],
+      "checks": [
+        {
+          "name": "partial",
+          "pass": true
+        },
+        {
+          "name": "communications missing",
+          "pass": true
+        },
+        {
+          "name": "promises not checked",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 3,
+      "evidence_refs": 3
+    },
+    {
+      "intent": "invoices.outstanding",
+      "question_id": "invoice-01",
+      "group": "invoice",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "invoices.correction_chain_coverage"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "correction chain missing",
+          "pass": true
+        },
+        {
+          "name": "open null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "orders.missing_invoice",
+      "question_id": "invoice-02",
+      "group": "order",
+      "params": {
+        "rule": "after_confirmed_dispatch"
+      },
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "coverage.invoices_backfill_complete"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "missing_invoice null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "invoices.order_amount_variance",
+      "question_id": "invoice-03",
+      "group": "invoice",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "invoices.line_links"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "line links missing",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "invoices.dispatch_evidence",
+      "question_id": "invoice-04",
+      "group": "invoice",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "invoice_dispatch.coverage"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "population incomplete",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "orders.payment_state",
+      "question_id": "collection-01",
+      "group": "order",
+      "params": {
+        "order_id": "#M"
+      },
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "payments.status"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "payments.status missing",
+          "pass": true
+        },
+        {
+          "name": "collected null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "payments.recovered_attempts",
+      "question_id": "collection-02",
+      "group": "collection",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "payments.attempt_history_coverage"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "population incomplete",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "invoices.payment_variance",
+      "question_id": "collection-03",
+      "group": "invoice",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "payment_allocations"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "allocations missing",
+          "pass": true
+        },
+        {
+          "name": "unallocated separate",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "receivables.review_queue",
+      "question_id": "collection-04",
+      "group": "collection",
+      "params": {
+        "now": "2026-10-31T10:00:00Z"
+      },
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "invoices"
+      ],
+      "checks": [
+        {
+          "name": "unknown/partial",
+          "pass": true
+        },
+        {
+          "name": "no automatic action",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "providers.money_positions",
+      "question_id": "settlement-01",
+      "group": "settlement",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "provider_ledger"
+      ],
+      "checks": [
+        {
+          "name": "unknown/partial",
+          "pass": true
+        },
+        {
+          "name": "unknown not zero",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "payouts.gross_to_net",
+      "question_id": "settlement-02",
+      "group": "settlement",
+      "params": {
+        "payout_id": "OUT-404"
+      },
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "payouts.payout_id"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "not reconciled",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "payouts.missing_bank_confirmation",
+      "question_id": "settlement-03",
+      "group": "settlement",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "bank"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "bank arrival unknown",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "providers.holds_and_releases",
+      "question_id": "settlement-04",
+      "group": "settlement",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "holds"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "held null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "returns.lifecycle",
+      "question_id": "reversal-01",
+      "group": "reversal",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "returns"
+      ],
+      "checks": [
+        {
+          "name": "unknown/partial",
+          "pass": true
+        },
+        {
+          "name": "request is not receipt",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "credits.refund_gaps",
+      "question_id": "reversal-02",
+      "group": "reversal",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "entitlements"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "refund due null",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    },
+    {
+      "intent": "cancellations.outstanding_steps",
+      "question_id": "reversal-03",
+      "group": "reversal",
+      "params": {
+        "order_id": "#M"
+      },
+      "api_status": 200,
+      "status": "complete",
+      "missing_inputs": [],
+      "checks": [
+        {
+          "name": "not cancelled (no cancellation observed, nothing invented)",
+          "pass": true
+        },
+        {
+          "name": "no steps claimed",
+          "pass": true
+        },
+        {
+          "name": "do not mark complete",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 3,
+      "evidence_refs": 3
+    },
+    {
+      "intent": "refunds.chargeback_overlap",
+      "question_id": "reversal-04",
+      "group": "reversal",
+      "params": {},
+      "api_status": 200,
+      "status": "unknown",
+      "missing_inputs": [
+        "disputes.original_transaction_id"
+      ],
+      "checks": [
+        {
+          "name": "unknown",
+          "pass": true
+        },
+        {
+          "name": "duplicate not proven",
+          "pass": true
+        }
+      ],
+      "passed": true,
+      "mcp_status": 200,
+      "api_mcp_parity": true,
+      "consistency": {
+        "applied_cursor": 3,
+        "required_cursor": 3,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T04:11:59.062Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "entry_ids": 0,
+      "evidence_refs": 0
+    }
+  ],
+  "restart": {
+    "at": "2026-11-02T04:13:56.248Z",
+    "results": [
+      {
+        "group": "order",
+        "intent": "inventory.available_to_sell",
+        "api_status": 200,
+        "status": "complete",
+        "identical_to_pre_restart": true,
+        "consistency": {
+          "applied_cursor": 75561,
+          "required_cursor": 75561,
+          "reducer_version": 1,
+          "status": "historical",
+          "recorded_cutoff": "2026-11-02T04:12:02.936Z",
+          "effective_cutoff": null,
+          "mode": "as_of"
+        }
+      },
+      {
+        "group": "delivery",
+        "intent": "shipments.attention",
+        "api_status": 200,
+        "status": "partial",
+        "identical_to_pre_restart": true,
+        "consistency": {
+          "applied_cursor": 75561,
+          "required_cursor": 75561,
+          "reducer_version": 1,
+          "status": "historical",
+          "recorded_cutoff": "2026-11-02T04:12:02.936Z",
+          "effective_cutoff": null,
+          "mode": "as_of"
+        }
+      },
+      {
+        "group": "invoice",
+        "intent": "invoices.outstanding",
+        "api_status": 200,
+        "status": "complete",
+        "identical_to_pre_restart": true,
+        "consistency": {
+          "applied_cursor": 75561,
+          "required_cursor": 75561,
+          "reducer_version": 1,
+          "status": "historical",
+          "recorded_cutoff": "2026-11-02T04:12:02.936Z",
+          "effective_cutoff": null,
+          "mode": "as_of"
+        }
+      },
+      {
+        "group": "collection",
+        "intent": "payments.recovered_attempts",
+        "api_status": 200,
+        "status": "partial",
+        "identical_to_pre_restart": true,
+        "consistency": {
+          "applied_cursor": 75561,
+          "required_cursor": 75561,
+          "reducer_version": 1,
+          "status": "historical",
+          "recorded_cutoff": "2026-11-02T04:12:02.936Z",
+          "effective_cutoff": null,
+          "mode": "as_of"
+        }
+      },
+      {
+        "group": "settlement",
+        "intent": "providers.money_positions",
+        "api_status": 200,
+        "status": "complete",
+        "identical_to_pre_restart": true,
+        "consistency": {
+          "applied_cursor": 75561,
+          "required_cursor": 75561,
+          "reducer_version": 1,
+          "status": "historical",
+          "recorded_cutoff": "2026-11-02T04:12:02.936Z",
+          "effective_cutoff": null,
+          "mode": "as_of"
+        }
+      },
+      {
+        "group": "reversal",
+        "intent": "returns.lifecycle",
+        "api_status": 200,
+        "status": "complete",
+        "identical_to_pre_restart": true,
+        "consistency": {
+          "applied_cursor": 75561,
+          "required_cursor": 75561,
+          "reducer_version": 1,
+          "status": "historical",
+          "recorded_cutoff": "2026-11-02T04:12:02.936Z",
+          "effective_cutoff": null,
+          "mode": "as_of"
+        }
+      }
+    ]
+  }
+}

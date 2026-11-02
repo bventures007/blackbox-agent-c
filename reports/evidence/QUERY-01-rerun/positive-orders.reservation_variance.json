@@ -1,0 +1,762 @@
+{
+  "intent": "orders.reservation_variance",
+  "params": {
+    "order_id": "#V-Q"
+  },
+  "api": {
+    "status": 200,
+    "json": {
+      "intent": "orders.reservation_variance",
+      "question_id": "order-03",
+      "params": {
+        "order_id": "#V-Q"
+      },
+      "readiness": {
+        "question_id": "order-03",
+        "intent": "orders.reservation_variance",
+        "status": "ready",
+        "required": [
+          "orders",
+          "allocations",
+          "fulfillments",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+            "provider": "shopify",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.804Z",
+            "last_new_event_at": "2026-11-01T22:45:23.804Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "055da69e-1000-48f1-b6ca-1e3631c0a9b9",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:45:58.322Z",
+            "last_new_event_at": "2026-11-02T03:45:58.322Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "ca0a1b65-bd9a-4d36-9fb6-5dec424f5f34",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:18:05.616Z",
+            "last_new_event_at": "2026-11-02T03:18:05.616Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+            "last_new_event_at": "2026-11-02T03:46:45.881Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+            "provider": "shopify",
+            "capability_id": "allocations",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.810Z",
+            "last_new_event_at": "2026-11-01T22:45:23.810Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+            "provider": "replay",
+            "capability_id": "allocations",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+            "last_new_event_at": "2026-11-02T03:46:45.881Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+            "provider": "shopify",
+            "capability_id": "fulfillments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.838Z",
+            "last_new_event_at": "2026-11-01T22:45:23.838Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "eccffebf-2d50-4e60-9a19-302d99f8f701",
+            "provider": "generic",
+            "capability_id": "fulfillments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.992Z",
+            "last_new_event_at": "2026-11-01T22:45:23.992Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+            "provider": "replay",
+            "capability_id": "fulfillments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+            "last_new_event_at": "2026-11-02T03:46:45.881Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "62ae8e86-0b81-4bd7-8236-7c19f796638d",
+            "provider": "replay",
+            "capability_id": "fulfillments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.033Z",
+            "last_new_event_at": "2026-11-02T03:46:46.033Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "mismatched_lines": 1,
+        "lines": [
+          {
+            "order_id": "#V-Q",
+            "line_id": "#V-Q#1",
+            "item_id": "CUP-OLV-Q",
+            "original_quantity": "10",
+            "cancelled_quantity": "2",
+            "dispatched_quantity": "3",
+            "remaining_obligation": "5",
+            "active_reserved": "4",
+            "under_reserved": "1",
+            "over_reserved": "0"
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "variance",
+          "formula": "remaining_obligation = quantity − cancelled − dispatched; variance = active_reserved − remaining_obligation",
+          "values": {
+            "mismatched_lines": 1
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:14128695-9cdf-4597-b136-a71a86ad33fe",
+        "journal:db3fe3cd-2a4b-4040-815f-f80b414dece7",
+        "journal:7931f059-c53e-459b-868c-8b13c38d1cb9",
+        "journal:e397700c-a87b-4767-a513-e073048b5aaa",
+        "journal:5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+        "journal:184a90ad-87dc-44dc-b241-ef63cbfcc609",
+        "journal:64e276b0-1dee-4ac2-95fc-815f39a94ea6",
+        "journal:71a02df7-a382-431d-87f9-83187464ade5",
+        "journal:b9065a89-bfd9-47be-b9fd-bec633be7bb6",
+        "journal:2257a948-2e26-4120-9392-0d05c75da1c7",
+        "journal:21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+        "journal:b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+        "journal:01b2a6f3-a978-4e28-ab98-7879d622821e"
+      ],
+      "entry_ids": [
+        "14128695-9cdf-4597-b136-a71a86ad33fe",
+        "db3fe3cd-2a4b-4040-815f-f80b414dece7",
+        "7931f059-c53e-459b-868c-8b13c38d1cb9",
+        "e397700c-a87b-4767-a513-e073048b5aaa",
+        "5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+        "184a90ad-87dc-44dc-b241-ef63cbfcc609",
+        "64e276b0-1dee-4ac2-95fc-815f39a94ea6",
+        "71a02df7-a382-431d-87f9-83187464ade5",
+        "b9065a89-bfd9-47be-b9fd-bec633be7bb6",
+        "2257a948-2e26-4120-9392-0d05c75da1c7",
+        "21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+        "b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+        "01b2a6f3-a978-4e28-ab98-7879d622821e"
+      ],
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders",
+          "allocations",
+          "fulfillments",
+          "coverage",
+          "identity"
+        ],
+        "datasets_missing": [],
+        "population": {
+          "records_considered": 1,
+          "returned": 1
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": [
+          {
+            "coverage_id": "carrier|tracking",
+            "status": "backfill_complete",
+            "connection": "carrier",
+            "capability": "tracking",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75455
+          },
+          {
+            "coverage_id": "invoice|invoices",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoices",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75465
+          },
+          {
+            "coverage_id": "invoice|invoice_dispatch",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoice_dispatch",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75467
+          },
+          {
+            "coverage_id": "payment|payments",
+            "status": "backfill_complete",
+            "connection": "payment",
+            "capability": "payments",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75469
+          },
+          {
+            "coverage_id": "generic|cases",
+            "status": "backfill_complete",
+            "connection": "generic",
+            "capability": "cases",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75471
+          },
+          {
+            "coverage_id": "bank_csv|bank",
+            "status": "backfill_complete",
+            "connection": "bank_csv",
+            "capability": "bank",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T09:00:00.000Z",
+            "links": [],
+            "last_sequence": 75475
+          }
+        ],
+        "evidence_evicted_entities": 3,
+        "evidence_source": "postgresql_cold_read"
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 1,
+        "total": 1,
+        "snapshot_cursor": 75561
+      }
+    }
+  },
+  "mcp": {
+    "status": 200,
+    "json": {
+      "intent": "orders.reservation_variance",
+      "question_id": "order-03",
+      "params": {
+        "order_id": "#V-Q"
+      },
+      "readiness": {
+        "question_id": "order-03",
+        "intent": "orders.reservation_variance",
+        "status": "ready",
+        "required": [
+          "orders",
+          "allocations",
+          "fulfillments",
+          "coverage",
+          "identity"
+        ],
+        "optional": [],
+        "missing": [],
+        "missing_optional": [],
+        "reasons": [],
+        "sources": [
+          {
+            "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+            "provider": "shopify",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.804Z",
+            "last_new_event_at": "2026-11-01T22:45:23.804Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "055da69e-1000-48f1-b6ca-1e3631c0a9b9",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:45:58.322Z",
+            "last_new_event_at": "2026-11-02T03:45:58.322Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "ca0a1b65-bd9a-4d36-9fb6-5dec424f5f34",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:18:05.616Z",
+            "last_new_event_at": "2026-11-02T03:18:05.616Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+            "provider": "replay",
+            "capability_id": "orders",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+            "last_new_event_at": "2026-11-02T03:46:45.881Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+            "provider": "shopify",
+            "capability_id": "allocations",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.810Z",
+            "last_new_event_at": "2026-11-01T22:45:23.810Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+            "provider": "replay",
+            "capability_id": "allocations",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+            "last_new_event_at": "2026-11-02T03:46:45.881Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "1e7e1b58-bf61-46ec-b290-edd8e4dd78fd",
+            "provider": "shopify",
+            "capability_id": "fulfillments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.838Z",
+            "last_new_event_at": "2026-11-01T22:45:23.838Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "eccffebf-2d50-4e60-9a19-302d99f8f701",
+            "provider": "generic",
+            "capability_id": "fulfillments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-01T22:45:23.992Z",
+            "last_new_event_at": "2026-11-01T22:45:23.992Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": "2026-10-31T09:01:00.000Z",
+            "coverage_to": "2026-10-31T10:00:00.000Z",
+            "coverage_state": "complete_for_declared_scope",
+            "history_kind": "event_history",
+            "limitations": [
+              "synthetic demo fixture: no live provider"
+            ]
+          },
+          {
+            "connection_id": "51b0a294-95d9-4478-b9cd-04bbefe67cfc",
+            "provider": "replay",
+            "capability_id": "fulfillments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.881Z",
+            "last_new_event_at": "2026-11-02T03:46:45.881Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "62ae8e86-0b81-4bd7-8236-7c19f796638d",
+            "provider": "replay",
+            "capability_id": "fulfillments",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:46.033Z",
+            "last_new_event_at": "2026-11-02T03:46:46.033Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "coverage",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          },
+          {
+            "connection_id": "c7f3861b-ef45-4342-a85b-c05b7f8eb8b4",
+            "provider": "replay",
+            "capability_id": "identity",
+            "status": "healthy",
+            "last_successful_check_at": "2026-11-02T03:46:45.988Z",
+            "last_new_event_at": "2026-11-02T03:46:45.988Z",
+            "next_check_at": null,
+            "next_check_reason": "producer_driven: no scheduled poll",
+            "coverage_from": null,
+            "coverage_to": null,
+            "coverage_state": "unknown",
+            "history_kind": "event_history",
+            "limitations": []
+          }
+        ]
+      },
+      "status": "complete",
+      "result": {
+        "mismatched_lines": 1,
+        "lines": [
+          {
+            "order_id": "#V-Q",
+            "line_id": "#V-Q#1",
+            "item_id": "CUP-OLV-Q",
+            "original_quantity": "10",
+            "cancelled_quantity": "2",
+            "dispatched_quantity": "3",
+            "remaining_obligation": "5",
+            "active_reserved": "4",
+            "under_reserved": "1",
+            "over_reserved": "0"
+          }
+        ]
+      },
+      "calculation": [
+        {
+          "step": "variance",
+          "formula": "remaining_obligation = quantity − cancelled − dispatched; variance = active_reserved − remaining_obligation",
+          "values": {
+            "mismatched_lines": 1
+          }
+        }
+      ],
+      "evidence_refs": [
+        "journal:14128695-9cdf-4597-b136-a71a86ad33fe",
+        "journal:db3fe3cd-2a4b-4040-815f-f80b414dece7",
+        "journal:7931f059-c53e-459b-868c-8b13c38d1cb9",
+        "journal:e397700c-a87b-4767-a513-e073048b5aaa",
+        "journal:5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+        "journal:184a90ad-87dc-44dc-b241-ef63cbfcc609",
+        "journal:64e276b0-1dee-4ac2-95fc-815f39a94ea6",
+        "journal:71a02df7-a382-431d-87f9-83187464ade5",
+        "journal:b9065a89-bfd9-47be-b9fd-bec633be7bb6",
+        "journal:2257a948-2e26-4120-9392-0d05c75da1c7",
+        "journal:21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+        "journal:b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+        "journal:01b2a6f3-a978-4e28-ab98-7879d622821e"
+      ],
+      "entry_ids": [
+        "14128695-9cdf-4597-b136-a71a86ad33fe",
+        "db3fe3cd-2a4b-4040-815f-f80b414dece7",
+        "7931f059-c53e-459b-868c-8b13c38d1cb9",
+        "e397700c-a87b-4767-a513-e073048b5aaa",
+        "5ec622b2-9afb-494e-95ee-b9c9fcce33c2",
+        "184a90ad-87dc-44dc-b241-ef63cbfcc609",
+        "64e276b0-1dee-4ac2-95fc-815f39a94ea6",
+        "71a02df7-a382-431d-87f9-83187464ade5",
+        "b9065a89-bfd9-47be-b9fd-bec633be7bb6",
+        "2257a948-2e26-4120-9392-0d05c75da1c7",
+        "21645941-5c2c-48cd-b9ee-b2aaccc64df0",
+        "b0d8d7db-10d2-4132-b016-d5b1c68fe33d",
+        "01b2a6f3-a978-4e28-ab98-7879d622821e"
+      ],
+      "missing_inputs": [
+        "history.evicted_use_cold_read"
+      ],
+      "conflicts": [],
+      "coverage": {
+        "datasets_present": [
+          "orders",
+          "allocations",
+          "fulfillments",
+          "coverage",
+          "identity"
+        ],
+        "datasets_missing": [],
+        "population": {
+          "records_considered": 1,
+          "returned": 1
+        },
+        "evidence_truncated": false,
+        "coverage_assertions": [
+          {
+            "coverage_id": "carrier|tracking",
+            "status": "backfill_complete",
+            "connection": "carrier",
+            "capability": "tracking",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75455
+          },
+          {
+            "coverage_id": "invoice|invoices",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoices",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75465
+          },
+          {
+            "coverage_id": "invoice|invoice_dispatch",
+            "status": "backfill_complete",
+            "connection": "invoice",
+            "capability": "invoice_dispatch",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75467
+          },
+          {
+            "coverage_id": "payment|payments",
+            "status": "backfill_complete",
+            "connection": "payment",
+            "capability": "payments",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75469
+          },
+          {
+            "coverage_id": "generic|cases",
+            "status": "backfill_complete",
+            "connection": "generic",
+            "capability": "cases",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T10:00:00.000Z",
+            "links": [],
+            "last_sequence": 75471
+          },
+          {
+            "coverage_id": "bank_csv|bank",
+            "status": "backfill_complete",
+            "connection": "bank_csv",
+            "capability": "bank",
+            "entity_scope": null,
+            "history_start": "2026-10-01T00:00:00.000Z",
+            "complete_through": "2026-10-31T09:00:00.000Z",
+            "links": [],
+            "last_sequence": 75475
+          }
+        ],
+        "evidence_evicted_entities": 3,
+        "evidence_source": "postgresql_cold_read"
+      },
+      "consistency": {
+        "applied_cursor": 75561,
+        "required_cursor": 75561,
+        "reducer_version": 1,
+        "status": "current",
+        "recorded_cutoff": "2026-11-02T03:46:46.192Z",
+        "effective_cutoff": null,
+        "mode": "latest_committed"
+      },
+      "page": {
+        "next_cursor": null,
+        "truncated": false,
+        "returned": 1,
+        "total": 1,
+        "snapshot_cursor": 75561
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+# ops2 part 3  started 2026-11-01T23:40:52Z  load 127.65 139.08 106.61
+## PILOT-06: storage state before
+{'thresholds': {'warn_percent': 10, 'warn_min_bytes': 5368709120, 'critical_percent': 2, 'critical_min_bytes': 1073741824, 'log_cap_bytes': 104857600, 'log_retention_days': 7}, 'volumes': {'evidence': {'free_gib': 46773.7, 'state': 'ok'}, 'logs': {'free_gib': 46773.7, 'state': 'ok'}, 'snapshots': {'free_gib': 46773.7, 'state': 'ok'}}}
+shopify connection: ef3f8db3-184e-46c7-8fd7-8f3513652810
+## force critical: PATCH critical_min_bytes = 300 GiB (free space is ~190 GiB)
+200
+## waiting up to 90 s for the worker's storage refresh
+storage volume state: ok after 90 s
+## health cards (storage-related)
+api healthy - this response was served by the API -> None
+worker unknown - no worker heartbeat; no queued work -> None
+sources healthy - 133 capabilities healthy (last successful check differs from last new event) -> None
+diagnostics degraded - collector healthy -> check free space on the logs volume
+## request a check run while critical
+{"run_id":"e80be72a-a86b-4ca0-98ce-0281f907fecf","connection_id":"ef3f8db3-184e-46c7-8fd7-8f3513652810","plan_id":null,"kind":"check","phase":"check_connection","state":"queued","counters":{"requested":0,"loaded":0,"committed":0,"applied":0,"failed":0,"duplicates":0,"conflicts":0,"rejected":0},"tota
+run after 25 s:
+{'state': 'running', 'phase': 'import_records', 'error_code': None, 'next_action': None, 'attempt': 1}
+## ingestion while critical must not be acknowledged falsely (POST /api/ingest/replay)
+200
+{"accepted":1,"duplicate":0,"conflict":0,"rejected":0,"committed_cursor":57,"outcomes":[{"provider_event_id":"p06-1","status":"accepted","entry_ids":["0bfc7f84-3a91-4b23-80d2-147264d66575","ce1aae03-8b54-427a-8d24-a672d0333ce3","1a0c31cf-b6c5-4395-aa33-5bc1d0578253"],"committed_sequence":57,"deliver
+## restore thresholds (critical_min_bytes = 1 GiB)
+200
+storage volume state: ok after 5 s
+## resume the paused run (POST runs again) and ingestion after recovery
+{"error":{"code":"run_already_active","message":"a check run is already queued or running for this connection","retryable":false}}
+
+200
+{"accepted":0,"duplicate":1,"conflict":0,"rejected":0,"committed_cursor":null,"outcomes":[{"provider_event_id":"p06-1","status":"duplicate","entry_ids":["0bfc7f84-3a91-4b23-80d2-147264d66575","ce1aae0
+## PILOT-05: revoke the agent key, then the MCP bridge with the revoked key
+agent: None
+404
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{"schema_version":1,"occurred_at":"2026-11-01T23:47:08.569Z","level":"
+## PILOT-05: stop the runtime for 90 s, restart, observe the worker's resume (coalesced due jobs, no storm)
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+running at http://127.0.0.1:19185/ (project blackbox-agent-c-ops2)
+up after 103 s
+worker records in the first ~60 s after restart: 2
+[('storage.state_changed', 1), ('worker.started', 1)]
+postgres healthy - connection, read and write readiness probes succeeded
+api healthy - this response was served by the API
+worker working - 1 import run(s) in progress
+engine healthy - engine healthy; reducer_version 1; applied 57 of committed 57
+sources healthy - 135 capabilities healthy (last successful check differs from last new event)
+mcp unknown - no authorized agent request observed since start (a configured endpoint is not a
+diagnostics degraded - collector healthy
+# finished 2026-11-01T23:51:50Z  load 147.31 145.82 132.46

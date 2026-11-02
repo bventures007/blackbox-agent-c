@@ -1,0 +1,16 @@
+# MCP-03 re-run 2026-11-02T01:48:29Z: agent key created through the Agents & MCP UI (Playwright-driven real UI flow; key shown once, stored 0600 at ~/blackbox-pilot-fresh/agent.key, never printed), official MCP Inspector CLI over stdio
+# versions: node v25.9.0; inspector 2.13.0; sdk 1.32.2; bridge packages/mcp/dist/server.js @ df8cfbb; api {"status":"ok","version":"0.1.0"}
+
+## --method tools/list   
+10 tools: describe_business_schema, list_journal_entries, get_journal_entry, get_entity_history, search_events, get_business_state, get_evidence, get_readiness, answer_question, query_business
+
+## --method tools/call --tool-name get_business_state --tool-arg entity_type=order --tool-arg entity_id=#1001
+isError: None
+{"entity": {"type": "order", "id": "#1001"}, "state": {"physical_stock": "112", "available_stock": "112", "captured_minor": 11900, "fees_minor": 350, "refunded_minor": 2380, "bank_confirmed_minor": 9170, "currency": "EUR"}, "consistency": {"applied_cursor": 74, "required_cursor": 74, "status": "current", "mode": "latest_committed"}, "evidence_refs": 54, "tracks": {"source": 19, "fact": 19, "commitment": 4, "movement": 8, "reservation": 4}}
+
+## --method tools/call --tool-name answer_question --tool-args-json {"intent":"inventory.available_to_sell","params":{"item_id":"CUP-OLV","requested_quantity":100}}
+isError: None
+top-level keys: ['calculation', 'conflicts', 'consistency', 'coverage', 'entry_ids', 'evidence_refs', 'intent', 'missing_inputs', 'page', 'params', 'question_id', 'readiness', 'result', 'status']
+{"status": "complete", "result": {"item_id": "CUP-OLV", "requested_quantity": "100", "incoming_counted_as_stock": false, "unit": "piece", "basis_at": "2026-10-31T09:01:00Z", "basis": "derived_from_disjoint_states", "physical": "112", "quarantined": "0", "reserved": "0", "committed": "0", "available": "112", "incoming_supply": [], "shortfall": "0", "can_fulfill": true}, "missing_inputs": [], "calculation": ["available = physical − quarantined − committed − damaged − safety_stock − quality_control − snapshot_reserved − active reservations after basis", "shortfall = max(0, requested − available)"], "evidence_refs": 54, "consistency": {"applied_cursor": 74, "status": "current", "mode": "latest_committed"}, "readiness_status": "ready"}
+
+# finished 2026-11-02T01:53:15Z

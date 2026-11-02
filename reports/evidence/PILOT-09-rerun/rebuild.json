@@ -1,0 +1,7 @@
+{
+ "ready_seconds": 196,
+ "engine_rss_bytes_after": 1524891648,
+ "snapshots_removed": "engine_snapshots table (51 rows) + data/snapshots files",
+ "measured_at": "2026-11-02T03:21:38.607572+00:00",
+ "source": "scripts/verify/ops2-restart-rebuild.sh (part4.txt)"
+}

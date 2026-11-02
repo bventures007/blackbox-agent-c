@@ -258,6 +258,70 @@ describe("PILOT-04 review workflow", () => {
   });
 });
 
+describe("PILOT-01 backups & recovery surface", () => {
+  it("reports the wrapper/scheduler status file truthfully: unprotected without it, scheduled/protected with it, overlayed by retention overrides", async () => {
+    const { writeFileSync, mkdtempSync } = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const cfg = app.built.ctx.config as { backupStatusFile: string | null };
+    const before = cfg.backupStatusFile;
+    try {
+      cfg.backupStatusFile = null;
+      let r = (await c.get("/api/settings/backups")).json as Record<string, unknown>;
+      expect(r.status).toBe("not_configured");
+      expect(String(r.protection)).toMatch(/unprotected/);
+      const dir = mkdtempSync(path.join(os.tmpdir(), "bb-backup-status-"));
+      const file = path.join(dir, "status.json");
+      cfg.backupStatusFile = file;
+      // enrolled, nothing completed yet
+      writeFileSync(file, JSON.stringify({ status: "scheduled", configured: true, destination_label: "disk", same_device: true, last_completed_at: null, next_due_at: "2026-11-02T22:46:43Z", retention: { daily: 7, weekly: 4 } }));
+      r = (await c.get("/api/settings/backups")).json as Record<string, unknown>;
+      expect(r).toMatchObject({ status: "scheduled", configured: true, destination_label: "disk", same_device: true, last_completed_at: null, recoverable_age_seconds: null });
+      expect(String(r.protection)).toMatch(/no completed generation/);
+      // a finalized generation
+      writeFileSync(file, JSON.stringify({ status: "scheduled", configured: true, destination_label: "disk", same_device: true, destination_available: true, last_attempt_at: "2026-11-01T22:46:43Z", last_attempt_kind: "scheduled", last_completed_at: "2026-11-01T22:46:53Z", last_generation: "blackbox-backup-20261101T224643Z", last_sha256: "60f4", last_bytes: 266504, last_cutoff_at: "2026-11-01T22:46:43Z", last_cutoff_committed: [{ tenant_id: owner.tenant_id, committed_sequence: 54 }], next_due_at: "2026-11-02T22:46:43Z", retention: { daily: 7, weekly: 4 }, failures: 0, last_error: null }));
+      r = (await c.get("/api/settings/backups")).json as Record<string, unknown>;
+      expect(r).toMatchObject({ status: "scheduled", configured: true, last_generation: "blackbox-backup-20261101T224643Z", last_bytes: 266504, last_cutoff: "2026-11-01T22:46:43Z", failures: 0 });
+      expect(Number(r.recoverable_age_seconds)).toBeGreaterThan(0);
+      expect(String(r.protection)).toMatch(/protected: encrypted generation present/);
+      // owner retention override lives in the database row and overlays the file
+      expect((await c.patch("/api/settings/backups", { retention_daily: 10 })).status).toBe(200);
+      r = (await c.get("/api/settings/backups")).json as { retention: { daily: number; weekly: number } };
+      expect(r.retention).toEqual({ daily: 10, weekly: 4 });
+      // overdue / unavailable destination are explicit, never green
+      writeFileSync(file, JSON.stringify({ status: "overdue", configured: true, destination_label: "disk", destination_available: false, last_completed_at: "2026-10-01T00:00:00Z", retention: { daily: 7, weekly: 4 } }));
+      r = (await c.get("/api/settings/backups")).json as Record<string, unknown>;
+      expect(r.status).toBe("overdue");
+      expect(String(r.protection)).toMatch(/destination unavailable/);
+      // corrupt file: fail honest
+      writeFileSync(file, "{not json");
+      r = (await c.get("/api/settings/backups")).json as Record<string, unknown>;
+      expect(r.status).toBe("not_configured");
+    } finally {
+      cfg.backupStatusFile = before;
+    }
+  });
+});
+
+describe("PILOT-06 critical storage pauses new ingestion", () => {
+  it("refuses new ingestion with a retryable storage_critical error while any volume is critical and accepts again after recovery; reads stay available", async () => {
+    const conn = (await c.post("/api/sources/connections", { provider: "replay", display_name: "pilot06", config: { synthetic: true } })).json as { connection: { connection_id: string } };
+    const event = { provider_event_id: "p06-x", kind: "order.accepted", occurred_at: "2026-10-31T09:00:00Z", entity: { order: "#P06X" }, payload: { order: "#P06X", quantity: 1, unit: "piece", unit_gross_minor: 100, gross_minor: 100, currency: "EUR", status: "accepted" }, evidence_refs: [] };
+    // a floor above any plausible free space forces the critical state through the documented threshold setting
+    expect((await c.patch("/api/settings/storage", { critical_min_bytes: 100_000_000_000_000 })).status).toBe(200);
+    const storage = (await c.get("/api/diagnostics/storage")).json as { volumes: Record<string, { state: string }> };
+    expect(Object.values(storage.volumes).some((v) => v.state === "critical")).toBe(true);
+    const refused = await c.post("/api/ingest/replay", { connection_id: conn.connection.connection_id, events: [event] });
+    expect(refused.status).toBe(503);
+    expect(refused.json).toMatchObject({ error: { code: "storage_critical", retryable: true } });
+    expect((await c.get("/api/journal?limit=1")).status).toBe(200); // reads stay available
+    expect((await c.patch("/api/settings/storage", { critical_min_bytes: 1073741824 })).status).toBe(200);
+    const accepted = await c.post("/api/ingest/replay", { connection_id: conn.connection.connection_id, events: [event] });
+    expect(accepted.status).toBe(200);
+    expect((accepted.json as { accepted: number }).accepted).toBe(1);
+  });
+});
+
 describe("PILOT-08 evidence restriction", () => {
   it("owner restriction appends a ledger row + audit event, removes live content and answers an explicit status on every content path; agents cannot restrict", async () => {
     const src = (await c.get("/api/journal?track=source&limit=5")).json as { entries: Array<{ entry_id: string; evidence_refs: string[] }> };
@@ -270,7 +334,7 @@ describe("PILOT-08 evidence restriction", () => {
     const agent = new ApiClient(app.baseUrl);
     agent.bearer = ((await c.post("/api/agents", { name: "evidence-reader" })).json as { key: string }).key;
     expect((await agent.post(`/api/evidence/${evidenceId}/restrict`, { reason: "agent tries" })).status).toBe(403);
-    expect((await c.post(`/api/evidence/${evidenceId}/restrict`, { reason: "no" })).status).toBe(400);
+    expect((await c.post(`/api/evidence/${evidenceId}/restrict`, { reason: "no" })).status).toBe(422); // validation error (reason too short)
     expect((await c.post(`/api/evidence/00000000-0000-4000-8000-000000000000/restrict`, { reason: "unknown object" })).status).toBe(404);
     const r = await c.post(`/api/evidence/${evidenceId}/restrict`, { reason: "Customer requested removal of the raw payload (GDPR art. 17)" });
     expect(r.status).toBe(201);
@@ -347,7 +411,9 @@ describe("PILOT-07 data-key rotation", () => {
     const security = (await c.get("/api/settings/security")).json as { counts: Record<string, number> };
     expect(security.counts["data_key.rotated"]).toBe(1);
     // the API process still holds generation 1 in memory: creating another sealed connection must not silently mix generations
-    // (the wrapper swaps the files and recreates the containers before releasing the fence) — here we simulate the host swap
+    // (the wrapper swaps the files and recreates the containers before releasing the fence) — here we simulate the host steps:
+    // ensure_key_files freezes the generation-1 material as the anchor root, then the swap installs the candidate.
+    writeFileSync(path.join(app.install.secretsDir, "anchor.key"), live.anchorRoot, { mode: 0o600 });
     writeFileSync(path.join(app.install.secretsDir, "data.key"), next.key, { mode: 0o600 });
     writeFileSync(path.join(app.install.secretsDir, "data.key.version"), "2\n", { mode: 0o600 });
     const reloaded = loadDataKey(app.install.secretsDir);
