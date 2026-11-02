@@ -10,6 +10,11 @@ Active acceptance status (83 cases; deferred 37 remain not_started):
 
 | Status | Count |
 | --- | --- |
+| blocked_external | 2 |
+| failed | 3 |
+| implemented_unverified | 2 |
+| not_applicable | 1 |
+| passed | 75 |
 
 
 ## Evidence highlights
