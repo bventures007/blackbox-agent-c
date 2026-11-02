@@ -2,6 +2,10 @@
 
 ## Progress log (newest first)
 
+### 2026-11-02 — Promotable archive rebuilt from commit 90a0fd2 and verified from a fresh folder
+Done: release 0.1.0 (sha256 6c8a9503…, 530,036,455 bytes) built from the clean committed tree; downloaded from the landing host, hash/size verified, installed into a new folder under its own project name, demo verify passed, Playwright 68/68, api/engine healthy; INSTALL-01, DIST-02, DIST-03, LOCAL-08 re-recorded. Open: unchanged (PILOT-09/OPS-05, SEC-02, PERF-01, PILOT-05, SLICE-02/SOURCE-01 blocked, no independent review).
+
+
 ### 2026-11-02 — P4 re-run after Docker restart: 75/83 active cases passed, 3 failed, 2 unverified, 2 blocked
 Done: final archive 0.1.0 (build #9), browser download into a fresh folder, install, Playwright 68/68 on the real API (EN/DE, desktop/mobile), 67/67 reference captures compared in a real browser, MCP Inspector client, backup/restore/upgrade/rotation/restriction gates, question coverage 24/24 on the installed stack, register events re-recorded. Open: PILOT-09/OPS-05 (smoke targets missed on the shared host; engine RSS/rebuild findings), SEC-02 (no tenant export flow), PERF-01 reference comparison, PILOT-05 owner-session checks, SLICE-02/SOURCE-01 blocked, no independent review. Next: owner decision; rebuild the promotable archive from the committed tree.
 

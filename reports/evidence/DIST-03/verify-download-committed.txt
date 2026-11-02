@@ -1,0 +1,20 @@
+landing: http://127.0.0.1:19181  manifest: release/release-manifest.json  out: /var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T//blackbox-download.aBKSPO
+artifact: blackbox-0.1.0-mac-arm64.tar.gz (530036455 bytes) from http://127.0.0.1:19181/release/blackbox-0.1.0-mac-arm64.tar.gz
+checksum ok: 6c8a9503252c5bff74b44579289009cc59885fcfbf81a6eb8eccbf7a01cb6114
+running bundled doctor in the fresh directory (never installs anything)
+blackbox doctor (release mode, install: /private/var/folders/y5/px944wdj1tl6g6w9lc54gbwh0000gn/T/blackbox-download.aBKSPO/extract/blackbox-0.1.0)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 29.9.2 (arm64)
+[OK  ] DOC-COMPOSE  Compose v5.6.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 121 GiB (13%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[FAIL] DOC-PORT     port 19180 in use by 'com.docke' → stop that process or set BLACKBOX_PORT in .env
+[OK  ] DOC-SETUP    not set up yet → run ./blackbox setup
+[WARN] DOC-PROJECT  project blackbox-agent-c already has database volume blackbox-agent-c_pgdata and 5 container(s) on this Docker host (volume created 2026-11-02T04:11:07Z) → setup would refuse: use --project <other-name> or remove that installation with its own ./blackbox destroy
+doctor: failure (exit 2)
+doctor exit code: 2 (0 ok / 1 degraded / 2 failure)
+verify-download: FAIL doctor reported failure
+exit 2

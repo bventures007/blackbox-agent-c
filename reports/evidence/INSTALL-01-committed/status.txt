@@ -1,0 +1,14 @@
+project: blackbox-agent-c-final   version: installed=0.1.0 release=0.1.0   url: http://127.0.0.1:19180/
+NAME                                      IMAGE                                                                                          COMMAND                  SERVICE            CREATED              STATUS                    PORTS
+blackbox-agent-c-final-api                blackbox/api:0.1.0                                                                             "/usr/local/bin/blac…"   api                29 seconds ago       Up 22 seconds (healthy)   127.0.0.1:19180->19180/tcp
+blackbox-agent-c-final-backup-scheduler   blackbox/backup:0.1.0                                                                          "/bin/bash /scripts/…"   backup-scheduler   30 seconds ago       Up 27 seconds             5432/tcp
+blackbox-agent-c-final-engine             blackbox/engine:0.1.0                                                                          "/usr/local/bin/blac…"   engine             30 seconds ago       Up 25 seconds (healthy)   7070/tcp
+blackbox-agent-c-final-postgres           postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef   "docker-entrypoint.s…"   postgres           About a minute ago   Up 57 seconds (healthy)   5432/tcp
+blackbox-agent-c-final-worker             blackbox/worker:0.1.0                                                                          "node /app/apps/work…"   worker             29 seconds ago       Up 21 seconds             
+api health: {"status":"ok","version":"0.1.0"}
+backups: {"status":"not_configured","configured":false}
+blackbox-agent-c-final-api Up 22 seconds (healthy)
+blackbox-agent-c-final-backup-scheduler Up 27 seconds
+blackbox-agent-c-final-engine Up 25 seconds (healthy)
+blackbox-agent-c-final-postgres Up 58 seconds (healthy)
+blackbox-agent-c-final-worker Up 21 seconds

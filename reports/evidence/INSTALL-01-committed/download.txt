@@ -1,0 +1,13 @@
+downloaded blackbox-0.1.0-mac-arm64.tar.gz 530036455 bytes
+6c8a9503252c5bff74b44579289009cc59885fcfbf81a6eb8eccbf7a01cb6114  blackbox-0.1.0-mac-arm64.tar.gz
+hash match: True size match: True
+INSTALL.de.md
+INSTALL.en.md
+blackbox
+blackbox-0.1.0-mac-arm64.tar.gz
+examples
+images
+infra
+migrations
+release-manifest.json
+release.json

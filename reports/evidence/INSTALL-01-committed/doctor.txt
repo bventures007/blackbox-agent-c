@@ -1,0 +1,14 @@
+blackbox doctor (release mode, install: /Users/benediktsauter/blackbox-pilot-final)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 29.9.2 (arm64)
+[OK  ] DOC-COMPOSE  Compose v5.6.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 113 GiB (12%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[OK  ] DOC-PORT     port 19180 free
+[OK  ] DOC-SETUP    not set up yet → run ./blackbox setup
+[WARN] DOC-PROJECT  project blackbox-agent-c already has database volume blackbox-agent-c_pgdata and 5 container(s) on this Docker host (volume created 2026-11-02T04:11:07Z) → setup would refuse: use --project <other-name> or remove that installation with its own ./blackbox destroy
+doctor: degraded (exit 1)
+doctor exit 1

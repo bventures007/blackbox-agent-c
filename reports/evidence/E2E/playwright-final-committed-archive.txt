@@ -1,0 +1,101 @@
+$ pnpm --filter web build && pnpm --filter landing build && pnpm --filter e2e test
+$ tsc --noEmit -p tsconfig.json && vite build
+vite v5.4.19 building for production...
+transforming...
+✓ 81 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.82 kB │ gzip:   0.50 kB
+dist/assets/index-ddvvzPvf.css   73.33 kB │ gzip:  16.10 kB
+dist/assets/index-D61YvLNA.js   546.88 kB │ gzip: 167.44 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.36s
+$ tsc --noEmit -p tsconfig.json && vite build
+vite v5.4.19 building for production...
+transforming...
+✓ 9 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.90 kB │ gzip:  0.53 kB
+dist/assets/index-DsxK6aB5.css   62.04 kB │ gzip: 13.71 kB
+dist/assets/index-DlfjPALx.js   225.72 kB │ gzip: 76.97 kB
+✓ built in 1.02s
+$ playwright test
+
+Running 68 tests using 1 worker
+
+  ✓   1 [desktop] › tests/01-auth.spec.ts:5:3 › access-key sign-in › rejects an invalid key with a localized error and never stores the key in localStorage (1.4s)
+  ✓   2 [desktop] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access (3.2s)
+  ✓   3 [desktop] › tests/01-auth.spec.ts:37:3 › access-key sign-in › German login copy (872ms)
+  ✓   4 [desktop] › tests/01-auth.spec.ts:46:3 › access-key sign-in › logout ends the session (3.2s)
+  ✓   5 [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en (7.0s)
+  ✓   6 [desktop] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de (7.0s)
+  ✓   7 [desktop] › tests/02-demo-question.spec.ts:65:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero (7.4s)
+  ✓   8 [desktop] › tests/02-demo-question.spec.ts:80:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history (3.0s)
+  ✓   9 [desktop] › tests/02-demo-question.spec.ts:96:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it (8.2s)
+  ✓  10 [desktop] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action (1.8s)
+  ✓  11 [desktop] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (3.3s)
+  ✓  12 [desktop] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (3.3s)
+  ✓  13 [desktop] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form (1.4s)
+  ✓  14 [desktop] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence (1.9s)
+  ✓  15 [desktop] › tests/03-views.spec.ts:100:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config (3.9s)
+  ✓  16 [desktop] › tests/03-views.spec.ts:116:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls (3.4s)
+  ✓  17 [desktop] › tests/03-views.spec.ts:126:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle (6.8s)
+  ✓  18 [desktop] › tests/03-views.spec.ts:136:5 › views in en › keyboard navigation of the main nav and of a dialog (2.6s)
+  ✓  19 [desktop] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action (2.2s)
+  ✓  20 [desktop] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (2.8s)
+  ✓  21 [desktop] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (6.9s)
+  ✓  22 [desktop] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form (2.1s)
+  ✓  23 [desktop] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence (2.4s)
+  ✓  24 [desktop] › tests/03-views.spec.ts:100:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config (3.0s)
+  ✓  25 [desktop] › tests/03-views.spec.ts:116:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls (3.6s)
+  ✓  26 [desktop] › tests/03-views.spec.ts:126:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle (1.4s)
+  ✓  27 [desktop] › tests/03-views.spec.ts:136:5 › views in de › keyboard navigation of the main nav and of a dialog (1.9s)
+  ✓  28 [desktop] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings (2.7s)
+  ✓  29 [desktop] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges (3.4s)
+  ✓  30 [desktop] › tests/04-diagnostics.spec.ts:71:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download (3.5s)
+  ✓  31 [desktop] › tests/04-diagnostics.spec.ts:94:3 › system & diagnostics › view logs deep link from a source applies the connection filter (1.4s)
+  ✓  32 [desktop] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in en (1.4s)
+  ✓  33 [desktop] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in de (1.8s)
+  ✓  34 [desktop] › tests/05-landing.spec.ts:52:3 › landing page (served from a separate static base URL) › the HTML contains no embedded credentials or private tokens (804ms)
+  ✓  35 [mobile] › tests/01-auth.spec.ts:5:3 › access-key sign-in › rejects an invalid key with a localized error and never stores the key in localStorage (1.9s)
+  ✓  36 [mobile] › tests/01-auth.spec.ts:16:3 › access-key sign-in › signs in with BLACKBOX_E2E_KEY, remembers the session across reload and explains owner access (2.2s)
+  ✓  37 [mobile] › tests/01-auth.spec.ts:37:3 › access-key sign-in › German login copy (724ms)
+  ✓  38 [mobile] › tests/01-auth.spec.ts:46:3 › access-key sign-in › logout ends the session (1.8s)
+  ✓  39 [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in en (5.1s)
+  ✓  40 [mobile] › tests/02-demo-question.spec.ts:11:5 › demo scenario and question order-01 › run the demo and ask inventory.available_to_sell in de (5.9s)
+  ✓  41 [mobile] › tests/02-demo-question.spec.ts:65:3 › demo scenario and question order-01 › an unknown item returns status unknown with the missing basis, not a fabricated zero (3.2s)
+  ✓  42 [mobile] › tests/02-demo-question.spec.ts:80:3 › demo scenario and question order-01 › entity lifecycle view: invoice INV-1001 shows positions, semantics, tracks and history (4.1s)
+  ✓  43 [mobile] › tests/02-demo-question.spec.ts:96:3 › demo scenario and question order-01 › needs review: an ambiguous bank credit opens a case; a revision-safe decision appends and resolves it (5.5s)
+  ✓  44 [mobile] › tests/03-views.spec.ts:10:5 › views in en › recorder shows five tracks, question shortcuts, readiness and example action (2.1s)
+  ✓  45 [mobile] › tests/03-views.spec.ts:21:5 › views in en › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (2.5s)
+  ✓  46 [mobile] › tests/03-views.spec.ts:43:5 › views in en › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (2.6s)
+  ✓  47 [mobile] › tests/03-views.spec.ts:67:5 › views in en › questions: six groups, 24 templates, labeled search box, typed parameter form (3.1s)
+  ✓  48 [mobile] › tests/03-views.spec.ts:79:5 › views in en › journal: filters, table, entry drawer with payload and evidence (2.9s)
+  ✓  49 [mobile] › tests/03-views.spec.ts:100:5 › views in en › agents & MCP: grant explanation, create key shown once, copyable stdio config (3.2s)
+  ✓  50 [mobile] › tests/03-views.spec.ts:116:5 › views in en › system & diagnostics: seven health cards, logs table, debug and export controls (8.4s)
+  ✓  51 [mobile] › tests/03-views.spec.ts:126:5 › views in en › settings: backups & recovery states, retention, storage, key rotation, lifecycle (2.8s)
+  ✓  52 [mobile] › tests/03-views.spec.ts:136:5 › views in en › keyboard navigation of the main nav and of a dialog (1.8s)
+  ✓  53 [mobile] › tests/03-views.spec.ts:10:5 › views in de › recorder shows five tracks, question shortcuts, readiness and example action (1.7s)
+  ✓  54 [mobile] › tests/03-views.spec.ts:21:5 › views in de › sources catalogue: grouped categories, provider state badges, Xentral absent, needs-review list (5.4s)
+  ✓  55 [mobile] › tests/03-views.spec.ts:43:5 › views in de › connection detail: import plan with timezone/UTC boundaries, capability health, view logs link (2.3s)
+  ✓  56 [mobile] › tests/03-views.spec.ts:67:5 › views in de › questions: six groups, 24 templates, labeled search box, typed parameter form (2.2s)
+  ✓  57 [mobile] › tests/03-views.spec.ts:79:5 › views in de › journal: filters, table, entry drawer with payload and evidence (1.8s)
+  ✓  58 [mobile] › tests/03-views.spec.ts:100:5 › views in de › agents & MCP: grant explanation, create key shown once, copyable stdio config (3.2s)
+  ✓  59 [mobile] › tests/03-views.spec.ts:116:5 › views in de › system & diagnostics: seven health cards, logs table, debug and export controls (2.8s)
+  ✓  60 [mobile] › tests/03-views.spec.ts:126:5 › views in de › settings: backups & recovery states, retention, storage, key rotation, lifecycle (1.6s)
+  ✓  61 [mobile] › tests/03-views.spec.ts:136:5 › views in de › keyboard navigation of the main nav and of a dialog (1.3s)
+  ✓  62 [mobile] › tests/04-diagnostics.spec.ts:5:3 › system & diagnostics › filters: warnings preset, component filter, literal search, record drawer with trace siblings (3.6s)
+  ✓  63 [mobile] › tests/04-diagnostics.spec.ts:48:3 › system & diagnostics › live mode appends records, pause freezes with a new-record counter, resume merges (4.0s)
+  ✓  64 [mobile] › tests/04-diagnostics.spec.ts:71:3 › system & diagnostics › debug controls bound minutes to 15 and show expiry; export dialog previews before download (6.7s)
+  ✓  65 [mobile] › tests/04-diagnostics.spec.ts:94:3 › system & diagnostics › view logs deep link from a source applies the connection filter (2.5s)
+  ✓  66 [mobile] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in en (1.5s)
+  ✓  67 [mobile] › tests/05-landing.spec.ts:7:5 › landing page (served from a separate static base URL) › shows the release metadata or the truthful unavailable state in de (1.2s)
+  ✓  68 [mobile] › tests/05-landing.spec.ts:52:3 › landing page (served from a separate static base URL) › the HTML contains no embedded credentials or private tokens (701ms)
+
+  68 passed (3.6m)
+exit 0

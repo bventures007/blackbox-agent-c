@@ -1,6 +1,6 @@
 # P4 checkpoint — restricted preview handover (re-run on the same Mac after the Docker restart)
 
-Recorded 2026-11-02 (UTC). Tested implementation commit: `df8cfbb` plus the verifier fixes committed together with this checkpoint (the commit that contains this file; see `git log -1`). Acceptance records cite that commit as tested_commit; the installed archive was built from the same tree before the commit, so the promotable 0.1.0 archive must be rebuilt from the committed tree before distribution (`scripts/release/build.sh 0.1.0`).
+Recorded 2026-11-02 (UTC). Tested implementation commit: `90a0fd23af5e866e3f3b1df173a5545dd252ce05` (re-run evidence) and the promotable archive built from exactly that commit. Final archive: `blackbox-0.1.0-mac-arm64.tar.gz`, sha256 `6c8a9503252c5bff74b44579289009cc59885fcfbf81a6eb8eccbf7a01cb6114`, 530,036,455 bytes, bundled arm64 images, manifest check PASS. It was downloaded from the independently served landing into a new empty folder, hash-checked, installed (`./blackbox doctor/setup/up`), demo-verified against the golden values and passed the full Playwright suite 68/68 with api and engine healthy (reports/evidence/INSTALL-01-committed, DIST-03, E2E/playwright-final-committed-archive.txt).
 
 ## Verdict
 
@@ -20,7 +20,7 @@ Active acceptance status (83 cases; deferred 37 remain not_started):
 ## Evidence highlights
 
 - Fresh-folder install: reports/evidence/INSTALL-01-b, DIST-01 (landing EN/DE with version/size/sha256/prerequisites; pending, corrupted-checksum and 404 states), DIST-03 (build and manifest checks, verify-download), INSTALL-02 (byte-identical answers across down/up, restart 17–30 s).
-- Archive: release/dist/blackbox-0.1.0-mac-arm64.tar.gz, sha256 2e665fe33dd55dec245e3bd0fe356a3060fba6a004b3c818d48bd7dfe7887956, 530,045,630 bytes, bundled arm64 images (not on a registry; publication is not authorized).
+- Archive (promotable, from the committed tree): release/dist/blackbox-0.1.0-mac-arm64.tar.gz, sha256 6c8a9503252c5bff74b44579289009cc59885fcfbf81a6eb8eccbf7a01cb6114, 530,036,455 bytes, bundled arm64 images (not on a registry; publication is not authorized). The earlier build #9 (sha256 2e665fe3…) used for most re-run evidence came from the same code before the commit and is superseded.
 - Playwright: reports/evidence/E2E/playwright-fresh-install-run6.txt (68 passed) with HTML report; earlier runs 1–5 kept with the defects they exposed.
 - UI comparison: 67/67 captures in the per-capture table (26 match, 2 match with additions, 24 documented deviations, 10 intentional deviations such as EN default and pilot-only views, 5 not reproducible: planned providers/absent demo states); 126 screens, focus-trap checks 4/4.
 - SLICE-01 52/52 on both installs; MCP-03 with an independent client (MCP Inspector CLI 2.13.0, SDK 1.32.2, stdio) using a UI-created agent key; LOCAL-06 runtime key rotation; HEALTH/DIAG gates incl. CLI with every container down and a 23.7 KB sanitized export with 0 canary hits; PILOT-10 no external egress during local questions.
@@ -58,7 +58,7 @@ Open http://127.0.0.1:19180, sign in with the key shown once by setup, run the d
 
 ## Remaining blockers and next steps
 
-1. Rebuild and re-hash the promotable archive from this commit; re-run the smoke on an idle or dedicated 4 vCPU / 8 GiB host and address engine RSS and rebuild time.
+1. Re-run the performance smoke on an idle or dedicated 4 vCPU / 8 GiB host and address engine RSS and rebuild time.
 2. Implement the tenant export flow (SEC-02) and the PostgreSQL reference-path comparison (PERF-01).
 3. Provide an authorized read-only Shopify store token (SLICE-02, SOURCE-01) and an independent reviewer for the register rows.
 4. Owner-session checks for sleep/wake and account replacement (PILOT-05).

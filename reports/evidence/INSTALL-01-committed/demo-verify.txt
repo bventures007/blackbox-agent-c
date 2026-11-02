@@ -1,0 +1,14 @@
+  api ready (0s)
+running at http://127.0.0.1:19180/ (project blackbox-agent-c-final)
+{"level":"INFO","tenant_id":"bc07018e-29c3-4857-8ab6-374cc6707d84","run_id":"f2765fd6-44bd-40a6-b749-fb879b17113d","record_count":19,"committed_cursor":54,"schema_version":1,"record_id":"640e1e2f-825f-48e7-a429-f46345b7e89b","occurred_at":"2026-11-02T06:54:01.714Z","observed_at":"2026-11-02T06:54:01.714Z","event_name":"demo.loaded","component":"api","service_version":"0.1.0","instance_id":"1df7d811-d8ab-41ff-b547-7b32ecadb82d","scope":"workspace","message":"Golden demo scenario loaded through the replay path (CLI)"}
+demo scenario loaded: accepted=19 duplicate=0 conflict=0 rejected=0 committed_cursor=54 run=f2765fd6-44bd-40a6-b749-fb879b17113d
+labeled GOLDEN demo scenario loaded into demo connections (never over user data)
+captured_minor         observed=11900 expected=11900
+fees_minor             observed=350 expected=350
+refunded_minor         observed=2380 expected=2380
+bank_confirmed_minor   observed=9170 expected=9170
+consistency: {"applied_cursor":54,"required_cursor":54,"reducer_version":1,"status":"current","recorded_cutoff":"2026-11-02T06:54:01.621Z","effective_cutoff":null,"mode":"latest_committed"}
+verify: passed (golden order state matches)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+verify exit 
