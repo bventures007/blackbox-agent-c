@@ -14,7 +14,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify.orders on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify.orders on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Only the current order revision is observable; 60-day default history without read_all_orders.",
   "work": {
@@ -340,7 +341,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify.stock on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify.stock on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Snapshot-only basis; no reservation evidence from Shopify.",
   "work": {
@@ -666,7 +668,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify.allocations on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify.allocations on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Fulfillment orders are planned work, not stock reservations.",
   "work": {
@@ -992,7 +995,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify.fulfillments on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify.fulfillments on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: No reservation evidence: dispatch carries reservation_released null.",
   "work": {
@@ -1318,7 +1322,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify.payments on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify.payments on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Pending SALE transactions unsupported; fees come from the Shopify Payments ledger, not from the order.",
   "work": {
@@ -1644,7 +1649,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify.returns on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify.returns on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Return/disposition timestamps unavailable in the pinned subset.",
   "work": {
@@ -1970,7 +1976,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify.receipts on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify.receipts on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: reverse_shipment_id missing; ReverseDelivery availability not verifiable offline.",
   "work": {
@@ -2296,7 +2303,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify.refunds on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify.refunds on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Shop-side and ledger refunds share economic identity shopify:transaction:<id>.",
   "work": {
@@ -2622,7 +2630,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify_payments.provider_ledger on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify_payments.provider_ledger on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: processed_at filter acceptance and the full transaction type enum not verifiable offline.",
   "work": {
@@ -2940,7 +2949,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify_payments.positions on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify_payments.positions on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: processing/available/held balance components are missing fields.",
   "work": {
@@ -3258,7 +3268,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify_payments.payouts on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify_payments.payouts on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: trace_reference/reversal_id missing; issued_at filter not verifiable offline.",
   "work": {
@@ -3576,7 +3587,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify_payments.holds on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify_payments.holds on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: All hold fields missing; capability unsupported.",
   "work": {
@@ -3894,7 +3906,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify_payments.refunds on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify_payments.refunds on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Shared economic identity with shopify.refunds.",
   "work": {
@@ -4212,7 +4225,8 @@
    "claude-fable-5-1",
    "claude-fable-5-1/ops-verifier",
    "claude-fable-5-1/p4-rerun-verifier",
-   "sauterbe"
+   "sauterbe",
+   "claude-fable-5-1/orchestrator"
   ],
   "note": "Re-records the implementation of row shopify_payments.disputes on the committed revision c915e41b6c1c6784e4b33965820fea408ab62b65 after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: Re-records the implementation of row shopify_payments.disputes on the committed revision df8cfbb5e41fb3da483270651823cf470aaf1a65 (P4 re-run verifier). The business mappings, adapters, reducers and query services are unchanged since the invalidated revision 482bdf5; the revision carries the engine health-latch fix in crates/projections/src/engine.rs and the MCP get_evidence description naming the explicit `restricted` status. Synthetic provider-shaped fixture only; live access remains a separate blocked event. Known limitations unchanged: original_transaction_id missing.",
   "work": {
