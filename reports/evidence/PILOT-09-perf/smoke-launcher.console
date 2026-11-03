@@ -1,0 +1,38 @@
+secret-pattern lines: 0
+# perf smoke protocol started 2026-11-03T17:55:08Z load 10.83 49.11 64.13 commit 9b64931c80134c50281cd904d81789ddec78f3b5
+  blackbox-agent-c-perf-backup-scheduler blackbox/backup:0.1.1-perf Up 6 seconds
+  blackbox-agent-c-perf-pgproxy node:22-bookworm-slim Up 2 hours
+  blackbox-agent-c-perf-api blackbox/api:0.1.1-perf Up 3 seconds (health: starting)
+  blackbox-agent-c-perf-worker blackbox/worker:0.1.1-perf Up 5 seconds
+  blackbox-agent-c-perf-engine blackbox/engine:0.1.1-perf Up 7 seconds (healthy)
+  blackbox-agent-c-perf-postgres postgres:16.6-alpine Up 12 seconds (healthy)
+foreign containers (not blackbox-agent-c-perf-*): 17
+## pre-run API readiness: api responsive after 0 s
+## engine before api-closed: {"status":"healthy","rss_mib":667.8,"approx_mib":377.3,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"write_copies_resident":0,"evictions":0,"rss_evictions":0,"cold_hits":0,"cold_misses":0,"admission":{"in_flight":0,"admitted":0,"rejected":0,"limits":{"
+## run api-closed started 2026-11-03T17:55:08Z load 10.83 49.11 64.13
+exit=0 finished 2026-11-03T18:06:14Z load 126.76 129.45 105.76
+{"transport":"api","mode":"closed","elapsed_s":600.614,"rps":41.78,"success_fraction":0.99956,"classes":{"hot":{"n":12748,"p95":1147.4,"p99":1957.9,"ok":1},"cold":{"n":5021,"p95":2861.7,"p99":4330.8,"ok":0.99781},"history":{"n":4847,"p95":655,"p99":1237.9,"ok":1},"summary":{"n":2478,"p95":807.1,"p99
+## engine after api-closed: {"status":"healthy","rss_mib":972.4,"approx_mib":543.8,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"write_copies_resident":1,"evictions":0,"rss_evictions":0,"cold_hits":1998,"cold_misses":3023,"admission":{"in_flight":0,"admitted":22930,"rejected":0,"l
+sampler: 37 samples; host 1-min load min/median/max 10.8/131.2/185.9; postgres CPU median/max 396%/612%; api CPU median/max 59%/371%; engine CPU median/max 59%/222%; engine VmRSS median/max 904/1036 MiB
+## pre-run API readiness: api responsive after 0 s
+## engine before api-fixed: {"status":"healthy","rss_mib":972.4,"approx_mib":543.8,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"write_copies_resident":1,"evictions":0,"rss_evictions":0,"cold_hits":1998,"cold_misses":3023,"admission":{"in_flight":0,"admitted":22930,"rejected":0,"l
+## run api-fixed started 2026-11-03T18:06:15Z load 119.66 127.93 105.37
+exit=0 finished 2026-11-03T18:17:15Z load 47.57 54.48 74.97
+{"transport":"api","mode":"fixed","elapsed_s":604.247,"rps":39.72,"success_fraction":0.99663,"classes":{"hot":{"n":12202,"p95":1644.5,"p99":2809.3,"ok":0.99574},"cold":{"n":4797,"p95":2143,"p99":3437.4,"ok":0.99625},"history":{"n":4634,"p95":1367.3,"p99":2596.3,"ok":1},"summary":{"n":2368,"p95":1446
+## engine after api-fixed: {"status":"healthy","rss_mib":1013.2,"approx_mib":511.7,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"write_copies_resident":1,"evictions":756,"rss_evictions":11,"cold_hits":3197,"cold_misses":6603,"admission":{"in_flight":0,"admitted":45183,"rejected":8
+sampler: 37 samples; host 1-min load min/median/max 30.6/58.5/119.7; postgres CPU median/max 160%/239%; api CPU median/max 53%/261%; engine CPU median/max 90%/158%; engine VmRSS median/max 1003/1090 MiB
+## pre-run API readiness: api responsive after 0 s
+## engine before mcp-closed: {"status":"healthy","rss_mib":1013.2,"approx_mib":511.7,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"write_copies_resident":1,"evictions":756,"rss_evictions":11,"cold_hits":3197,"cold_misses":6603,"admission":{"in_flight":0,"admitted":45183,"rejected"
+## run mcp-closed started 2026-11-03T18:17:16Z load 47.57 54.48 74.97
+exit=0 finished 2026-11-03T18:28:24Z load 101.92 78.12 75.50
+{"transport":"mcp","mode":"closed","elapsed_s":604.828,"rps":58.82,"success_fraction":0.9982,"classes":{"hot":{"n":17948,"p95":886.9,"p99":1846.8,"ok":0.99983},"cold":{"n":7130,"p95":1970.9,"p99":5051.9,"ok":0.99144},"history":{"n":6962,"p95":444.4,"p99":890.4,"ok":1},"summary":{"n":3536,"p95":610.9
+## engine after mcp-closed: {"status":"healthy","rss_mib":905.9,"approx_mib":531.8,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"write_copies_resident":1,"evictions":769,"rss_evictions":44,"cold_hits":5901,"cold_misses":11029,"admission":{"in_flight":0,"admitted":76770,"rejected":
+sampler: 38 samples; host 1-min load min/median/max 39.5/65.9/105.5; postgres CPU median/max 287%/566%; api CPU median/max 78%/132%; engine CPU median/max 148%/218%; engine VmRSS median/max 1016/1070 MiB
+## pre-run API readiness: api responsive after 0 s
+## engine before mcp-fixed: {"status":"healthy","rss_mib":906,"approx_mib":531.8,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"write_copies_resident":1,"evictions":769,"rss_evictions":44,"cold_hits":5901,"cold_misses":11029,"admission":{"in_flight":0,"admitted":76770,"rejected":81
+## run mcp-fixed started 2026-11-03T18:28:25Z load 102.24 78.58 75.68
+exit=0 finished 2026-11-03T18:39:33Z load 76.48 87.16 87.82
+{"transport":"mcp","mode":"fixed","elapsed_s":601.819,"rps":39.88,"success_fraction":0.75884,"classes":{"hot":{"n":12202,"p95":2890.9,"p99":4779.9,"ok":0.71611},"cold":{"n":4797,"p95":5276.5,"p99":6956,"ok":0.66938},"history":{"n":4634,"p95":1839.6,"p99":4136.4,"ok":1},"summary":{"n":2368,"p95":2286
+## engine after mcp-fixed: {"status":"healthy","rss_mib":1029.1,"approx_mib":465,"rss_over_target":true,"tenants":51,"ready":51,"lag_entries":0,"write_copies_resident":0,"evictions":950,"rss_evictions":341,"cold_hits":6988,"cold_misses":13384,"admission":{"in_flight":0,"admitted":92322,"rejected":57
+sampler: 37 samples; host 1-min load min/median/max 56.8/111.4/161.7; postgres CPU median/max 477%/812%; api CPU median/max 53%/103%; engine CPU median/max 60%/110%; engine VmRSS median/max 1065/1194 MiB
+# runs finished 2026-11-03T18:39:33Z load 76.48 87.16 87.82

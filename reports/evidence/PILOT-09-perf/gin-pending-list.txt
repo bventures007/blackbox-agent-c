@@ -1,0 +1,59 @@
+# GIN pending list (fastupdate) evidence on the idle perf database after run 2, 2026-11-03T18:47:21Z load 29.50 44.87 64.73
+## settings
+autovacuum_naptime|60|s
+autovacuum_vacuum_insert_scale_factor|0.2|
+autovacuum_vacuum_insert_threshold|1000|
+gin_pending_list_limit|4096|kB
+## index options / size and table vacuum state
+journal_entries_entity_idx||12 MB
+652857|0|100113||2026-11-03 16:43:32.075658+00|2026-11-03 18:02:27.104056+00
+## engine entity read as bb_engine BEFORE vacuum
+   Buffers: shared hit=4 read=333
+         Buffers: shared hit=4 read=333
+               Buffers: shared hit=1 read=333
+               ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1385.92 rows=66 width=0) (actual time=11.326..11.326 rows=69 loops=1)
+                     Buffers: shared hit=1 read=325
+   Buffers: shared hit=312 read=12
+ Execution Time: 11.793 ms
+## VACUUM journal_entries (flushes the GIN pending list)
+vacuum took 0 s
+## engine entity read as bb_engine AFTER vacuum
+   Buffers: shared hit=337
+         Buffers: shared hit=337
+               Buffers: shared hit=334
+               ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1385.92 rows=66 width=0) (actual time=4.844..4.844 rows=69 loops=1)
+                     Buffers: shared hit=326
+   Buffers: shared hit=324
+ Execution Time: 5.099 ms
+## bb_api history AFTER vacuum
+   Buffers: shared hit=340 read=3
+         Buffers: shared hit=340 read=3
+               Buffers: shared hit=337 read=3
+                     Buffers: shared hit=329 read=3
+                     ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1385.92 rows=66 width=0) (actual time=3.044..3.044 rows=69 loops=1)
+                           Buffers: shared hit=326
+                     ->  Bitmap Index Scan on journal_entries_record_idx  (cost=0.00..4.49 rows=4 width=0) (actual time=0.246..0.247 rows=3 loops=1)
+                           Buffers: shared hit=3 read=3
+   Buffers: shared hit=418 read=9
+ Execution Time: 3.794 ms
+## VACUUM (VERBOSE) journal_entries — full output, 2026-11-03T18:47:42Z
+INFO:  vacuuming "blackbox.public.journal_entries"
+ERROR:  could not resize shared memory segment "/PostgreSQL.3158443878" to 67145792 bytes: No space left on device
+|100113
+## gin_clean_pending_list('journal_entries_entity_idx') -> pending pages flushed
+322
+## engine entity read AFTER gin_clean_pending_list
+   Buffers: shared hit=15
+         Buffers: shared hit=15
+               Buffers: shared hit=12
+               ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..17.42 rows=66 width=0) (actual time=0.030..0.030 rows=69 loops=1)
+                     Buffers: shared hit=4
+   Buffers: shared hit=324
+ Execution Time: 0.242 ms
+## GIN index page composition (pageinspect-free estimate: index size / pages)
+1636|87014
+# 2026-11-03T18:49:04Z migration 0005_gin_fastupdate.sql copied to <install>/migrations and applied with: docker compose -p blackbox-agent-c-perf exec -T api node /app/apps/api/dist/cli.js migrate
+migrate: applied 0005_gin_fastupdate.sql
+{"applied":["0005_gin_fastupdate.sql"],"skipped":["0001_journal.sql","0002_identity.sql","0003_operations.sql","0004_scoped_references.sql","0100_worker.sql","0101_maintenance_lease.sql"]}
+schema_migrations: 0001_journal 0002_identity 0003_operations 0004_scoped_references 0005_gin_fastupdate 0100_worker 0101_maintenance_lease 
+index options: {fastupdate=off}

@@ -1,0 +1,66 @@
+# command: PGHOST=127.0.0.1 PGPORT=19197 PGDATABASE=blackbox PGUSER=bb_api PGPASSWORD_FILE=<install>/secrets/pg_api_password target/release/corpus --parallel 6 --seed 42 --tenants 50 --min-entries 250000 --min-orders 10000 --manifest reports/evidence/PILOT-09-perf/corpus-manifest.json  (perf install blackbox-agent-c-perf via the loopback proxy container blackbox-agent-c-perf-pgproxy into its backend network; corpus binary built from the same commit)
+# started 2026-11-03T16:24:50Z commit 9b64931c80134c50281cd904d81789ddec78f3b5 load 11.13 19.47 19.02
+tenant 9/50: 32 orders, 1842 entries, 3.993994583s elapsed
+tenant 5/50: 49 orders, 2720 entries, 7.923715791s elapsed
+tenant 19/50: 53 orders, 3079 entries, 11.373377166s elapsed
+tenant 2/50: 92 orders, 5177 entries, 33.667806875s elapsed
+tenant 14/50: 128 orders, 6931 entries, 43.190194833s elapsed
+tenant 23/50: 138 orders, 7806 entries, 52.079115833s elapsed
+tenant 25/50: 127 orders, 6814 entries, 63.184455958s elapsed
+tenant 24/50: 150 orders, 8471 entries, 64.54254175s elapsed
+tenant 28/50: 54 orders, 2954 entries, 66.901932958s elapsed
+tenant 27/50: 82 orders, 4511 entries, 68.507810041s elapsed
+tenant 31/50: 35 orders, 1900 entries, 73.57240575s elapsed
+tenant 26/50: 147 orders, 7787 entries, 77.371139791s elapsed
+tenant 29/50: 71 orders, 3817 entries, 79.429165666s elapsed
+tenant 35/50: 63 orders, 3648 entries, 91.779926208s elapsed
+tenant 32/50: 125 orders, 6708 entries, 101.884277s elapsed
+tenant 33/50: 134 orders, 7092 entries, 105.413196916s elapsed
+tenant 30/50: 162 orders, 9241 entries, 105.994142583s elapsed
+tenant 34/50: 119 orders, 6713 entries, 108.560549875s elapsed
+tenant 38/50: 69 orders, 3827 entries, 123.157724208s elapsed
+tenant 37/50: 92 orders, 4955 entries, 127.250358333s elapsed
+tenant 41/50: 56 orders, 3160 entries, 138.785216833s elapsed
+tenant 36/50: 156 orders, 8752 entries, 139.158461125s elapsed
+tenant 39/50: 112 orders, 6155 entries, 148.3873365s elapsed
+tenant 40/50: 171 orders, 9456 entries, 166.372145541s elapsed
+tenant 43/50: 105 orders, 5709 entries, 178.027705416s elapsed
+tenant 44/50: 114 orders, 6047 entries, 180.430947666s elapsed
+tenant 45/50: 107 orders, 5660 entries, 183.229660666s elapsed
+tenant 42/50: 182 orders, 10104 entries, 192.908502416s elapsed
+tenant 21/50: 37 orders, 1956 entries, 198.620284958s elapsed
+tenant 49/50: 67 orders, 3683 entries, 201.634604916s elapsed
+tenant 46/50: 152 orders, 8843 entries, 216.002614666s elapsed
+tenant 47/50: 114 orders, 6383 entries, 216.905666083s elapsed
+tenant 48/50: 120 orders, 6581 entries, 218.357096541s elapsed
+tenant 20/50: 89 orders, 4996 entries, 226.314735875s elapsed
+tenant 11/50: 39 orders, 2164 entries, 226.408218958s elapsed
+tenant 6/50: 80 orders, 4499 entries, 239.027527666s elapsed
+tenant 10/50: 85 orders, 4652 entries, 247.225389291s elapsed
+tenant 7/50: 163 orders, 8969 entries, 248.85725275s elapsed
+tenant 22/50: 103 orders, 5962 entries, 263.688462375s elapsed
+tenant 16/50: 34 orders, 1920 entries, 265.041170541s elapsed
+tenant 12/50: 145 orders, 7911 entries, 289.832101791s elapsed
+tenant 17/50: 67 orders, 3598 entries, 326.891023125s elapsed
+tenant 8/50: 98 orders, 5462 entries, 330.315637125s elapsed
+tenant 15/50: 145 orders, 7832 entries, 333.809580625s elapsed
+tenant 13/50: 182 orders, 10120 entries, 335.231183916s elapsed
+tenant 3/50: 38 orders, 2086 entries, 335.286891708s elapsed
+tenant 1/50: 136 orders, 7503 entries, 336.907097416s elapsed
+tenant 4/50: 50 orders, 2738 entries, 339.402647166s elapsed
+tenant 18/50: 131 orders, 7141 entries, 357.30356s elapsed
+tenant 0/50: 5000 orders, 276763 entries, 1098.561068791s elapsed
+{
+  "tenants": 50,
+  "orders": 10000,
+  "journal_entries": 552798,
+  "largest_tenant_order_fraction": 0.5
+}
+{
+  "p50": 63,
+  "p95": 69,
+  "max": 73,
+  "min": 31
+}
+manifest written to reports/evidence/PILOT-09-perf/corpus-manifest.json
+# exit 0 finished 2026-11-03T16:43:09Z load 12.74 14.92 18.09

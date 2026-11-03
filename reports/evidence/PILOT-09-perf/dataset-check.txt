@@ -1,0 +1,23 @@
+# independent dataset check (superuser psql on the perf install) 2026-11-03T16:43:52Z
+tenants_total|51
+corpus_tenants|50
+journal_entries_total|552858
+journal_entries_corpus|552798
+track_source|175717
+track_fact|175482
+track_commitment|49540
+track_movement|95105
+track_reservation|57014
+distinct_orders|10003
+late_corrections_supersedes|500
+entries_with_evidence_refs|472299
+distinct_customers|10002
+distinct_tracking|0
+largest_tenant_entries|276763
+journal_table_bytes|787693568
+database_bytes|1008792035
+payload_bytes_avg|117
+payload_bytes_p95|211
+payload_bytes_max|215
+order_history_p95|69
+evidence dir: 84 KiB

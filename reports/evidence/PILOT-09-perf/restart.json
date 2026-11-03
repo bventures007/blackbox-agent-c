@@ -1,0 +1,13 @@
+{
+ "class": "restart_with_unapplied_tail",
+ "unapplied_tail_entries": 1002,
+ "unapplied_tail_observations": 334,
+ "ready_seconds": 2,
+ "time_to_ready_seconds": 2,
+ "engine_rss_bytes_after": 869621760,
+ "engine_image": "blackbox/engine:0.1.1-perf",
+ "host_load_after": "47.50 77.81 84.33",
+ "measured_at": "2026-11-03T18:40:15.982622+00:00",
+ "source": "scripts/verify/perf-recovery.sh",
+ "ready_definition": "API health card engine=healthy (every tenant ready, applied cursor = committed cursor), polled every 1 s from the compose up command"
+}

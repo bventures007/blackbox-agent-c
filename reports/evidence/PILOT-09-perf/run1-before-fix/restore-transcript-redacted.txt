@@ -1,0 +1,330 @@
+restoring into fresh isolated installation: /Users/benediktsauter/blackbox-pilot-perf-restore (port 19198)
+  [start] blackbox-backup-20261103T174253Z.tar.age
+  [inspect]
+[?25l[0G[2K[+] run 1/1
+[2K [32m✔[0m Network blackbox-agent-c-perf-restore_backend [32mCreated[0m                    [34m0.0s[0m
+[?25hContainer blackbox-agent-c-perf-restore-backup-run-7b98087cd5bf [32mCreating[0m 
+Container blackbox-agent-c-perf-restore-backup-run-7b98087cd5bf [32mCreated[0m 
+{"generation":"blackbox-backup-20261103T174253Z","created_at":"2026-11-03T17:42:53Z","blackbox_version":"0.1.1-perf","bytes":199462632,"sha256":"989c77acf7708c535e41fad9ddda33606a5faa6ba706819ab4f6e3721b983dd5","cutoff_committed":[{"tenant_id":"0d330fdc-3c5a-4667-b8a0-b4c7bd560def","committed_sequence":7141},{"tenant_id":"1ec3f60b-54a3-48d7-9095-8e24308ce29d","committed_sequence":10120},{"tenant_id":"288c56e5-0838-4c83-90d5-c608b754d22c","committed_sequence":4996},{"tenant_id":"29230a19-6dfa-4790-8709-0def13d93d1a","committed_sequence":2086},{"tenant_id":"2c2d1432-97a5-4c2f-abbf-0cad666467bd","committed_sequence":7503},{"tenant_id":"2f587cfc-16dd-489d-80c2-99e6d295accb","committed_sequence":3683},{"tenant_id":"35163f6f-6755-47b1-bc54-23196b86b66e","committed_sequence":4955},{"tenant_id":"3680047a-4316-40d0-b681-42bed4b076c1","committed_sequence":3079},{"tenant_id":"37de212c-4432-48da-abe9-8afd44e02530","committed_sequence":7832},{"tenant_id":"38ee01c9-fc95-4967-ad91-db18d9ff0a7b","committed_sequence":6814},{"tenant_id":"4eb0d4a8-8ff4-49de-9d2a-94429cabe9ad","committed_sequence":1900},{"tenant_id":"520557d7-5719-4c03-8b65-a3cb0db1ced3","committed_sequence":8969},{"tenant_id":"528c580e-7f25-4914-ab07-fe6ef959010f","committed_sequence":10104},{"tenant_id":"5a01df05-66cf-4fef-807e-c7f12d02b0e1","committed_sequence":1920},{"tenant_id":"5b5bb78a-4c1c-4f50-beb9-6602db161560","committed_sequence":5709},{"tenant_id":"60a78fd3-7d0a-49dc-8bb2-7841be717cf5","committed_sequence":7911},{"tenant_id":"60c41698-268e-46c3-8547-e259450b4db6","committed_sequence":3827},{"tenant_id":"660f922b-74b2-47fb-aadb-9265f7a023f2","committed_sequence":9241},{"tenant_id":"67f9ba7a-82b6-4831-90c4-e659866554a5","committed_sequence":8843},{"tenant_id":"691998ba-c9b7-4524-af6e-a1f252b19021","committed_sequence":2738},{"tenant_id":"6a050a0a-60a9-40ca-9e3c-9bc2665237b6","committed_sequence":6581},{"tenant_id":"7e22ae5f-f7a4-487f-a0dc-e3e519055a50","committed_sequence":5660},{"tenant_id":"81c14dde-66b4-4c23-ae60-82dc0bf3919c","committed_sequence":9456},{"tenant_id":"8335708e-40f0-4ba7-81e6-9c6f7b530320","committed_sequence":48624},{"tenant_id":"8b621a2a-bb46-47fa-9d14-9ac981f6c117","committed_sequence":276763},{"tenant_id":"8bc1f69d-d80b-4929-b5f8-73b2fbee333e","committed_sequence":7787},{"tenant_id":"90537c19-a5bb-40fc-8492-ce41047719df","committed_sequence":6383},{"tenant_id":"926a0404-c4e1-432b-85f0-a61c1b02cd2c","committed_sequence":6155},{"tenant_id":"955d6a21-a838-42f4-ba07-878664334863","committed_sequence":5962},{"tenant_id":"95ea3097-02a8-4aae-b4ef-0c142d75f4ba","committed_sequence":3817},{"tenant_id":"96fac996-67c8-4b99-ad0b-5d937c8e3c7d","committed_sequence":4511},{"tenant_id":"9a2d405d-4cc8-4f46-841b-d6fecbdadb31","committed_sequence":3160},{"tenant_id":"9b079e5f-f193-463a-b963-47f660ca6964","committed_sequence":6047},{"tenant_id":"9c0664bc-1512-4bd7-94d7-bc513b658f34","committed_sequence":5177},{"tenant_id":"b2c1f396-f775-49c5-b5e7-360b2ad38f41","committed_sequence":8752},{"tenant_id":"b9b98ea0-85ca-4ba1-afeb-ac3cca2313c0","committed_sequence":7806},{"tenant_id":"ba98dfa9-1de4-4fc3-8e1b-92109f5fdebf","committed_sequence":2954},{"tenant_id":"bcdfd575-ef18-42f9-b488-fad281eca090","committed_sequence":2164},{"tenant_id":"c2080337-ad43-4c83-8db7-cfcfa08664e2","committed_sequence":1842},{"tenant_id":"c641319c-5ace-46bf-bba5-46e0fdb6b1c7","committed_sequence":7092},{"tenant_id":"d0eff5f9-d4f3-4455-ab8d-a6104695f840","committed_sequence":3648},{"tenant_id":"d62bb774-0ed2-4eb4-88c0-03b5592bb84c","committed_sequence":4499},{"tenant_id":"d8115c70-af70-498e-89cd-55a1ed2975ca","committed_sequence":6708},{"tenant_id":"e32dec96-3ac9-482c-b96a-af5eeeed000a","committed_sequence":5462},{"tenant_id":"e888e73c-f233-4c26-8836-7dba15535dff","committed_sequence":8471},{"tenant_id":"ec52283e-599c-401f-b49d-556baab3797c","committed_sequence":4652},{"tenant_id":"f164589e-794d-4787-941c-0e0d2dba95e2","committed_sequence":6931},{"tenant_id":"f1ab08b9-bcf6-4b6a-9397-597fb63bdcfd","committed_sequence":6713},{"tenant_id":"f37dd4b5-4878-4d7b-aab9-d94584b861d1","committed_sequence":2720},{"tenant_id":"f998197a-8e60-4625-a687-6ab8abf48c63","committed_sequence":3598},{"tenant_id":"fb330427-0b6c-47de-9b49-f4a1feb2489b","committed_sequence":1956}],"install_id":"58f502f327df78086fea5f43af2f5b84"}
+  [unpack]
+Container blackbox-agent-c-perf-restore-backup-run-d798bb85ae85 [32mCreating[0m 
+Container blackbox-agent-c-perf-restore-backup-run-d798bb85ae85 [32mCreated[0m 
+2026-11-03T17:43:39Z backup decrypting outer container
+2026-11-03T17:43:42Z backup restoring key material to /secrets
+2026-11-03T17:43:42Z backup restoring evidence
+2026-11-03T17:43:58Z backup restoring snapshots
+  manifest: {"generation":"blackbox-backup-20261103T174253Z","created_at":"2026-11-03T17:42:53Z","blackbox_version":"0.1.1-perf","cutoff":{"committed":[{"tenant_id":"0d330fdc-3c5a-4667-b8a0-b4c7bd560def","committed_sequence":7141},{"tenant_id":"1ec3f60b-54a3-48d7-9095-8e24308ce29d","committed_sequence":10120},{"tenant_id":"288c56e5-0838-4c83-90d5-c608b754d22c","committed_sequence":4996},{"tenant_id":"29230a19-6dfa-4790-8709-0def13d93d1a","committed_sequence":2086},{"tenant_id":"2c2d1432-97a5-4c2f-abbf-0cad666467bd","committed_sequence":7503},{"tenant_id":"2f587cfc-16dd-489d-80c2-99e6d295accb","committed_sequence":3683},{"tenant_id":"35163f6f-6755-47b1-bc54-23196b86b66e","committed_sequence":4955},{"tenant_id":"3680047a-4316-40d0-b681-42bed4b076c1","committed_sequence":3079},{"tenant_id":"37de212c-4432-48da-abe9-8afd44e02530","committed_sequence":7832},{"tenant_id":"38ee01c9-fc95-4967-ad91-db18d9ff0a7b","committed_sequence":6814},{"tenant_id":"4eb0d4a8-8ff4-49de-9d2a-94429cabe9ad","committed_sequence":1900},{"tenant_id":"520557d7-5719-4c03-8b65-a3cb0db1ced3","committed_sequence":8969},{"tenant_id":"528c580e-7f25-4914-ab07-fe6ef959010f","committed_sequence":10104},{"tenant_id":"5a01df05-66cf-4fef-807e-c7f12d02b0e1","committed_sequence":1920},{"tenant_id":"5b5bb78a-4c1c-4f50-beb9-6602db161560","committed_sequence":5709},{"tenant_id":"60a78fd3-7d0a-49dc-8bb2-7841be717cf5","committed_sequence":7911},{"tenant_id":"60c41698-268e-46c3-8547-e259450b4db6","committed_sequence":3827},{"tenant_id":"660f922b-74b2-47fb-aadb-9265f7a023f2","committed_sequence":9241},{"tenant_id":"67f9ba7a-82b6-4831-90c4-e659866554a5","committed_sequence":8843},{"tenant_id":"691998ba-c9b7-4524-af6e-a1f252b19021","committed_sequence":2738},{"tenant_id":"6a050a0a-60a9-40ca-9e3c-9bc2665237b6","committed_sequence":6581},{"tenant_id":"7e22ae5f-f7a4-487f-a0dc-e3e519055a50","committed_sequence":5660},{"tenant_id":"81c14dde-66b4-4c23-ae60-82dc0bf3919c","committed_sequence":9456},{"tenant_id":"8335708e-40f0-4ba7-81e6-9c6f7b530320","committed_sequence":48624},{"tenant_id":"8b621a2a-bb46-47fa-9d14-9ac981f6c117","committed_sequence":276763},{"tenant_id":"8bc1f69d-d80b-4929-b5f8-73b2fbee333e","committed_sequence":7787},{"tenant_id":"90537c19-a5bb-40fc-8492-ce41047719df","committed_sequence":6383},{"tenant_id":"926a0404-c4e1-432b-85f0-a61c1b02cd2c","committed_sequence":6155},{"tenant_id":"955d6a21-a838-42f4-ba07-878664334863","committed_sequence":5962},{"tenant_id":"95ea3097-02a8-4aae-b4ef-0c142d75f4ba","committed_sequence":3817},{"tenant_id":"96fac996-67c8-4b99-ad0b-5d937c8e3c7d","committed_sequence":4511},{"tenant_id":"9a2d405d-4cc8-4f46-841b-d6fecbdadb31","committed_sequence":3160},{"tenant_id":"9b079e5f-f193-463a-b963-47f660ca6964","committed_sequence":6047},{"tenant_id":"9c0664bc-1512-4bd7-94d7-bc513b658f34","committed_sequence":5177},{"tenant_id":"b2c1f396-f775-49c5-b5e7-360b2ad38f41","committed_sequence":8752},{"tenant_id":"b9b98ea0-85ca-4ba1-afeb-ac3cca2313c0","committed_sequence":7806},{"tenant_id":"ba98dfa9-1de4-4fc3-8e1b-92109f5fdebf","committed_sequence":2954},{"tenant_id":"bcdfd575-ef18-42f9-b488-fad281eca090","committed_sequence":2164},{"tenant_id":"c2080337-ad43-4c83-8db7-cfcfa08664e2","committed_sequence":1842},{"tenant_id":"c641319c-5ace-46bf-bba5-46e0fdb6b1c7","committed_sequence":7092},{"tenant_id":"d0eff5f9-d4f3-4455-ab8d-a6104695f840","committed_sequence":3648},{"tenant_id":"d62bb774-0ed2-4eb4-88c0-03b5592bb84c","committed_sequence":4499},{"tenant_id":"d8115c70-af70-498e-89cd-55a1ed2975ca","committed_sequence":6708},{"tenant_id":"e32dec96-3ac9-482c-b96a-af5eeeed000a","committed_sequence":5462},{"tenant_id":"e888e73c-f233-4c26-8836-7dba15535dff","committed_sequence":8471},{"tenant_id":"ec52283e-599c-401f-b49d-556baab3797c","committed_sequence":4652},{"tenant_id":"f164589e-794d-4787-941c-0e0d2dba95e2","committed_sequence":6931},{"tenant_id":"f1ab08b9-bcf6-4b6a-9397-597fb63bdcfd","committed_sequence":6713},{"tenant_id":"f37dd4b5-4878-4d7b-aab9-d94584b861d1","committed_sequence":2720},{"tenant_id":"f998197a-8e60-4625-a687-6ab8abf48c63","committed_sequence":3598},{"tenant_id":"fb330427-0b6c-47de-9b49-f4a1feb2489b","committed_sequence":1956}],"applied":[{"tenant_id":"0d330fdc-3c5a-4667-b8a0-b4c7bd560def","applied_sequence":7141,"reducer_version":1},{"tenant_id":"1ec3f60b-54a3-48d7-9095-8e24308ce29d","applied_sequence":10120,"reducer_version":1},{"tenant_id":"288c56e5-0838-4c83-90d5-c608b754d22c","applied_sequence":4996,"reducer_version":1},{"tenant_id":"29230a19-6dfa-4790-8709-0def13d93d1a","applied_sequence":2086,"reducer_version":1},{"tenant_id":"2c2d1432-97a5-4c2f-abbf-0cad666467bd","applied_sequence":7503,"reducer_version":1},{"tenant_id":"2f587cfc-16dd-489d-80c2-99e6d295accb","applied_sequence":3683,"reducer_version":1},{"tenant_id":"35163f6f-6755-47b1-bc54-23196b86b66e","applied_sequence":4955,"reducer_version":1},{"tenant_id":"3680047a-4316-40d0-b681-42bed4b076c1","applied_sequence":3079,"reducer_version":1},{"tenant_id":"37de212c-4432-48da-abe9-8afd44e02530","applied_sequence":7832,"reducer_version":1},{"tenant_id":"38ee01c9-fc95-4967-ad91-db18d9ff0a7b","applied_sequence":6814,"reducer_version":1},{"tenant_id":"4eb0d4a8-8ff4-49de-9d2a-94429cabe9ad","applied_sequence":1900,"reducer_version":1},{"tenant_id":"520557d7-5719-4c03-8b65-a3cb0db1ced3","applied_sequence":8969,"reducer_version":1},{"tenant_id":"528c580e-7f25-4914-ab07-fe6ef959010f","applied_sequence":10104,"reducer_version":1},{"tenant_id":"5a01df05-66cf-4fef-807e-c7f12d02b0e1","applied_sequence":1920,"reducer_version":1},{"tenant_id":"5b5bb78a-4c1c-4f50-beb9-6602db161560","applied_sequence":5709,"reducer_version":1},{"tenant_id":"60a78fd3-7d0a-49dc-8bb2-7841be717cf5","applied_sequence":7911,"reducer_version":1},{"tenant_id":"60c41698-268e-46c3-8547-e259450b4db6","applied_sequence":3827,"reducer_version":1},{"tenant_id":"660f922b-74b2-47fb-aadb-9265f7a023f2","applied_sequence":9241,"reducer_version":1},{"tenant_id":"67f9ba7a-82b6-4831-90c4-e659866554a5","applied_sequence":8843,"reducer_version":1},{"tenant_id":"691998ba-c9b7-4524-af6e-a1f252b19021","applied_sequence":2738,"reducer_version":1},{"tenant_id":"6a050a0a-60a9-40ca-9e3c-9bc2665237b6","applied_sequence":6581,"reducer_version":1},{"tenant_id":"7e22ae5f-f7a4-487f-a0dc-e3e519055a50","applied_sequence":5660,"reducer_version":1},{"tenant_id":"81c14dde-66b4-4c23-ae60-82dc0bf3919c","applied_sequence":9456,"reducer_version":1},{"tenant_id":"8335708e-40f0-4ba7-81e6-9c6f7b530320","applied_sequence":48624,"reducer_version":1},{"tenant_id":"8b621a2a-bb46-47fa-9d14-9ac981f6c117","applied_sequence":276763,"reducer_version":1},{"tenant_id":"8bc1f69d-d80b-4929-b5f8-73b2fbee333e","applied_sequence":7787,"reducer_version":1},{"tenant_id":"90537c19-a5bb-40fc-8492-ce41047719df","applied_sequence":6383,"reducer_version":1},{"tenant_id":"926a0404-c4e1-432b-85f0-a61c1b02cd2c","applied_sequence":6155,"reducer_version":1},{"tenant_id":"955d6a21-a838-42f4-ba07-878664334863","applied_sequence":5962,"reducer_version":1},{"tenant_id":"95ea3097-02a8-4aae-b4ef-0c142d75f4ba","applied_sequence":3817,"reducer_version":1},{"tenant_id":"96fac996-67c8-4b99-ad0b-5d937c8e3c7d","applied_sequence":4511,"reducer_version":1},{"tenant_id":"9a2d405d-4cc8-4f46-841b-d6fecbdadb31","applied_sequence":3160,"reducer_version":1},{"tenant_id":"9b079e5f-f193-463a-b963-47f660ca6964","applied_sequence":6047,"reducer_version":1},{"tenant_id":"9c0664bc-1512-4bd7-94d7-bc513b658f34","applied_sequence":5177,"reducer_version":1},{"tenant_id":"b2c1f396-f775-49c5-b5e7-360b2ad38f41","applied_sequence":8752,"reducer_version":1},{"tenant_id":"b9b98ea0-85ca-4ba1-afeb-ac3cca2313c0","applied_sequence":7806,"reducer_version":1},{"tenant_id":"ba98dfa9-1de4-4fc3-8e1b-92109f5fdebf","applied_sequence":2954,"reducer_version":1},{"tenant_id":"bcdfd575-ef18-42f9-b488-fad281eca090","applied_sequence":2164,"reducer_version":1},{"tenant_id":"c2080337-ad43-4c83-8db7-cfcfa08664e2","applied_sequence":1842,"reducer_version":1},{"tenant_id":"c641319c-5ace-46bf-bba5-46e0fdb6b1c7","applied_sequence":7092,"reducer_version":1},{"tenant_id":"d0eff5f9-d4f3-4455-ab8d-a6104695f840","applied_sequence":3648,"reducer_version":1},{"tenant_id":"d62bb774-0ed2-4eb4-88c0-03b5592bb84c","applied_sequence":4499,"reducer_version":1},{"tenant_id":"d8115c70-af70-498e-89cd-55a1ed2975ca","applied_sequence":6708,"reducer_version":1},{"tenant_id":"e32dec96-3ac9-482c-b96a-af5eeeed000a","applied_sequence":5462,"reducer_version":1},{"tenant_id":"e888e73c-f233-4c26-8836-7dba15535dff","applied_sequence":8471,"reducer_version":1},{"tenant_id":"ec52283e-599c-401f-b49d-556baab3797c","applied_sequence":4652,"reducer_version":1},{"tenant_id":"f164589e-794d-4787-941c-0e0d2dba95e2","applied_sequence":6931,"reducer_version":1},{"tenant_id":"f1ab08b9-bcf6-4b6a-9397-597fb63bdcfd","applied_sequence":6713,"reducer_version":1},{"tenant_id":"f37dd4b5-4878-4d7b-aab9-d94584b861d1","applied_sequence":2720,"reducer_version":1},{"tenant_id":"f998197a-8e60-4625-a687-6ab8abf48c63","applied_sequence":3598,"reducer_version":1},{"tenant_id":"fb330427-0b6c-47de-9b49-f4a1feb2489b","applied_sequence":1956,"reducer_version":1}]},"applied_migrations":["0001_journal","0002_identity","0003_operations","0004_scoped_references","0100_worker","0101_maintenance_lease"],"redaction_ledger_included":false,"release":{"version":"0.1.1-perf","tested_commit":"9b64931c80134c50281cd904d81789ddec78f3b5","api_version":"0.1.1-perf","worker_version":"0.1.1-perf","engine_version":"0.1.1-perf","mcp_version":1,"journal_schema_version":1,"reducer_version":1,"snapshot_version":1,"backup_format_version":1,"postgres_major":16}}
+  [postgres-start]
+[?25l[0G[2K[+] up 1/2
+[2K [32m✔[0m Volume blackbox-agent-c-perf-restore_pgdata      [32mCreated[0m                 [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-postgres Creating                [34m0.0s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-postgres Creating                [34m0.1s[0m
+[?25h[?25l[3A[0G[2K[+] up 2/2
+
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-postgres [32mCreated[0m                 [34m0.2s[0m
+[?25h[?25l[3A[0G[2K[+] up 1/2
+
+[2K [33m⠸[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m0.3s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m0.4s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m0.5s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠦[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m0.6s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m0.7s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m0.8s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m0.9s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m1.0s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m1.1s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m1.2s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠸[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m1.3s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m1.4s[0m
+[?25h[?25l[3A[0G
+
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-postgres Starting                [34m1.5s[0m
+[?25h[?25l[3A[0G[2K[+] up 2/2
+
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-postgres [32mStarted[0m                 [34m1.6s[0m
+[?25h  postgres ready (4s)
+  [db-roles]
+  [database]
+Container blackbox-agent-c-perf-restore-backup-run-6d18b66f2ddf [32mCreating[0m 
+Container blackbox-agent-c-perf-restore-backup-run-6d18b66f2ddf [32mCreated[0m 
+2026-11-03T17:44:08Z backup restoring database (streamed; no plaintext dump written)
+2026-11-03T17:45:02Z backup database restored
+  [db-migrate]
+[?25l[0G[2K[+] run 0/1
+[2K [33m⠋[0m Network blackbox-agent-c-perf-restore_egress Creating                    [34m0.0s[0m
+[?25h[?25l[2A[0G[2K[+] run 1/1
+[2K [32m✔[0m Network blackbox-agent-c-perf-restore_egress [32mCreated[0m                     [34m0.1s[0m
+[?25hContainer blackbox-agent-c-perf-restore-api-run-5114e908babf [32mCreating[0m 
+Container blackbox-agent-c-perf-restore-api-run-5114e908babf [32mCreated[0m 
+{"applied":[],"skipped":["0001_journal.sql","0002_identity.sql","0003_operations.sql","0004_scoped_references.sql","0100_worker.sql","0101_maintenance_lease.sql"]}
+  [services-start]
+[?25l[0G[2K[+] up 1/3
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-postgres         [32mRunning[0m         [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-backup-scheduler Creating        [34m0.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-engine           Creating        [34m0.0s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-backup-scheduler Creating        [34m0.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-engine           Creating        [34m0.1s[0m
+[?25h[?25l[4A[0G
+
+[2K [33m⠹[0m Container blackbox-agent-c-perf-restore-backup-scheduler Creating        [34m0.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-perf-restore-engine           Creating        [34m0.2s[0m
+[?25h[?25l[4A[0G[2K[+] up 3/4
+
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-backup-scheduler [32mCreated[0m         [34m0.3s[0m
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-engine           [32mCreated[0m         [34m0.2s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-api              Creating        [34m0.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-api              Creating        [34m0.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-perf-restore-api              Creating        [34m0.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-perf-restore-api              Creating        [34m0.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-api              Creating        [34m0.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-api              Creating        [34m0.6s[0m
+[?25h[?25l[5A[0G[2K[+] up 4/4
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-api              [32mCreated[0m         [34m0.7s[0m
+[?25h[?25l[5A[0G[2K[+] up 3/4
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m1.1s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠹[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m1.2s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠸[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m1.3s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m1.4s[0m
+
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m1.5s[0m
+
+
+
+[?25h[?25l[5A[0G[2K[+] up 2/4
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-postgres         [32mHealthy[0m         [34m1.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m1.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-perf-restore-engine           Starting        [34m1.6s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠧[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m1.7s[0m
+[2K [33m⠧[0m Container blackbox-agent-c-perf-restore-engine           Starting        [34m1.7s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠇[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m1.8s[0m
+[2K [33m⠇[0m Container blackbox-agent-c-perf-restore-engine           Starting        [34m1.8s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠏[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m1.9s[0m
+[2K [33m⠏[0m Container blackbox-agent-c-perf-restore-engine           Starting        [34m1.9s[0m
+
+[?25h[?25l[5A[0G
+
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m2.0s[0m
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-engine           Starting        [34m2.0s[0m
+
+[?25h[?25l[5A[0G
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m2.1s[0m
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m2.1s[0m
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-engine           [32mStarted[0m         [34m2.1s[0m
+
+[?25h[?25l[5A[0G
+[2K [33m⠹[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m2.2s[0m
+[2K [33m⠹[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m2.2s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠸[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m2.3s[0m
+[2K [33m⠸[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m2.3s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m2.4s[0m
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m2.4s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-postgres         Waiting         [34m2.5s[0m
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m2.5s[0m
+
+
+[?25h[?25l[5A[0G
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-postgres         [32mHealthy[0m         [34m2.6s[0m
+[2K [33m⠦[0m Container blackbox-agent-c-perf-restore-backup-scheduler Starting        [34m2.6s[0m
+
+[2K [33m⠸[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m2.4s[0m
+[?25h[?25l[5A[0G[2K[+] up 3/4
+
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-backup-scheduler [32mStarted[0m         [34m2.7s[0m
+
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m2.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m2.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m2.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m2.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m2.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.1s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠙[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.2s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠹[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.3s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠸[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.4s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.5s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.6s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠦[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.7s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠧[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.8s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠇[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.9s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠏[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m4.0s[0m
+[?25h[?25l[5A[0G
+
+
+
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m4.1s[0m
+[?25h[?25l[5A[0G[2K[+] up 4/4
+
+
+
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-api              [32mStarted[0m         [34m4.1s[0m
+[?25h  api ready (2s)
+  [fence-credentials]
+
+Restored credentials are stale by policy: rotating the owner key and revoking all sessions/agent keys. New owner key shown ONCE:
+{"level":"WARN","tenant_id":"8335708e-40f0-4ba7-81e6-9c6f7b530320","action_code":"relogin_required","schema_version":1,"record_id":"45c418aa-c957-4448-a834-a22a18f03430","occurred_at":"2026-11-03T17:45:19.875Z","observed_at":"2026-11-03T17:45:19.875Z","event_name":"auth.access_reset","component":"auth","service_version":"0.1.1-perf","instance_id":"e3bf2b7c-0497-4365-ba0d-ae8f4ca707fc","scope":"workspace","message":"Host-only access reset performed; owner key rotated, sessions and agent keys revoked"}
+
+Your personal access key (shown once). Save it in your password manager now. Possession grants administrator access to this workspace: do not share it with agents.
+Ihr persönlicher Zugangsschlüssel (wird nur einmal angezeigt). Speichern Sie ihn jetzt in Ihrem Passwort-Manager. Wer den Schlüssel besitzt, hat Administratorzugriff auf diesen Arbeitsbereich: nicht an Agenten weitergeben.
+
+    bbk_<redacted>
+
+All sessions and agent keys were revoked. Business data and source configuration are unchanged.
+  [verify]
+{"level":"INFO","tenant_id":"8335708e-40f0-4ba7-81e6-9c6f7b530320","operation_id":"verify:order","applied_cursor":48624,"schema_version":1,"record_id":"4d571117-13b1-4367-be43-8a47fe69b6bf","occurred_at":"2026-11-03T17:45:22.751Z","observed_at":"2026-11-03T17:45:22.751Z","event_name":"query.served","component":"api","service_version":"0.1.1-perf","instance_id":"6d47f7a1-e3aa-4b93-ae1e-a452ea8bf001","scope":"workspace","message":"Golden verify served"}
+physical_stock         observed="112" expected=112
+available_stock        observed="112" expected=112
+captured_minor         observed=11900 expected=11900
+fees_minor             observed=350 expected=350
+refunded_minor         observed=2380 expected=2380
+bank_confirmed_minor   observed=9170 expected=9170
+consistency: {"applied_cursor":48624,"required_cursor":48624,"reducer_version":1,"status":"current","recorded_cutoff":"2026-11-03T17:39:46.277Z","effective_cutoff":null,"mode":"latest_committed"}
+verify: passed (golden order state matches)
+  representative answer verified
+  [done]
+
+Restore complete into project blackbox-agent-c-perf-restore at http://127.0.0.1:19198/
+  machine processing: 105s (unpack/db/start 100s, fence/verify 5s); operator input: 0s; full elapsed: 106s
+  provider workers stay PAUSED (fence: restore_pending_review). Check account bindings and the redaction policy, then: ./blackbox resume-sources
+  raw evidence access is blocked until the owner reconciles the restore's policy/cutoff in Settings.

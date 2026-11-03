@@ -1,0 +1,18 @@
+{
+ "class": "backup_restore_query_ready",
+ "machine_seconds": 146.5,
+ "machine_seconds_definition": "seconds from the restore command start until an authorized owner query of the restored install answered 200/current, minus the wrapper-reported operator input time",
+ "wrapper_machine_processing_seconds": 144,
+ "operator_input_seconds": 0,
+ "restore_command_wall_seconds": 146,
+ "restore_exit_code": 0,
+ "authorized_query_ready_seconds_from_command_start": 146.5,
+ "engine_all_tenants_ready_seconds_from_command_start": 146.5,
+ "owner_login_ready_seconds": 146.4,
+ "generation": "blackbox-backup-20261103T184216Z.tar.age",
+ "generation_bytes": 225406888,
+ "evidence_dir_kib": 133568,
+ "host_load_after": "49.43 50.18 67.99",
+ "measured_at": "2026-11-03T18:46:16.183102+00:00",
+ "source": "scripts/verify/perf-restore.sh"
+}

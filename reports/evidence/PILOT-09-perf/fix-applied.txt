@@ -1,0 +1,82 @@
+# ADR-0008 fix applied to the perf install 2026-11-03T17:46:31Z: the updated packages/database/migrations/0000_roles.sql copied to <install>/migrations/ and executed exactly as the wrapper's bootstrap_roles does (psql -v ON_ERROR_STOP=1 -U postgres -d blackbox -f /migrations/0000_roles.sql)
+118f960a1aaac224  packages/database/migrations/0000_roles.sql
+118f960a1aaac224  /Users/benediktsauter/blackbox-pilot-perf/migrations/0000_roles.sql
+leakproof before: f
+DO
+ALTER FUNCTION
+psql exit 0
+leakproof after: t
+## bb_api history query plan after the fix
+SET
+SET
+                                                                                                                                       QUERY PLAN                                                                                                                                       
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1803.35..1803.44 rows=35 width=714) (actual time=10.493..10.499 rows=69 loops=1)
+   Buffers: shared hit=7 read=372
+   ->  Sort  (cost=1803.35..1803.44 rows=35 width=714) (actual time=10.492..10.495 rows=69 loops=1)
+         Sort Key: journal_sequence
+         Sort Method: quicksort  Memory: 94kB
+         Buffers: shared hit=7 read=372
+         ->  Bitmap Heap Scan on journal_entries  (cost=1543.42..1802.46 rows=35 width=714) (actual time=10.075..10.428 rows=69 loops=1)
+               Recheck Cond: ((entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb) OR ((tenant_id = (current_setting('app.tenant_id'::text, true))::uuid) AND (record_id = 'order:#1001-34e7-1491-be0820'::text) AND (journal_sequence > 0) AND (journal_sequence <= 276763)))
+               Filter: ((journal_sequence > 0) AND (journal_sequence <= 276763) AND (tenant_id = (current_setting('app.tenant_id'::text, true))::uuid))
+               Heap Blocks: exact=8
+               Buffers: shared hit=4 read=372
+               ->  BitmapOr  (cost=1543.42..1543.42 rows=66 width=0) (actual time=10.046..10.046 rows=0 loops=1)
+                     Buffers: shared hit=4 read=364
+                     ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1538.89 rows=61 width=0) (actual time=9.066..9.067 rows=69 loops=1)
+                           Index Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+                           Buffers: shared hit=1 read=361
+                     ->  Bitmap Index Scan on journal_entries_record_idx  (cost=0.00..4.51 rows=5 width=0) (actual time=0.978..0.978 rows=3 loops=1)
+                           Index Cond: ((tenant_id = (current_setting('app.tenant_id'::text, true))::uuid) AND (record_id = 'order:#1001-34e7-1491-be0820'::text) AND (journal_sequence > 0) AND (journal_sequence <= 276763))
+                           Buffers: shared hit=3 read=3
+ Planning:
+   Buffers: shared hit=421 read=7
+ Planning Time: 2.018 ms
+ Execution Time: 10.639 ms
+(23 rows)
+
+## bb_engine entity read plan after the fix
+SET
+                                                                     QUERY PLAN                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1778.72..1778.80 rows=31 width=24) (actual time=3.674..3.679 rows=69 loops=1)
+   Buffers: shared hit=373
+   ->  Sort  (cost=1778.72..1778.80 rows=31 width=24) (actual time=3.673..3.675 rows=69 loops=1)
+         Sort Key: journal_sequence
+         Sort Method: quicksort  Memory: 29kB
+         Buffers: shared hit=373
+         ->  Bitmap Heap Scan on journal_entries  (cost=1538.90..1777.95 rows=31 width=24) (actual time=3.604..3.649 rows=69 loops=1)
+               Recheck Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+               Filter: ((journal_sequence > 0) AND (journal_sequence <= 276763) AND (tenant_id = '8b621a2a-bb46-47fa-9d14-9ac981f6c117'::uuid))
+               Heap Blocks: exact=8
+               Buffers: shared hit=370
+               ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1538.89 rows=61 width=0) (actual time=3.587..3.587 rows=69 loops=1)
+                     Index Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+                     Buffers: shared hit=362
+ Planning:
+   Buffers: shared hit=324
+ Planning Time: 1.114 ms
+ Execution Time: 3.718 ms
+(18 rows)
+
+## bb_engine count plan after the fix
+SET
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=1777.88..1777.89 rows=1 width=8) (actual time=2.143..2.143 rows=1 loops=1)
+   Buffers: shared hit=370
+   ->  Bitmap Heap Scan on journal_entries  (cost=1538.90..1777.80 rows=31 width=0) (actual time=2.117..2.139 rows=69 loops=1)
+         Recheck Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+         Filter: ((journal_sequence <= 276763) AND (tenant_id = '8b621a2a-bb46-47fa-9d14-9ac981f6c117'::uuid))
+         Heap Blocks: exact=8
+         Buffers: shared hit=370
+         ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1538.89 rows=61 width=0) (actual time=2.110..2.110 rows=69 loops=1)
+               Index Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+               Buffers: shared hit=362
+ Planning:
+   Buffers: shared hit=296
+ Planning Time: 1.173 ms
+ Execution Time: 2.189 ms
+(14 rows)
+

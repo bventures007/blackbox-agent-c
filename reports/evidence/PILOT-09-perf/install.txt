@@ -1,0 +1,109 @@
+# perf install started 2026-11-03T16:23:00Z load 13.71 22.73 19.93; archive /Users/benediktsauter/GitHub/blackbox-agent-c/release/dist/blackbox-0.1.1-perf-mac-arm64.tar.gz (530134729 bytes, sha256 ed3c08f3b496be18aa56f66e4c44783641d462eeaceb012865d81f67a4bb4c57); commit 9b64931c80134c50281cd904d81789ddec78f3b5
+# docker: CPUs=8 MemTotal=10416910336 ServerVersion=29.9.2 OS=Docker Desktop Kernel=7.0.14-linuxkit
+# host: Apple M3, 8 cores, 24 GiB, macOS 27.2; foreign containers running: 17
+# tar -xzf --strip-components=1
+INSTALL.de.md INSTALL.en.md blackbox examples images infra migrations release.json 
+# release.json
+{  "schema_version": "1",  "version": "0.1.1-perf",  "date": "2026-11-03T16:14:18Z",  "tested_commit": "9b64931c80134c50281cd904d81789ddec78f3b5",  "platform": "macOS Apple Silicon (arm64)",  "wrapper_version": "1",  "api_version": "0.1.1-perf",  "worker_version": "0.1.1-perf",  "engine_version": "0.1.1-perf",  "engine_rpc_version": 1,  "mcp_version": 1,  "journal_schema_version": 1,  "event_schema_version": 1,  "reducer_version": 1,  "projection_version": 1,  "snapshot_version": 1,  "backup_format_version": 1,  "log_record_schema_version": 1,  "postgres_major": 16,  "postgres_image": "postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef",  "images": {    "api": "sha256:5b0c022304fad7b1344dc576b718b09e2879158080180e17d1dc9c7f07fc6891",    "worker": "sha256:ba572bcebdf0a1cad8f9e9f1b6c4ff9a8818885cac8feb87f4d9d8b6a020922b",    "engine": "sha256:7f7ca
+
+# ./blackbox doctor (before setup)
+blackbox doctor (release mode, install: /Users/benediktsauter/blackbox-pilot-perf)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 29.9.2 (arm64)
+[OK  ] DOC-COMPOSE  Compose v5.6.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 137 GiB (14%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[OK  ] DOC-PORT     port 19180 free
+[OK  ] DOC-SETUP    not set up yet → run ./blackbox setup
+[WARN] DOC-PROJECT  project blackbox-agent-c already has database volume blackbox-agent-c_pgdata and 5 container(s) on this Docker host (volume created 2026-11-02T04:11:07Z) → setup would refuse: use --project <other-name> or remove that installation with its own ./blackbox destroy
+doctor: degraded (exit 1)
+# doctor exit: 1
+# ./blackbox setup --port 19180 --project blackbox-agent-c-perf (pty; key -> /Users/benediktsauter/blackbox-pilot-perf/owner.key 0600; transcript redacted -> /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/PILOT-09-perf/setup-transcript-redacted.txt)
+Backups are NOT configured yet (unprotected). Enroll a destination: ./blackbox backup-config <directory>
+
+setup exit code 0; owner key captured to /Users/benediktsauter/blackbox-pilot-perf/owner.key (0600); transcript (redacted): /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/PILOT-09-perf/setup-transcript-redacted.txt
+# setup exit: 0 after 65 s
+# owner.key: -rw------- 48 bytes
+# ./blackbox up
+ Container blackbox-agent-c-perf-postgres Healthy 
+  api ready (0s)
+running at http://127.0.0.1:19180/ (project blackbox-agent-c-perf)
+# up exit: 0 after 3 s
+# ./blackbox status
+project: blackbox-agent-c-perf   version: installed=0.1.1-perf release=0.1.1-perf   url: http://127.0.0.1:19180/
+NAME                                     IMAGE                                                                                          COMMAND                  SERVICE            CREATED          STATUS                    PORTS
+blackbox-agent-c-perf-api                blackbox/api:0.1.1-perf                                                                        "/usr/local/bin/blac…"   api                15 seconds ago   Up 11 seconds (healthy)   127.0.0.1:19180->19180/tcp
+blackbox-agent-c-perf-backup-scheduler   blackbox/backup:0.1.1-perf                                                                     "/bin/bash /scripts/…"   backup-scheduler   15 seconds ago   Up 13 seconds             5432/tcp
+blackbox-agent-c-perf-engine             blackbox/engine:0.1.1-perf                                                                     "/usr/local/bin/blac…"   engine             15 seconds ago   Up 13 seconds (healthy)   7070/tcp
+blackbox-agent-c-perf-postgres           postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef   "docker-entrypoint.s…"   postgres           35 seconds ago   Up 34 seconds (healthy)   5432/tcp
+blackbox-agent-c-perf-worker             blackbox/worker:0.1.1-perf                                                                     "node /app/apps/work…"   worker             15 seconds ago   Up 10 seconds             
+api health: {"status":"ok","version":"0.1.1-perf"}
+backups: {"status":"not_configured","configured":false}
+# status exit: 0
+# docker compose -p blackbox-agent-c-perf ps
+blackbox-agent-c-perf-api	blackbox/api:0.1.1-perf	Up 11 seconds (healthy)
+blackbox-agent-c-perf-backup-scheduler	blackbox/backup:0.1.1-perf	Up 13 seconds
+blackbox-agent-c-perf-engine	blackbox/engine:0.1.1-perf	Up 13 seconds (healthy)
+blackbox-agent-c-perf-postgres	postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef	Up 34 seconds (healthy)
+blackbox-agent-c-perf-worker	blackbox/worker:0.1.1-perf	Up 10 seconds
+# image digests
+  api: sha256:5b0c022304fad7b1344dc576b718b09e2879158080180e17d1dc9c7f07fc6891 blackbox/api:0.1.1-perf
+  worker: sha256:ba572bcebdf0a1cad8f9e9f1b6c4ff9a8818885cac8feb87f4d9d8b6a020922b blackbox/worker:0.1.1-perf
+  engine: sha256:7f7ca84ccd1781d7c56517b585341c317ae453503b70d145e5ddbb96cd39453d blackbox/engine:0.1.1-perf
+  backup: 
+# engine environment (contract: ENGINE_RSS_TARGET_MB=1024, MALLOC_ARENA_MAX=2, RUST_LOG=info) and limits
+  ENGINE_LISTEN=0.0.0.0:7070
+  ENGINE_RSS_TARGET_MB=1024
+  ENGINE_TOKEN_FILE=/run/secrets/engine_token
+  ENGINE_URL=http://engine:7070
+  LOG_LEVEL=info
+  MALLOC_ARENA_MAX=2
+  RUST_LOG=info
+  mem_limit=1610612736 read_only=true user=10001:10001
+  api mem_limit=1073741824
+  postgres cmd=[postgres -c shared_buffers=256MB -c max_connections=80 -c log_min_messages=warning -c log_statement=none]
+# ./blackbox doctor (after up)
+blackbox doctor (release mode, install: /Users/benediktsauter/blackbox-pilot-perf)
+[OK  ] DOC-ARCH     Apple Silicon arm64
+[OK  ] DOC-OS       macOS 27.2
+[OK  ] DOC-DOCKER   Docker 29.9.2 (arm64)
+[OK  ] DOC-COMPOSE  Compose v5.6.1
+[OK  ] DOC-OPENSSL  openssl present
+[OK  ] DOC-CURL     curl present
+[OK  ] DOC-DISK     free space 137 GiB (14%)
+[OK  ] DOC-BIND     listener bound to 127.0.0.1 only
+[OK  ] DOC-PORT     port 19180 owned by the blackbox api container
+[OK  ] DOC-SETUP    configured (project blackbox-agent-c-perf, version 0.1.1-perf)
+[OK  ] DOC-SECRETS  secrets directory mode 0700
+[OK  ] DOC-SECRETF  secret files mode 0600
+[OK  ] DOC-DATA     data directories writable
+[OK  ] DOC-IMAGES   release images present (blackbox/api:0.1.1-perf, ...)
+[OK  ] DOC-SERVICES api=running backup-scheduler=running engine=running postgres=running worker=running 
+[OK  ] DOC-API      api health: {"status":"ok","version":"0.1.1-perf"}
+[WARN] DOC-BACKUP   backups not configured — this installation is unprotected → ./blackbox backup-config <dir>
+[OK  ] DOC-VERSION  release 0.1.1-perf installed
+doctor: degraded (exit 1)
+# doctor exit: 1
+# api health: {"status":"ok","version":"0.1.1-perf"}
+# loopback PostgreSQL proxy blackbox-agent-c-perf-pgproxy: 127.0.0.1:19197 -> postgres:5432 (network blackbox-agent-c-perf_backend)
+Unable to find image 'node:22-bookworm-slim' locally
+22-bookworm-slim: Pulling from library/node
+Digest: sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da
+Status: Downloaded newer image for node:22-bookworm-slim
+  started: blackbox-agent-c-perf-pgproxy Up Less than a second 127.0.0.1:19197->5432/tcp
+  bb_api through the proxy: {"u":"bb_api","tenants":0}
+# ./blackbox demo --confirm (labeled golden scenario into demo connections)
+{"level":"INFO","tenant_id":"8335708e-40f0-4ba7-81e6-9c6f7b530320","run_id":"62b404c0-7c2a-4551-97a7-3dd487ead1b3","record_count":19,"committed_cursor":54,"schema_version":1,"record_id":"b32e64ae-3b76-4352-bdcf-2b389e0dc93b","occurred_at":"2026-11-03T16:24:29.771Z","observed_at":"2026-11-03T16:24:29.771Z","event_name":"demo.loaded","component":"api","service_version":"0.1.1-perf","instance_id":"eca38ef0-83b2-4f34-b75b-b6ce8918ba8d","scope":"workspace","message":"Golden demo scenario loaded through the replay path (CLI)"}
+demo scenario loaded: accepted=19 duplicate=0 conflict=0 rejected=0 committed_cursor=54 run=62b404c0-7c2a-4551-97a7-3dd487ead1b3
+labeled GOLDEN demo scenario loaded into demo connections (never over user data)
+# demo exit: 0
+# ./blackbox verify
+consistency: {"applied_cursor":54,"required_cursor":54,"reducer_version":1,"status":"current","recorded_cutoff":"2026-11-03T16:24:29.743Z","effective_cutoff":null,"mode":"latest_committed"}
+verify: passed (golden order state matches)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+# verify exit: 0
+# finished 2026-11-03T16:24:34Z load 12.93 20.23 19.27

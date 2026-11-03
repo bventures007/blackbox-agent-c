@@ -61,6 +61,19 @@ export async function bootstrapRoles(options: BootstrapOptions): Promise<{ datab
   } finally {
     await client.end();
   }
+  // 0000_roles.sql also carries database-scoped statements (ADR-0008: the LEAKPROOF flag on
+  // pg_catalog.jsonb_contains lives in each database's pg_proc), so the idempotent file runs once
+  // more inside the installation database — the wrapper's psql path connects there directly.
+  const inDb = new URL(options.superuserUrl);
+  inDb.pathname = `/${database}`;
+  const scoped = new pg.Client({ connectionString: inDb.toString(), application_name: "blackbox-bootstrap" });
+  await scoped.connect();
+  try {
+    await scoped.query(rolesSql);
+    log(`database-scoped bootstrap applied in ${database}`);
+  } finally {
+    await scoped.end();
+  }
   // The public schema of a fresh PG16 database is owned by pg_database_owner, i.e. bb_migrate,
   // so migrations can create objects and grant usage; nothing else to do here.
   return { database, createdDatabase };

@@ -127,6 +127,13 @@ Host-owner trust: anyone with read access to `<install>/secrets` can read the da
 
 ## Known findings (ops verification 2026-11-01)
 
+- PILOT-09 perf install (2026-11-03): a manual `VACUUM journal_entries` inside the postgres container failed with
+  `could not resize shared memory segment … No space left on device` because Docker's default `/dev/shm` (64 MiB)
+  is too small for PostgreSQL's parallel index vacuum; autovacuum (single worker) still ran. The Compose file now
+  sets `shm_size: 256m` for the postgres service (takes effect on the next `./blackbox up`/upgrade that recreates
+  the container). The GIN index on `journal_entries.entity_refs` is created with `fastupdate = off` by migration
+  0005 so lookups never scan a pending list (reports/evidence/PILOT-09-perf/gin-pending-list.txt).
+
 - `backup-config` while the stack runs: the already running `backup-scheduler` has no destination in its environment and rewrites `data/backups/status.json` to `not_configured` every check until `./blackbox up` recreates it; the status surface is wrong for up to one scheduler interval after enrollment (PILOT-01 finding).
 - Refused `upgrade` preflights leave `data/state/upgrade-stage/` behind (harmless; cleaned by the next upgrade).
 - `json_get` on a missing key used to abort the wrapper silently under `set -eo pipefail` (a `release.json` without `journal_schema_version` exited 1 without the refusal message); fixed with `|| true`.

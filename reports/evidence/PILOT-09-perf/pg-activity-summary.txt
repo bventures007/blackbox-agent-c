@@ -1,0 +1,20 @@
+# run 1 (before fix): 96 pg_stat_activity samples (every 20 s), active backends by query signature (sum over samples)
+   498 bb_engine  SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_ve
+   158 bb_api     SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_ref
+     9 bb_api     SELECT append_journal_entries($1::jsonb)
+     8 bb_worker  UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispa
+     6 bb_api     COMMIT
+     5 bb_worker  INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, 
+     5 bb_engine  INSERT INTO engine_snapshots (tenant_id, reducer_version, format_version, applied_sequence, checksum
+     3 bb_api     SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.displ
+  by role/state: [(('bb_engine', 'active'), 509), (('bb_api', 'idle in transaction'), 283), (('bb_api', 'active'), 185), (('bb_api', 'idle in transaction (aborted)'), 92), (('bb_worker', 'active'), 26), (('bb_worker', 'idle in transaction'), 18)]
+# run 2 (after fix): 129 pg_stat_activity samples (every 20 s), active backends by query signature (sum over samples)
+   436 bb_engine  SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_ve
+    25 bb_api     SELECT append_journal_entries($1::jsonb)
+    21 bb_api     SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_ref
+    16 bb_engine  INSERT INTO engine_snapshots (tenant_id, reducer_version, format_version, applied_sequence, checksum
+     8 bb_api     SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.displ
+     4 bb_worker  INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, 
+     4 bb_api     COMMIT
+     4 bb_worker  UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispa
+  by role/state: [(('bb_engine', 'active'), 456), (('bb_api', 'idle in transaction'), 409), (('bb_api', 'active'), 74), (('bb_worker', 'active'), 18), (('bb_worker', 'idle in transaction'), 16), (('', 'active'), 6)]

@@ -1,0 +1,32 @@
+# perf recovery started 2026-11-03T17:39:43Z load 2.29 44.71 94.50; engine image blackbox/engine:0.1.1-perf; commit 9b64931c80134c50281cd904d81789ddec78f3b5
+## baseline: healthy | engine healthy; reducer_version 1; applied 47622 of committed 47622; rss=953085952; {"status":"healthy","rss_mib":908.9,"approx_mib":494.1,"tenants":51,"ready":51,"lag_entries":0,"loaded_from_snapshot":0,"batches":5862,"entries_applied":598866}
+owner tenant 8335708e-40f0-4ba7-81e6-9c6f7b530320; replay connection a5ea4b71-d65d-4fd7-8dce-e7b58ee39a15
+## (1) restart with an unapplied tail: engine stopped, 334 observations ingested while it is down (owner committed cursor before: 47622)
+engine stopped 2026-11-03T17:39:44Z
+ingest: {"accepted": 334, "committed_cursor": 48624}; wall 2 s
+unapplied tail = 48624 - 47622 = 1002 journal entries
+## start the engine (snapshots present), time to healthy
+engine healthy after 2 s; healthy | engine healthy; reducer_version 1; applied 48624 of committed 48624; rss=731320320; load 2.35 44.01 93.96
+engine json: {"status":"healthy","rss_mib":697.6,"approx_mib":416.5,"tenants":51,"ready":51,"lag_entries":0,"loaded_from_snapshot":51,"batches":1,"entries_applied":1002}
+authorized hot query after restart: {"status":200,"consistency":"current","ms":186}
+  blackbox-agent-c-perf-engine 695.6MiB / 1.5GiB 3.56%
+## (2) no-snapshot rebuild: checkpoints before
+tenants with checkpoints:       51
+engine stopped 2026-11-03T17:40:12Z
+engine_snapshots rows deleted as bb_engine: 51
+rows left: 0
+snapshot files before:        0
+snapshot files after:        0
+load before rebuild 2.13 40.61 91.29
+engine healthy after 12 s (rebuilt from the journal); healthy | engine healthy; reducer_version 1; applied 48624 of committed 48624; rss=814821376; load 3.53 39.05 89.85
+engine json: {"status":"healthy","rss_mib":777.1,"approx_mib":489.1,"tenants":51,"ready":51,"lag_entries":0,"loaded_from_snapshot":0,"batches":145,"entries_applied":601422}
+authorized hot query after rebuild: {"status":200,"consistency":"current","ms":83}
+  blackbox-agent-c-perf-engine 793MiB / 1.5GiB 9.63%
+engine events since restart: [('engine.batch_applied', 2437), ('engine.sqlx.query', 522), ('engine.sqlx.pool.acquire', 253), ('engine.tenant_ready', 102), ('engine.evicted', 77), ('engine.snapshot_loaded', 51), ('engine.snapshot_written', 20), ('engine.write_copy_dropped', 6), ('engine.copy_divergence', 4), ('engine.stopping', 2), ('engine.started', 2)]
+## checkpoints after the rebuild vs before
+tenants: 51 before, 51 after; identical (sequence+state_hash): 51; cursor moved (new entries): 0; SAME cursor but DIFFERENT hash: 0 []
+## golden answer after both restarts (./blackbox verify)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+verify exit 0
+# finished 2026-11-03T17:40:46Z load 4.09 36.88 87.89

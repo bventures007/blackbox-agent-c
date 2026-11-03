@@ -1,0 +1,13 @@
+# engine apply/snapshot state after corpus generation 2026-11-03T16:44:26Z
+16:44:27 {"status":"healthy","rss_mib":1000.4,"approx_mib":387.1,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"applied_eq_committed":true,"entries_applied":551304,"snapshots_written":72,"write_copies_resident":0,"evictions":57}
+applied == committed for every tenant after 1 s of polling (from the end of generation at 16:43:09Z)
+waiting 90 s idle for snapshots of every tenant
+16:45:57 {"status":"healthy","rss_mib":1000.4,"approx_mib":387.1,"rss_over_target":false,"tenants":51,"ready":51,"lag_entries":0,"applied_eq_committed":true,"entries_applied":551304,"snapshots_written":72,"write_copies_resident":0,"evictions":57}
+snapshot files: 0; engine_snapshots rows: 51|230 MB
+  blackbox-agent-c-perf-pgproxy 33.32MiB / 9.702GiB 0.00%
+  blackbox-agent-c-perf-api 50.93MiB / 1GiB 0.00%
+  blackbox-agent-c-perf-worker 55.96MiB / 1GiB 6.82%
+  blackbox-agent-c-perf-backup-scheduler 1.457MiB / 256MiB 0.00%
+  blackbox-agent-c-perf-engine 1.133GiB / 1.5GiB 14.96%
+  blackbox-agent-c-perf-postgres 521.4MiB / 9.702GiB 27.59%
+load 9.91 13.20 16.84

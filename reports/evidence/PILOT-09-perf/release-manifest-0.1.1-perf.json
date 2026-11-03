@@ -1,0 +1,25 @@
+{
+  "schema_version": "1",
+  "status": "released",
+  "version": "0.1.1-perf",
+  "date": "2026-11-03",
+  "tested_commit": "9b64931c80134c50281cd904d81789ddec78f3b5",
+  "artifact_filename": "blackbox-0.1.1-perf-mac-arm64.tar.gz",
+  "platform": "macOS Apple Silicon (arm64)",
+  "architecture": "arm64",
+  "format": "tar.gz",
+  "byte_size": 530134729,
+  "sha256": "ed3c08f3b496be18aa56f66e4c44783641d462eeaceb012865d81f67a4bb4c57",
+  "download_url": "./blackbox-0.1.1-perf-mac-arm64.tar.gz",
+  "guide_url": "./INSTALL.en.md",
+  "guide_url_de": "./INSTALL.de.md",
+  "prerequisites": {
+    "container_runtime": "Docker Desktop 4.3x+ with Compose v2",
+    "min_os": "macOS 14",
+    "disk_free_gib": 10,
+    "network": "none for installation (images are bundled); outbound provider access for sources"
+  },
+  "images_bundled": true,
+  "signing": "none (SHA-256 checksum only; not signed or notarized)",
+  "release_notes": "Local pilot release 0.1.1-perf (tested commit 9b64931c80134c50281cd904d81789ddec78f3b5). Bundled arm64 images for api, worker, engine, backup and pinned PostgreSQL 16. See INSTALL.en.md / INSTALL.de.md inside the archive."
+}

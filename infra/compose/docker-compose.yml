@@ -47,6 +47,9 @@ services:
       - log_min_messages=warning
       - -c
       - log_statement=none
+    # Parallel VACUUM/maintenance needs dynamic shared memory; Docker's default /dev/shm (64 MiB) made a manual
+    # VACUUM of journal_entries fail with "could not resize shared memory segment" (PILOT-09 perf install).
+    shm_size: 256m
     secrets:
       - pg_superuser_password
     volumes:

@@ -1,0 +1,217 @@
+{
+  "status": "failed",
+  "missing_runs": [],
+  "verdicts": [
+    {
+      "target": "dataset.tenants",
+      "limit": 50,
+      "observed": 50,
+      "comparator": ">=",
+      "holds": true
+    },
+    {
+      "target": "dataset.minimum_journal_entries",
+      "limit": 250000,
+      "observed": 552798,
+      "comparator": ">=",
+      "holds": true
+    },
+    {
+      "target": "dataset.minimum_distinct_orders",
+      "limit": 10000,
+      "observed": 10000,
+      "comparator": ">=",
+      "holds": true
+    },
+    {
+      "target": "dataset.order_history_entries_p95_minimum",
+      "limit": 50,
+      "observed": 69,
+      "comparator": ">=",
+      "holds": true
+    },
+    {
+      "target": "hot_current_state_api_p95_ms",
+      "limit": 200,
+      "observed": 7003.1,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "hot_current_state_api_p99_ms",
+      "limit": 500,
+      "observed": 7017.8,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "hot_current_state_mcp_p95_ms",
+      "limit": 350,
+      "observed": 4841.7,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "hot_current_state_mcp_p99_ms",
+      "limit": 900,
+      "observed": 7001.7,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "cold_order_state_api_p95_ms",
+      "limit": 1000,
+      "observed": 7003.4,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "cold_order_state_mcp_p95_ms",
+      "limit": 1250,
+      "observed": 6195.7,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "entity_history_100_entries_api_p95_ms",
+      "limit": 500,
+      "observed": 7003.2,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "entity_history_100_entries_mcp_p95_ms",
+      "limit": 750,
+      "observed": 4531.3,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "bounded_30_day_summary_api_p95_ms",
+      "limit": 1000,
+      "observed": 7003.2,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "bounded_30_day_summary_mcp_p95_ms",
+      "limit": 1500,
+      "observed": 4524.5,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "current_state_api_p95_ms (mixed ceiling)",
+      "limit": 2000,
+      "observed": 7003.4,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "successful_query_fraction_minimum",
+      "limit": 0.999,
+      "observed": 0.5956,
+      "comparator": ">=",
+      "holds": false
+    },
+    {
+      "target": "durable_ack_p95_ms",
+      "limit": 500,
+      "observed": 20253.7,
+      "comparator": "<=",
+      "holds": false
+    },
+    {
+      "target": "projection_lag_p95_ms",
+      "limit": 2000,
+      "observed": 3432.2,
+      "comparator": "<=",
+      "holds": false,
+      "note": "barrier wait + one point read after each durable ack"
+    },
+    {
+      "target": "engine_steady_rss_mib_maximum",
+      "limit": 1024,
+      "observed": 1200.1,
+      "comparator": "<=",
+      "holds": false,
+      "note": "docker stats container memory (cgroup, includes page cache) median over the run"
+    },
+    {
+      "target": "engine_peak_rss_mib_maximum",
+      "limit": 1536,
+      "observed": 1307.6,
+      "comparator": "<=",
+      "holds": true
+    },
+    {
+      "target": "total_stack_peak_memory_mib_maximum",
+      "limit": 6144,
+      "observed": 2176.3,
+      "comparator": "<=",
+      "holds": true,
+      "note": "sum of docker stats memory of postgres+engine+api+worker+backup-scheduler"
+    },
+    {
+      "target": "snapshot_restart_ready_seconds_maximum",
+      "limit": 30,
+      "observed": 2,
+      "comparator": "<=",
+      "holds": true,
+      "note": "tail of 1002 unapplied entries"
+    },
+    {
+      "target": "no_snapshot_rebuild_ready_seconds_maximum",
+      "limit": 180,
+      "observed": 12,
+      "comparator": "<=",
+      "holds": true
+    },
+    {
+      "target": "backup_restore_query_ready_seconds_maximum",
+      "limit": 600,
+      "observed": 107.4,
+      "comparator": "<=",
+      "holds": true
+    },
+    {
+      "target": "load.ingested_journal_entries_per_second (achieved)",
+      "limit": 20,
+      "observed": 15.92,
+      "comparator": ">=",
+      "holds": false
+    },
+    {
+      "target": "measurement_rules.min_1000_samples_per_class_transport_mode",
+      "limit": 1000,
+      "observed": {
+        "api_closed": {
+          "hot": 9824,
+          "cold": 3801,
+          "history": 3680,
+          "summary": 1911
+        },
+        "api_fixed": {
+          "hot": 12202,
+          "cold": 4797,
+          "history": 4634,
+          "summary": 2368
+        },
+        "mcp_closed": {
+          "hot": 13041,
+          "cold": 5162,
+          "history": 4960,
+          "summary": 2541
+        },
+        "mcp_fixed": {
+          "hot": 12202,
+          "cold": 4797,
+          "history": 4634,
+          "summary": 2368
+        }
+      },
+      "comparator": ">=",
+      "holds": true
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# waiting for the scheduler's first (overdue) generation that collided with the manual backup 2026-11-03T17:42:16Z
+fence released after 20 s; status.json: {  "status": "scheduled",  "configured": true,  "destination_label": "perf",  "same_device": true,  "last_completed_at": "2026-11-03T17:42:28Z",  "next_due_at": "2026-11-04T17:41:55Z",  "retention": {    "daily": 7,    "weekly": 4  },  "last_attempt_at": "2026-11-03T17:41:55Z",  "last_attempt_kind": "scheduled",  "last_attempt_generation": "blackbox-backup-20261103T174155Z",  "destination_availabl
+drwx------@  5 benediktsauter  staff        160 Nov  3 18:42 .
+drwxr-x---+ 89 benediktsauter  staff       2848 Nov  3 18:41 ..
+-rw-------@  1 benediktsauter  staff        121 Nov  3 18:41 .blackbox-backup-destination
+-rw-------   1 benediktsauter  staff       5890 Nov  3 18:42 blackbox-backup-20261103T174155Z.meta.json
+-rw-------   1 benediktsauter  staff  199462632 Nov  3 18:42 blackbox-backup-20261103T174155Z.tar.age

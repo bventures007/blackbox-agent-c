@@ -1,0 +1,79 @@
+# perf backup/restore started 2026-11-03T17:42:31Z load 5.19 27.51 78.29; commit 9b64931c80134c50281cd904d81789ddec78f3b5
+## sizes before the backup: evidence 64836 KiB, snapshots 0 KiB, pgdata volume 1.622GB
+database size | journal_entries | tenants: 1044 MB|601422|51
+## ./blackbox backup
+ Container blackbox-agent-c-perf-backup-run-2e444a30781c Creating 
+ Container blackbox-agent-c-perf-backup-run-2e444a30781c Created 
+2026-11-03T17:42:53Z backup generation blackbox-backup-20261103T174253Z (manual) starting
+2026-11-03T17:42:54Z backup dumping database
+2026-11-03T17:43:26Z backup archiving evidence
+2026-11-03T17:43:31Z backup archiving snapshots
+2026-11-03T17:43:31Z backup archiving installation key material
+2026-11-03T17:43:32Z backup sealing generation
+2026-11-03T17:43:33Z backup generation finalized: /backup-dest/blackbox-backup-20261103T174253Z.tar.age (199462632 bytes, sha256 989c77acf7708c535e41fad9ddda33606a5faa6ba706819ab4f6e3721b983dd5)
+2026-11-03T17:43:33Z backup retention: kept 2 of 2 finalized generation(s) (daily=7 weekly=4)
+  [done]
+backup finalized: /backup-dest/blackbox-backup-20261103T174253Z.tar.age
+backup exit 0 after 46 s
+generation: blackbox-backup-20261103T174253Z.tar.age (199462632 bytes); sidecar: {  "format": "blackbox-backup/1",  "generation": "blackbox-backup-20261103T174253Z",  "file": "blackbox-backup-20261103T174253Z.tar.age",  "created_at": "2026-11-03T17:42:53Z",  "finalized_at": "2026-11-03T17:43:33Z",  "kind": "manual",  "b
+## ./blackbox restore blackbox-backup-20261103T174253Z.tar.age --into /Users/benediktsauter/blackbox-pilot-perf-restore --port 19198 --project blackbox-agent-c-perf-restore  (BLACKBOX_RECOVERY_KEY_FILE=/Users/benediktsauter/blackbox-perf-keys-perf/recovery.key; new owner key -> /Users/benediktsauter/blackbox-perf-keys-perf/restore-owner.key)
+command exit 0; owner key captured; transcript (redacted): /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/PILOT-09-perf/restore-transcript-redacted.txt
+restore exit 0 after 107 s wall (command start to exit)
+[2K [33m⠼[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.5s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠴[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.6s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠦[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.7s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠧[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.8s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠇[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m3.9s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠏[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m4.0s[0m
+[?25h[?25l[5A[0G
+[2K [33m⠋[0m Container blackbox-agent-c-perf-restore-api              Starting        [34m4.1s[0m
+[?25h[?25l[5A[0G[2K[+] up 4/4
+[2K [32m✔[0m Container blackbox-agent-c-perf-restore-api              [32mStarted[0m         [34m4.1s[0m
+[?25h  api ready (2s)
+  [fence-credentials]
+Restored credentials are stale by policy: rotating the owner key and revoking all sessions/agent keys. New owner key shown ONCE:
+  [verify]
+{"level":"INFO","tenant_id":"8335708e-40f0-4ba7-81e6-9c6f7b530320","operation_id":"verify:order","applied_cursor":48624,"schema_version":1,"record_id":"4d571117-13b1-4367-be43-8a47fe69b6bf","occurred_at":"2026-11-03T17:45:22.751Z","observed_at":"2026-11-03T17:45:22.751Z","event_name":"query.served","component":"api","service_version":"0.1.1-perf","instance_id":"6d47f7a1-e3aa-4b93-ae1e-a452ea8bf001","scope":"workspace","message":"Golden verify served"}
+verify: passed (golden order state matches)
+  representative answer verified
+  [done]
+  machine processing: 105s (unpack/db/start 100s, fence/verify 5s); operator input: 0s; full elapsed: 106s
+  provider workers stay PAUSED (fence: restore_pending_review). Check account bindings and the redaction policy, then: ./blackbox resume-sources
+## probe: authorized owner query on the restored install (polled every 1 s from the restore command start)
+probe: {"owner_login_ready_s": 107.4, "authorized_query_ready_s": 107.4, "engine_all_tenants_ready_s": 107.4, "probe_order": "#1001", "last_probe": [200, "current", null]}
+## restored install: status
+blackbox-agent-c-perf-restore-backup-scheduler   blackbox/backup:0.1.1-perf                                                                     "/bin/bash /scripts/…"   backup-scheduler   14 seconds ago       Up 11 seconds                 5432/tcp
+blackbox-agent-c-perf-restore-engine             blackbox/engine:0.1.1-perf                                                                     "/usr/local/bin/blac…"   engine             14 seconds ago       Up 12 seconds (healthy)       7070/tcp
+blackbox-agent-c-perf-restore-postgres           postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef   "docker-entrypoint.s…"   postgres           About a minute ago   Up About a minute (healthy)   5432/tcp
+api health: {"status":"ok","version":"0.1.1-perf"}
+writers fenced: {"reason":"restore_pending_review","since":"2026-11-03T17:43:59Z","owner":"wrapper"}
+backups: {  "status": "not_configured",  "configured": false}
+restored secrets differ from the live install? data.key identical (restored from the backup member keys.tar.age, same installation key generation)
+restored journal_entries/tenants: 601422|51
+restored fence: {"reason":"restore_pending_review","since":"2026-11-03T17:43:59Z","owner":"wrapper"}; evidence access: {"blocked":true,"reason":"restore_policy_unreconciled","since":"2026-11-03T17:45:08Z","generation":"blackbox-backup-2026
+{
+ "class": "backup_restore_query_ready",
+ "machine_seconds": 107.4,
+ "machine_seconds_definition": "seconds from the restore command start until an authorized owner query of the restored install answered 200/current, minus the wrapper-reported operator input time",
+ "wrapper_machine_processing_seconds": 105,
+ "operator_input_seconds": 0,
+ "restore_command_wall_seconds": 107,
+ "restore_exit_code": 0,
+ "authorized_query_ready_seconds_from_command_start": 107.4,
+ "engine_all_tenants_ready_seconds_from_command_start": 107.4,
+ "owner_login_ready_seconds": 107.4,
+ "generation": "blackbox-backup-20261103T174253Z.tar.age",
+ "generation_bytes": 199462632,
+ "evidence_dir_kib": 64836,
+ "host_load_after": "18.55 24.04 67.40",
+ "measured_at": "2026-11-03T17:45:27.999124+00:00",
+ "source": "scripts/verify/perf-restore.sh"
+}
+## stopping the restored stack (folder kept): 
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+# finished 2026-11-03T17:45:32Z load 18.98 24.04 67.15

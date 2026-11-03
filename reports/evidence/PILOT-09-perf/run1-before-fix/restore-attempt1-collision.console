@@ -1,0 +1,58 @@
+# perf backup/restore started 2026-11-03T17:41:33Z load 4.18 32.33 83.58; commit 9b64931c80134c50281cd904d81789ddec78f3b5
+## sizes before the backup: evidence 64836 KiB, snapshots 0 KiB, pgdata volume 1.622GB
+database size | journal_entries | tenants: 1044 MB|601422|51
+## ./blackbox backup-config /Users/benediktsauter/blackbox-pilot-perf-backups --label perf  (recovery identity -> /Users/benediktsauter/blackbox-perf-keys-perf/recovery.key 0600, redacted here)
+exit 0
+Enrolling backup destination: /Users/benediktsauter/blackbox-pilot-perf-backups
+  note: same device as the installation — convenient, but does not protect against device loss. Prefer a separate volume.
+  [recovery-key]
+ Container blackbox-agent-c-perf-backup-run-e22d1439cf89 Creating 
+ Container blackbox-agent-c-perf-backup-run-e22d1439cf89 Created 
+
+=== BACKUP RECOVERY KEY — shown once, not stored anywhere by Blackbox ===
+AGE-SECRET-KEY-1<redacted>
+=== Save it in your password manager, separately from the owner key. Without it, backups cannot be restored. ===
+
+  [scheduler-recreate]
+  [done]
+Destination enrolled. The scheduler creates one encrypted generation per 24 h while the backend runs.
+Create the first one now: ./blackbox backup
+recovery.key: -rw------- 75 bytes
+## ./blackbox backup
+blackbox: ERROR: writers already fenced ({  "reason": "scheduled_backup",  "since": "2026-11-03T17:41:50Z",  "owner": "backup-scheduler"}); finish that operation first
+backup exit 1 after 1 s
+ls: /Users/benediktsauter/blackbox-pilot-perf-backups/*.tar.age: No such file or directory
+stat: : stat: No such file or directory
+scripts/verify/perf-restore.sh: line 32: .meta.json: No such file or directory
+generation:  ( bytes); sidecar: 
+## ./blackbox restore  --into /Users/benediktsauter/blackbox-pilot-perf-restore --port 19198 --project blackbox-agent-c-perf-restore  (BLACKBOX_RECOVERY_KEY_FILE=/Users/benediktsauter/blackbox-perf-keys-perf/recovery.key; new owner key -> /Users/benediktsauter/blackbox-perf-keys-perf/restore-owner.key)
+command exit 2; owner key not shown; transcript (redacted): /Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/PILOT-09-perf/restore-transcript-redacted.txt
+restore exit 2 after 0 s wall (command start to exit)
+blackbox: ERROR: usage: restore <backup.tar.age> [--into <dir>] [--replace] [--port N]
+## probe: authorized owner query on the restored install (polled every 1 s from the restore command start)
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/benediktsauter/blackbox-perf-keys-perf/restore-owner.key'
+probe: 
+## restored install: status
+scripts/verify/perf-restore.sh: line 84: cd: /Users/benediktsauter/blackbox-pilot-perf-restore: No such file or directory
+shasum: /Users/benediktsauter/blackbox-pilot-perf-restore/secrets/data.key: No such file or directory
+restored secrets differ from the live install? data.key DIFFERENT
+scripts/verify/perf-restore.sh: line 86: cd: /Users/benediktsauter/blackbox-pilot-perf-restore: No such file or directory
+restored journal_entries/tenants: 
+restored fence: ; evidence access: 
+stat: : stat: No such file or directory
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+## stopping the restored stack (folder kept): 
+scripts/verify/perf-restore.sh: line 100: cd: /Users/benediktsauter/blackbox-pilot-perf-restore: No such file or directory
+# finished 2026-11-03T17:41:51Z load 4.61 30.63 81.78

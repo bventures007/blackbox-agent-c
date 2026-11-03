@@ -1,0 +1,34 @@
+# run 2 (after the ADR-0008 fix) preparation 2026-11-03T17:51:38Z
+17:51:38 load 168.18 90.16 79.38
+17:51:48 load 148.00 88.41 78.89
+17:51:58 load 128.56 86.20 78.21
+17:52:08 load 111.12 83.86 77.48
+17:52:18 load 97.91 81.92 76.86
+17:52:29 load 84.58 79.60 76.10
+17:52:39 load 72.93 77.26 75.31
+17:52:49 load 64.91 75.42 74.68
+17:52:59 load 56.13 73.20 73.90
+17:53:09 load 49.30 71.17 73.17
+17:53:19 load 42.33 68.95 72.36
+17:53:29 load 36.36 66.80 71.55
+17:53:39 load 31.46 64.75 70.77
+17:53:49 load 25.45 61.79 69.61
+17:53:59 load 22.14 59.88 68.84
+17:54:09 load 19.44 58.06 68.09
+17:54:20 load 16.90 56.24 67.33
+17:54:30 load 15.06 54.56 66.60
+17:54:40 load 13.59 52.94 65.89
+17:54:50 load 11.89 51.28 65.14
+## lifecycle restart: ./blackbox down && ./blackbox up (engine loads its snapshots; api/worker pools recreated)
+stopped; volumes and data preserved. Processing resumes with ./blackbox up
+running at http://127.0.0.1:19180/ (project blackbox-agent-c-perf)
+up after 13 s
+engine healthy after 1 s
+leakproof flag in the running database: t
+  blackbox-agent-c-perf-backup-scheduler blackbox/backup:0.1.1-perf Up 6 seconds
+  blackbox-agent-c-perf-pgproxy node:22-bookworm-slim Up 2 hours
+  blackbox-agent-c-perf-api blackbox/api:0.1.1-perf Up 3 seconds (health: starting)
+  blackbox-agent-c-perf-worker blackbox/worker:0.1.1-perf Up 5 seconds
+  blackbox-agent-c-perf-engine blackbox/engine:0.1.1-perf Up 6 seconds (healthy)
+  blackbox-agent-c-perf-postgres postgres:16.6-alpine Up 12 seconds (healthy)
+foreign containers: 17; load 10.83 49.11 64.13

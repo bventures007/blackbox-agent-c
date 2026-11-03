@@ -1,0 +1,11 @@
+{
+ "class": "no_snapshot_rebuild",
+ "ready_seconds": 12,
+ "time_to_ready_seconds": 12,
+ "engine_rss_bytes_after": 815452160,
+ "engine_image": "blackbox/engine:0.1.1-perf",
+ "host_load_after": "4.10 37.44 88.38",
+ "measured_at": "2026-11-03T17:40:42.596177+00:00",
+ "source": "scripts/verify/perf-recovery.sh",
+ "method": "engine_snapshots deleted as bb_engine + data/snapshots emptied while the engine was stopped; engine started; API health card engine=healthy polled every 1 s; engine_checkpoints state hashes compared before/after"
+}

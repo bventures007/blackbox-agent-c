@@ -1,0 +1,49 @@
+# EXPLAIN (ANALYZE, BUFFERS) as bb_api (RLS, app.tenant_id = tenant 0) on the idle perf database, hot order of tenant 0, 2026-11-03T17:37:03Z load 7.83 74.71 113.54
+## API entity history (journal.ts entityHistory): journal_sequence range AND (entity_refs @> OR record_id =) LIMIT 101
+Limit  (cost=0.43..7719.40 rows=101 width=714) (actual time=149.088..469.848 rows=69 loops=1)
+  Buffers: shared hit=29659 read=1408
+  ->  Index Scan using journal_entries_tenant_sequence_key on journal_entries  (cost=0.43..233480.00 rows=3055 width=714) (actual time=149.086..469.827 rows=69 loops=1)
+        Index Cond: ((tenant_id = (current_setting('app.tenant_id'::text, true))::uuid) AND (journal_sequence > '0'::bigint) AND (journal_sequence <= '276763'::bigint))
+        Filter: ((entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb) OR (record_id = 'order:#1001-34e7-1491-be0820'::text))
+        Rows Removed by Filter: 276694
+        Buffers: shared hit=29659 read=1408
+Planning:
+  Buffers: shared hit=334 read=25
+Planning Time: 2.385 ms
+Execution Time: 469.976 ms
+(client wall 478 ms)
+## engine entity read (storage entity_entries): tenant_id AND entity_refs @> AND sequence range LIMIT 500
+Limit  (cost=0.42..38150.76 rows=500 width=24) (actual time=83.524..201.948 rows=69 loops=1)
+  Buffers: shared hit=31067
+  ->  Result  (cost=0.42..232717.49 rows=3050 width=24) (actual time=83.524..201.944 rows=69 loops=1)
+        One-Time Filter: ((current_setting('app.tenant_id'::text, true))::uuid = '8b621a2a-bb46-47fa-9d14-9ac981f6c117'::uuid)
+        Buffers: shared hit=31067
+        ->  Index Scan using journal_entries_tenant_sequence_key on journal_entries  (cost=0.42..232717.49 rows=3050 width=24) (actual time=83.519..201.933 rows=69 loops=1)
+              Index Cond: ((tenant_id = '8b621a2a-bb46-47fa-9d14-9ac981f6c117'::uuid) AND (journal_sequence > '0'::bigint) AND (journal_sequence <= '276763'::bigint))
+              Filter: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+              Rows Removed by Filter: 276694
+              Buffers: shared hit=31067
+Planning Time: 0.125 ms
+Execution Time: 201.996 ms
+(client wall 204 ms)
+## engine entity count
+Finalize Aggregate  (cost=59038.34..59038.35 rows=1 width=8) (actual time=230.499..235.486 rows=1 loops=1)
+  Buffers: shared hit=27237 read=26373
+  ->  Gather  (cost=59038.12..59038.33 rows=2 width=8) (actual time=230.350..235.477 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=27237 read=26373
+        ->  Partial Aggregate  (cost=58038.12..58038.13 rows=1 width=8) (actual time=226.590..226.591 rows=1 loops=3)
+              Buffers: shared hit=27237 read=26373
+              ->  Result  (cost=0.01..58034.94 rows=1271 width=0) (actual time=215.522..226.585 rows=23 loops=3)
+                    One-Time Filter: ((current_setting('app.tenant_id'::text, true))::uuid = '8b621a2a-bb46-47fa-9d14-9ac981f6c117'::uuid)
+                    Buffers: shared hit=27237 read=26373
+                    ->  Parallel Seq Scan on journal_entries  (cost=0.01..58034.94 rows=1271 width=0) (actual time=215.512..226.572 rows=23 loops=3)
+                          Filter: ((journal_sequence <= '276763'::bigint) AND (tenant_id = '8b621a2a-bb46-47fa-9d14-9ac981f6c117'::uuid) AND (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb))
+                          Rows Removed by Filter: 200117
+                          Buffers: shared hit=27237 read=26373
+Planning:
+  Buffers: shared hit=6
+Planning Time: 0.136 ms
+Execution Time: 235.597 ms
+(client wall 239 ms)

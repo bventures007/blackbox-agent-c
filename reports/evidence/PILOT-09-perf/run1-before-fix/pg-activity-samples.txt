@@ -1,0 +1,648 @@
+## 2026-11-03T17:00:14Z
+bb_api|active|-|8|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+## 2026-11-03T17:00:35Z
+bb_api|idle in transaction|Client|4|BEGIN
+bb_worker|idle in transaction|Client|3|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_engine|active|-|2|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_worker|idle in transaction|Client|2|INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, schedule_seconds, next_check_at, next_check_reason
+bb_api|idle in transaction|Client|2|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_engine|active|-|1|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|WITH RECURSIVE t AS ( SELECT min(event_type) AS event_type FROM journal_entries WHERE tenant_id = $1 UNION ALL SELECT (SELECT min(event_type) FROM jou
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_worker|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+## 2026-11-03T17:01:04Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|2|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|UPDATE sessions SET last_seen_at = $2, idle_expires_at = $3 WHERE session_hash = $1
+## 2026-11-03T17:01:25Z
+bb_api|idle in transaction|Client|3|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|2|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_worker|idle in transaction|Client|1|BEGIN
+bb_worker|idle in transaction|Client|1|INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, schedule_seconds, next_check_at, next_check_reason
+bb_worker|idle in transaction|Client|1|SELECT h.connection_id, c.provider, h.capability_id, h.poll_group, h.next_check_at, h.next_reconciliation_at, h.last_attempt_at, h.retry_after_until F
+bb_api|idle in transaction|Client|1|BEGIN
+bb_worker|idle in transaction|Client|1|SELECT r.run_id, r.connection_id, r.kind, r.checkpoint, r.updated_at FROM import_runs r JOIN connections c ON c.connection_id = r.connection_id WHERE 
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+## 2026-11-03T17:01:47Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|idle in transaction|-|1|SELECT h.connection_id, c.provider, h.capability_id, h.poll_group, h.next_check_at, h.next_reconciliation_at, h.last_attempt_at, h.retry_after_until F
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+## 2026-11-03T17:02:08Z
+bb_api|active|-|6|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|idle in transaction|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+## 2026-11-03T17:02:29Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|active|LWLock|1|COMMIT
+bb_api|active|Lock|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:02:51Z
+bb_api|active|-|6|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|INSERT INTO deliveries (tenant_id, connection_id, provider_event_id, content_hash, status, run_id) VALUES ($1, $2, $3, $4, 'accepted', $5) ON CONFLICT
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:03:12Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|idle in transaction|-|1|SELECT h.connection_id, c.provider, h.capability_id, h.poll_group, h.next_check_at, h.next_reconciliation_at, h.last_attempt_at, h.retry_after_until F
+bb_api|idle in transaction|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+## 2026-11-03T17:03:33Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT append_journal_entries($1::jsonb)
+bb_api|active|-|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+## 2026-11-03T17:03:53Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+## 2026-11-03T17:04:14Z
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|-|3|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|IO|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:04:35Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|3|BEGIN
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+## 2026-11-03T17:04:55Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|active|IO|1|COMMIT
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:05:15Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+## 2026-11-03T17:05:36Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:05:56Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:06:17Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, schedule_seconds, next_check_at, next_check_reason
+bb_worker|idle in transaction|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_api|active|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|active|IO|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+## 2026-11-03T17:06:37Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_worker|active|-|1|SELECT r.run_id, r.connection_id, r.kind, r.checkpoint, r.updated_at FROM import_runs r JOIN connections c ON c.connection_id = r.connection_id WHERE 
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|-|1|INSERT INTO engine_snapshots (tenant_id, reducer_version, format_version, applied_sequence, checksum, blob, created_at) VALUES ($1, $2, $3, $4, $5, $6
+## 2026-11-03T17:06:58Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT gen_random_uuid()::text AS id
+bb_api|idle in transaction|Client|1|SELECT h.connection_id, cn.provider, h.capability_id, h.status, h.last_successful_check_at, h.last_new_event_at, h.next_check_at, h.next_check_reason,
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:07:19Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1| WITH next AS ( SELECT j.id FROM pgboss.job_common j WHERE j.name = 'backups.due' AND j.state < 'active' AND NOT j.blocked AND j.start_after <= pgboss
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|INSERT INTO deliveries (tenant_id, connection_id, provider_event_id, content_hash, status, run_id) VALUES ($1, $2, $3, $4, 'accepted', $5) ON CONFLICT
+## 2026-11-03T17:07:39Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|2|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:08:01Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:08:22Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|SELECT gen_random_uuid()::text AS id
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:08:42Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|active|Client|1|COMMIT
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:09:03Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|SELECT gen_random_uuid()::text AS id
+## 2026-11-03T17:09:23Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|SELECT h.connection_id, c.provider, h.capability_id, h.poll_group, h.next_check_at, h.next_reconciliation_at, h.last_attempt_at, h.retry_after_until F
+bb_worker|active|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_api|idle in transaction|Client|1|BEGIN
+## 2026-11-03T17:09:44Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:10:04Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|3|BEGIN
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:10:25Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:10:46Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:11:06Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|-|1|INSERT INTO engine_snapshots (tenant_id, reducer_version, format_version, applied_sequence, checksum, blob, created_at) VALUES ($1, $2, $3, $4, $5, $6
+## 2026-11-03T17:11:26Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|IO|1|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|BEGIN
+## 2026-11-03T17:11:47Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|IO|1|INSERT INTO engine_checkpoints (tenant_id, applied_sequence, reducer_version, state_hash, updated_at) VALUES ($1, $2, $3, $4, now()) ON CONFLICT (tena
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_worker|active|-|1|INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, schedule_seconds, next_check_at, next_check_reason
+bb_api|idle in transaction|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+## 2026-11-03T17:12:08Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|-|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, schedule_seconds, next_check_at, next_check_reason
+## 2026-11-03T17:12:28Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:12:49Z
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|-|2|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|IO|1| WITH next AS ( SELECT j.id FROM pgboss.job_common j WHERE j.name = 'retention.cleanup' AND j.state < 'active' AND NOT j.blocked AND j.start_after <= 
+## 2026-11-03T17:13:11Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|LWLock|2|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|-|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:13:31Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:13:52Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|idle in transaction|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+## 2026-11-03T17:14:12Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, schedule_seconds, next_check_at, next_check_reason
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|BEGIN
+## 2026-11-03T17:14:33Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|3|BEGIN
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+## 2026-11-03T17:14:54Z
+bb_api|idle in transaction|Client|3|BEGIN
+bb_engine|active|-|3|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:15:14Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|1|INSERT INTO deliveries (tenant_id, connection_id, provider_event_id, content_hash, status, run_id) VALUES ($1, $2, $3, $4, 'accepted', $5) ON CONFLICT
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|BEGIN
+## 2026-11-03T17:15:35Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|active|-|1|SELECT h.connection_id, cn.provider, h.capability_id, h.status, h.last_successful_check_at, h.last_new_event_at, h.next_check_at, h.next_check_reason,
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:15:56Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|3|BEGIN
+bb_api|idle in transaction|Client|1|SELECT gen_random_uuid()::text AS id
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|IO|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+## 2026-11-03T17:16:17Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|active|IO|1|COMMIT
+bb_worker|active|-|1|SELECT h.connection_id, c.provider, h.capability_id, h.poll_group, h.next_check_at, h.next_reconciliation_at, h.last_attempt_at, h.retry_after_until F
+bb_api|idle in transaction|Client|1|SELECT * FROM storage_thresholds WHERE tenant_id = $1
+## 2026-11-03T17:16:38Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT 1 FROM journal_entries WHERE tenant_id = $1 AND entity_refs <> '{}'::jsonb LIMIT 1
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT h.connection_id, cn.provider, h.capability_id, h.status, h.last_successful_check_at, h.last_new_event_at, h.next_check_at, h.next_check_reason,
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1| WITH next AS ( SELECT j.id FROM pgboss.job_common j WHERE j.name = 'outbox.dispatch' AND j.state < 'active' AND NOT j.blocked AND j.start_after <= pg
+bb_worker|active|-|1| WITH next AS ( SELECT j.id FROM pgboss.job_common j WHERE j.name = 'source.run' AND j.state < 'active' AND NOT j.blocked AND j.start_after <= pgboss.
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_worker|active|IO|1|COMMIT
+bb_api|idle in transaction|Client|1|BEGIN
+## 2026-11-03T17:16:59Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|-|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|SELECT 1 FROM journal_entries WHERE tenant_id = $1 AND entity_refs <> '{}'::jsonb LIMIT 1
+bb_api|idle in transaction|Client|1|INSERT INTO deliveries (tenant_id, connection_id, provider_event_id, content_hash, status, run_id) VALUES ($1, $2, $3, $4, 'accepted', $5) ON CONFLICT
+## 2026-11-03T17:17:20Z
+bb_engine|active|-|3|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|BEGIN
+bb_worker|idle in transaction|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+## 2026-11-03T17:17:41Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:18:02Z
+bb_api|idle in transaction|Client|2|BEGIN
+bb_engine|active|-|2|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|IO|1|INSERT INTO engine_checkpoints (tenant_id, applied_sequence, reducer_version, state_hash, updated_at) VALUES ($1, $2, $3, $4, now()) ON CONFLICT (tena
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT connection_id, provider, account_ref, status FROM connections WHERE connection_id = $1
+## 2026-11-03T17:18:23Z
+bb_engine|active|-|2|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|SELECT plan_id FROM import_plans WHERE connection_id = $1 AND superseded_at IS NULL ORDER BY plan_revision DESC LIMIT 1
+bb_worker|active|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+|active|Timeout|1|autovacuum: VACUUM pg_toast.pg_toast_16600
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+## 2026-11-03T17:18:44Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|WITH RECURSIVE t AS ( SELECT min(event_type) AS event_type FROM journal_entries WHERE tenant_id = $1 UNION ALL SELECT (SELECT min(event_type) FROM jou
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:19:05Z
+bb_engine|active|-|3|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|UPDATE credentials SET last_used_at = now() WHERE credential_id = $1
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_worker|active|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT gen_random_uuid()::text AS id
+## 2026-11-03T17:19:26Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|3|BEGIN
+bb_api|active|Lock|1|SELECT append_journal_entries($1::jsonb)
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|active|Client|1|WITH RECURSIVE t AS ( SELECT min(event_type) AS event_type FROM journal_entries WHERE tenant_id = $1 UNION ALL SELECT (SELECT min(event_type) FROM jou
+## 2026-11-03T17:19:46Z
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|-|1|INSERT INTO engine_snapshots (tenant_id, reducer_version, format_version, applied_sequence, checksum, blob, created_at) VALUES ($1, $2, $3, $4, $5, $6
+## 2026-11-03T17:20:07Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:20:28Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|active|-|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|SELECT h.connection_id, c.provider, h.capability_id, h.poll_group, h.next_check_at, h.next_reconciliation_at, h.last_attempt_at, h.retry_after_until F
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+## 2026-11-03T17:20:48Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:21:09Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:21:30Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:21:51Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:22:12Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|active|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+bb_api|idle in transaction|Client|1|WITH RECURSIVE t AS ( SELECT min(event_type) AS event_type FROM journal_entries WHERE tenant_id = $1 UNION ALL SELECT (SELECT min(event_type) FROM jou
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|-|1|INSERT INTO engine_snapshots (tenant_id, reducer_version, format_version, applied_sequence, checksum, blob, created_at) VALUES ($1, $2, $3, $4, $5, $6
+bb_worker|active|-|1| BEGIN; SET LOCAL lock_timeout = 30000; SET LOCAL idle_in_transaction_session_timeout = 30000; SELECT pg_advisory_xact_lock(('x' || encode(sha224((cur
+bb_worker|active|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_api|active|Client|1|COMMIT
+## 2026-11-03T17:22:33Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|IO|1|INSERT INTO engine_checkpoints (tenant_id, applied_sequence, reducer_version, state_hash, updated_at) VALUES ($1, $2, $3, $4, now()) ON CONFLICT (tena
+bb_worker|idle in transaction|Client|1|INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, schedule_seconds, next_check_at, next_check_reason
+bb_api|idle in transaction|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+## 2026-11-03T17:22:53Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|LWLock|1|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+## 2026-11-03T17:23:14Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT connection_id, provider, account_ref, status FROM connections WHERE connection_id = $1
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|active|-|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+## 2026-11-03T17:23:34Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:23:55Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT connection_id, provider, account_ref, status FROM connections WHERE connection_id = $1
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:24:15Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:24:36Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:24:56Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|active|Lock|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|idle in transaction|Client|1|BEGIN
+## 2026-11-03T17:25:17Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:25:38Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|2|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|SELECT r.run_id, r.connection_id, r.kind, r.checkpoint, r.updated_at FROM import_runs r JOIN connections c ON c.connection_id = r.connection_id WHERE 
+bb_api|idle in transaction|Client|1|SELECT gen_random_uuid()::text AS id
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+## 2026-11-03T17:25:59Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|1|INSERT INTO deliveries (tenant_id, connection_id, provider_event_id, content_hash, status, run_id) VALUES ($1, $2, $3, $4, 'accepted', $5) ON CONFLICT
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:26:20Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|1|SELECT gen_random_uuid()::text AS id
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:26:40Z
+bb_engine|active|-|4|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:27:01Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|3|BEGIN
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:27:21Z
+bb_api|idle in transaction|Client|3|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|2|SELECT set_config('app.tenant_id', $1, true)
+bb_engine|active|-|1|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_worker|active|-|1|INSERT INTO capability_health (tenant_id, connection_id, capability_id, status, poll_group, method, schedule_seconds, next_check_at, next_check_reason
+bb_worker|active|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_api|idle in transaction|Client|1|BEGIN
+|active|-|1|autovacuum: ANALYZE public.deliveries
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:27:44Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|4|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|-|1|INSERT INTO engine_snapshots (tenant_id, reducer_version, format_version, applied_sequence, checksum, blob, created_at) VALUES ($1, $2, $3, $4, $5, $6
+bb_api|idle in transaction|Client|1|BEGIN
+## 2026-11-03T17:28:05Z
+bb_api|active|-|6|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:28:25Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|idle in transaction|-|1|UPDATE outbox SET dispatched_at = now() WHERE outbox_id IN (SELECT outbox_id FROM outbox WHERE dispatched_at IS NULL ORDER BY journal_sequence LIMIT $
+bb_api|active|-|1|UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1
+## 2026-11-03T17:28:45Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+bb_api|idle in transaction|Client|1|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr.verifier, cr.status, cr.display_name, cr.expires_at, cr.last_used_at, p.kind, p
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:29:06Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|3|SELECT set_config('app.tenant_id', $1, true)
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|2|BEGIN
+bb_api|idle in transaction|Client|1|SELECT set_config('app.auth_context', 'authenticator', true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:29:26Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|5|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|active|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|active|IO|1|COMMIT
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:29:47Z
+bb_engine|active|-|3|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|idle in transaction|Client|1|SELECT gen_random_uuid()::text AS id
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_engine|active|-|1|SELECT coalesce(max(journal_sequence), 0) AS s FROM journal_entries WHERE tenant_id = $1 AND recorded_at <= $2
+## 2026-11-03T17:30:07Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|active|Lock|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction|Client|1|UPDATE deliveries SET entry_ids = $2 WHERE delivery_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_api|active|-|1|SELECT append_journal_entries($1::jsonb)
+## 2026-11-03T17:30:28Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:30:48Z
+bb_engine|active|-|5|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1
+bb_api|idle in transaction|Client|1|SELECT set_config('app.tenant_id', $1, true)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+bb_worker|active|-|1|COMMIT
+## 2026-11-03T17:31:09Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:31:30Z
+bb_engine|active|-|7|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|3|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|BEGIN
+bb_api|idle in transaction|Client|1|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|SELECT append_journal_entries($1::jsonb)
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:31:50Z
+bb_engine|active|-|6|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, record_id, event_type, schema_version, connection_id, provider, account_ref, provi
+bb_api|active|-|2|SELECT * FROM journal_entries WHERE journal_sequence > $1 AND journal_sequence <= $2 AND (entity_refs @> $3::jsonb OR record_id = $4) ORDER BY journal
+bb_api|idle in transaction|Client|1|INSERT INTO journal_evidence (evidence_id, tenant_id, connection_id, kind, media_type, byte_size, content_hash, storage_ref, evidence_class) VALUES ($
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:32:11Z
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:32:31Z
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:32:51Z
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1
+## 2026-11-03T17:33:11Z
+bb_api|idle in transaction (aborted)|Client|1|SELECT last_sequence FROM tenant_sequences WHERE tenant_id=$1

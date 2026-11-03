@@ -33,6 +33,11 @@ packages/mcp (stdio) ──Bearer bba_…──▶ apps/api (same authorized ser
   that resolves a credential/session before the workspace is known. Only the identity tables of
   migration 0002 honour this context; business tables stay closed.
 - `withInstallation(pool, fn)` — tables without tenant scope (`login_throttle`, probes).
+- RLS and indexes: PostgreSQL uses an operator as an index condition below the row-security barrier
+  only when its function is LEAKPROOF. `0000_roles.sql` therefore marks `jsonb_contains(jsonb, jsonb)`
+  (`@>`) LEAKPROOF so entity reads (`entity_refs @> '{"order": …}'`) use the GIN index
+  `journal_entries_entity_idx` as `bb_api`/`bb_engine` instead of scanning the tenant's journal; the
+  policies still filter every row (ADR-0008; regression test `apps/engine/tests/rls_gin_index.rs`).
 - `runMigrations(url)` — applies `migrations/NNNN_*.sql` in order with a `schema_migrations`
   (name, checksum) table under an advisory lock; a modified applied file is refused. `0000_roles.sql`
   is executed separately by `bootstrapRoles` as the superuser; role passwords are read from
