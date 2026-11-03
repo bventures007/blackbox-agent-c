@@ -1,0 +1,77 @@
+{
+ "generated_at": "2026-11-03T12:40:53.950Z",
+ "api": "http://127.0.0.1:19185",
+ "tenant_id": "36eaa0ee-a91e-4af1-acf0-a5220cfc2950",
+ "note": "diagnostic comparison; the Rust engine is the only implementation of the business rules (docs/engine.md)",
+ "compare": {
+  "orders": 200,
+  "matched": 200,
+  "mismatched": 0,
+  "api_errors": {},
+  "mismatches": []
+ },
+ "cold_error_sample": {
+  "order": "#1001-34e7-4745-c33628",
+  "code": "invalid_params",
+  "message": "order '#1001-34e7-4745-c33628' is not known in this tenant"
+ },
+ "compare_cold": {
+  "cutoff": "2026-11-02T01:23:53.072Z",
+  "orders": 50,
+  "matched": 36,
+  "mismatched": 0,
+  "api_errors": {
+   "invalid_params": 14
+  },
+  "mismatches": []
+ },
+ "latency": {
+  "method": "sequential single client on the host; full request latency (API: HTTP → Fastify auth → engine RPC → readiness memo; SQL: node pg over the loopback proxy → PostgreSQL), warm",
+  "hot": {
+   "requests": 1000,
+   "api_via_engine": {
+    "n": 1000,
+    "p50_ms": 77.6,
+    "p95_ms": 144.1,
+    "p99_ms": 234.3,
+    "max_ms": 420.5
+   },
+   "reference_sql": {
+    "n": 1000,
+    "p50_ms": 24.1,
+    "p95_ms": 34.7,
+    "p99_ms": 57.1,
+    "max_ms": 165.7
+   },
+   "api_errors": {},
+   "sql_entries_read": {
+    "p50": 814,
+    "p95": 1208,
+    "max": 1434
+   }
+  },
+  "cold": {
+   "requests": 200,
+   "api_as_of_via_engine": {
+    "n": 200,
+    "p50_ms": 428.7,
+    "p95_ms": 792,
+    "p99_ms": 970,
+    "max_ms": 1182.3
+   },
+   "reference_sql_cutoff": {
+    "n": 200,
+    "p50_ms": 38.2,
+    "p95_ms": 59.7,
+    "p99_ms": 78.9,
+    "max_ms": 83.3
+   },
+   "api_errors": {},
+   "sql_entries_read": {
+    "p50": 822,
+    "p95": 1125,
+    "max": 1400
+   }
+  }
+ }
+}

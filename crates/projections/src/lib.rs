@@ -5,6 +5,7 @@
 pub mod cold;
 pub mod engine;
 pub mod evict;
+pub mod mem;
 pub mod snapshot;
 
 use arc_swap::ArcSwap;
@@ -48,6 +49,18 @@ pub struct EngineConfig {
     pub cold_cache_bytes: usize,
     /// Maximum entries replayed for one as_of/cold request (ENGINE_REPLAY_MAX_ENTRIES).
     pub replay_max_entries: i64,
+    /// Tail batch while a tenant is catching up (ENGINE_CATCHUP_BATCH_SIZE, default 5000): the
+    /// catch-up applies in one pass and publishes at most every `catchup_publish_interval`.
+    pub catchup_batch_size: i64,
+    /// Publication cadence during catch-up/rebuild from the journal (ENGINE_CATCHUP_PUBLISH_MS,
+    /// default 10000). Every publication costs one checkpoint and one state copy.
+    pub catchup_publish_interval: Duration,
+    /// Idle time after which a tenant's private write copy is dropped (ENGINE_WRITE_COPY_IDLE_SECONDS,
+    /// default 60): idle tenants hold one copy; the next batch clones the published copy once.
+    pub write_copy_idle: Duration,
+    /// Process RSS target in bytes (ENGINE_RSS_TARGET_MB, default 1024; 0 = disabled). Above it idle
+    /// write copies are dropped at once and the next publication evicts to half the structural budget.
+    pub rss_target_bytes: usize,
 }
 
 impl Default for EngineConfig {
@@ -62,6 +75,10 @@ impl Default for EngineConfig {
             tenant_discovery_interval: Duration::from_secs(5),
             cold_cache_bytes: 64 * 1024 * 1024,
             replay_max_entries: 200_000,
+            catchup_batch_size: 5000,
+            catchup_publish_interval: Duration::from_millis(10_000),
+            write_copy_idle: Duration::from_secs(60),
+            rss_target_bytes: 1024 * 1024 * 1024,
         }
     }
 }
@@ -96,6 +113,18 @@ impl EngineConfig {
         if let Some(v) = std::env::var("ENGINE_REPLAY_MAX_ENTRIES").ok().and_then(|v| v.parse().ok()) {
             c.replay_max_entries = v;
         }
+        if let Some(v) = std::env::var("ENGINE_CATCHUP_BATCH_SIZE").ok().and_then(|v| v.parse().ok()) {
+            c.catchup_batch_size = v;
+        }
+        if let Some(v) = std::env::var("ENGINE_CATCHUP_PUBLISH_MS").ok().and_then(|v| v.parse().ok()) {
+            c.catchup_publish_interval = Duration::from_millis(v);
+        }
+        if let Some(v) = std::env::var("ENGINE_WRITE_COPY_IDLE_SECONDS").ok().and_then(|v| v.parse().ok()) {
+            c.write_copy_idle = Duration::from_secs(v);
+        }
+        if let Some(b) = std::env::var("ENGINE_RSS_TARGET_MB").ok().and_then(|v| v.parse::<usize>().ok()) {
+            c.rss_target_bytes = b * 1024 * 1024;
+        }
         c
     }
 }
@@ -107,12 +136,22 @@ pub struct TenantSlot {
     pub phase: AtomicU8,
     pub committed: AtomicI64,
     pub applied: AtomicI64,
+    /// Highest sequence applied into the private write copy (>= applied while catching up; the
+    /// published cursor advances at publication only).
+    pub progress: AtomicI64,
+    /// Whether the private write copy is resident (idle tenants drop it; one copy per idle tenant).
+    pub write_copy_resident: AtomicBool,
+    pub write_copies_dropped: AtomicU64,
+    pub write_copies_cloned: AtomicU64,
+    pub rss_evictions: AtomicU64,
     /// Signalled after every publication.
     pub applied_notify: Notify,
     /// Wake hint from LISTEN journal_appended or admin.
     pub wake: Notify,
     pub rebuild_requested: AtomicBool,
     pub approx_bytes: AtomicUsize,
+    /// Evictable part (history locators + undo logs) of the published copy's estimate.
+    pub evictable_bytes: AtomicUsize,
     pub budget_bytes: AtomicUsize,
     pub evictions: AtomicU64,
     pub batches_applied: AtomicU64,
@@ -132,10 +171,16 @@ impl TenantSlot {
             phase: AtomicU8::new(PHASE_LOADING),
             committed: AtomicI64::new(0),
             applied: AtomicI64::new(0),
+            progress: AtomicI64::new(0),
+            write_copy_resident: AtomicBool::new(false),
+            write_copies_dropped: AtomicU64::new(0),
+            write_copies_cloned: AtomicU64::new(0),
+            rss_evictions: AtomicU64::new(0),
             applied_notify: Notify::new(),
             wake: Notify::new(),
             rebuild_requested: AtomicBool::new(false),
             approx_bytes: AtomicUsize::new(0),
+            evictable_bytes: AtomicUsize::new(0),
             budget_bytes: AtomicUsize::new(0),
             evictions: AtomicU64::new(0),
             batches_applied: AtomicU64::new(0),
@@ -235,7 +280,7 @@ impl Registry {
         self.len() == 0
     }
 
-    /// Structural per-copy budget for one tenant.
+    /// Structural per-copy budget for one tenant (equal share; kept for the admin paths).
     pub fn tenant_budget(&self) -> usize {
         let n = self.len().max(1);
         let share = self.config.hot_budget_bytes / 2 / n;
@@ -246,8 +291,54 @@ impl Registry {
         }
     }
 
+    /// Evictable budget (history locators + undo logs) for one tenant's copy: the hot budget is
+    /// shared in proportion to the tenants' resident sizes (a 276k-entry tenant and a 3-entry tenant
+    /// no longer get the same share), divided by two copies while the tenant's private copy is
+    /// resident, never below 1 MiB, capped by ENGINE_TENANT_BUDGET_MB.
+    pub fn tenant_budget_for(&self, slot: &TenantSlot) -> usize {
+        let all = self.all();
+        let total: usize = all.iter().map(|s| s.approx_bytes.load(Ordering::Relaxed)).sum::<usize>().max(1);
+        let mine = slot.approx_bytes.load(Ordering::Relaxed).max(1);
+        let copies = if slot.write_copy_resident.load(Ordering::Relaxed) { 2 } else { 1 };
+        // The evictable total is the configured hot budget, but never more than what the RSS target
+        // leaves after the unevictable floor of all tenants (RSS runs ≈1.6× the structural estimate on
+        // this workload; floor = estimate − evictable). Without this cap a corpus whose floors already
+        // fill the target keeps its history, exceeds the cgroup limit and spends every publication
+        // evicting (observed: attempt 3 of the smoke protocol).
+        let floor_total: usize = all
+            .iter()
+            .map(|s| s.approx_bytes.load(Ordering::Relaxed).saturating_sub(s.evictable_bytes.load(Ordering::Relaxed)))
+            .sum();
+        let rss_room = if self.config.rss_target_bytes > 0 {
+            (self.config.rss_target_bytes / 8 * 5).saturating_sub(floor_total)
+        } else {
+            usize::MAX
+        };
+        // The RSS-derived cap never goes below 32 MiB; an explicitly small hot budget still applies as is.
+        let evictable_total = self.config.hot_budget_bytes.min(rss_room.max(32 * 1024 * 1024));
+        let weighted = ((evictable_total as u128 * mine as u128) / total as u128) as usize / copies;
+        let share = weighted.max(1024 * 1024);
+        if self.config.tenant_budget_bytes > 0 {
+            share.min(self.config.tenant_budget_bytes / copies)
+        } else {
+            share
+        }
+    }
+
+    /// Structural estimate of resident state: the published copy of every tenant plus the private
+    /// write copy where one is resident, plus the cold cache.
     pub fn total_approx_bytes(&self) -> usize {
-        self.all().iter().map(|s| s.approx_bytes.load(Ordering::Relaxed) * 2).sum::<usize>()
+        self.all()
+            .iter()
+            .map(|s| {
+                let one = s.approx_bytes.load(Ordering::Relaxed);
+                if s.write_copy_resident.load(Ordering::Relaxed) {
+                    one * 2
+                } else {
+                    one
+                }
+            })
+            .sum::<usize>()
             + self.cold.bytes()
     }
 }

@@ -1,0 +1,55 @@
+# SEC-02 export exercised on the final install (http://127.0.0.1:19180, project blackbox-agent-c-final, api image blackbox/api:0.1.0-followup) at 2026-11-03T11:14:45.933670+00:00
+login: 204
+owner tenant: bc07018e-29c3-4857-8ab6-374cc6707d84
+security counts before: {"owner.setup": 1, "agent.key_created": 4, "owner.login": 59, "workspace.updated": 8, "debug.stopped": 2, "debug.enabled": 2, "owner.logout": 2}
+owner without valid CSRF -> 403 {"error":{"code":"forbidden","message":"CSRF token missing or invalid","retryable":false}}
+unknown category -> 422 {"error":{"code":"validation","message":"categories (journal|evidence_metadata|settings) required; from/to optional RFC3
+agent key created: 201 32dec7e6-29f9-4213-bd7e-9cd97fa4f053
+agent key export -> 403 {"error":{"code":"forbidden","message":"owner session required","retryable":false}}
+agent key revoked: 204
+preview -> 200
+{
+ "preview": {
+  "format_version": 1,
+  "categories": [
+   "journal",
+   "evidence_metadata",
+   "settings"
+  ],
+  "from": null,
+  "to": null,
+  "committed_cursor": 74,
+  "counts": {
+   "journal_entries": 74,
+   "evidence_items": 25,
+   "evidence_restricted": 0,
+   "settings_sections": 4
+  },
+  "size_bytes": 96127,
+  "max_bytes": 67108864,
+  "truncated": false,
+  "last_included_sequence": 74,
+  "continue_from": null,
+  "files": [
+   "settings.json",
+   "evidence-metadata.jsonl",
+   "journal-entries.jsonl",
+   "manifest.json"
+  ]
+ }
+}
+exports audited after preview: 0 (unchanged = preview not audited)
+download -> 200 {'content-type': 'application/zip', 'content-disposition': 'attachment; filename="blackbox-workspace-export-2026-11-03T11-14-46-314Z.zip"', 'x-export-truncated': '0', 'content-length': '12490'}
+saved reports/evidence/SEC-02/final-install-export.zip 12490 bytes sha256 48d9887ae1ed5385d20af151cb8e5c7cd74082e03518303e663d08d1710c4791
+zip inventory:
+  settings.json                      965 bytes (compressed 363)
+  evidence-metadata.jsonl          11647 bytes (compressed 2601)
+  journal-entries.jsonl            82350 bytes (compressed 8466)
+  manifest.json                     1165 bytes (compressed 594)
+manifest: {"format": "blackbox-workspace-export", "format_version": 1, "tenant_id": "bc07018e-29c3-4857-8ab6-374cc6707d84", "categories": ["journal", "evidence_metadata", "settings"], "committed_cursor": 74, "counts": {"journal_entries": 74, "evidence_items": 25, "evidence_restricted": 0, "settings_sections": 4}, "truncated": false, "max_bytes": 67108864}
+journal lines: 74 tenants in file: ['bc07018e-29c3-4857-8ab6-374cc6707d84'] tracks: {"source": 25, "fact": 27, "commitment": 4, "movement": 14, "reservation": 4} sequence monotonic: True
+evidence items: 25 by status: {"available": 25} content_included flags: [False] keys: ['byte_size', 'connection_id', 'content_hash', 'content_included', 'evidence_class', 'evidence_id', 'kind', 'media_type', 'received_at', 'retention_days', 'status', 'status_policy_ref', 'status_since']
+settings.json sections: ['backups', 'retention', 'storage_thresholds', 'workspace'] | retention: {"default_days": 90, "classes": {"communication": {"days": 90, "source": "default", "updated_at": "2026-11-02T06:52:46.540Z"}, "document": {"days": 90, "source": "default", "updated_at": "2026-11-02T06:52:46.540Z"}, "provider_payload": {"days": 90, "source": "default", "updated_at": "2026-11-02T06:52:46.540Z"}}} | workspace tenant matches: True
+secret-pattern hits in bundle: 0 | owner key fragment present: False
+security counts after: {"owner.setup": 1, "agent.key_created": 5, "owner.login": 59, "workspace.updated": 8, "workspace.exported": 1, "debug.stopped": 2, "debug.enabled": 2, "agent.key_revoked": 1, "owner.logout": 2}
+last event: {"occurred_at": "2026-11-03T11:14:46.314Z", "event": "workspace.exported", "actor_kind": "owner", "channel": "api"}

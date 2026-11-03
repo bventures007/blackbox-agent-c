@@ -1692,6 +1692,34 @@
       "stop": "Stopping the container runtime or shutting down the Mac stops processing. An explicit stop preserves journal, jobs, cursors and snapshots; restart resumes and shows catch-up progress.",
       "sleep": "Sleep/wake, runtime restarts and network changes are expected; overdue jobs are coalesced and provider quotas respected.",
       "noAutostart": "No login item, keep-awake setting or menu-bar daemon is installed."
+    },
+    "export": {
+      "title": "Workspace data export",
+      "intro": "Downloads a zip of this workspace: canonical journal entries (all five tracks, JSON lines), evidence metadata and the workspace settings with its retention policy. Owner session only; every download is written to the security audit.",
+      "categories": "Contents",
+      "category": {
+        "journal": "Journal entries",
+        "evidence_metadata": "Evidence metadata",
+        "settings": "Settings & retention"
+      },
+      "from": "Recorded from",
+      "to": "Recorded until",
+      "rangeHint": "Optional; empty means the whole committed history.",
+      "excluded": "Never included: raw evidence content, restricted or redacted objects (listed with their status only), keys, sessions, other workspaces. The bundle is capped at 64 MiB; a larger history is exported in parts.",
+      "previewTitle": "Preview",
+      "journalEntries": "Journal entries",
+      "evidenceItems": "Evidence items",
+      "evidenceRestricted_one": "{{count}} not available (restricted, redacted or expired)",
+      "evidenceRestricted_other": "{{count}} not available (restricted, redacted or expired)",
+      "size": "Uncompressed size",
+      "committedCursor": "Committed cursor",
+      "truncated": "Truncated",
+      "truncatedHint": "yes — continue with Recorded from = {{from}}",
+      "files": "Files",
+      "preview": "Preview export",
+      "download": "Download export",
+      "downloaded": "Downloaded {{name}} ({{size}}). The export is recorded in the security audit.",
+      "note": "The file lands in your browser's download folder. It is a deliberate copy of your own data, not a backup: backups stay encrypted and are managed by the host wrapper."
     }
   },
   "evidenceClasses": {
@@ -1726,7 +1754,9 @@
     "debug.enabled": "Debug recording enabled",
     "workspace.updated": "Workspace settings updated",
     "diagnostics.exported": "Diagnostics exported",
-    "retention.updated": "Retention changed"
+    "retention.updated": "Retention changed",
+    "workspace.exported": "Workspace data exported",
+    "evidence.restricted": "Evidence restricted by the owner"
   },
   "questionsCatalog": {
     "groups": {

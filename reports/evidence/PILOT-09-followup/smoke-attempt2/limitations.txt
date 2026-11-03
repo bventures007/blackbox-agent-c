@@ -1,0 +1,3 @@
+Attempt 2 of the follow-up protocol: api blackbox/api:0.1.0-followup3 (readiness loose index scan + agent-key verify cache), engine blackbox/engine:0.1.0-followup (lazy copies, single-pass catch-up, RSS target) WITHOUT the evictable-budget change; shared Mac, host 1-min load 12-38 during the runs.
+No restart-with-tail and no restore measurement in this directory (restart.json/restore.json absent → verdict reports them missing).
+Engine memory is docker stats cgroup memory incl. page cache (peaks at the 1.5 GiB limit); /health RSS stayed 919-1,046 MiB.

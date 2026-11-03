@@ -2,7 +2,7 @@
 //! batches, apply through the reducers into the write copy, commit the checkpoint, publish
 //! atomically (ArcSwap), then bring the second copy up to date (left-right double buffer).
 
-use crate::evict::evict_to_budget;
+use crate::evict::{evict_history_to_budget, evict_to_budget};
 use crate::snapshot::{self, SNAPSHOT_FORMAT_VERSION};
 use crate::{Registry, TenantSlot, PHASE_CATCHING_UP, PHASE_LOADING, PHASE_READY, PHASE_REBUILDING};
 use blackbox_domain::reducer::Outcome;
@@ -193,6 +193,12 @@ fn apply_batch(state: &mut TenantState, batch: &[Entry]) -> (usize, bool) {
     (applied, needs_rebuild)
 }
 
+/// Deterministic eviction of the retired copy must reproduce the published copy exactly; these
+/// cheap structural fingerprints guard the assumption (a mismatch falls back to a clone).
+fn eviction_fingerprint(st: &TenantState) -> (usize, usize, i64, usize) {
+    (st.history.len(), st.cold_history.len(), st.undo_evicted_through, st.entries.values().filter(|m| !m.undo.is_empty()).count())
+}
+
 pub async fn tenant_loop(
     store: Store,
     registry: Arc<Registry>,
@@ -205,14 +211,16 @@ pub async fn tenant_loop(
     let loaded = load_initial(&store, &slot).await;
     slot.loaded_from_snapshot
         .store(loaded.from_snapshot, Ordering::Relaxed);
-    let mut write: Arc<TenantState> = Arc::new(loaded.state);
-    // Publish the snapshot state (cursor = its applied sequence, never ahead).
-    let initial_applied = write.applied_sequence;
-    slot.published.store(write.clone());
+    // Publish the loaded state (cursor = its applied sequence, never ahead). The private write copy
+    // is created lazily by the first batch: an idle tenant holds exactly one copy.
+    let initial = Arc::new(loaded.state);
+    let initial_applied = initial.applied_sequence;
+    slot.approx_bytes.store(initial.approx_bytes(), Ordering::Relaxed);
+    slot.evictable_bytes.store(initial.evictable_bytes(), Ordering::Relaxed);
+    slot.published.store(initial);
     slot.applied.store(initial_applied, Ordering::Release);
-    slot.approx_bytes.store(write.approx_bytes(), Ordering::Relaxed);
-    // `write` is now also the published copy; the private write copy is a clone of it.
-    write = Arc::new((*write).clone());
+    slot.progress.store(initial_applied, Ordering::Release);
+    let mut write: Option<Arc<TenantState>> = None;
     slot.phase.store(PHASE_CATCHING_UP, Ordering::Release);
     if let Ok(c) = store.committed_cursor(tenant).await {
         slot.committed.store(c, Ordering::Release);
@@ -220,6 +228,15 @@ pub async fn tenant_loop(
     let mut last_snapshot = Instant::now();
     let mut entries_since_snapshot: u64 = if loaded.from_snapshot { 0 } else { u64::MAX / 2 };
     let mut caught_up = false;
+    let mut last_publish = Instant::now();
+    let mut last_batch_at = Instant::now();
+    // Unpublished progress held in the write copy (catch-up applies many batches per publication).
+    let mut unpublished_batches: u64 = 0;
+    let mut unpublished_entries: u64 = 0;
+    let mut unpublished_effects: usize = 0;
+    let mut batches_since_evict: u64 = 0;
+    let mut publish_started = Instant::now();
+    let mut last_batch: Option<Vec<Entry>> = None;
 
     loop {
         if *shutdown.borrow() {
@@ -231,14 +248,22 @@ pub async fn tenant_loop(
             let _ = store.delete_snapshot(tenant).await;
             let _ = store.delete_checkpoint(tenant).await;
             registry.cold.invalidate_tenant(tenant);
+            // Drop unpublished progress and the private copy: the rebuild replaces both.
+            write = None;
+            slot.write_copy_resident.store(false, Ordering::Relaxed);
+            last_batch = None;
+            unpublished_batches = 0;
+            unpublished_entries = 0;
+            unpublished_effects = 0;
             let fresh = Arc::new(TenantState::new(tenant));
             // Keep serving the old published state (labelled rebuilding) until the rebuild
             // reaches the previously applied cursor; cursors never move backwards for readers.
             let target = slot.applied.load(Ordering::Acquire);
             let mut rebuilt = reclaim(fresh).await;
             let mut after = 0i64;
+            let mut batches = 0u64;
             loop {
-                let batch = match store.read_tail(tenant, after, cfg.batch_size).await {
+                let batch = match store.read_tail(tenant, after, cfg.catchup_batch_size.max(cfg.batch_size)).await {
                     Ok(b) => b,
                     Err(e) => {
                         error!(event_name = "engine.rebuild_failed", tenant_id = %tenant, message = %e);
@@ -252,13 +277,26 @@ pub async fn tenant_loop(
                 let st = Arc::get_mut(&mut rebuilt).expect("unique");
                 apply_batch(st, &batch);
                 after = batch.last().unwrap().journal_sequence;
+                slot.progress.store(after.max(target), Ordering::Release);
+                batches += 1;
+                if batches % 8 == 0 {
+                    // Bound memory during the rebuild without touching undo logs (pending corrections).
+                    slot.approx_bytes.store(st.approx_bytes(), Ordering::Relaxed);
+                    slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
+                    let budget = registry.tenant_budget_for(&slot);
+                    if st.evictable_bytes() > budget {
+                        evict_history_to_budget(st, budget);
+                    }
+                }
                 if after >= target {
                     break;
                 }
             }
             let st = Arc::get_mut(&mut rebuilt).expect("unique");
-            let budget = registry.tenant_budget();
-            if st.approx_bytes() > budget {
+            slot.approx_bytes.store(st.approx_bytes(), Ordering::Relaxed);
+                    slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
+            let budget = registry.tenant_budget_for(&slot);
+            if st.evictable_bytes() > budget {
                 evict_to_budget(st, budget);
             }
             if let Err(e) = store
@@ -268,19 +306,26 @@ pub async fn tenant_loop(
                 error!(event_name = "engine.checkpoint_failed", tenant_id = %tenant, message = %e);
             }
             let applied_now = st.applied_sequence;
+            let bytes = st.approx_bytes();
+            slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
             let old = slot.published.swap(rebuilt.clone());
             slot.applied.store(applied_now, Ordering::Release);
+            slot.progress.store(applied_now, Ordering::Release);
+            slot.approx_bytes.store(bytes, Ordering::Relaxed);
             slot.applied_notify.notify_waiters();
             drop(reclaim(old).await);
-            write = Arc::new((*rebuilt).clone());
+            drop(rebuilt);
+            crate::mem::trim();
             entries_since_snapshot = u64::MAX / 2;
+            last_publish = Instant::now();
             slot.phase.store(PHASE_READY, Ordering::Release);
             info!(event_name = "engine.rebuild_finished", tenant_id = %tenant, applied_cursor = applied_now, message = "rebuild complete");
             continue;
         }
 
-        let applied = slot.applied.load(Ordering::Acquire);
-        let batch = match store.read_tail(tenant, applied, cfg.batch_size).await {
+        let after = slot.progress.load(Ordering::Acquire);
+        let batch_size = if caught_up { cfg.batch_size } else { cfg.catchup_batch_size.max(cfg.batch_size) };
+        let batch = match store.read_tail(tenant, after, batch_size).await {
             Ok(b) => {
                 // A transient database error must not stay sticky: once the tail reads again the
                 // tenant is no longer degraded (the container healthcheck reads this flag).
@@ -299,11 +344,57 @@ pub async fn tenant_loop(
                 continue;
             }
         };
-        if batch.is_empty() {
+
+        // Publish when the tail is exhausted (caught up / steady state) or the catch-up cadence is due.
+        let full = batch.len() as i64 >= batch_size;
+        if !batch.is_empty() {
+            last_batch_at = Instant::now();
+            if unpublished_batches == 0 {
+                publish_started = Instant::now();
+            }
+            let w = write.get_or_insert_with(|| {
+                let c = Arc::new((**slot.published.load()).clone());
+                slot.write_copy_resident.store(true, Ordering::Relaxed);
+                slot.write_copies_cloned.fetch_add(1, Ordering::Relaxed);
+                c
+            });
+            let st = Arc::get_mut(w).expect("write copy is unique");
+            let (applied_n, needs_rebuild) = apply_batch(st, &batch);
+            slot.progress.store(st.applied_sequence, Ordering::Release);
+            unpublished_batches += 1;
+            unpublished_entries += batch.len() as u64;
+            unpublished_effects += applied_n;
+            batches_since_evict += 1;
+            if needs_rebuild {
+                warn!(event_name = "engine.rebuild_requested", tenant_id = %tenant, message = "correction of a non-resident entry; scheduling rebuild");
+                slot.rebuild_requested.store(true, Ordering::Release);
+            }
+            if full && last_publish.elapsed() < cfg.catchup_publish_interval {
+                // Mid catch-up: one reducer pass, no per-batch checkpoint/publication/copy. Bound memory
+                // with a periodic eviction (deterministic; the retired copy is dropped at publication).
+                if batches_since_evict >= 8 {
+                    batches_since_evict = 0;
+                    slot.approx_bytes.store(st.approx_bytes(), Ordering::Relaxed);
+                    slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
+                    let budget = registry.tenant_budget_for(&slot);
+                    if st.evictable_bytes() > budget {
+                        let r = evict_history_to_budget(st, budget);
+                        slot.evictions.fetch_add(1, Ordering::Relaxed);
+                        info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("catch-up eviction: {} undo logs and {} history locators ({} -> {} bytes)", r.undo_logs_dropped, r.history_records_dropped, r.bytes_before, r.bytes_after));
+                    }
+                }
+                last_batch = None;
+                continue;
+            }
+            last_batch = Some(batch);
+        }
+
+        if unpublished_batches == 0 {
+            // Nothing to publish: idle.
             if !caught_up {
                 caught_up = true;
                 slot.phase.store(PHASE_READY, Ordering::Release);
-                info!(event_name = "engine.tenant_ready", tenant_id = %tenant, applied_cursor = applied, message = "tenant caught up");
+                info!(event_name = "engine.tenant_ready", tenant_id = %tenant, applied_cursor = slot.applied.load(Ordering::Acquire), message = "tenant caught up");
             }
             // Refresh committed cursor occasionally and maybe snapshot while idle.
             if let Ok(c) = store.committed_cursor(tenant).await {
@@ -321,21 +412,42 @@ pub async fn tenant_loop(
                 last_snapshot = Instant::now();
                 entries_since_snapshot = 0;
             }
+            // Idle tenants hold one copy: drop the private write copy after the idle interval, or at
+            // once while the process RSS exceeds its target.
+            if write.is_some()
+                && (last_batch_at.elapsed() >= cfg.write_copy_idle || crate::mem::over_target(cfg.rss_target_bytes))
+            {
+                write = None;
+                last_batch = None;
+                slot.write_copy_resident.store(false, Ordering::Relaxed);
+                slot.write_copies_dropped.fetch_add(1, Ordering::Relaxed);
+                crate::mem::trim();
+                info!(event_name = "engine.write_copy_dropped", tenant_id = %tenant, message = "idle: private state copy released (one resident copy)");
+            }
             let _ = tokio::time::timeout(cfg.poll_interval, slot.wake.notified()).await;
             continue;
         }
 
-        let started = Instant::now();
-        let st = Arc::get_mut(&mut write).expect("write copy is unique");
-        let (applied_n, needs_rebuild) = apply_batch(st, &batch);
-        let budget = registry.tenant_budget();
+        // ----- publication of the write copy -----
+        let w = write.as_mut().expect("unpublished progress implies a write copy");
+        let st = Arc::get_mut(w).expect("write copy is unique");
+        let mut budget = registry.tenant_budget_for(&slot);
+        let rss_over = crate::mem::over_target(cfg.rss_target_bytes);
+        if rss_over {
+            // Measured RSS above target: tighten the structural budget for this publication.
+            budget /= 2;
+            slot.rss_evictions.fetch_add(1, Ordering::Relaxed);
+        }
         slot.budget_bytes.store(budget, Ordering::Relaxed);
         let mut evicted = false;
-        if st.approx_bytes() > budget {
-            let r = evict_to_budget(st, budget);
+        if st.evictable_bytes() > budget {
+            // Undo logs are only evicted once the tenant is caught up (every correction behind the
+            // committed cursor has been applied); while catching up only history locators go.
+            let r = if caught_up { evict_to_budget(st, budget) } else { evict_history_to_budget(st, budget) };
             evicted = true;
+            batches_since_evict = 0;
             slot.evictions.fetch_add(1, Ordering::Relaxed);
-            info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("evicted {} undo logs and {} history locators ({} -> {} bytes)", r.undo_logs_dropped, r.history_records_dropped, r.bytes_before, r.bytes_after));
+            info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("evicted {} undo logs and {} history locators ({} -> {} bytes){}", r.undo_logs_dropped, r.history_records_dropped, r.bytes_before, r.bytes_after, if rss_over { "; rss over target" } else { "" }));
         }
         let new_applied = st.applied_sequence;
         let hash = st.state_hash_hex();
@@ -345,18 +457,28 @@ pub async fn tenant_loop(
             .await
         {
             error!(event_name = "engine.checkpoint_failed", tenant_id = %tenant, error_code = "db", retryable = true, message = %e);
-            // Do not publish; bring the write copy back in line with the published copy.
-            let published = slot.published.load_full();
-            write = Arc::new((*published).clone());
+            // Do not publish; discard the write copy (the next batch re-clones the published copy).
+            write = None;
+            last_batch = None;
+            slot.write_copy_resident.store(false, Ordering::Relaxed);
+            slot.progress.store(slot.applied.load(Ordering::Acquire), Ordering::Release);
+            unpublished_batches = 0;
+            unpublished_entries = 0;
+            unpublished_effects = 0;
             tokio::time::sleep(Duration::from_secs(1)).await;
             continue;
         }
         let bytes = st.approx_bytes();
-        let old = slot.published.swap(write.clone());
+        slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
+        let fingerprint = eviction_fingerprint(st);
+        let prev_applied = slot.applied.load(Ordering::Acquire);
+        let published_new = w.clone();
+        let old = slot.published.swap(published_new);
         slot.applied.store(new_applied, Ordering::Release);
+        slot.progress.store(new_applied, Ordering::Release);
         slot.approx_bytes.store(bytes, Ordering::Relaxed);
-        slot.batches_applied.fetch_add(1, Ordering::Relaxed);
-        slot.entries_applied.fetch_add(batch.len() as u64, Ordering::Relaxed);
+        slot.batches_applied.fetch_add(unpublished_batches, Ordering::Relaxed);
+        slot.entries_applied.fetch_add(unpublished_entries, Ordering::Relaxed);
         *slot.last_publication.lock().unwrap() = Some(Instant::now());
         slot.applied_notify.notify_waiters();
         if let Ok(c) = store.committed_cursor(tenant).await {
@@ -371,31 +493,44 @@ pub async fn tenant_loop(
             tenant_id = %tenant,
             committed_cursor = committed,
             applied_cursor = new_applied,
-            record_count = batch.len() as i64,
-            duration_ms = started.elapsed().as_millis() as i64,
-            message = format!("applied {} entries ({} with effect)", batch.len(), applied_n)
+            record_count = unpublished_entries as i64,
+            duration_ms = publish_started.elapsed().as_millis() as i64,
+            message = format!("applied {} entries in {} batches ({} with effect)", unpublished_entries, unpublished_batches, unpublished_effects)
         );
-        entries_since_snapshot = entries_since_snapshot.saturating_add(batch.len() as u64);
-        // Now `write` is published; reclaim the retired copy and replay the same batch.
-        let mut retired = reclaim(old).await;
-        {
-            let st2 = Arc::get_mut(&mut retired).expect("unique after reclaim");
-            if evicted || st2.applied_sequence + (batch.len() as i64) < new_applied {
-                // Eviction decisions or a gap: resync by cloning the published copy.
-                *st2 = (*write).clone();
-            } else {
+        entries_since_snapshot = entries_since_snapshot.saturating_add(unpublished_entries);
+        last_publish = Instant::now();
+        // Next write copy. Steady state (one batch since the last publication): reclaim the retired
+        // copy and replay the same batch (left-right double buffer, no clone). After a multi-batch
+        // catch-up the retired copy is too far behind: drop it and clone lazily on the next batch.
+        let mut next: Option<Arc<TenantState>> = None;
+        if unpublished_batches == 1 && old.applied_sequence == prev_applied {
+            if let Some(batch) = last_batch.take() {
+                let mut retired = reclaim(old).await;
+                let st2 = Arc::get_mut(&mut retired).expect("unique after reclaim");
                 apply_batch(st2, &batch);
-                if st2.state_hash != write.state_hash {
-                    warn!(event_name = "engine.copy_divergence", tenant_id = %tenant, message = "write copies diverged; resyncing from published copy");
-                    *st2 = (*write).clone();
+                if evicted {
+                    if caught_up { evict_to_budget(st2, budget); } else { evict_history_to_budget(st2, budget); }
                 }
+                let published = slot.published.load_full();
+                if st2.state_hash != published.state_hash || eviction_fingerprint(st2) != fingerprint {
+                    warn!(event_name = "engine.copy_divergence", tenant_id = %tenant, message = "write copies diverged; resyncing from published copy");
+                    *st2 = (*published).clone();
+                    slot.write_copies_cloned.fetch_add(1, Ordering::Relaxed);
+                }
+                next = Some(retired);
             }
+        } else {
+            drop(old);
         }
-        write = retired;
-        if needs_rebuild {
-            warn!(event_name = "engine.rebuild_requested", tenant_id = %tenant, message = "correction of a non-resident entry; scheduling rebuild");
-            slot.rebuild_requested.store(true, Ordering::Release);
+        last_batch = None;
+        unpublished_batches = 0;
+        unpublished_entries = 0;
+        unpublished_effects = 0;
+        if next.is_none() {
+            slot.write_copy_resident.store(false, Ordering::Relaxed);
+            crate::mem::trim();
         }
+        write = next;
         if entries_since_snapshot >= cfg.snapshot_min_entries
             && last_snapshot.elapsed() >= cfg.snapshot_interval
         {

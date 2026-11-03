@@ -90,13 +90,15 @@ export class ReadinessService {
   async computeIn(c: TenantClient, tenantId: string): Promise<WorkspaceReadiness> {
     const events = loadEventsContract();
     const contracts = loadQuestionContracts();
-    const present = await this.journal.presentEventTypes(c);
+    // Indexed (loose index scan): the former GROUP BY over the source track was a full-journal scan per
+    // memo miss (PERF-01 finding on the 50-tenant corpus: 66k buffers / 720k rows per readiness refresh).
+    const present = await this.journal.presentEventTypesIndexed(c, tenantId);
     const datasetsPresent = new Set<string>();
-    for (const p of present) {
-      const ds = events.families[p.event_type]?.dataset;
+    for (const eventType of present) {
+      const ds = events.families[eventType]?.dataset;
       if (ds) datasetsPresent.add(ds);
     }
-    const links = await c.query("SELECT 1 FROM journal_entries WHERE entity_refs <> '{}'::jsonb LIMIT 1");
+    const links = await c.query("SELECT 1 FROM journal_entries WHERE tenant_id = $1 AND entity_refs <> '{}'::jsonb LIMIT 1", [tenantId]);
     if ((links.rowCount ?? 0) > 0) datasetsPresent.add("identity");
     const health = await c.query<{
       connection_id: string;

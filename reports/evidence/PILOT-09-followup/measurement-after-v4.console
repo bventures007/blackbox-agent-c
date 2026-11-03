@@ -1,0 +1,16 @@
+secret-pattern lines: 0
+## baseline (current container): 8dd1ff62de32 Up 9 minutes (healthy); healthy | engine healthy; reducer_version 1; applied 354099 of committed 354099; rss=1189367808
+## (1) restart with snapshots on image blackbox/engine:0.1.0-followup
+healthy after 8 s (snapshot load); healthy | engine healthy; reducer_version 1; applied 354099 of committed 354099; rss=1180540928; load 18.14 27.23 30.94
+warm-up: {"requests":300,"ok":300,"err":0,"p50_ms":136,"p95_ms":246}
+after warm-up: rss=1181261824; {"status":"healthy","rss_mib":1126.5,"approx_mib":558.2,"rss_target_mib":1024,"rss_over_target":true,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":0,"write_copies_cloned":0,"evictions":0,"rss_evictions"
+after 90 s idle: rss=1181261824; load 7.79 19.69 27.35; {"status":"healthy","rss_mib":1126.5,"approx_mib":558.2,"rss_target_mib":1024,"rss_over_target":true,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":0,"write_copies_cloned":0,"evi
+## (2) no-snapshot rebuild: clear engine_snapshots as bb_engine + snapshot files, restart the engine
+engine_snapshots rows deleted as bb_engine: 54
+healthy after 45 s (rebuilt from the journal); healthy | engine healthy; reducer_version 1; applied 354099 of committed 354099; rss=1112137728; load 10.56 18.63 26.48
+after 90 s idle: rss=1136361472; load 9.32 16.08 24.71; {"status":"healthy","rss_mib":1084.6,"approx_mib":680.2,"rss_target_mib":1024,"rss_over_target":true,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":24,"write_copies_cloned":59,"e
+warm-up: {"requests":300,"ok":300,"err":0,"p50_ms":151,"p95_ms":422}
+after warm-up: rss=1193795584; {"status":"healthy","rss_mib":1138.6,"approx_mib":680.2,"rss_target_mib":1024,"rss_over_target":true,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":24,"write_copies_cloned":59,"evictions":44,"rss_evictio
+## golden answer after both restarts
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0

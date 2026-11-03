@@ -1,0 +1,8 @@
+services:
+  engine:
+    image: blackbox/engine:0.1.0-followup
+    environment:
+      MALLOC_ARENA_MAX: "2"
+      ENGINE_RSS_TARGET_MB: "1024"
+  api:
+    image: blackbox/api:0.1.0-followup3

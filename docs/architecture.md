@@ -80,9 +80,11 @@ tails the files, `getLogRecord` returns a record with its trace siblings.
 ## packages/auth
 
 - Owner key `bbk_` + 43 base64url chars (32 CSPRNG bytes); agent key `bba_…`. Only an argon2id
-  verifier (64 MiB, t=3) plus an 8-char lookup prefix is stored. Verification results are cached ≤5 s
-  per key; credential/session status is re-read from PostgreSQL on every request, so revocation is
-  effective immediately and streams re-check every 2.5 s.
+  verifier (64 MiB, t=3) plus an 8-char lookup prefix is stored. A successful agent-key verification
+  (key hash → credential id) is reused for ≤10 min and concurrent misses share one in-flight argon2
+  run (the former 5 s TTL re-ran the ≈100–200 ms hash twelve times a minute per key and saturated the
+  api container under the smoke profile); credential/session status is re-read from PostgreSQL on
+  every request, so revocation is effective immediately and streams re-check every 2.5 s.
 - `AuthService.setup` is atomic/idempotent (advisory lock + single-owner unique index): one workspace
   + owner + key; the key is returned once to the caller (CLI prints it on the terminal only).
 - Sessions: opaque 256-bit id in `bb_session` (HttpOnly, SameSite=Lax, Path=/; `Max-Age` only when
@@ -131,6 +133,10 @@ tails the files, `getLogRecord` returns a record with its trace siblings.
 - **Readiness** (`ReadinessService`): datasets present = families of committed source entries (+
   `identity` when entries carry entity links, `coverage` when a capability reported a successful
   check); per question `ready`/`partial`/`blocked` with exact missing datasets and the sources used.
+  Attached to every served state/answer, so it is memoized per tenant (committed cursor + 5 s) and
+  its refresh reads the distinct event types through a recursive loose index scan on
+  `journal_entries_event_idx` (`JournalService.presentEventTypesIndexed`) instead of a GROUP BY over
+  the journal (PERF-01 follow-up: the former refresh was a full-table scan on the hot path).
 - **Import plans** (`resolveImportPlan`): presets resolved once to UTC `[requested_from,
   initial_cutoff)` in the chosen IANA zone (rolling 30×24 h; Jan 1 local; calendar-month subtraction
   with end-of-month clamp; local midnight for custom; strict from-now with explicit opening-state

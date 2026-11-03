@@ -503,6 +503,31 @@ export interface SecurityAudit {
   last_events: Array<{ occurred_at: string; event: string; actor_kind: string; channel: string }>;
 }
 
+// SEC-02 workspace export (POST /api/settings/export; owner only)
+export type WorkspaceExportCategory = 'journal' | 'evidence_metadata' | 'settings';
+export const WORKSPACE_EXPORT_CATEGORIES: WorkspaceExportCategory[] = ['journal', 'evidence_metadata', 'settings'];
+export interface WorkspaceExportRequest {
+  categories: WorkspaceExportCategory[];
+  from?: string | null;
+  to?: string | null;
+}
+export interface WorkspaceExportPreview {
+  preview: {
+    format_version: number;
+    categories: WorkspaceExportCategory[];
+    from: string | null;
+    to: string | null;
+    committed_cursor: number;
+    counts: { journal_entries: number; evidence_items: number; evidence_restricted: number; settings_sections: number };
+    size_bytes: number;
+    max_bytes: number;
+    truncated: boolean;
+    last_included_sequence: number;
+    continue_from: string | null;
+    files: string[];
+  };
+}
+
 // Diagnostics
 export type HealthState = 'healthy' | 'working' | 'degraded' | 'unavailable' | 'unknown';
 export type HealthArea = 'api' | 'worker' | 'postgres' | 'engine' | 'sources' | 'mcp' | 'diagnostics';

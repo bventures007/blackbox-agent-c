@@ -1,0 +1,5 @@
+secret-pattern lines: 0
+## baseline: ; rss=170409984
+accepted observations: 1000
+## start the engine, time to healthy (all tenants ready, applied = committed)
+engine healthy after 15 s; healthy | engine healthy; reducer_version 1; applied 418011 of committed 418011; rss=1115893760; load 21.66 26.56 28.95

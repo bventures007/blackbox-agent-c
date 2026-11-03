@@ -1,0 +1,10 @@
+{
+ "tag": "after-v3",
+ "engine_image": "blackbox/engine:0.1.0-followup",
+ "restart_with_snapshot_seconds": 6,
+ "engine_rss_bytes_steady_after_warmup_and_idle": 921985024,
+ "no_snapshot_rebuild_seconds": 116,
+ "engine_rss_bytes_after_rebuild_idle_and_warmup": 1203826688,
+ "host_load_at_end": "11.89 13.09 17.50",
+ "measured_at": "2026-11-03T14:12:48.475412+00:00"
+}

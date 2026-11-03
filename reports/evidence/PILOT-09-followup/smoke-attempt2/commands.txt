@@ -1,0 +1,2 @@
+node tests/perf/smoke.mjs --pools <keys>/pools.json --mode {closed|fixed} --transport {api|mcp} --duration 600 --clients 20 --rate 40 --ingest-obs-per-second 20 --warmup 60 --project blackbox-agent-c-ops2 --owner-key-file <ops2>/owner.key (scripts/verify/ops2-smoke-rerun.sh)
+scripts/verify/ops2-engine-followup.sh blackbox/engine:0.1.0-followup after <override> (rebuild.json)

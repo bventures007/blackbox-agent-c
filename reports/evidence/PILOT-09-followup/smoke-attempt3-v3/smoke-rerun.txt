@@ -1,0 +1,13 @@
+# smoke re-run started 2026-11-03T14:12:58Z load 11.87 13.04 17.43
+  blackbox-agent-c-ops2-engine blackbox/engine:0.1.0-followup Up 4 minutes (healthy)
+  blackbox-agent-c-ops2-api blackbox/api:0.1.0-followup3 Up 54 minutes (healthy)
+  blackbox-agent-c-ops2-pgproxy node:22-bookworm-slim Up 3 hours
+  blackbox-agent-c-ops2-worker blackbox/worker:0.1.4 Up 3 hours
+  blackbox-agent-c-ops2-backup-scheduler blackbox/backup:0.1.4 Up 3 hours
+  blackbox-agent-c-ops2-postgres postgres:16.6-alpine Up 3 hours (healthy)
+## pre-run API readiness: api responsive after 0 s
+## run api-closed started 2026-11-03T14:12:58Z load 11.87 13.04 17.43
+exit=0 finished 2026-11-03T14:24:09Z load 27.18 46.58 37.16
+{"transport":"api","mode":"closed","elapsed_s":605.946,"rps":13.51,"success_fraction":0.95456,"classes":{"hot":{"n":4174,"p95":5354.1,"p99":7002.4,"ok":0.96191},"cold":{"n":1622,"p95":6465.5,"p99":7003.1,"ok":0.90136},"history":{"n":1581,"p95":3728.9,"p99":7002.4,"ok":0.97976},"summary":{"n":809,"p9
+## pre-run API readiness: api responsive after 0 s
+## run api-fixed started 2026-11-03T14:24:09Z load 27.18 46.58 37.16

@@ -221,7 +221,27 @@ export class JournalService {
     });
   }
 
-  /** Distinct datasets/event types present for a tenant (readiness input). */
+  /**
+   * Distinct event types present for a tenant through a loose index scan on
+   * journal_entries_event_idx (tenant_id, event_type, journal_sequence): O(distinct types × log n)
+   * instead of a GROUP BY over the whole journal. This is the readiness input (datasets present
+   * are derived from event types only), evaluated on every served state/answer when the memo
+   * expired; the full per-type statistics stay in presentEventTypes() for the sources/datasets views.
+   */
+  async presentEventTypesIndexed(c: TenantClient, tenantId: string): Promise<string[]> {
+    const r = await c.query<{ event_type: string }>(
+      `WITH RECURSIVE t AS (
+         SELECT min(event_type) AS event_type FROM journal_entries WHERE tenant_id = $1
+         UNION ALL
+         SELECT (SELECT min(event_type) FROM journal_entries WHERE tenant_id = $1 AND event_type > t.event_type) FROM t WHERE t.event_type IS NOT NULL
+       )
+       SELECT event_type FROM t WHERE event_type IS NOT NULL`,
+      [tenantId],
+    );
+    return r.rows.map((x) => x.event_type);
+  }
+
+  /** Distinct datasets/event types with counts and time bounds for a tenant (full scan of the source track; views only). */
   async presentEventTypes(c: TenantClient): Promise<Array<{ event_type: string; count: number; first_occurred_at: string; last_occurred_at: string; last_recorded_at: string }>> {
     const r = await c.query<{ event_type: string; n: string; first_o: Date; last_o: Date; last_r: Date }>(
       "SELECT event_type, count(*)::text AS n, min(occurred_at) AS first_o, max(occurred_at) AS last_o, max(recorded_at) AS last_r FROM journal_entries WHERE track = 'source' GROUP BY event_type",

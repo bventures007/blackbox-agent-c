@@ -15,21 +15,45 @@ pub struct EvictionReport {
 
 /// Evicts until the structural estimate is at or below `target_bytes` (best effort).
 pub fn evict_to_budget(state: &mut TenantState, target_bytes: usize) -> EvictionReport {
+    evict(state, target_bytes, false)
+}
+
+/// Eviction while a tenant is still catching up or rebuilding from the journal: history locators
+/// only. Undo logs stay resident until every journal correction (`supersedes_entry_id`) behind the
+/// committed cursor has been applied; dropping them earlier would either double count the corrected
+/// effect (rebuild path) or schedule one full rebuild per correction (observed: 507 rebuilds in one
+/// catch-up of the smoke corpus on 0.1.4).
+pub fn evict_history_to_budget(state: &mut TenantState, target_bytes: usize) -> EvictionReport {
+    evict(state, target_bytes, true)
+}
+
+/// `target_bytes` is the budget for the EVICTABLE part of the state (`TenantState::evictable_bytes`:
+/// history locators + undo logs). The structural floor (records, entry metadata, interner) cannot be
+/// reclaimed by eviction, so comparing the whole estimate against a per-tenant share evicted every
+/// history locator of a large tenant as soon as its floor exceeded the share (observed on the smoke
+/// corpus: every hot lookup became a PostgreSQL entity read). Process memory is bounded separately by
+/// the measured-RSS target.
+fn evict(state: &mut TenantState, target_bytes: usize, keep_undo: bool) -> EvictionReport {
+    let floor = state.approx_bytes().saturating_sub(state.evictable_bytes());
     let mut report = EvictionReport {
         bytes_before: state.approx_bytes(),
         ..Default::default()
     };
     report.bytes_after = report.bytes_before;
-    if report.bytes_before <= target_bytes {
+    // Hysteresis: an eviction pass walks every entry and sorts every history key; do not pay that for
+    // an excess below 4 MiB (the publication loop would otherwise evict a few locators per batch).
+    let hysteresis = (target_bytes / 8).min(4 * 1024 * 1024);
+    if state.evictable_bytes() <= target_bytes.saturating_add(hysteresis) {
         return report;
     }
+    let target_bytes = target_bytes.saturating_add(floor); // absolute estimate to reach
     // Step 1: drop undo logs of the oldest half of resident entries (keep recent corrections cheap).
-    let mut seqs: Vec<i64> = state
+    let mut seqs: Vec<i64> = if keep_undo { Vec::new() } else { state
         .entries
         .values()
         .filter(|m| !m.undo.is_empty())
         .map(|m| m.seq)
-        .collect();
+        .collect() };
     if !seqs.is_empty() {
         seqs.sort_unstable();
         let cut = seqs[seqs.len() / 2];

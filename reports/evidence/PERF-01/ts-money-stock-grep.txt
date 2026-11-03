@@ -1,0 +1,24 @@
+# (c) TypeScript packages: occurrences of *_minor arithmetic / money or stock reducers  — 2026-11-03T11:36:06Z
+## files containing *_minor tokens (all TS sources outside dist/node_modules/tests)
+apps/api/src/cli.ts
+apps/api/src/routes/sources.ts
+apps/web/src/views/EntityView.tsx
+apps/web/src/views/QuestionsView.tsx
+packages/application/src/bankcsv.ts
+packages/application/src/mapping/families.ts
+packages/application/src/mapping/index.ts
+packages/application/src/questions.ts
+packages/connectors/src/adapters/shopify-payments/adapter.ts
+packages/connectors/src/adapters/shopify/normalize.ts
+packages/connectors/src/ingest.ts
+packages/connectors/src/types.ts
+
+## lines with arithmetic on *_minor values (+ - * / += -= with a _minor operand), excluding display formatting (format.ts) and type/field name declarations
+(none)
+
+## lines with reducer-like accumulation of money/stock (sum/total/balance/stock/available/captured/refunded + arithmetic)
+(none)
+
+## Rust reducers (single implementation)
+crates/domain/src/reducer.rs functions: 103
+crates/domain/src/lib.rs:11:pub const REDUCER_VERSION: u32 = 1;

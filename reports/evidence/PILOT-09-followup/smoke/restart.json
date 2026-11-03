@@ -1,0 +1,12 @@
+{
+ "class": "restart_with_unapplied_tail",
+ "tail_entries": 3000,
+ "unapplied_tail_entries": 3000,
+ "unapplied_tail_observations": 1000,
+ "ready_seconds": 15,
+ "time_to_ready_seconds": 15,
+ "engine_rss_bytes_after": 1115926528,
+ "engine_image": "blackbox/engine:0.1.0-followup",
+ "measured_at": "2026-11-03T15:24:45.148302+00:00",
+ "source": "scripts/verify/ops2-restart-tail-followup.sh"
+}

@@ -1,22 +1,17 @@
 {
   "schema_version": "1.0",
-  "note": "Smoke profile measured by the P4 re-run verifier on 2026-11-02 on the second install (see profiles.smoke: every target carries its verdict; the latency, success, ingestion and memory targets fail on the shared host); reference_10m and scale_100m remain deferred and unmeasured.",
+  "note": "Smoke profile re-measured on 2026-11-03 by the follow-up run (attempt 4 of the follow-up protocol on the second install with the follow-up api/engine images; see profiles.smoke.environment and reports/evidence/PILOT-09-followup/README.md for attempts 1-3 and the engine before/after measurements). Every latency, success, ingestion and memory target still fails on the shared host; the install had grown to ~1M journal entries by this run. reference_10m and scale_100m remain deferred and unmeasured.",
   "contract": "benchmarks/performance-contract.json",
   "profiles": {
     "smoke": {
       "status": "failed",
-      "tested_commit": "df8cfbb5e41fb3da483270651823cf470aaf1a65",
-      "environment": "macOS 27.2 Apple Silicon host (8 cores, 24 GiB) running Docker Desktop daemon 29.9.2 with a VM of 8 vCPU / 9.7 GiB shared with ~40 containers of three other Blackbox projects; host load averages 7-132 (1 min) during the runs; second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185) on release 0.1.3 (fixed-arrival runs) and 0.1.4 (closed-loop runs) of the df8cfbb tree plus the uncommitted fixes listed in reports/evidence/RERUN/README.md; container limits api 1 GiB, worker 1 GiB, engine 1.5 GiB, backup-scheduler 256 MiB; PostgreSQL 16.6-alpine on a Docker volume (fsync on, default durability); node v25.9.0 driver on the host with the stdio MCP bridge packages/mcp/dist/server.js (one bridge per principal)",
+      "tested_commit": "17494f4ac+followup-uncommitted",
+      "environment": "macOS 27.2 Apple Silicon host (8 cores, 24 GiB) running Docker Desktop (VM 8 vCPU / 9.7 GiB shared with ~40 containers of three other Blackbox projects); host 1-min load averages 11-31 during the runs (recorded per run in smoke-rerun.txt); second install ~/blackbox-pilot-ops2 (project blackbox-agent-c-ops2, 127.0.0.1:19185) with the 2026-11-02 corpus grown by the day's ingestion to ~0.9-1.05M journal entries (owner tenant ~500k); images through a Compose override: api blackbox/api:0.1.0-followup3 (readiness loose index scan, agent-key verify cache), engine blackbox/engine:0.1.0-followup v4 (lazy single copy for idle tenants, single-pass catch-up, history-only eviction while catching up, RSS-bounded evictable budget, RSS target 1024 MiB, MALLOC_ARENA_MAX=2), worker/backup 0.1.4; container limits api 1 GiB, worker 1 GiB, engine 1.5 GiB; PostgreSQL 16.6-alpine (fsync on); node v25.9.0 driver on the host with the stdio MCP bridge packages/mcp/dist/server.js (one bridge per principal); working tree = commit 17494f4 plus the uncommitted follow-up changes (attempt 4 of the follow-up protocol; attempts 1-3 under reports/evidence/PILOT-09-followup/smoke-attempt*/)",
       "commands": [
-        "cargo run --release -p blackbox-engine --bin corpus -- --parallel ... (corpus generation, see corpus-generation.txt) ; node tests/perf/prepare.mjs ; node tests/perf/manifest-from-db.mjs > corpus-manifest.json",
-        "node tests/perf/smoke.mjs --pools <keys>/pools.json --mode closed --transport api --duration 600 --clients 20 --rate 40 --ingest-obs-per-second 20 --warmup 60 --project blackbox-agent-c-ops2 --owner-key-file <ops2>/owner.key --out reports/evidence/PILOT-09-rerun/run-api-closed.json",
-        "node tests/perf/smoke.mjs ... --mode fixed --transport api ... --out run-api-fixed.json",
-        "node tests/perf/smoke.mjs ... --mode closed --transport mcp ... --out run-mcp-closed.json (re-run after the driver fix)",
-        "node tests/perf/smoke.mjs ... --mode fixed --transport mcp ... --out run-mcp-fixed.json (re-run after the driver fix)",
-        "scripts/verify/ops2-restart-rebuild.sh (restart with a 3,000-entry unapplied tail; no-snapshot rebuild) -> restart.json, rebuild.json",
-        "./blackbox restore <generation> --into ~/blackbox-pilot-ops2-restore --port 19192 --project blackbox-agent-c-ops2-restore (OPS-RERUN/part2b.txt) -> restore.json",
-        "node tests/perf/verdict.mjs --api-closed run-api-closed.json --api-fixed run-api-fixed.json --mcp-closed run-mcp-closed.json --mcp-fixed run-mcp-fixed.json --restart restart.json --rebuild rebuild.json --restore restore.json --manifest corpus-manifest.json > verdict.json",
-        "node tests/perf/report.mjs --runs-dir reports/evidence/PILOT-09-rerun --verdict verdict.json --manifest corpus-manifest.json --commit df8cfbb5e41fb3da483270651823cf470aaf1a65 --environment \"...\" --limitations-file limitations.txt --commands-file commands.txt"
+        "node tests/perf/smoke.mjs --pools <keys>/pools.json --mode {closed|fixed} --transport {api|mcp} --duration 600 --clients 20 --rate 40 --ingest-obs-per-second 20 --warmup 60 --project blackbox-agent-c-ops2 --owner-key-file <ops2>/owner.key (scripts/verify/ops2-smoke-rerun.sh; driver hardened: bounded/retried setup requests, fault counters)",
+        "scripts/verify/ops2-engine-followup.sh blackbox/engine:0.1.0-followup after <override> (rebuild.json: no-snapshot rebuild measured 12:37 UTC with the follow-up engine before the evictable-budget change)",
+        "scripts/verify/ops2-restart-tail-followup.sh <override> <dir> (restart.json: 1,000 observations = 3,000 entries ingested while the engine was stopped)",
+        "scripts/verify/ops2-smoke-verdict.sh reports/evidence/PILOT-09-followup/smoke <commit> \"<environment>\" limitations.txt commands.txt --write-performance-json"
       ],
       "dataset_manifest": "reports/evidence/PILOT-09-rerun/corpus-manifest.json",
       "measurements": {
@@ -27,94 +22,95 @@
             "duration_s": 600,
             "clients": 20,
             "fixed_rate_rps": null,
-            "achieved_rps": 8.7,
-            "requests_total": 5230,
-            "success_fraction": 0.91415,
+            "achieved_rps": 11.26,
+            "requests_total": 6805,
+            "success_fraction": 0.95518,
             "classes": {
               "hot": {
-                "requests": 2691,
-                "success_fraction": 0.91602,
-                "p50_ms": 1400.7,
-                "p95_ms": 7001.7,
-                "p99_ms": 7003.5,
-                "max_ms": 7106.9,
+                "requests": 3484,
+                "success_fraction": 0.95809,
+                "p50_ms": 1167.5,
+                "p95_ms": 5759.2,
+                "p99_ms": 7001.9,
+                "max_ms": 7067.4,
                 "errors": {
-                  "client_timeout": 185,
-                  "database_busy": 28,
-                  "overloaded": 8,
-                  "deadline_exceeded": 5
+                  "client_timeout": 83,
+                  "database_busy": 22,
+                  "overloaded": 30,
+                  "deadline_exceeded": 11
                 }
               },
               "cold": {
-                "requests": 1026,
-                "success_fraction": 0.88694,
-                "p50_ms": 1841.8,
-                "p95_ms": 7002.5,
-                "p99_ms": 7005.5,
-                "max_ms": 7229.7,
+                "requests": 1332,
+                "success_fraction": 0.90841,
+                "p50_ms": 1727.3,
+                "p95_ms": 6911.1,
+                "p99_ms": 7002.8,
+                "max_ms": 7040.9,
                 "errors": {
-                  "client_timeout": 99,
-                  "database_busy": 13,
-                  "overloaded": 4
+                  "deadline_exceeded": 38,
+                  "client_timeout": 65,
+                  "overloaded": 14,
+                  "database_busy": 5
                 }
               },
               "history": {
-                "requests": 981,
-                "success_fraction": 0.92253,
-                "p50_ms": 1394.8,
-                "p95_ms": 7001.6,
-                "p99_ms": 7003.8,
-                "max_ms": 7014.2,
+                "requests": 1297,
+                "success_fraction": 0.98535,
+                "p50_ms": 913.4,
+                "p95_ms": 4659.4,
+                "p99_ms": 6723.5,
+                "max_ms": 7003.7,
                 "errors": {
-                  "client_timeout": 63,
-                  "database_busy": 13
+                  "client_timeout": 9,
+                  "database_busy": 10
                 }
               },
               "summary": {
-                "requests": 532,
-                "success_fraction": 0.94173,
-                "p50_ms": 1269.9,
-                "p95_ms": 6843.2,
-                "p99_ms": 7003.4,
-                "max_ms": 7032,
+                "requests": 692,
+                "success_fraction": 0.97399,
+                "p50_ms": 950.4,
+                "p95_ms": 4767.6,
+                "p99_ms": 7001.4,
+                "max_ms": 7005.8,
                 "errors": {
-                  "client_timeout": 26,
-                  "database_busy": 2,
-                  "deadline_exceeded": 3
+                  "client_timeout": 7,
+                  "overloaded": 7,
+                  "database_busy": 4
                 }
               }
             },
             "ingestion": {
-              "entries_per_second": 52.38,
-              "durable_ack_p50_ms": 29158.1,
-              "durable_ack_p95_ms": 42422.3,
-              "lag_p50_ms": 2378.2,
-              "lag_p95_ms": 8522,
-              "lag_max_ms": 13021.8,
+              "entries_per_second": 54.8,
+              "durable_ack_p50_ms": 20180.8,
+              "durable_ack_p95_ms": 40990.9,
+              "lag_p50_ms": 3918.9,
+              "lag_p95_ms": 6934.7,
+              "lag_max_ms": 7135.8,
               "errors": {
-                "lag_http_503": 17,
-                "http_503": 104
+                "lag_http_503": 463,
+                "http_503": 53
               }
             },
             "memory": {
-              "engine_mib_steady_median": 1484.8,
+              "engine_mib_steady_median": 1474.6,
               "engine_mib_peak": 1536,
-              "total_stack_mib_peak": 2370.9,
+              "total_stack_mib_peak": 2750.1,
               "per_container_peak_mib": {
-                "postgres": 550.8,
+                "postgres": 898.1,
                 "engine": 1536,
-                "api": 393.6,
-                "worker": 87.9,
-                "backup-scheduler": 2.9
+                "api": 224.5,
+                "worker": 100.9,
+                "backup-scheduler": 129.6
               },
-              "engine_rss_bytes_last": 1573171200
+              "engine_rss_bytes_last": null
             },
             "mode_info": {
               "clients": 20
             },
             "warmup": {
-              "touched": 2369,
-              "seconds": 40.237
+              "touched": 1221,
+              "seconds": 60.463
             }
           },
           "api-fixed": {
@@ -125,90 +121,93 @@
             "fixed_rate_rps": 40,
             "achieved_rps": 39.54,
             "requests_total": 24001,
-            "success_fraction": 0.00792,
+            "success_fraction": 0.001,
             "classes": {
               "hot": {
                 "requests": 12202,
-                "success_fraction": 0.00803,
-                "p50_ms": 7002.5,
-                "p95_ms": 7005.7,
-                "p99_ms": 7083.4,
-                "max_ms": 7734.8,
+                "success_fraction": 0.00066,
+                "p50_ms": 7001.6,
+                "p95_ms": 7005,
+                "p99_ms": 7028.5,
+                "max_ms": 7255.8,
                 "errors": {
-                  "client_timeout": 12095,
-                  "deadline_exceeded": 9
+                  "overloaded": 6,
+                  "client_timeout": 9904,
+                  "database_busy": 2284
                 }
               },
               "cold": {
                 "requests": 4797,
-                "success_fraction": 0.00938,
-                "p50_ms": 7002.5,
-                "p95_ms": 7005.6,
-                "p99_ms": 7063.7,
-                "max_ms": 7610.6,
+                "success_fraction": 0,
+                "p50_ms": 7001.6,
+                "p95_ms": 7004.9,
+                "p99_ms": 7029.2,
+                "max_ms": 7278.6,
                 "errors": {
-                  "client_timeout": 4746,
-                  "deadline_exceeded": 6
+                  "overloaded": 1,
+                  "client_timeout": 3873,
+                  "database_busy": 923
                 }
               },
               "history": {
                 "requests": 4634,
-                "success_fraction": 0.01014,
-                "p50_ms": 7002.6,
-                "p95_ms": 7005.8,
-                "p99_ms": 7077.8,
-                "max_ms": 7661.7,
+                "success_fraction": 0.00237,
+                "p50_ms": 7001.6,
+                "p95_ms": 7004.8,
+                "p99_ms": 7026,
+                "max_ms": 7189.6,
                 "errors": {
-                  "client_timeout": 4587
+                  "client_timeout": 3736,
+                  "database_busy": 887
                 }
               },
               "summary": {
                 "requests": 2368,
-                "success_fraction": 0,
-                "p50_ms": 7002.6,
-                "p95_ms": 7006.6,
-                "p99_ms": 7096,
-                "max_ms": 7685.2,
+                "success_fraction": 0.00211,
+                "p50_ms": 7001.6,
+                "p95_ms": 7005.4,
+                "p99_ms": 7023.3,
+                "max_ms": 7172.8,
                 "errors": {
-                  "invalid_params": 19,
-                  "client_timeout": 2348,
-                  "deadline_exceeded": 1
+                  "overloaded": 2,
+                  "database_busy": 430,
+                  "client_timeout": 1931
                 }
               }
             },
             "ingestion": {
-              "entries_per_second": 0.46,
-              "durable_ack_p50_ms": 121995.3,
-              "durable_ack_p95_ms": 290210.7,
-              "lag_p50_ms": 250.1,
-              "lag_p95_ms": 363.1,
-              "lag_max_ms": 363.1,
+              "entries_per_second": null,
+              "durable_ack_p50_ms": null,
+              "durable_ack_p95_ms": null,
+              "lag_p50_ms": null,
+              "lag_p95_ms": null,
+              "lag_max_ms": null,
               "errors": {
-                "lag_http_503": 2,
-                "network": 301
+                "http_503": 570,
+                "network": 22
               }
             },
             "memory": {
-              "engine_mib_steady_median": 1473.5,
-              "engine_mib_peak": 1494,
-              "total_stack_mib_peak": 2592,
+              "engine_mib_steady_median": 1200.1,
+              "engine_mib_peak": 1530.9,
+              "total_stack_mib_peak": 3097.4,
               "per_container_peak_mib": {
-                "postgres": 430.3,
-                "engine": 1494,
-                "api": 658.7,
-                "worker": 61.2,
-                "backup-scheduler": 1.4
+                "postgres": 1104.9,
+                "engine": 1530.9,
+                "api": 433,
+                "worker": 101.9,
+                "backup-scheduler": 129.6
               },
               "engine_rss_bytes_last": null
             },
             "mode_info": {
               "scheduled": 24001,
-              "max_inflight": 306,
+              "max_inflight": 291,
               "unfinished_at_end": 0
             },
             "warmup": {
-              "touched": 2369,
-              "seconds": 34.274
+              "touched": 609,
+              "seconds": 64.331
             }
           },
           "mcp-closed": {
@@ -217,97 +216,90 @@
             "duration_s": 600,
             "clients": 20,
             "fixed_rate_rps": null,
-            "achieved_rps": 5.39,
-            "requests_total": 3261,
-            "success_fraction": 0.7832,
+            "achieved_rps": 3.46,
+            "requests_total": 2098,
+            "success_fraction": 0.38656,
             "classes": {
               "hot": {
-                "requests": 1672,
-                "success_fraction": 0.79605,
-                "p50_ms": 3484.7,
+                "requests": 1078,
+                "success_fraction": 0.38312,
+                "p50_ms": 7000.3,
                 "p95_ms": 7002.5,
-                "p99_ms": 7003.4,
-                "max_ms": 7030.1,
+                "p99_ms": 7009.2,
+                "max_ms": 7055.8,
                 "errors": {
-                  "bridge": 285,
-                  "database_busy": 29,
-                  "overloaded": 21,
-                  "projection_behind": 1,
-                  "deadline_exceeded": 5
+                  "bridge": 575,
+                  "database_busy": 90
                 }
               },
               "cold": {
-                "requests": 653,
-                "success_fraction": 0.65697,
-                "p50_ms": 4596.7,
-                "p95_ms": 7002.9,
-                "p99_ms": 7005.5,
-                "max_ms": 7046.6,
+                "requests": 415,
+                "success_fraction": 0.31807,
+                "p50_ms": 7000.7,
+                "p95_ms": 7002.5,
+                "p99_ms": 7004.7,
+                "max_ms": 7014.7,
                 "errors": {
-                  "bridge": 188,
-                  "database_busy": 10,
-                  "overloaded": 17,
-                  "deadline_exceeded": 9
+                  "bridge": 250,
+                  "database_busy": 33
                 }
               },
               "history": {
-                "requests": 607,
-                "success_fraction": 0.88138,
-                "p50_ms": 2716.4,
-                "p95_ms": 7001.9,
-                "p99_ms": 7002.7,
-                "max_ms": 7004.2,
+                "requests": 390,
+                "success_fraction": 0.44615,
+                "p50_ms": 6571.4,
+                "p95_ms": 7002.4,
+                "p99_ms": 7010.8,
+                "max_ms": 7030.5,
                 "errors": {
-                  "database_busy": 13,
-                  "bridge": 59
+                  "bridge": 182,
+                  "database_busy": 34
                 }
               },
               "summary": {
-                "requests": 329,
-                "success_fraction": 0.78723,
-                "p50_ms": 2774.3,
-                "p95_ms": 7002.2,
-                "p99_ms": 7004,
-                "max_ms": 7149.4,
+                "requests": 215,
+                "success_fraction": 0.42791,
+                "p50_ms": 6787.1,
+                "p95_ms": 7002.3,
+                "p99_ms": 7004.6,
+                "max_ms": 7018.7,
                 "errors": {
-                  "database_busy": 6,
-                  "deadline_exceeded": 1,
-                  "bridge": 53,
-                  "overloaded": 10
+                  "database_busy": 18,
+                  "bridge": 105
                 }
               }
             },
             "ingestion": {
-              "entries_per_second": 47.67,
-              "durable_ack_p50_ms": 36594.7,
-              "durable_ack_p95_ms": 51456.9,
-              "lag_p50_ms": 5660.4,
-              "lag_p95_ms": 11449.1,
-              "lag_max_ms": 15336.4,
+              "entries_per_second": 19.62,
+              "durable_ack_p50_ms": 79314.5,
+              "durable_ack_p95_ms": 119965.8,
+              "lag_p50_ms": 8042.5,
+              "lag_p95_ms": 8042.5,
+              "lag_max_ms": 8042.5,
               "errors": {
-                "http_503": 157,
-                "lag_http_503": 90
+                "lag_http_503": 76,
+                "http_503": 506
               }
             },
             "memory": {
-              "engine_mib_steady_median": 1487.9,
+              "engine_mib_steady_median": 1368.1,
               "engine_mib_peak": 1536,
-              "total_stack_mib_peak": 2510.1,
+              "total_stack_mib_peak": 2950.5,
               "per_container_peak_mib": {
-                "postgres": 624.2,
+                "postgres": 1109,
                 "engine": 1536,
-                "api": 391.5,
-                "worker": 91.9,
-                "backup-scheduler": 2.8
+                "api": 397.8,
+                "worker": 101.7,
+                "backup-scheduler": 130.3
               },
-              "engine_rss_bytes_last": 1542692864
+              "engine_rss_bytes_last": 1361846272
             },
             "mode_info": {
               "clients": 20
             },
             "warmup": {
-              "touched": 2172,
-              "seconds": 60.645
+              "touched": 330,
+              "seconds": 60.988
             }
           },
           "mcp-fixed": {
@@ -318,113 +310,135 @@
             "fixed_rate_rps": 40,
             "achieved_rps": 39.54,
             "requests_total": 24001,
-            "success_fraction": 0.00858,
+            "success_fraction": 0.21753,
             "classes": {
               "hot": {
                 "requests": 12202,
-                "success_fraction": 0.0091,
-                "p50_ms": 7001.9,
-                "p95_ms": 7007,
-                "p99_ms": 7168.3,
-                "max_ms": 8473.4,
+                "success_fraction": 0.17841,
+                "p50_ms": 7000.3,
+                "p95_ms": 7003,
+                "p99_ms": 7019,
+                "max_ms": 7132.4,
                 "errors": {
-                  "bridge": 12091
+                  "bridge": 7162,
+                  "database_busy": 689,
+                  "overloaded": 2174
                 }
               },
               "cold": {
                 "requests": 4797,
-                "success_fraction": 0.01001,
-                "p50_ms": 7001.9,
-                "p95_ms": 7008,
-                "p99_ms": 7173.6,
-                "max_ms": 8198.7,
+                "success_fraction": 0.1503,
+                "p50_ms": 7000.4,
+                "p95_ms": 7003.2,
+                "p99_ms": 7020.4,
+                "max_ms": 7100.4,
                 "errors": {
-                  "bridge": 4749
+                  "bridge": 2912,
+                  "database_busy": 270,
+                  "overloaded": 843,
+                  "deadline_exceeded": 51
                 }
               },
               "history": {
                 "requests": 4634,
-                "success_fraction": 0.01014,
-                "p50_ms": 7001.9,
-                "p95_ms": 7007.2,
-                "p99_ms": 7122.6,
-                "max_ms": 8423.5,
+                "success_fraction": 0.39814,
+                "p50_ms": 7000.2,
+                "p95_ms": 7002.7,
+                "p99_ms": 7013.1,
+                "max_ms": 7132.5,
                 "errors": {
-                  "bridge": 4587
+                  "bridge": 2531,
+                  "database_busy": 258
                 }
               },
               "summary": {
                 "requests": 2368,
-                "success_fraction": 0,
-                "p50_ms": 7001.9,
-                "p95_ms": 7006.6,
-                "p99_ms": 7132,
-                "max_ms": 8348.6,
+                "success_fraction": 0.20186,
+                "p50_ms": 7000.2,
+                "p95_ms": 7003.1,
+                "p99_ms": 7016.1,
+                "max_ms": 7143.6,
                 "errors": {
-                  "invalid_params": 24,
-                  "bridge": 2344
+                  "bridge": 1347,
+                  "database_busy": 123,
+                  "overloaded": 420
                 }
               }
             },
             "ingestion": {
-              "entries_per_second": 0.41,
-              "durable_ack_p50_ms": 12558.8,
-              "durable_ack_p95_ms": 174183.3,
-              "lag_p50_ms": 635.3,
-              "lag_p95_ms": 1924.6,
-              "lag_max_ms": 1924.6,
+              "entries_per_second": 17.56,
+              "durable_ack_p50_ms": 13852.9,
+              "durable_ack_p95_ms": 53512.7,
+              "lag_p50_ms": 3208.8,
+              "lag_p95_ms": 6426.6,
+              "lag_max_ms": 8734.8,
               "errors": {
-                "lag_http_503": 2,
-                "network": 298
+                "http_503": 387,
+                "network": 2,
+                "lag_http_503": 107
               }
             },
             "memory": {
-              "engine_mib_steady_median": 1446.9,
-              "engine_mib_peak": 1535,
-              "total_stack_mib_peak": 3160.3,
+              "engine_mib_steady_median": 1302.5,
+              "engine_mib_peak": 1536,
+              "total_stack_mib_peak": 3044.3,
               "per_container_peak_mib": {
-                "postgres": 1033.2,
-                "engine": 1535,
-                "api": 670.2,
-                "worker": 63.2,
-                "backup-scheduler": 3
+                "postgres": 1132.5,
+                "engine": 1536,
+                "api": 307.5,
+                "worker": 101.7,
+                "backup-scheduler": 129.6
               },
               "engine_rss_bytes_last": null
             },
             "mode_info": {
               "scheduled": 24001,
-              "max_inflight": 316,
+              "max_inflight": 286,
               "unfinished_at_end": 0
             },
             "warmup": {
-              "touched": 2369,
-              "seconds": 25.352
+              "touched": 326,
+              "seconds": 66.899
             }
           }
         },
         "recovery": {
           "restart": {
-            "ready_seconds": 5,
+            "class": "restart_with_unapplied_tail",
+            "tail_entries": 3000,
             "unapplied_tail_entries": 3000,
             "unapplied_tail_observations": 1000,
-            "engine_rss_bytes_after": 1088221184,
-            "committed_cursor_owner_tenant": {
-              "before": 35745,
-              "after": 38745
-            },
-            "measured_at": "2026-11-02T03:18:16.335506+00:00",
-            "source": "scripts/verify/ops2-restart-rebuild.sh (part4.txt); 1,000 observations = 3,000 journal entries ingested while the engine was stopped"
+            "ready_seconds": 15,
+            "time_to_ready_seconds": 15,
+            "engine_rss_bytes_after": 1115926528,
+            "engine_image": "blackbox/engine:0.1.0-followup",
+            "measured_at": "2026-11-03T15:24:45.148302+00:00",
+            "source": "scripts/verify/ops2-restart-tail-followup.sh"
           },
           "rebuild": {
-            "ready_seconds": 196,
-            "engine_rss_bytes_after": 1524891648,
-            "snapshots_removed": "engine_snapshots table (51 rows) + data/snapshots files",
-            "measured_at": "2026-11-02T03:21:38.607572+00:00",
-            "source": "scripts/verify/ops2-restart-rebuild.sh (part4.txt)"
+            "class": "no_snapshot_rebuild",
+            "ready_seconds": 45,
+            "engine_rss_bytes_after": 1193902080,
+            "snapshots_removed": "engine_snapshots table (54 rows, deleted as bb_engine) + data/snapshots files",
+            "engine_image": "blackbox/engine:0.1.0-followup (v4 image id 0af1dd0b01d9; v3 was 8dd1ff62de32, v2 92595d97bb5e/ffbc5d7ed82b)",
+            "journal_entries_at_measurement": "~906k (owner tenant 354,099)",
+            "measured_at": "2026-11-03T14:37:42.130581+00:00",
+            "host_load_1min_during": "8-18",
+            "earlier_measurements": {
+              "v2_2026-11-03T12:39Z_723k_entries_load_3.5": {
+                "ready_seconds": 11,
+                "engine_rss_bytes_after": 1009532928
+              },
+              "v3_2026-11-03T14:10Z": {
+                "ready_seconds": 116,
+                "engine_rss_bytes_after": 1203826688
+              }
+            },
+            "source": "scripts/verify/ops2-engine-followup.sh (measurement-after-v4.txt phase 2)"
           },
           "restore": {
             "machine_seconds": 200,
-            "note": "./blackbox restore of generation blackbox-backup-20261101T224643Z (corpus-populated ops2, isolated project blackbox-agent-c-ops2-restore on 19192 with the recovery key): wall 200 s from command start to exit 0 with api ready; writers fenced restore_pending_review by policy. Not a separately timed query-ready probe.",
+            "note": "REUSED from reports/evidence/PILOT-09-rerun/restore.json (2026-11-01/02): ./blackbox restore of generation blackbox-backup-20261101T224643Z (corpus-populated ops2, isolated project blackbox-agent-c-ops2-restore on 19192 with the recovery key): wall 200 s from command start to exit 0 with api ready; writers fenced restore_pending_review by policy. Not a separately timed query-ready probe. Not re-measured in the 2026-11-03 follow-up; backup/restore code unchanged.",
             "measured_at": "2026-11-01T23:33:00Z",
             "source": "reports/evidence/OPS-RERUN/part2b.txt"
           }
@@ -461,98 +475,98 @@
           {
             "target": "hot_current_state_api_p95_ms",
             "limit": 200,
-            "observed": 7005.7,
+            "observed": 7005,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "hot_current_state_api_p99_ms",
             "limit": 500,
-            "observed": 7083.4,
+            "observed": 7028.5,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "hot_current_state_mcp_p95_ms",
             "limit": 350,
-            "observed": 7007,
+            "observed": 7003,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "hot_current_state_mcp_p99_ms",
             "limit": 900,
-            "observed": 7168.3,
+            "observed": 7019,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "cold_order_state_api_p95_ms",
             "limit": 1000,
-            "observed": 7005.6,
+            "observed": 7004.9,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "cold_order_state_mcp_p95_ms",
             "limit": 1250,
-            "observed": 7008,
+            "observed": 7003.2,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "entity_history_100_entries_api_p95_ms",
             "limit": 500,
-            "observed": 7005.8,
+            "observed": 7004.8,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "entity_history_100_entries_mcp_p95_ms",
             "limit": 750,
-            "observed": 7007.2,
+            "observed": 7002.7,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "bounded_30_day_summary_api_p95_ms",
             "limit": 1000,
-            "observed": 7006.6,
+            "observed": 7005.4,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "bounded_30_day_summary_mcp_p95_ms",
             "limit": 1500,
-            "observed": 7006.6,
+            "observed": 7003.1,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "current_state_api_p95_ms (mixed ceiling)",
             "limit": 2000,
-            "observed": 7005.7,
+            "observed": 7005,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "successful_query_fraction_minimum",
             "limit": 0.999,
-            "observed": 0.00792,
+            "observed": 0.001,
             "comparator": ">=",
             "holds": false
           },
           {
             "target": "durable_ack_p95_ms",
             "limit": 500,
-            "observed": 290210.7,
+            "observed": 119965.8,
             "comparator": "<=",
             "holds": false
           },
           {
             "target": "projection_lag_p95_ms",
             "limit": 2000,
-            "observed": 11449.1,
+            "observed": 8042.5,
             "comparator": "<=",
             "holds": false,
             "note": "barrier wait + one point read after each durable ack"
@@ -560,7 +574,7 @@
           {
             "target": "engine_steady_rss_mib_maximum",
             "limit": 1024,
-            "observed": 1487.9,
+            "observed": 1474.6,
             "comparator": "<=",
             "holds": false,
             "note": "docker stats container memory (cgroup, includes page cache) median over the run"
@@ -575,7 +589,7 @@
           {
             "target": "total_stack_peak_memory_mib_maximum",
             "limit": 6144,
-            "observed": 3160.3,
+            "observed": 3097.4,
             "comparator": "<=",
             "holds": true,
             "note": "sum of docker stats memory of postgres+engine+api+worker+backup-scheduler"
@@ -583,7 +597,7 @@
           {
             "target": "snapshot_restart_ready_seconds_maximum",
             "limit": 30,
-            "observed": 5,
+            "observed": 15,
             "comparator": "<=",
             "holds": true,
             "note": "tail of 3000 unapplied entries"
@@ -591,9 +605,9 @@
           {
             "target": "no_snapshot_rebuild_ready_seconds_maximum",
             "limit": 180,
-            "observed": 196,
+            "observed": 45,
             "comparator": "<=",
-            "holds": false
+            "holds": true
           },
           {
             "target": "backup_restore_query_ready_seconds_maximum",
@@ -605,7 +619,7 @@
           {
             "target": "load.ingested_journal_entries_per_second (achieved)",
             "limit": 20,
-            "observed": 0.41,
+            "observed": 17.56,
             "comparator": ">=",
             "holds": false
           },
@@ -614,10 +628,10 @@
             "limit": 1000,
             "observed": {
               "api_closed": {
-                "hot": 2691,
-                "cold": 1026,
-                "history": 981,
-                "summary": 532
+                "hot": 3484,
+                "cold": 1332,
+                "history": 1297,
+                "summary": 692
               },
               "api_fixed": {
                 "hot": 12202,
@@ -626,10 +640,10 @@
                 "summary": 2368
               },
               "mcp_closed": {
-                "hot": 1672,
-                "cold": 653,
-                "history": 607,
-                "summary": 329
+                "hot": 1078,
+                "cold": 415,
+                "history": 390,
+                "summary": 215
               },
               "mcp_fixed": {
                 "hot": 12202,
@@ -661,26 +675,24 @@
       },
       "evidence_paths": [
         "reports/evidence/PILOT-09-rerun/corpus-manifest.json",
-        "reports/evidence/PILOT-09-rerun/run-api-closed.json",
-        "reports/evidence/PILOT-09-rerun/run-api-fixed.json",
-        "reports/evidence/PILOT-09-rerun/run-mcp-closed.json",
-        "reports/evidence/PILOT-09-rerun/run-mcp-fixed.json",
-        "reports/evidence/PILOT-09-rerun/verdict.json",
-        "reports/evidence/PILOT-09-rerun/restart.json",
-        "reports/evidence/PILOT-09-rerun/rebuild.json",
-        "reports/evidence/PILOT-09-rerun/restore.json",
-        "reports/evidence/PILOT-09-rerun/corpus-generation.txt"
+        "reports/evidence/PILOT-09-followup/smoke/run-api-closed.json",
+        "reports/evidence/PILOT-09-followup/smoke/run-api-fixed.json",
+        "reports/evidence/PILOT-09-followup/smoke/run-mcp-closed.json",
+        "reports/evidence/PILOT-09-followup/smoke/run-mcp-fixed.json",
+        "reports/evidence/PILOT-09-followup/smoke/verdict.json",
+        "reports/evidence/PILOT-09-followup/smoke/restart.json",
+        "reports/evidence/PILOT-09-followup/smoke/rebuild.json",
+        "reports/evidence/PILOT-09-followup/smoke/restore.json"
       ],
       "limitations": [
-        "Host is a developer Mac shared with ~40 containers of three other Blackbox projects; host load averages ranged 10–120 (1 min) during the runs, far above the contract's dedicated 4 vCPU / 8 GiB reference host. Docker Desktop VM: 8 vCPU / 9.7 GiB for every project together.",
-        "Second install (ops2) ran release 0.1.3 built from the same tree as 0.1.0 plus the fixes listed in reports/evidence/RERUN/README.md (hot-path scans, 503 backpressure, readiness memo); the archive promoted to testers is 0.1.0 build #8 of that tree.",
-        "Closed-loop runs (API and MCP) were re-measured on the 0.1.4 install after the parameter-contract fix (D22) so the summary class produces real answers; the fixed-arrival runs are from the 0.1.3 install where the summary class failed on invalid_params (its latency sample is a validation round-trip, success 0). API runs were measured first on the 0.1.3 install; the MCP runs crashed on the first attempt because of a driver defect (undici HeadersTimeoutError in the ingestion barrier read, tests/perf/smoke.mjs) and were re-run after the fix at 03:22–03:46 UTC. Between the attempts the api served the orphaned backlog for >40 min and was restarted (observation D21).",
-        "Engine container memory limit 1.5 GiB; the corpus (50 tenants) exceeds the 1,024 MiB steady target by design of the bounded working set (evictions observed), so memory targets are reported, not met.",
-        "Restore timing is the wall time of the isolated restore command (200 s incl. pg_restore and container start), not a separate query-ready probe. Rebuild timing (196 s) was measured on the shared host.",
+        "Attempt 3 of the follow-up protocol (final images of this follow-up): api blackbox/api:0.1.0-followup3 (readiness loose index scan, agent-key verify cache), engine blackbox/engine:0.1.0-followup rebuilt with the evictable/size-weighted budget (lazy single copy for idle tenants, single-pass catch-up, history-only eviction while catching up, RSS target 1024 MiB, MALLOC_ARENA_MAX=2) through a Compose override on the ops2 install; worker/backup images 0.1.4.",
+        "Shared developer Mac (8 cores / 24 GiB; Docker Desktop VM 8 vCPU / 9.7 GiB with the other projects' stacks); host 1-min load averages are recorded per run in smoke-rerun.txt; far from the contract's dedicated 4 vCPU / 8 GiB reference host.",
+        "Restore timing (restore.json) is not re-measured in this follow-up: the 2026-11-02 value (200 s wall for ./blackbox restore incl. pg_restore and container start) is reused and so marked; the backup/restore path itself did not change.",
+        "Engine memory in the runs is docker stats cgroup memory including the page cache of the snapshot/log files the engine writes (the contract's comparator); /health RSS is reported next to it in the README.",
         "Latency figures include client-side queueing in the driver (scheduled arrival to completion) as the contract requires."
       ],
       "delivery_scope": "local_pilot",
-      "measured_at": "2026-11-02T04:54:26.345Z"
+      "measured_at": "2026-11-03T15:25:25.864Z"
     },
     "reference_10m": {
       "status": "not_started",

@@ -1,0 +1,24 @@
+# ops2 engine follow-up [before] image=blackbox/engine:0.1.4 override=none started 2026-11-03T11:43:02Z load 9.23 26.03 31.34
+## baseline (current container): blackbox/engine:0.1.4 Up 37 minutes (healthy); healthy | engine healthy; reducer_version 1; applied 170973 of committed 170973; rss=1225826304
+## (1) restart with snapshots on image blackbox/engine:0.1.4
+healthy after 3 s (snapshot load); healthy | engine healthy; reducer_version 1; applied 170973 of committed 170973; rss=1256402944; load 8.57 25.62 31.16
+engine json: {"status":"healthy","rss_mib":1198.3,"approx_mib":778.9,"rss_target_mib":null,"rss_over_target":null,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":0,"write_copies_cloned":0,"evictions":0,"rss_evictions":0,"batches":0}
+warm-up: {"requests":300,"ok":300,"err":0,"p50_ms":78,"p95_ms":185}
+after warm-up: rss=1258127360; {"status":"healthy","rss_mib":1199.8,"approx_mib":778.9,"rss_target_mib":null,"rss_over_target":null,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":0,"write_copies_cloned":0,"evictions":0,"rss_evictions":0,"batches":0}
+after 90 s idle: rss=1258131456; load 4.50 18.69 27.72; {"status":"healthy","rss_mib":1199.8,"approx_mib":778.9,"rss_target_mib":null,"rss_over_target":null,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":0,"write_copies_cloned":0,"evictions":0,"rss_evictions":0,"batches":0}
+  docker stats: blackbox-agent-c-ops2-engine 1.17GiB / 1.5GiB 6.73%
+## (2) no-snapshot rebuild: clear engine_snapshots as bb_engine + snapshot files, restart the engine
+engine_snapshots rows deleted as bb_engine: 54
+rows left: 0
+snapshot files before:        0
+snapshot files after:        0
+load before rebuild 4.30 18.41 27.56
+# aborted at 2026-11-03T12:05:39Z: engine 0.1.4 crash-looped during the no-snapshot rebuild (OOM-killed at mem_limit 1.5 GiB; docker events oom/die/start; RestartCount 29); health never reached healthy within 19 min
+1793707491 oom
+1793707491 die
+1793707491 start
+1793707496 exec_die
+1793707507 exec_die
+1793707517 exec_die
+1793707528 exec_die
+docker events (13:03:55Z): oom, die, start — the container was OOM-killed and restarted by the restart policy while rebuilding without snapshots

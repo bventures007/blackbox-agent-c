@@ -1,0 +1,25 @@
+secret-pattern lines: 0
+# smoke re-run started 2026-11-03T14:37:57Z load 10.73 14.86 23.50
+  blackbox-agent-c-ops2-engine blackbox/engine:0.1.0-followup Up 3 minutes (healthy)
+  blackbox-agent-c-ops2-api blackbox/api:0.1.0-followup3 Up About an hour (healthy)
+  blackbox-agent-c-ops2-pgproxy node:22-bookworm-slim Up 3 hours
+  blackbox-agent-c-ops2-worker blackbox/worker:0.1.4 Up 4 hours
+  blackbox-agent-c-ops2-backup-scheduler blackbox/backup:0.1.4 Up 4 hours
+  blackbox-agent-c-ops2-postgres postgres:16.6-alpine Up 4 hours (healthy)
+## pre-run API readiness: api responsive after 0 s
+## run api-closed started 2026-11-03T14:37:57Z load 10.73 14.86 23.50
+exit=0 finished 2026-11-03T14:49:06Z load 24.40 26.50 25.77
+{"transport":"api","mode":"closed","elapsed_s":604.148,"rps":11.26,"success_fraction":0.95518,"classes":{"hot":{"n":3484,"p95":5759.2,"p99":7001.9,"ok":0.95809},"cold":{"n":1332,"p95":6911.1,"p99":700
+## pre-run API readiness: api responsive after 0 s
+## run api-fixed started 2026-11-03T14:49:06Z load 24.40 26.50 25.77
+exit=0 finished 2026-11-03T15:00:31Z load 26.63 29.94 28.73
+{"transport":"api","mode":"fixed","elapsed_s":606.98,"rps":39.54,"success_fraction":0.001,"classes":{"hot":{"n":12202,"p95":7005,"p99":7028.5,"ok":0.00066},"cold":{"n":4797,"p95":7004.9,"p99":7029.2,"
+## pre-run API readiness: api responsive after 2 s
+## run mcp-closed started 2026-11-03T15:00:33Z load 26.58 29.87 28.71
+exit=0 finished 2026-11-03T15:11:55Z load 30.85 30.36 29.54
+{"transport":"mcp","mode":"closed","elapsed_s":606.489,"rps":3.46,"success_fraction":0.38656,"classes":{"hot":{"n":1078,"p95":7002.5,"p99":7009.2,"ok":0.38312},"cold":{"n":415,"p95":7002.5,"p99":7004.
+## pre-run API readiness: api responsive after 0 s
+## run mcp-fixed started 2026-11-03T15:11:55Z load 30.85 30.36 29.54
+exit=0 finished 2026-11-03T15:23:25Z load 23.14 27.29 29.37
+{"transport":"mcp","mode":"fixed","elapsed_s":606.979,"rps":39.54,"success_fraction":0.21753,"classes":{"hot":{"n":12202,"p95":7003,"p99":7019,"ok":0.17841},"cold":{"n":4797,"p95":7003.2,"p99":7020.4,
+# runs finished 2026-11-03T15:23:25Z load 23.14 27.29 29.37

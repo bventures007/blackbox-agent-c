@@ -1,0 +1,24 @@
+# smoke re-run started 2026-11-03T13:18:39Z load 11.74 14.59 18.39
+  blackbox-agent-c-ops2-api blackbox/api:0.1.0-followup3 Up 19 seconds (healthy)
+  blackbox-agent-c-ops2-engine blackbox/engine:0.1.0-followup Up 41 minutes (healthy)
+  blackbox-agent-c-ops2-pgproxy node:22-bookworm-slim Up 2 hours
+  blackbox-agent-c-ops2-worker blackbox/worker:0.1.4 Up 2 hours
+  blackbox-agent-c-ops2-backup-scheduler blackbox/backup:0.1.4 Up 2 hours
+  blackbox-agent-c-ops2-postgres postgres:16.6-alpine Up 2 hours (healthy)
+## pre-run API readiness: api responsive after 0 s
+## run api-closed started 2026-11-03T13:18:40Z load 11.74 14.59 18.39
+exit=0 finished 2026-11-03T13:29:06Z load 20.91 17.92 18.02
+{"transport":"api","mode":"closed","elapsed_s":605.215,"rps":55.36,"success_fraction":0.99755,"classes":{"hot":{"n":16905,"p95":1187.2,"p99":3704.5,"ok":0.99775},"cold":{"n":6712,"p95":1538.7,"p99":4620.6,"ok":0.99598},"history":{"n":6564,"p95":1430.8,"p99":3767.1,"ok":0.99893},"summary":{"n":3326,"
+## pre-run API readiness: api responsive after 0 s
+## run api-fixed started 2026-11-03T13:29:07Z load 20.91 17.92 18.02
+exit=0 finished 2026-11-03T13:40:30Z load 31.93 35.16 26.89
+{"transport":"api","mode":"fixed","elapsed_s":606.905,"rps":39.55,"success_fraction":0.09625,"classes":{"hot":{"n":12202,"p95":7009.6,"p99":7081.9,"ok":0.0854},"cold":{"n":4797,"p95":7009.7,"p99":7079.1,"ok":0.05462},"history":{"n":4634,"p95":7008,"p99":7062.9,"ok":0.15149},"summary":{"n":2368,"p95"
+## pre-run API readiness: api responsive after 0 s
+## run mcp-closed started 2026-11-03T13:40:30Z load 31.93 35.16 26.89
+exit=0 finished 2026-11-03T13:51:39Z load 38.13 30.48 27.31
+{"transport":"mcp","mode":"closed","elapsed_s":600.719,"rps":22.42,"success_fraction":0.9824,"classes":{"hot":{"n":6910,"p95":2797.2,"p99":6583.5,"ok":0.9864},"cold":{"n":2638,"p95":5016.7,"p99":7002,"ok":0.9655},"history":{"n":2577,"p95":2581.7,"p99":7001.5,"ok":0.98642},"summary":{"n":1344,"p95":2
+## pre-run API readiness: api responsive after 0 s
+## run mcp-fixed started 2026-11-03T13:51:39Z load 38.13 30.48 27.31
+exit=0 finished 2026-11-03T14:02:24Z load 15.50 19.85 23.38
+{"transport":"mcp","mode":"fixed","elapsed_s":600.264,"rps":39.98,"success_fraction":0.98592,"classes":{"hot":{"n":12202,"p95":1432.4,"p99":2422.6,"ok":0.98263},"cold":{"n":4797,"p95":2212.8,"p99":3389.2,"ok":0.98207},"history":{"n":4634,"p95":1306.5,"p99":2248.7,"ok":1},"summary":{"n":2368,"p95":12
+# runs finished 2026-11-03T14:02:24Z load 15.50 19.85 23.38

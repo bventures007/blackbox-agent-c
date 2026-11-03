@@ -8,6 +8,7 @@ import { withTenant } from "@blackbox/database";
 import type { AppContext } from "../context.js";
 import { HttpError, notFound, validation } from "../context.js";
 import type { Guards } from "../guards.js";
+import { buildWorkspaceExport, WORKSPACE_EXPORT_CATEGORIES } from "../export.js";
 
 const loginSchema = z.object({ key: z.string().min(1).max(200), remember: z.boolean().optional().default(false) }).strict();
 const rotateSchema = z.object({ current_key: z.string().min(1).max(200) }).strict();
@@ -16,6 +17,7 @@ const agentCreate = z.object({ name: z.string().min(1).max(120), expires_at: z.s
 const retentionPatch = z.record(z.string().min(1).max(64), z.number().int().min(1).max(3650));
 const storagePatch = z.object({ warn_percent: z.number().int().min(1).max(90).optional(), warn_min_bytes: z.number().int().positive().optional(), critical_percent: z.number().int().min(1).max(50).optional(), critical_min_bytes: z.number().int().positive().optional(), log_cap_bytes: z.number().int().min(1048576).max(104857600).optional(), log_retention_days: z.number().int().min(1).max(7).optional() }).strict();
 const backupsPatch = z.object({ retention_daily: z.number().int().min(1).max(30).optional(), retention_weekly: z.number().int().min(0).max(12).optional() }).strict();
+const workspaceExportBody = z.object({ categories: z.array(z.enum(WORKSPACE_EXPORT_CATEGORIES)).min(1).max(3), from: z.string().datetime({ offset: true }).optional().nullable(), to: z.string().datetime({ offset: true }).optional().nullable() }).strict();
 
 export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext, guards: Guards): void {
   app.post("/api/auth/login", async (request, reply) => {
@@ -169,6 +171,36 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext, guards
   });
 
   app.get("/api/settings/security", { preHandler: [guards.requireOwner] }, async (request) => ctx.auth.securitySummary(guards.tenantOf(request)));
+
+  // SEC-02: authorized workspace export (owner session + CSRF only; agents are refused by requireOwner with 403).
+  // `?preview=1` returns the inventory without a file and without an audit row; a download appends
+  // `security_audit` `workspace.exported` (actor, categories, counts, bytes) before the bytes are sent.
+  app.post("/api/settings/export", { preHandler: [guards.requireOwner] }, async (request, reply) => {
+    const body = workspaceExportBody.safeParse(request.body ?? {});
+    if (!body.success) throw validation("categories (journal|evidence_metadata|settings) required; from/to optional RFC3339", body.error.issues);
+    if (body.data.from && body.data.to && body.data.from >= body.data.to) throw validation("from must be before to");
+    const tenantId = guards.tenantOf(request);
+    const actor = guards.principalOf(request).id;
+    const preview = (request.query as { preview?: string }).preview === "1";
+    const result = await buildWorkspaceExport(ctx.pool, { tenantId, categories: body.data.categories, from: body.data.from ?? null, to: body.data.to ?? null, serviceVersion: ctx.config.serviceVersion }, preview);
+    if (preview) return { preview: result.inventory };
+    const zipBytes = result.zip!.length;
+    await ctx.auth.audit(tenantId, "workspace.exported", "owner", actor, "api", {
+      categories: result.inventory.categories,
+      counts: result.inventory.counts,
+      bytes: zipBytes,
+      uncompressed_bytes: result.inventory.size_bytes,
+      truncated: result.inventory.truncated,
+      from: result.inventory.from,
+      to: result.inventory.to,
+      committed_cursor: result.inventory.committed_cursor,
+    });
+    ctx.logger.info("workspace.exported", "Workspace export produced for the owner", { tenant_id: tenantId, trace_id: request.traceId, record_count: result.inventory.counts.journal_entries, action_code: result.inventory.truncated ? "truncated" : "complete" });
+    reply.header("content-type", "application/zip");
+    reply.header("content-disposition", `attachment; filename="blackbox-workspace-export-${new Date().toISOString().replace(/[:.]/g, "-")}.zip"`);
+    reply.header("x-export-truncated", result.inventory.truncated ? "1" : "0");
+    return reply.send(Buffer.from(result.zip!));
+  });
 }
 
 function originOk(origin: string, ports: number | readonly number[]): boolean {

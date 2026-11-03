@@ -1,0 +1,23 @@
+# restart-with-tail follow-up started 2026-11-03T15:23:25Z load 23.14 27.29 29.37; override=/Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/PILOT-09-followup/engine-override.yml
+login failed: 503
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys; d=json.loads(sys.stdin.read()); c=[x for x in d['cards'] if x['area']=='engine'][0]; print(c['state'], '|', (c.get('reason') or '')[:120])
+                       ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.3_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+## baseline: ; rss=170409984
+engine stopped 2026-11-03T15:23:51Z
+accepted observations: 1000
+ingest wall: 34 s
+## start the engine, time to healthy (all tenants ready, applied = committed)
+engine healthy after 15 s; healthy | engine healthy; reducer_version 1; applied 418011 of committed 418011; rss=1115893760; load 21.66 26.56 28.95
+  blackbox-agent-c-ops2-engine 1.057GiB / 1.5GiB 5.95%
+# finished 2026-11-03T15:24:45Z load 21.66 26.56 28.95

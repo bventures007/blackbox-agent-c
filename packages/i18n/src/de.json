@@ -1692,6 +1692,34 @@
       "stop": "Das Stoppen der Container-Laufzeit oder das Herunterfahren des Macs beendet die Verarbeitung. Ein explizites Stoppen erhält Journal, Jobs, Cursor und Snapshots; der Neustart setzt fort und zeigt den Aufholfortschritt.",
       "sleep": "Ruhezustand/Aufwachen, Laufzeit-Neustarts und Netzwerkwechsel sind erwartet; überfällige Jobs werden zusammengefasst und Anbieterquoten respektiert.",
       "noAutostart": "Es wird kein Anmeldeobjekt, keine Wachhalte-Einstellung und kein Menüleisten-Daemon installiert."
+    },
+    "export": {
+      "title": "Workspace-Datenexport",
+      "intro": "Lädt ein Zip dieses Workspace herunter: kanonische Journaleinträge (alle fünf Spuren, JSON Lines), Nachweis-Metadaten und die Workspace-Einstellungen mit Aufbewahrungsrichtlinie. Nur mit Inhabersitzung; jeder Download wird im Sicherheits-Audit festgehalten.",
+      "categories": "Inhalt",
+      "category": {
+        "journal": "Journaleinträge",
+        "evidence_metadata": "Nachweis-Metadaten",
+        "settings": "Einstellungen & Aufbewahrung"
+      },
+      "from": "Erfasst ab",
+      "to": "Erfasst bis",
+      "rangeHint": "Optional; leer bedeutet die gesamte bestätigte Historie.",
+      "excluded": "Nie enthalten: Rohinhalte von Nachweisen, eingeschränkte oder geschwärzte Objekte (nur mit Status gelistet), Schlüssel, Sitzungen, andere Workspaces. Das Paket ist auf 64 MiB begrenzt; eine größere Historie wird in Teilen exportiert.",
+      "previewTitle": "Vorschau",
+      "journalEntries": "Journaleinträge",
+      "evidenceItems": "Nachweise",
+      "evidenceRestricted_one": "{{count}} nicht verfügbar (eingeschränkt, geschwärzt oder abgelaufen)",
+      "evidenceRestricted_other": "{{count}} nicht verfügbar (eingeschränkt, geschwärzt oder abgelaufen)",
+      "size": "Unkomprimierte Größe",
+      "committedCursor": "Bestätigter Cursor",
+      "truncated": "Gekürzt",
+      "truncatedHint": "ja — weiter mit „Erfasst ab“ = {{from}}",
+      "files": "Dateien",
+      "preview": "Export prüfen",
+      "download": "Export herunterladen",
+      "downloaded": "{{name}} heruntergeladen ({{size}}). Der Export ist im Sicherheits-Audit vermerkt.",
+      "note": "Die Datei landet im Download-Ordner des Browsers. Sie ist eine bewusste Kopie der eigenen Daten, keine Sicherung: Sicherungen bleiben verschlüsselt und werden vom Host-Wrapper verwaltet."
     }
   },
   "evidenceClasses": {
@@ -1726,7 +1754,9 @@
     "debug.enabled": "Debug-Aufzeichnung aktiviert",
     "workspace.updated": "Workspace-Einstellungen geändert",
     "diagnostics.exported": "Diagnose exportiert",
-    "retention.updated": "Aufbewahrung geändert"
+    "retention.updated": "Aufbewahrung geändert",
+    "workspace.exported": "Workspace-Daten exportiert",
+    "evidence.restricted": "Nachweis vom Inhaber eingeschränkt"
   },
   "questionsCatalog": {
     "groups": {

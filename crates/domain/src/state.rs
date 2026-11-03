@@ -845,6 +845,23 @@ impl TenantState {
         recs + hist + entries + effects + self.interner.approx_bytes()
     }
 
+    /// Bytes the eviction policy may reclaim: history locators and undo logs. Everything else
+    /// (records, per-entry idempotency/observation metadata, effect-once set, interner) is the
+    /// structural floor of the tenant and is never evicted.
+    pub fn evictable_bytes(&self) -> usize {
+        let hist: usize = self
+            .history
+            .values()
+            .map(|v| v.capacity() * std::mem::size_of::<EntryLoc>() + 32)
+            .sum();
+        let undo: usize = self
+            .entries
+            .values()
+            .map(|m| m.undo.capacity() * std::mem::size_of::<Undo>())
+            .sum();
+        hist + undo
+    }
+
     /// Chain hash: identical for identical apply sequences. Used as checkpoint `state_hash`.
     pub fn state_hash_hex(&self) -> String {
         hex::encode(self.state_hash)

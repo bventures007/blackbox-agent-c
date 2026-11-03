@@ -14,8 +14,14 @@ export const REMEMBERED_IDLE_MS = 7 * 24 * 60 * 60 * 1000;
 export const ORDINARY_ABSOLUTE_MS = 8 * 60 * 60 * 1000;
 export const THROTTLE_WINDOW_MS = 15 * 60 * 1000;
 export const THROTTLE_MAX_FAILURES = 5;
-/** Agent-key argon2 verification result is cached at most this long; revocation state is always re-read. */
-export const VERIFY_CACHE_MS = 5000;
+/**
+ * Agent-key argon2 verification result (key hash → credential id) is reused at most this long; the credential and
+ * principal rows (status, expiry) are re-read from PostgreSQL on every request regardless, so revocation stays
+ * immediate. argon2id at 64 MiB / t=3 costs ≈100-200 ms of CPU per verification: with the former 5 s TTL every
+ * agent key was re-verified twelve times a minute and concurrent misses ran it in parallel (PILOT-09 smoke profile:
+ * the api container saturated four cores). Concurrent misses now share one in-flight verification.
+ */
+export const VERIFY_CACHE_MS = 10 * 60 * 1000;
 export const AGENT_GRANT = "workspace.read_business";
 
 export class AuthError extends Error {
@@ -89,6 +95,7 @@ export class AuthService {
   private readonly secretsDir: string;
   private readonly now: () => Date;
   private verifyCache = new Map<string, { credential_id: string; at: number }>();
+  private verifyInFlight = new Map<string, Promise<string | null>>();
 
   constructor(options: AuthServiceOptions) {
     this.pool = options.pool;
@@ -411,16 +418,29 @@ export class AuthService {
     const now = this.now();
     const keyHash = createHash("sha256").update(key).digest("hex");
     const cached = this.verifyCache.get(keyHash);
-    for (const row of rows) {
-      if (row.expires_at && row.expires_at <= now) continue;
-      if (cached && cached.credential_id === row.credential_id && now.getTime() - cached.at < VERIFY_CACHE_MS) return row;
-      if (await verifyKey(row.verifier, key)) {
-        this.verifyCache.set(keyHash, { credential_id: row.credential_id, at: now.getTime() });
-        if (this.verifyCache.size > 1000) this.verifyCache.clear();
-        return row;
-      }
+    const candidates = rows.filter((row) => !(row.expires_at && row.expires_at <= now));
+    if (cached && now.getTime() - cached.at < VERIFY_CACHE_MS) {
+      const hit = candidates.find((row) => row.credential_id === cached.credential_id);
+      if (hit) return hit;
     }
-    return null;
+    // One argon2 verification per key at a time: concurrent requests with the same (uncached) key await it.
+    const inflightKey = `${purpose}:${keyHash}`;
+    let pending = this.verifyInFlight.get(inflightKey);
+    if (!pending) {
+      pending = (async () => {
+        for (const row of candidates) {
+          if (await verifyKey(row.verifier, key)) {
+            this.verifyCache.set(keyHash, { credential_id: row.credential_id, at: this.now().getTime() });
+            if (this.verifyCache.size > 1000) this.verifyCache.clear();
+            return row.credential_id;
+          }
+        }
+        return null;
+      })().finally(() => this.verifyInFlight.delete(inflightKey));
+      this.verifyInFlight.set(inflightKey, pending);
+    }
+    const credentialId = await pending;
+    return credentialId ? (candidates.find((row) => row.credential_id === credentialId) ?? null) : null;
   }
 
   private async checkThrottle(clientKey: string): Promise<void> {

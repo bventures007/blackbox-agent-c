@@ -80,6 +80,8 @@ Nothing is sent automatically — ever. When you report a problem, attach a bund
 
 The bundle contains version/runtime/health/error metadata and log excerpts with pseudonymised ids. It never contains business records, evidence, database dumps, keys, tokens, personal paths or raw provider configuration. Open the ZIP and look before you send it.
 
+Your own business data (not diagnostics) can be exported separately: Settings → **Workspace data export** → choose journal entries, evidence metadata and/or settings, optionally a recorded-time window → **Preview export** shows counts and size → **Download export** (ZIP ≤ 64 MiB; a longer history is exported in parts). The bundle contains your canonical journal entries (JSON lines), evidence metadata with per-object status (restricted/expired objects are listed without content) and your settings with the retention policy — never raw evidence content, keys or sessions. Each download is recorded under Settings → Security audit.
+
 System & Diagnostics also shows seven live health cards (API, worker, PostgreSQL, engine, sources, MCP, diagnostics) with observed time and reason, filterable logs (last hour, INFO and above by default; live mode with pause), a 15-minute scoped DEBUG switch and storage/retention figures. `./blackbox logs --since 1h --level warn` is the terminal fallback.
 
 ## 9. Known limitations (pilot)
@@ -176,6 +178,8 @@ Es wird nie etwas automatisch gesendet. Wenn du ein Problem meldest, hänge ein 
 - Terminal (auch wenn die App nicht läuft): `./blackbox diagnostics export --since 24h --output ~/Desktop/blackbox-diagnostics.zip`.
 
 Das Paket enthält Versions-/Laufzeit-/Gesundheits-/Fehler-Metadaten und Log-Auszüge mit pseudonymisierten IDs. Es enthält nie Geschäftsdatensätze, Belege, Datenbank-Dumps, Schlüssel, Tokens, persönliche Pfade oder rohe Anbieterkonfiguration. Öffne das ZIP und schau hinein, bevor du es sendest.
+
+Deine eigenen Geschäftsdaten (nicht die Diagnose) exportierst du getrennt: Einstellungen → **Workspace-Datenexport** → Journaleinträge, Nachweis-Metadaten und/oder Einstellungen wählen, optional einen Erfassungszeitraum → **Export prüfen** zeigt Anzahl und Größe → **Export herunterladen** (ZIP ≤ 64 MiB; eine längere Historie wird in Teilen exportiert). Das Paket enthält deine kanonischen Journaleinträge (JSON Lines), Nachweis-Metadaten mit Status je Objekt (eingeschränkte/abgelaufene Objekte nur mit Status, ohne Inhalt) und deine Einstellungen mit Aufbewahrungsrichtlinie — nie Rohinhalte von Nachweisen, Schlüssel oder Sitzungen. Jeder Download wird unter Einstellungen → Sicherheits-Audit festgehalten.
 
 ## 9. Bekannte Einschränkungen (Pilot)
 

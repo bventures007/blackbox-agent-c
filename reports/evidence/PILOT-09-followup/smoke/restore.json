@@ -1,0 +1,6 @@
+{
+ "machine_seconds": 200,
+ "note": "REUSED from reports/evidence/PILOT-09-rerun/restore.json (2026-11-01/02): ./blackbox restore of generation blackbox-backup-20261101T224643Z (corpus-populated ops2, isolated project blackbox-agent-c-ops2-restore on 19192 with the recovery key): wall 200 s from command start to exit 0 with api ready; writers fenced restore_pending_review by policy. Not a separately timed query-ready probe. Not re-measured in the 2026-11-03 follow-up; backup/restore code unchanged.",
+ "measured_at": "2026-11-01T23:33:00Z",
+ "source": "reports/evidence/OPS-RERUN/part2b.txt"
+}

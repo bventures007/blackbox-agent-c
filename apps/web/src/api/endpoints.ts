@@ -33,6 +33,8 @@ import type {
   StorageInfo,
   StorageThresholds,
   Workspace,
+  WorkspaceExportPreview,
+  WorkspaceExportRequest,
 } from './types';
 
 export const auth = {
@@ -143,6 +145,8 @@ export const settings = {
   storage: () => api<StorageInfo>('/api/settings/storage'),
   patchStorage: (thresholds: Partial<StorageThresholds>) => api<StorageInfo>('/api/settings/storage', { method: 'PATCH', body: thresholds }),
   security: () => api<SecurityAudit>('/api/settings/security'),
+  exportPreview: (body: WorkspaceExportRequest) => api<WorkspaceExportPreview>('/api/settings/export', { method: 'POST', body, query: { preview: 1 } }),
+  exportDownload: (body: WorkspaceExportRequest) => apiBlob('/api/settings/export', { method: 'POST', body }),
 };
 
 export const diagnostics = {

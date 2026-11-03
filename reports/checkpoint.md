@@ -4,17 +4,17 @@ Recorded 2026-11-02 (UTC). Tested implementation commit: `90a0fd23af5e866e3f3b1d
 
 ## Verdict
 
-**Restricted preview with three honest failures, not a verified pilot.** The owner's re-run condition was met for the user journey: from a fresh empty folder, the browser-downloaded archive (build #9) was hash-checked, installed with the bundled wrapper, the API and engine containers are healthy, the full Playwright suite passed 68/68 against the real API (desktop 1440×1000 and mobile 390×844, EN and DE), all 67 reference captures were compared in a real browser (reports/evidence/UI-01/comparison.md), and `python3 scripts/validate-delivery-profile.py` passes. The `--release` gate still fails by design (unpassed gates, no independent capability review).
+**Restricted preview with two honest failures (PILOT-09, OPS-05), not a verified pilot.** The owner's re-run condition was met for the user journey: from a fresh empty folder, the browser-downloaded archive (build #9) was hash-checked, installed with the bundled wrapper, the API and engine containers are healthy, the full Playwright suite passed 68/68 against the real API (desktop 1440×1000 and mobile 390×844, EN and DE), all 67 reference captures were compared in a real browser (reports/evidence/UI-01/comparison.md), and `python3 scripts/validate-delivery-profile.py` passes. The `--release` gate still fails by design (unpassed gates, no independent capability review).
 
 Active acceptance status (83 cases; deferred 37 remain not_started):
 
 | Status | Count |
 | --- | --- |
 | blocked_external | 2 |
-| failed | 3 |
-| implemented_unverified | 2 |
+| failed | 2 |
+| implemented_unverified | 1 |
 | not_applicable | 1 |
-| passed | 75 |
+| passed | 77 |
 
 
 ## Evidence highlights
@@ -26,13 +26,13 @@ Active acceptance status (83 cases; deferred 37 remain not_started):
 - SLICE-01 52/52 on both installs; MCP-03 with an independent client (MCP Inspector CLI 2.13.0, SDK 1.32.2, stdio) using a UI-created agent key; LOCAL-06 runtime key rotation; HEALTH/DIAG gates incl. CLI with every container down and a 23.7 KB sanitized export with 0 canary hits; PILOT-10 no external egress during local questions.
 - Ops install (ports 19185): backup + isolated restore with the recovery key, interrupted and resumed populated upgrades (0.1.0→0.1.3→0.1.4), storage thresholds, data-key rotation, evidence restriction, restart with 3,000-entry tail ready in 5 s, no-snapshot rebuild 196 s.
 - Question coverage (reports/question-coverage.json): positive 24/24, missing-data 24/24, API/MCP parity 24/24 on the installed stack.
-- Register: implementation and four test kinds recorded for the 14 Shopify rows on df8cfbb; live tests blocked; no independent review (self-approval is not permitted).
+- Register: the 14 Shopify rows were invalidated on 2026-11-03 because a bound Rust artifact changed in the follow-up; implementation and the four test kinds must be re-recorded on the new commit; live tests blocked; no independent review (self-approval is not permitted).
 
 ## Not passed, with reasons
 
+Follow-up on 2026-11-03 (same commit lineage): SEC-02 now passes (authorized tenant export with audit, two-tenant isolation test, exercised on the install); PERF-01 now passes (EXPLAIN evidence, indexed-SQL reference agrees with the API for 200 hot and 36 cold orders, a full-journal scan on the readiness hot path was removed, reducers exist only in Rust). The engine's no-snapshot rebuild dropped from 196 s to 45 s and steady memory to about 1.1 GiB on a corpus that grew to roughly 900k entries, but the full smoke protocol still fails on this shared host (9 of 26 targets hold; see reports/performance.json and reports/evidence/PILOT-09-followup). Evidence: reports/evidence/SEC-02, PERF-01, PILOT-09-followup.
+
 - PILOT-09 / OPS-05 failed: 18 of 26 smoke targets missed on the shared developer host (8 vCPU / 9.7 GiB Docker VM shared with ~40 containers of other projects, host load 7–132): worst per-class p95 ≈ 7 s, success 0.8 % at fixed 40 req/s, durable ack p95 32–290 s, projection lag p95 11.4 s, engine steady RSS 1,488 MiB > 1,024, rebuild 196 s > 180. Dataset, restart, restore and peak-memory bounds hold; backpressure and durability behaved (503 with Retry-After, applied = committed after every run, golden verified). The engine RSS and rebuild time are real findings, not only host noise. Full numbers: reports/performance.json.
-- SEC-02 failed: no authorized tenant export flow exists yet (retention settings and audited evidence restriction do).
-- PERF-01 implemented_unverified: indexed-PostgreSQL reference-path comparison not executed in this pass.
 - PILOT-05 implemented_unverified: real Mac sleep/wake/reboot and provider-account replacement need the owner's session and an authorized account.
 - SLICE-02, SOURCE-01 blocked_external: no authorized Shopify store or token. SEC-03 not_applicable (no extraction feature).
 
@@ -59,7 +59,7 @@ Open http://127.0.0.1:19180, sign in with the key shown once by setup, run the d
 ## Remaining blockers and next steps
 
 1. Re-run the performance smoke on an idle or dedicated 4 vCPU / 8 GiB host and address engine RSS and rebuild time.
-2. Implement the tenant export flow (SEC-02) and the PostgreSQL reference-path comparison (PERF-01).
+2. Reduce the per-entry metadata floor in the engine and the PostgreSQL work per request; re-run the smoke on a quiet host.
 3. Provide an authorized read-only Shopify store token (SLICE-02, SOURCE-01) and an independent reviewer for the register rows.
 4. Owner-session checks for sleep/wake and account replacement (PILOT-05).
 

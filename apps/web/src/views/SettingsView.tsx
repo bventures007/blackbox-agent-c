@@ -4,9 +4,9 @@ import { PageHeading, toast } from '../components/AppShell';
 import { Icon } from '../components/Icon';
 import { CopyButton, DefinitionList, ErrorNote, Field, Loading, Modal, StatusBadge } from '../components/ui';
 import { auth as authApi, settings as settingsApi, workspace as workspaceApi } from '../api/endpoints';
-import type { Locale, StorageThresholds } from '../api/types';
+import { WORKSPACE_EXPORT_CATEGORIES, type Locale, type StorageThresholds, type WorkspaceExportCategory, type WorkspaceExportPreview } from '../api/types';
 import { useAsync } from '../hooks';
-import { useFormat } from '../format';
+import { fromLocalDateTimeInput, useFormat } from '../format';
 import { useSession } from '../auth/SessionContext';
 import { HttpError } from '../api/client';
 
@@ -31,6 +31,12 @@ export function SettingsView() {
   const [thresholds, setThresholds] = useState<StorageThresholds | null>(null);
   const [storageError, setStorageError] = useState<unknown>(null);
   const [backupError, setBackupError] = useState<unknown>(null);
+  const [exportCategories, setExportCategories] = useState<WorkspaceExportCategory[]>([...WORKSPACE_EXPORT_CATEGORIES]);
+  const [exportFrom, setExportFrom] = useState('');
+  const [exportTo, setExportTo] = useState('');
+  const [exportPreview, setExportPreview] = useState<WorkspaceExportPreview['preview'] | null>(null);
+  const [exportBusy, setExportBusy] = useState(false);
+  const [exportError, setExportError] = useState<unknown>(null);
 
   useEffect(() => {
     document.title = `${t('nav.settings')} — ${t('meta.title')}`;
@@ -103,6 +109,39 @@ export function SettingsView() {
       backups.reload();
     } catch (err) {
       setBackupError(err);
+    }
+  };
+
+  const exportBody = () => ({ categories: exportCategories, from: fromLocalDateTimeInput(exportFrom), to: fromLocalDateTimeInput(exportTo) });
+  const previewExport = async () => {
+    setExportBusy(true);
+    setExportError(null);
+    try {
+      setExportPreview((await settingsApi.exportPreview(exportBody())).preview);
+    } catch (err) {
+      setExportError(err);
+    } finally {
+      setExportBusy(false);
+    }
+  };
+  const downloadExport = async () => {
+    setExportBusy(true);
+    setExportError(null);
+    try {
+      const { blob, filename } = await settingsApi.exportDownload(exportBody());
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename ?? `blackbox-workspace-export-${Date.now()}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast(t('settings.export.downloaded', { name: a.download, size: f.bytes(blob.size) }));
+      setExportPreview(null);
+      security.reload();
+    } catch (err) {
+      setExportError(err);
+    } finally {
+      setExportBusy(false);
     }
   };
 
@@ -264,6 +303,66 @@ export function SettingsView() {
           <p className="micro">
             {t('settings.rotate.resetHint')} <code>./blackbox reset-access</code>
           </p>
+        </section>
+
+        <section className="white-panel" id="export" aria-labelledby="exp-title">
+          <h2 id="exp-title">{t('settings.export.title')}</h2>
+          <p>{t('settings.export.intro')}</p>
+          <fieldset className="filter-field">
+            <legend>{t('settings.export.categories')}</legend>
+            <div className="chip-row">
+              {WORKSPACE_EXPORT_CATEGORIES.map((c) => (
+                <label key={c} className="chip-check">
+                  <input
+                    type="checkbox"
+                    checked={exportCategories.includes(c)}
+                    onChange={() => {
+                      setExportCategories((cs) => (cs.includes(c) ? cs.filter((x) => x !== c) : [...cs, c]));
+                      setExportPreview(null);
+                    }}
+                  />{' '}
+                  {t(`settings.export.category.${c}`)}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div className="param-grid">
+            <Field label={t('settings.export.from')} htmlFor="exp-from" hint={t('settings.export.rangeHint')}>
+              <input id="exp-from" className="field" type="datetime-local" value={exportFrom} onChange={(e) => { setExportFrom(e.target.value); setExportPreview(null); }} />
+            </Field>
+            <Field label={t('settings.export.to')} htmlFor="exp-to">
+              <input id="exp-to" className="field" type="datetime-local" value={exportTo} onChange={(e) => { setExportTo(e.target.value); setExportPreview(null); }} />
+            </Field>
+          </div>
+          <p className="demo-callout">{t('settings.export.excluded')}</p>
+          {exportPreview && (
+            <div className="evidence-box">
+              <h3>{t('settings.export.previewTitle')}</h3>
+              <DefinitionList
+                rows={[
+                  { label: t('settings.export.journalEntries'), value: f.number(exportPreview.counts.journal_entries) },
+                  { label: t('settings.export.evidenceItems'), value: `${f.number(exportPreview.counts.evidence_items)} · ${t('settings.export.evidenceRestricted', { count: exportPreview.counts.evidence_restricted })}` },
+                  { label: t('settings.export.size'), value: `${f.bytes(exportPreview.size_bytes)} / ${f.bytes(exportPreview.max_bytes)}` },
+                  { label: t('settings.export.committedCursor'), value: f.number(exportPreview.committed_cursor) },
+                  { label: t('settings.export.truncated'), value: exportPreview.truncated ? t('settings.export.truncatedHint', { from: exportPreview.continue_from ? f.dateTimeSeconds(exportPreview.continue_from) : '' }) : t('common.no') },
+                  { label: t('settings.export.files'), value: exportPreview.files.join(', ') },
+                ]}
+              />
+            </div>
+          )}
+          <ErrorNote error={exportError} />
+          <div className="onboard-actions">
+            {!exportPreview ? (
+              <button type="button" className="btn primary" disabled={exportBusy || !exportCategories.length} onClick={() => void previewExport()}>
+                {exportBusy ? t('common.working') : t('settings.export.preview')}
+              </button>
+            ) : (
+              <button type="button" className="btn primary" disabled={exportBusy} onClick={() => void downloadExport()}>
+                <Icon name="download" /> {exportBusy ? t('common.working') : t('settings.export.download')}
+              </button>
+            )}
+          </div>
+          <p className="micro">{t('settings.export.note')}</p>
         </section>
 
         <section className="white-panel" id="lifecycle" aria-labelledby="lc-title">

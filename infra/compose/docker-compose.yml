@@ -78,6 +78,9 @@ services:
       PGPASSWORD_FILE: /run/secrets/pg_engine_password
       ENGINE_LISTEN: 0.0.0.0:7070
       RUST_LOG: ${BLACKBOX_LOG_LEVEL:-info}
+      # glibc arena cap: the multi-threaded runtime otherwise keeps up to 8 x cores malloc arenas resident (PILOT-09).
+      MALLOC_ARENA_MAX: ${BLACKBOX_ENGINE_MALLOC_ARENA_MAX:-2}
+      ENGINE_RSS_TARGET_MB: ${BLACKBOX_ENGINE_RSS_TARGET_MB:-1024}
     secrets:
       - pg_engine_password
       - engine_token

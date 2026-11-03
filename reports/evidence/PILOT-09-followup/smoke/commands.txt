@@ -1,0 +1,4 @@
+node tests/perf/smoke.mjs --pools <keys>/pools.json --mode {closed|fixed} --transport {api|mcp} --duration 600 --clients 20 --rate 40 --ingest-obs-per-second 20 --warmup 60 --project blackbox-agent-c-ops2 --owner-key-file <ops2>/owner.key (scripts/verify/ops2-smoke-rerun.sh; driver hardened: bounded/retried setup requests, fault counters)
+scripts/verify/ops2-engine-followup.sh blackbox/engine:0.1.0-followup after <override> (rebuild.json: no-snapshot rebuild measured 12:37 UTC with the follow-up engine before the evictable-budget change)
+scripts/verify/ops2-restart-tail-followup.sh <override> <dir> (restart.json: 1,000 observations = 3,000 entries ingested while the engine was stopped)
+scripts/verify/ops2-smoke-verdict.sh reports/evidence/PILOT-09-followup/smoke <commit> "<environment>" limitations.txt commands.txt --write-performance-json

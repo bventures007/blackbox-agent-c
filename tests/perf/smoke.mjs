@@ -23,6 +23,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { performance } from "node:perf_hooks";
 
+const driverFaults = { unhandled_rejections: 0, uncaught_exceptions: 0, samples: [] };
+process.on("unhandledRejection", (e) => { driverFaults.unhandled_rejections++; if (driverFaults.samples.length < 5) driverFaults.samples.push(String(e?.message ?? e)); });
+process.on("uncaughtException", (e) => { driverFaults.uncaught_exceptions++; if (driverFaults.samples.length < 5) driverFaults.samples.push(String(e?.message ?? e)); });
+
 const argv = process.argv.slice(2);
 const opt = (k, d) => {
   const i = argv.indexOf(`--${k}`);
@@ -168,20 +172,36 @@ function stats(cls) {
 
 // ----- ingestion through the owner session ----------------------------------------------------------------
 const ingest = { batches: 0, observations: 0, entries: 0, ack_ms: [], lag_ms: [], errors: {}, connection_id: null, first_cursor: null, last_cursor: null };
+// Startup requests are bounded (60 s) and retried: an API still digesting the previous run's ingestion backlog
+// must delay the run, not kill the driver on undici's 300 s header timeout (observed on the MCP closed-loop attempt).
+const SETUP_TIMEOUT_MS = 60_000;
 async function ownerSession() {
   if (!OWNER_KEY_FILE) return null;
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      return await ownerSessionOnce();
+    } catch (e) {
+      lastErr = e;
+      console.error(`owner session attempt ${attempt} failed: ${e?.message ?? e}; retrying in 30 s`);
+      await new Promise((r) => setTimeout(r, 30_000));
+    }
+  }
+  throw lastErr;
+}
+async function ownerSessionOnce() {
   const key = readFileSync(OWNER_KEY_FILE, "utf8").trim();
-  const login = await fetch(API + "/api/auth/login", { method: "POST", headers: { "content-type": "application/json", origin: API }, body: JSON.stringify({ key, remember: false }) });
+  const login = await fetch(API + "/api/auth/login", { method: "POST", headers: { "content-type": "application/json", origin: API }, body: JSON.stringify({ key, remember: false }), signal: AbortSignal.timeout(SETUP_TIMEOUT_MS) });
   if (login.status !== 204) throw new Error(`owner login failed: ${login.status}`);
   const cookie = (login.headers.get("set-cookie") ?? "").split(";")[0];
-  const sess = await (await fetch(API + "/api/auth/session", { headers: { cookie } })).json();
+  const sess = await (await fetch(API + "/api/auth/session", { headers: { cookie }, signal: AbortSignal.timeout(SETUP_TIMEOUT_MS) })).json();
   const headers = { cookie, origin: API, "x-blackbox-csrf": sess.csrf_token, "content-type": "application/json" };
   // a dedicated labeled replay connection for this run
-  const conns = await (await fetch(API + "/api/sources", { headers })).json();
+  const conns = await (await fetch(API + "/api/sources", { headers, signal: AbortSignal.timeout(SETUP_TIMEOUT_MS) })).json();
   let conn = null;
   for (const p of conns.catalogue ?? []) for (const c of p.connections ?? []) if (c.display_name === "perf smoke ingestion" && c.status !== "disconnected") conn = c;
   if (!conn) {
-    const res = await fetch(API + "/api/sources/connections", { method: "POST", headers, body: JSON.stringify({ provider: "replay", display_name: "perf smoke ingestion", config: { synthetic: true, purpose: "PILOT-09" } }) });
+    const res = await fetch(API + "/api/sources/connections", { method: "POST", headers, body: JSON.stringify({ provider: "replay", display_name: "perf smoke ingestion", config: { synthetic: true, purpose: "PILOT-09" } }), signal: AbortSignal.timeout(SETUP_TIMEOUT_MS) });
     if (!res.ok) throw new Error(`connection create failed ${res.status} ${await res.text()}`);
     conn = (await res.json()).connection ?? (await res.json());
   }
@@ -202,7 +222,7 @@ function startIngestion(owner, runTag) {
     const t0 = performance.now();
     let res;
     try {
-      res = await fetch(API + "/api/ingest/replay", { method: "POST", headers: owner.headers, body: JSON.stringify({ connection_id: owner.connection_id, events }) });
+      res = await fetch(API + "/api/ingest/replay", { method: "POST", headers: owner.headers, body: JSON.stringify({ connection_id: owner.connection_id, events }), signal: AbortSignal.timeout(DEADLINE_MS * 60) });
     } catch (e) {
       ingest.errors.network = (ingest.errors.network ?? 0) + 1;
       return;
@@ -268,7 +288,7 @@ function startMemorySampling(owner) {
     let engineCard = null;
     if (owner) {
       try {
-        const h = await (await fetch(API + "/api/diagnostics/health", { headers: owner.headers })).json();
+        const h = await (await fetch(API + "/api/diagnostics/health", { headers: owner.headers, signal: AbortSignal.timeout(DEADLINE_MS * 2) })).json();
         engineCard = (Array.isArray(h.cards) ? h.cards.find((c) => c.area === "engine") : h.cards?.engine) ?? null;
       } catch {
         /* ignore */
@@ -374,6 +394,7 @@ const result = {
   ingestion: { connection_id: ingest.connection_id, batches: ingest.batches, observations_accepted: ingest.observations, journal_entries_committed: ingest.first_cursor != null && ingest.last_cursor != null ? ingest.last_cursor - ingest.first_cursor + INGEST_OBS * 2 : null, entries_per_second: ingest.first_cursor != null ? Number(((ingest.last_cursor - ingest.first_cursor + INGEST_OBS * 2) / elapsed).toFixed(2)) : null, durable_ack_p50_ms: pct(ingest.ack_ms, 0.5), durable_ack_p95_ms: pct(ingest.ack_ms, 0.95), lag_p50_ms: pct(ingest.lag_ms, 0.5), lag_p95_ms: pct(ingest.lag_ms, 0.95), lag_max_ms: pct(ingest.lag_ms, 1), lag_samples: ingest.lag_ms.length, errors: ingest.errors, note: "lag = at_least_cursor barrier wait plus one point read, measured right after the durable ack of each batch" },
   memory: { samples: memSamples.length, engine_mib_steady_median: pct(memSamples.map((m) => m.engine_mib).filter((x) => x != null), 0.5), engine_mib_peak: pct(memSamples.map((m) => m.engine_mib).filter((x) => x != null), 1), total_stack_mib_peak: pct(memSamples.map((m) => m.total_stack_mib), 1), total_stack_mib_median: pct(memSamples.map((m) => m.total_stack_mib), 0.5), per_container_peak_mib: Object.fromEntries(["postgres", "engine", "api", "worker", "backup-scheduler"].map((n) => [n, pct(memSamples.flatMap((m) => m.containers.filter((c) => c.name === n).map((c) => toMiB(c.mem))), 1)])), last_engine_card: memSamples.at(-1)?.engine_card ?? null, series: memSamples.map((m) => ({ at: m.at, total_stack_mib: m.total_stack_mib, engine_mib: m.engine_mib })) },
 };
+result.driver_faults = driverFaults;
 if (OUT) writeFileSync(OUT, JSON.stringify(result, null, 2) + "\n");
 console.log(JSON.stringify({ transport: TRANSPORT, mode: MODE, elapsed_s: elapsed, rps: result.achieved_rps, success_fraction: result.success_fraction, classes: Object.fromEntries(Object.entries(result.classes).map(([k, v]) => [k, { n: v.requests, p95: v.p95_ms, p99: v.p99_ms, ok: v.success_fraction }])), ingestion: { eps: result.ingestion.entries_per_second, ack_p95: result.ingestion.durable_ack_p95_ms, lag_p95: result.ingestion.lag_p95_ms }, memory: { engine_peak: result.memory.engine_mib_peak, stack_peak: result.memory.total_stack_mib_peak } }));
 process.exit(0);

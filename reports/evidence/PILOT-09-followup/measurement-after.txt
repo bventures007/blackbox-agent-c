@@ -1,0 +1,25 @@
+# ops2 engine follow-up [after] image=blackbox/engine:0.1.0-followup override=/Users/benediktsauter/GitHub/blackbox-agent-c/reports/evidence/PILOT-09-followup/engine-override.yml started 2026-11-03T12:35:19Z load 3.60 5.10 11.28
+## baseline (current container): ; unavailable | engine unreachable: query engine unavailable; rss=
+## (1) restart with snapshots on image blackbox/engine:0.1.0-followup
+healthy after 7 s (snapshot load); healthy | engine healthy; reducer_version 1; applied 170973 of committed 170973; rss=714719232; load 3.66 5.07 11.19
+engine json: {"status":"healthy","rss_mib":681.6,"approx_mib":506.4,"rss_target_mib":1024,"rss_over_target":false,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":0,"write_copies_cloned":2,"evictions":12,"rss_evictions":0,"batches":91}
+warm-up: {"requests":300,"ok":300,"err":0,"p50_ms":78,"p95_ms":189}
+after warm-up: rss=715468800; {"status":"healthy","rss_mib":682.3,"approx_mib":506.4,"rss_target_mib":1024,"rss_over_target":false,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":0,"write_copies_cloned":2,"evictions":12,"rss_evictions":0,"batches":91}
+after 90 s idle: rss=893644800; load 3.56 4.63 10.24; {"status":"healthy","rss_mib":852.2,"approx_mib":506.4,"rss_target_mib":1024,"rss_over_target":false,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":0,"write_copies_cloned":2,"evictions":12,"rss_evictions":0,"batches":91}
+  docker stats: blackbox-agent-c-ops2-engine 852.7MiB / 1.5GiB 7.10%
+## (2) no-snapshot rebuild: clear engine_snapshots as bb_engine + snapshot files, restart the engine
+engine_snapshots rows deleted as bb_engine: 54
+rows left: 0
+snapshot files before:        0
+snapshot files after:        0
+load before rebuild 3.44 4.58 10.19
+healthy after 11 s (rebuilt from the journal); healthy | engine healthy; reducer_version 1; applied 170973 of committed 170973; rss=842260480; load 3.52 4.56 10.12
+engine json: {"status":"healthy","rss_mib":803.3,"approx_mib":601.5,"rss_target_mib":1024,"rss_over_target":false,"tenants":54,"ready":54,"write_copies_resident":24,"write_copies_dropped":0,"write_copies_cloned":54,"evictions":39,"rss_evictions":0,"batches":173}
+engine events since restart: [('engine.tenant_ready', 108), ('engine.batch_applied', 56), ('engine.snapshot_loaded', 52), ('engine.evicted', 51), ('engine.started', 2), ('engine.sqlx.query', 2), ('engine.snapshot_written', 2), ('engine.stopping', 1)]
+after 90 s idle: rss=1006501888; load 3.38 4.25 9.44; {"status":"healthy","rss_mib":959.9,"approx_mib":540.4,"rss_target_mib":1024,"rss_over_target":false,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":24,"write_copies_cloned":54,"evictions":39,"rss_evictions":0,"batches":173}
+warm-up: {"requests":300,"ok":300,"err":0,"p50_ms":78,"p95_ms":187}
+after warm-up: rss=1009532928; {"status":"healthy","rss_mib":962.8,"approx_mib":540.4,"rss_target_mib":1024,"rss_over_target":false,"tenants":54,"ready":54,"write_copies_resident":0,"write_copies_dropped":24,"write_copies_cloned":54,"evictions":39,"rss_evictions":0,"batches":173}
+## golden answer after both restarts
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+# finished 2026-11-03T12:39:37Z load 3.02 4.10 9.21

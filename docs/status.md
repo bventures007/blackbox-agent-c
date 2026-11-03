@@ -2,6 +2,12 @@
 
 ## Progress log (newest first)
 
+### 2026-11-03 — Follow-up on the three open P4 findings (SEC-02, PERF-01, PILOT-09): export flow built, hot-path scans removed, engine rebuild/memory fixed, smoke protocol still failing
+
+- SEC-02 passed: owner-only `POST /api/settings/export` (journal JSON lines, evidence metadata with ledger status, settings/retention; 64 MiB cap; audited `workspace.exported`; agents 403), EN/DE Settings control, docs, two-tenant integration test, exercised on the final install (`reports/evidence/SEC-02/`).
+- PERF-01 passed: EXPLAIN evidence for the hot paths, an indexed SQL reference (`tests/perf/pg-reference.mjs`) agreeing with the API on 200/200 hot and 36/36 cold orders, full-request latency reported (hot API p50 78 / p95 144 ms single client after the fixes), no TypeScript money/stock reducers; the readiness refresh's full-journal GROUP BY replaced by a loose index scan (`reports/evidence/PERF-01/`).
+- PILOT-09 / OPS-05 still failed: engine tail loop reworked (lazy single copy for idle tenants, single-pass catch-up, history-only eviction while catching up, RSS-bounded evictable budget, `MALLOC_ARENA_MAX=2`) and the api's argon2 re-verification of agent keys removed from the hot path; no-snapshot rebuild 196 s / OOM loop → 11–45 s, engine RSS bounded at 0.9–1.15 GiB; four smoke protocol attempts on the shared host (best closed-loop API 55 req/s, hot p95 1.2 s; fixed-arrival runs collapse on PostgreSQL saturation); `reports/performance.json` rewritten from attempt 4 (`reports/evidence/PILOT-09-followup/`). Results in `reports/evidence/results-followup.json`; nothing committed by the follow-up itself.
+
 ### 2026-11-02 — Promotable archive rebuilt from commit 90a0fd2 and verified from a fresh folder
 Done: release 0.1.0 (sha256 6c8a9503…, 530,036,455 bytes) built from the clean committed tree; downloaded from the landing host, hash/size verified, installed into a new folder under its own project name, demo verify passed, Playwright 68/68, api/engine healthy; INSTALL-01, DIST-02, DIST-03, LOCAL-08 re-recorded. Open: unchanged (PILOT-09/OPS-05, SEC-02, PERF-01, PILOT-05, SLICE-02/SOURCE-01 blocked, no independent review).
 

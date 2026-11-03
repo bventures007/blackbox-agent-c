@@ -1,0 +1,19 @@
+# smoke re-run started 2026-11-03T12:45:38Z load 4.11 4.44 7.58
+  blackbox-agent-c-ops2-engine blackbox/engine:0.1.0-followup Up 8 minutes (healthy)
+  blackbox-agent-c-ops2-api blackbox/api:0.1.0-followup2 Up 36 minutes (healthy)
+  blackbox-agent-c-ops2-pgproxy node:22-bookworm-slim Up About an hour
+  blackbox-agent-c-ops2-worker blackbox/worker:0.1.4 Up 2 hours
+  blackbox-agent-c-ops2-backup-scheduler blackbox/backup:0.1.4 Up 2 hours
+  blackbox-agent-c-ops2-postgres postgres:16.6-alpine Up 2 hours (healthy)
+## run api-closed started 2026-11-03T12:45:39Z load 4.11 4.44 7.58
+exit=0 finished 2026-11-03T12:56:44Z load 47.46 33.16 21.28
+{"transport":"api","mode":"closed","elapsed_s":600.673,"rps":26.99,"success_fraction":0.99938,"classes":{"hot":{"n":8305,"p95":2104.9,"p99":3122.9,"ok":1},"cold":{"n":3205,"p95":3602.9,"p99":5524.7,"ok":0.99688},"history":{"n":3102,"p95":2015.7,"p99":3128.5,"ok":1},"summary":{"n":1599,"p95":1756.1,"
+## run api-fixed started 2026-11-03T12:56:44Z load 47.46 33.16 21.28
+exit=0 finished 2026-11-03T13:07:55Z load 17.21 24.77 24.18
+{"transport":"api","mode":"fixed","elapsed_s":607.006,"rps":39.54,"success_fraction":0.02325,"classes":{"hot":{"n":12202,"p95":7012.6,"p99":7093,"ok":0.02164},"cold":{"n":4797,"p95":7010.7,"p99":7083.4,"ok":0.02085},"history":{"n":4634,"p95":7013.9,"p99":7087.9,"ok":0.03021},"summary":{"n":2368,"p95
+## run mcp-closed started 2026-11-03T13:07:55Z load 17.21 24.77 24.18
+exit=1 finished 2026-11-03T13:12:57Z load 12.08 17.07 20.76
+}
+
+Node.js v25.9.0
+## run mcp-fixed started 2026-11-03T13:12:57Z load 12.08 17.07 20.76

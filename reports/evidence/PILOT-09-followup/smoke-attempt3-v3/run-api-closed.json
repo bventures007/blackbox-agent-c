@@ -1,0 +1,470 @@
+{
+  "schema": "blackbox-perf-smoke/1",
+  "started_at": "2026-11-03T14:12:58.560Z",
+  "finished_at": "2026-11-03T14:24:09.059Z",
+  "api": "http://127.0.0.1:19185",
+  "transport": "api",
+  "mode": "closed",
+  "config": {
+    "duration_s": 600,
+    "clients": 20,
+    "fixed_rate_rps": null,
+    "ingest_observations_per_second": 20,
+    "warmup_cap_s": 60,
+    "deadline_ms": 5000,
+    "query_mix": {
+      "hot": 0.5,
+      "cold": 0.2,
+      "history": 0.2,
+      "summary": 0.1
+    },
+    "principals": 15,
+    "tenants": 11,
+    "mcp_server": null,
+    "project": "blackbox-agent-c-ops2"
+  },
+  "warmup": {
+    "touched": 1496,
+    "seconds": 60.513
+  },
+  "elapsed_s": 605.946,
+  "mode_info": {
+    "clients": 20
+  },
+  "achieved_rps": 13.51,
+  "requests_total": 8186,
+  "successful_total": 7814,
+  "success_fraction": 0.95456,
+  "classes": {
+    "hot": {
+      "requests": 4174,
+      "successful": 4015,
+      "success_fraction": 0.96191,
+      "p50_ms": 923.8,
+      "p95_ms": 5354.1,
+      "p99_ms": 7002.4,
+      "p95_ms_successful_only": 3601,
+      "max_ms": 7087.6,
+      "errors": {
+        "deadline_exceeded": 34,
+        "client_timeout": 104,
+        "overloaded": 21
+      }
+    },
+    "cold": {
+      "requests": 1622,
+      "successful": 1462,
+      "success_fraction": 0.90136,
+      "p50_ms": 1641.4,
+      "p95_ms": 6465.5,
+      "p99_ms": 7003.1,
+      "p95_ms_successful_only": 4894.6,
+      "max_ms": 7034.4,
+      "errors": {
+        "deadline_exceeded": 90,
+        "client_timeout": 64,
+        "overloaded": 5,
+        "database_busy": 1
+      }
+    },
+    "history": {
+      "requests": 1581,
+      "successful": 1549,
+      "success_fraction": 0.97976,
+      "p50_ms": 468.9,
+      "p95_ms": 3728.9,
+      "p99_ms": 7002.4,
+      "p95_ms_successful_only": 3157,
+      "max_ms": 7088.9,
+      "errors": {
+        "client_timeout": 32
+      }
+    },
+    "summary": {
+      "requests": 809,
+      "successful": 788,
+      "success_fraction": 0.97404,
+      "p50_ms": 594.5,
+      "p95_ms": 4775.9,
+      "p99_ms": 7002.9,
+      "p95_ms_successful_only": 3419.6,
+      "max_ms": 7021.9,
+      "errors": {
+        "client_timeout": 19,
+        "overloaded": 2
+      }
+    }
+  },
+  "requests_per_tenant_index": {
+    "0": 2650,
+    "1": 433,
+    "2": 462,
+    "3": 652,
+    "4": 653,
+    "5": 643,
+    "6": 584,
+    "7": 424,
+    "8": 464,
+    "9": 662,
+    "10": 559
+  },
+  "ingestion": {
+    "connection_id": "055da69e-1000-48f1-b6ca-1e3631c0a9b9",
+    "batches": 567,
+    "observations_accepted": 11340,
+    "journal_entries_committed": 34114,
+    "entries_per_second": 56.3,
+    "durable_ack_p50_ms": 12985,
+    "durable_ack_p95_ms": 51359.7,
+    "lag_p50_ms": 3101.4,
+    "lag_p95_ms": 7283.7,
+    "lag_max_ms": 8537.8,
+    "lag_samples": 261,
+    "errors": {
+      "lag_http_503": 306,
+      "http_503": 24
+    },
+    "note": "lag = at_least_cursor barrier wait plus one point read, measured right after the durable ack of each batch"
+  },
+  "memory": {
+    "samples": 61,
+    "engine_mib_steady_median": 1406,
+    "engine_mib_peak": 1536,
+    "total_stack_mib_peak": 2869.4,
+    "total_stack_mib_median": 2253.8,
+    "per_container_peak_mib": {
+      "postgres": 1053.7,
+      "engine": 1536,
+      "api": 325.9,
+      "worker": 100,
+      "backup-scheduler": 129.6
+    },
+    "last_engine_card": {
+      "area": "engine",
+      "state": "working",
+      "observed_at": "2026-11-03T14:24:08.084Z",
+      "reason": "engine healthy; reducer_version 1; applied 352614 of committed 352665",
+      "next_action": null,
+      "details": {
+        "reducer_version": 1,
+        "phase": "ready",
+        "applied_cursor": 352614,
+        "committed_cursor": 352665,
+        "lag_entries": 51,
+        "rss_bytes": 1509933056
+      }
+    },
+    "series": [
+      {
+        "at": "2026-11-03T14:14:01.611Z",
+        "total_stack_mib": 1982.6,
+        "engine_mib": 1221.632
+      },
+      {
+        "at": "2026-11-03T14:14:13.075Z",
+        "total_stack_mib": 2317.8,
+        "engine_mib": 1529.856
+      },
+      {
+        "at": "2026-11-03T14:14:23.001Z",
+        "total_stack_mib": 2625.3,
+        "engine_mib": 1405.952
+      },
+      {
+        "at": "2026-11-03T14:14:32.253Z",
+        "total_stack_mib": 2675.4,
+        "engine_mib": 1433.6
+      },
+      {
+        "at": "2026-11-03T14:14:42.380Z",
+        "total_stack_mib": 2253.7,
+        "engine_mib": 1458.176
+      },
+      {
+        "at": "2026-11-03T14:14:52.144Z",
+        "total_stack_mib": 2310.3,
+        "engine_mib": 1517.568
+      },
+      {
+        "at": "2026-11-03T14:15:03.119Z",
+        "total_stack_mib": 2312.3,
+        "engine_mib": 1521.664
+      },
+      {
+        "at": "2026-11-03T14:15:12.914Z",
+        "total_stack_mib": 2322.4,
+        "engine_mib": 1524.736
+      },
+      {
+        "at": "2026-11-03T14:15:22.249Z",
+        "total_stack_mib": 2328.9,
+        "engine_mib": 1528.832
+      },
+      {
+        "at": "2026-11-03T14:15:33.792Z",
+        "total_stack_mib": 2327,
+        "engine_mib": 1527.808
+      },
+      {
+        "at": "2026-11-03T14:15:43.778Z",
+        "total_stack_mib": 2327.4,
+        "engine_mib": 1529.856
+      },
+      {
+        "at": "2026-11-03T14:15:54.750Z",
+        "total_stack_mib": 2336.3,
+        "engine_mib": 1536
+      },
+      {
+        "at": "2026-11-03T14:16:03.228Z",
+        "total_stack_mib": 2645.4,
+        "engine_mib": 1399.808
+      },
+      {
+        "at": "2026-11-03T14:16:12.894Z",
+        "total_stack_mib": 2083.4,
+        "engine_mib": 1281.024
+      },
+      {
+        "at": "2026-11-03T14:16:21.901Z",
+        "total_stack_mib": 2030.7,
+        "engine_mib": 1228.8
+      },
+      {
+        "at": "2026-11-03T14:16:32.336Z",
+        "total_stack_mib": 2040.3,
+        "engine_mib": 1238.016
+      },
+      {
+        "at": "2026-11-03T14:16:42.644Z",
+        "total_stack_mib": 2045.3,
+        "engine_mib": 1242.112
+      },
+      {
+        "at": "2026-11-03T14:16:52.133Z",
+        "total_stack_mib": 2056.9,
+        "engine_mib": 1252.352
+      },
+      {
+        "at": "2026-11-03T14:17:04.401Z",
+        "total_stack_mib": 2057.3,
+        "engine_mib": 1254.4
+      },
+      {
+        "at": "2026-11-03T14:17:12.330Z",
+        "total_stack_mib": 2059.7,
+        "engine_mib": 1256.448
+      },
+      {
+        "at": "2026-11-03T14:17:22.405Z",
+        "total_stack_mib": 2661.9,
+        "engine_mib": 1399.808
+      },
+      {
+        "at": "2026-11-03T14:17:34.118Z",
+        "total_stack_mib": 2072.2,
+        "engine_mib": 1269.76
+      },
+      {
+        "at": "2026-11-03T14:18:01.952Z",
+        "total_stack_mib": 2129.6,
+        "engine_mib": 1314.816
+      },
+      {
+        "at": "2026-11-03T14:18:14.354Z",
+        "total_stack_mib": 0,
+        "engine_mib": null
+      },
+      {
+        "at": "2026-11-03T14:18:24.363Z",
+        "total_stack_mib": 0,
+        "engine_mib": null
+      },
+      {
+        "at": "2026-11-03T14:18:31.894Z",
+        "total_stack_mib": 2144.4,
+        "engine_mib": 1327.104
+      },
+      {
+        "at": "2026-11-03T14:18:33.100Z",
+        "total_stack_mib": 0,
+        "engine_mib": null
+      },
+      {
+        "at": "2026-11-03T14:18:38.885Z",
+        "total_stack_mib": 2165.3,
+        "engine_mib": 1347.584
+      },
+      {
+        "at": "2026-11-03T14:18:47.284Z",
+        "total_stack_mib": 2341.9,
+        "engine_mib": 1375.232
+      },
+      {
+        "at": "2026-11-03T14:18:57.709Z",
+        "total_stack_mib": 2672.6,
+        "engine_mib": 1384.448
+      },
+      {
+        "at": "2026-11-03T14:19:08.619Z",
+        "total_stack_mib": 2676,
+        "engine_mib": 1387.52
+      },
+      {
+        "at": "2026-11-03T14:19:20.776Z",
+        "total_stack_mib": 2100.1,
+        "engine_mib": 1300.48
+      },
+      {
+        "at": "2026-11-03T14:19:26.526Z",
+        "total_stack_mib": 2212.1,
+        "engine_mib": 1404.928
+      },
+      {
+        "at": "2026-11-03T14:19:36.320Z",
+        "total_stack_mib": 2226.5,
+        "engine_mib": 1417.216
+      },
+      {
+        "at": "2026-11-03T14:19:44.846Z",
+        "total_stack_mib": 2244.6,
+        "engine_mib": 1431.552
+      },
+      {
+        "at": "2026-11-03T14:19:57.068Z",
+        "total_stack_mib": 2248.7,
+        "engine_mib": 1438.72
+      },
+      {
+        "at": "2026-11-03T14:20:07.456Z",
+        "total_stack_mib": 2253.8,
+        "engine_mib": 1442.816
+      },
+      {
+        "at": "2026-11-03T14:20:14.075Z",
+        "total_stack_mib": 2347.8,
+        "engine_mib": 1536
+      },
+      {
+        "at": "2026-11-03T14:20:26.906Z",
+        "total_stack_mib": 2674.3,
+        "engine_mib": 1388.544
+      },
+      {
+        "at": "2026-11-03T14:20:39.075Z",
+        "total_stack_mib": 2684.8,
+        "engine_mib": 1390.592
+      },
+      {
+        "at": "2026-11-03T14:20:47.412Z",
+        "total_stack_mib": 2705,
+        "engine_mib": 1393.664
+      },
+      {
+        "at": "2026-11-03T14:20:57.097Z",
+        "total_stack_mib": 2138.3,
+        "engine_mib": 1323.008
+      },
+      {
+        "at": "2026-11-03T14:21:05.555Z",
+        "total_stack_mib": 2221.6,
+        "engine_mib": 1408
+      },
+      {
+        "at": "2026-11-03T14:21:12.552Z",
+        "total_stack_mib": 2233,
+        "engine_mib": 1419.264
+      },
+      {
+        "at": "2026-11-03T14:21:24.979Z",
+        "total_stack_mib": 2238.4,
+        "engine_mib": 1424.384
+      },
+      {
+        "at": "2026-11-03T14:21:33.308Z",
+        "total_stack_mib": 2240.3,
+        "engine_mib": 1426.432
+      },
+      {
+        "at": "2026-11-03T14:21:44.765Z",
+        "total_stack_mib": 2252.8,
+        "engine_mib": 1437.696
+      },
+      {
+        "at": "2026-11-03T14:21:54.566Z",
+        "total_stack_mib": 2279.1,
+        "engine_mib": 1464.32
+      },
+      {
+        "at": "2026-11-03T14:22:04.207Z",
+        "total_stack_mib": 2057.2,
+        "engine_mib": 1257.472
+      },
+      {
+        "at": "2026-11-03T14:22:14.120Z",
+        "total_stack_mib": 2348.6,
+        "engine_mib": 1536
+      },
+      {
+        "at": "2026-11-03T14:22:25.082Z",
+        "total_stack_mib": 2351.1,
+        "engine_mib": 1536
+      },
+      {
+        "at": "2026-11-03T14:22:34.028Z",
+        "total_stack_mib": 2336.9,
+        "engine_mib": 1523.712
+      },
+      {
+        "at": "2026-11-03T14:22:47.415Z",
+        "total_stack_mib": 2350.4,
+        "engine_mib": 1532.928
+      },
+      {
+        "at": "2026-11-03T14:23:00.314Z",
+        "total_stack_mib": 2350,
+        "engine_mib": 1534.976
+      },
+      {
+        "at": "2026-11-03T14:23:08.998Z",
+        "total_stack_mib": 2475.6,
+        "engine_mib": 1532.928
+      },
+      {
+        "at": "2026-11-03T14:23:15.776Z",
+        "total_stack_mib": 2595.2,
+        "engine_mib": 1369.088
+      },
+      {
+        "at": "2026-11-03T14:23:24.608Z",
+        "total_stack_mib": 2869.4,
+        "engine_mib": 1387.52
+      },
+      {
+        "at": "2026-11-03T14:23:33.502Z",
+        "total_stack_mib": 2058.6,
+        "engine_mib": 1242.112
+      },
+      {
+        "at": "2026-11-03T14:23:42.524Z",
+        "total_stack_mib": 1843.9,
+        "engine_mib": 1028.096
+      },
+      {
+        "at": "2026-11-03T14:23:52.035Z",
+        "total_stack_mib": 2296.6,
+        "engine_mib": 1481.728
+      },
+      {
+        "at": "2026-11-03T14:24:08.102Z",
+        "total_stack_mib": 2309.9,
+        "engine_mib": 1483.776
+      }
+    ]
+  },
+  "driver_faults": {
+    "unhandled_rejections": 0,
+    "uncaught_exceptions": 0,
+    "samples": []
+  }
+}

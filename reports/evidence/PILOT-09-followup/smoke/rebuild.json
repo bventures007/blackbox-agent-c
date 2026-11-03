@@ -1,0 +1,21 @@
+{
+ "class": "no_snapshot_rebuild",
+ "ready_seconds": 45,
+ "engine_rss_bytes_after": 1193902080,
+ "snapshots_removed": "engine_snapshots table (54 rows, deleted as bb_engine) + data/snapshots files",
+ "engine_image": "blackbox/engine:0.1.0-followup (v4 image id 0af1dd0b01d9; v3 was 8dd1ff62de32, v2 92595d97bb5e/ffbc5d7ed82b)",
+ "journal_entries_at_measurement": "~906k (owner tenant 354,099)",
+ "measured_at": "2026-11-03T14:37:42.130581+00:00",
+ "host_load_1min_during": "8-18",
+ "earlier_measurements": {
+  "v2_2026-11-03T12:39Z_723k_entries_load_3.5": {
+   "ready_seconds": 11,
+   "engine_rss_bytes_after": 1009532928
+  },
+  "v3_2026-11-03T14:10Z": {
+   "ready_seconds": 116,
+   "engine_rss_bytes_after": 1203826688
+  }
+ },
+ "source": "scripts/verify/ops2-engine-followup.sh (measurement-after-v4.txt phase 2)"
+}

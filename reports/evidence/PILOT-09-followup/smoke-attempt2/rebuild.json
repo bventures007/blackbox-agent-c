@@ -1,0 +1,11 @@
+{
+ "class": "no_snapshot_rebuild",
+ "ready_seconds": 11,
+ "engine_rss_bytes_after": 1009532928,
+ "engine_rss_bytes_at_healthy": 842260480,
+ "snapshots_removed": "engine_snapshots table (54 rows, deleted as bb_engine) + data/snapshots files",
+ "engine_image": "blackbox/engine:0.1.0-followup",
+ "measured_at": "2026-11-03T12:39:33.116337+00:00",
+ "host_load_1min_during": "3.4-3.5",
+ "source": "scripts/verify/ops2-engine-followup.sh (measurement-after.txt phase 2)"
+}

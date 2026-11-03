@@ -1,0 +1,190 @@
+{
+ "zip_bytes": 12490,
+ "sha256": "48d9887ae1ed5385d20af151cb8e5c7cd74082e03518303e663d08d1710c4791",
+ "files": [
+  {
+   "name": "settings.json",
+   "bytes": 965
+  },
+  {
+   "name": "evidence-metadata.jsonl",
+   "bytes": 11647
+  },
+  {
+   "name": "journal-entries.jsonl",
+   "bytes": 82350
+  },
+  {
+   "name": "manifest.json",
+   "bytes": 1165
+  }
+ ],
+ "manifest": {
+  "format": "blackbox-workspace-export",
+  "format_version": 1,
+  "service_version": "0.1.0",
+  "exported_at": "2026-11-03T11:14:46.304Z",
+  "tenant_id": "bc07018e-29c3-4857-8ab6-374cc6707d84",
+  "categories": [
+   "journal",
+   "evidence_metadata",
+   "settings"
+  ],
+  "from": null,
+  "to": null,
+  "committed_cursor": 74,
+  "counts": {
+   "journal_entries": 74,
+   "evidence_items": 25,
+   "evidence_restricted": 0,
+   "settings_sections": 4
+  },
+  "truncated": false,
+  "last_included_sequence": 74,
+  "continue_from": null,
+  "max_bytes": 67108864,
+  "notes": [
+   "journal-entries.jsonl: one canonical journal entry per line (all five tracks), ordered by journal_sequence within the committed cursor at export time.",
+   "evidence-metadata.jsonl: evidence metadata only. Raw provider content is never exported; restricted/redacted/expired objects carry their ledger status.",
+   "settings.json: workspace, retention policy per evidence class, storage thresholds and backup retention. No secrets, keys or sessions.",
+   "A truncated export (byte cap) names continue_from: repeat the export with from = continue_from to fetch the remainder."
+  ]
+ },
+ "journal_lines": 74,
+ "evidence_items": 25,
+ "security_after": {
+  "counts": {
+   "owner.setup": 1,
+   "agent.key_created": 5,
+   "owner.login": 59,
+   "workspace.updated": 8,
+   "workspace.exported": 1,
+   "debug.stopped": 2,
+   "debug.enabled": 2,
+   "agent.key_revoked": 1,
+   "owner.logout": 2
+  },
+  "last_events": [
+   {
+    "occurred_at": "2026-11-03T11:14:46.314Z",
+    "event": "workspace.exported",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-03T11:14:46.283Z",
+    "event": "agent.key_revoked",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-03T11:14:46.181Z",
+    "event": "agent.key_created",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-03T11:14:46.068Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:35.197Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:33.604Z",
+    "event": "debug.stopped",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:33.296Z",
+    "event": "debug.enabled",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:31.798Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:24.388Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:21.653Z",
+    "event": "workspace.updated",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:21.290Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:19.314Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:17.756Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:15.421Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:13.586Z",
+    "event": "agent.key_created",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:11.890Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:09.848Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:08.095Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:05.416Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   },
+   {
+    "occurred_at": "2026-11-02T06:57:02.509Z",
+    "event": "owner.login",
+    "actor_kind": "owner",
+    "channel": "api"
+   }
+  ]
+ }
+}

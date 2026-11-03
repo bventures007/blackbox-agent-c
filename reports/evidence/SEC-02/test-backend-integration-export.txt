@@ -1,0 +1,37 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+ RUN  v4.1.12 /Users/benediktsauter/GitHub/blackbox-agent-c
+ ✓ tests/backend/integration/journal.test.ts > JOURNAL-01 append-only enforcement > runtime roles are not owners, superusers or BYPASSRLS and have no UPDATE/DELETE/TRUNCATE on journal tables 17ms
+ ✓ tests/backend/integration/journal.test.ts > JOURNAL-01 append-only enforcement > UPDATE/DELETE/TRUNCATE are rejected for every runtime role (directly and through a function) while appends work 80ms
+ ✓ tests/backend/integration/journal.test.ts > JOURNAL-02 corrections, duplicates, conflicts, replay > duplicate delivery has no business effect; different content with the same identity opens a conflict and keeps the original 29ms
+ ✓ tests/backend/integration/journal.test.ts > JOURNAL-02 corrections, duplicates, conflicts, replay > a correction appends a superseding entry; both versions remain readable and linked 12ms
+ ✓ tests/backend/integration/journal.test.ts > JOURNAL-02 corrections, duplicates, conflicts, replay > replay of the same observations yields a stable journal (no new entries, same sequence) 10ms
+ ✓ tests/backend/integration/journal.test.ts > TENANT-01..04 isolation > TENANT-01: the same external ids in two tenants never cross (list/detail/history/search as A) 170ms
+ ✓ tests/backend/integration/journal.test.ts > TENANT-01..04 isolation > TENANT-02: runtime roles without tenant context read nothing and cannot write; cross-tenant writes are rejected 32ms
+ ✓ tests/backend/integration/sources.test.ts > IMPORT-01 import plans > persists resolved UTC boundaries per preset, versions revisions and proposes the workspace start to later sources 83ms
+ ✓ tests/backend/integration/journal.test.ts > TENANT-01..04 isolation > TENANT-03: pooled connections carry no tenant context after success, failure and cancellation 69ms
+ ✓ tests/backend/integration/journal.test.ts > TENANT-01..04 isolation > TENANT-04: cross-tenant foreign references and cursors are denied without sensitive content 7ms
+ ✓ tests/backend/integration/journal.test.ts > INGEST-01/02/04/05/06 > INGEST-01: a payload tenant_id/connection_id cannot redirect ingestion; the verified connection decides 13ms
+ ✓ tests/backend/integration/export.test.ts > SEC-02 authorized workspace export > refuses everything but an owner session with CSRF: anonymous 401, agent key 403, missing CSRF 403, bad body 422 394ms
+ ✓ tests/backend/integration/journal.test.ts > INGEST-01/02/04/05/06 > INGEST-02: concurrent duplicate deliveries produce one business effect and a growing delivery audit 22ms
+ ✓ tests/backend/integration/journal.test.ts > INGEST-01/02/04/05/06 > INGEST-04: a late event keeps its original effective time and is recorded at the new position 19ms
+ ✓ tests/backend/integration/journal.test.ts > INGEST-01/02/04/05/06 > INGEST-05/06: run counters advance durably; reconciliation re-delivery recovers nothing twice and poison payloads are visible 19ms
+ ✓ tests/backend/integration/journal.test.ts > SEC-03 > is not applicable: no AI/email extraction feature exists; free text never becomes a business fact 0ms
+ ✓ tests/backend/integration/sources.test.ts > HEALTH-01 / IMPORT-04 source health and readiness > keeps last successful check and last new event distinct; failures and credential checks never claim sync 68ms
+ ✓ tests/backend/integration/export.test.ts > SEC-02 authorized workspace export > preview reports the inventory without an audit row; the download carries only the owner's rows, lists restricted evidence by status and is audited 84ms
+ ✓ tests/backend/integration/export.test.ts > SEC-02 authorized workspace export > the second tenant exported on its own sees only its own rows (symmetry of the boundary) 5ms
+ ✓ tests/backend/integration/export.test.ts > SEC-02 authorized workspace export > recorded-time window and the byte cap bound the bundle; truncation names continue_from and is audited as truncated 16ms
+ ✓ tests/backend/integration/sources.test.ts > HEALTH-01 / IMPORT-04 source health and readiness > readiness follows the datasets actually present, not source cards; unrelated sources never block 265ms
+ ✓ tests/backend/integration/sources.test.ts > INGEST-01 signed generic input > accepts a valid signature once, rejects corrupted signature/body, replays, stale timestamps and foreign connections 55ms
+ ✓ tests/backend/integration/sources.test.ts > bank CSV and policy producers > previews rows with match detection, commits credits with payout links, dedupes re-imports and opens ambiguous-match cases 80ms
+ ✓ tests/backend/integration/sources.test.ts > bank CSV and policy producers > records versioned policy rules as facts 27ms
+ ✓ tests/backend/integration/sources.test.ts > PILOT-04 review workflow > applies owner-only, revision-checked, idempotent actions that append review.decision entries with provenance 249ms
+ ✓ tests/backend/integration/sources.test.ts > PILOT-01 backups & recovery surface > reports the wrapper/scheduler status file truthfully: unprotected without it, scheduled/protected with it, overlayed by retention overrides 16ms
+ ✓ tests/backend/integration/sources.test.ts > PILOT-06 critical storage pauses new ingestion > refuses new ingestion with a retryable storage_critical error while any volume is critical and accepts again after recovery; reads stay available 27ms
+ ✓ tests/backend/integration/sources.test.ts > PILOT-08 evidence restriction > owner restriction appends a ledger row + audit event, removes live content and answers an explicit status on every content path; agents cannot restrict 247ms
+ ✓ tests/backend/integration/sources.test.ts > PILOT-07 data-key rotation > re-seals every connection/producer secret to the next generation in one verified transaction; mixed generations and wrong versions are refused 22ms
+ ✓ tests/backend/integration/sources.test.ts > QUERY-01/02 question boundary (engine stub) > validates parameters for all 24 intents, attaches readiness, and never fabricates a result without the engine 133ms
+ Test Files  3 passed (3)
+      Tests  30 passed (30)
+   Start at  12:10:39
+   Duration  2.66s (transform 566ms, setup 0ms, import 1.75s, tests 3.84s, environment 0ms)

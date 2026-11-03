@@ -1,0 +1,209 @@
+Timing is off.
+                                                QUERY PLAN                                                
+----------------------------------------------------------------------------------------------------------
+ Seq Scan on tenant_sequences  (cost=0.00..3.67 rows=1 width=8) (actual time=0.005..0.007 rows=1 loops=1)
+   Filter: (tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid)
+   Rows Removed by Filter: 53
+   Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=64
+ Planning Time: 0.289 ms
+ Execution Time: 0.027 ms
+(8 rows)
+
+                                                                          QUERY PLAN                                                                           
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.42..119.81 rows=29 width=40) (actual time=0.034..0.035 rows=0 loops=1)
+   Buffers: shared hit=6
+   ->  Index Scan using journal_entries_tenant_sequence_key on journal_entries  (cost=0.42..119.81 rows=29 width=40) (actual time=0.034..0.034 rows=0 loops=1)
+         Index Cond: ((tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid) AND (journal_sequence > 276763))
+         Buffers: shared hit=6
+ Planning:
+   Buffers: shared hit=241
+ Planning Time: 0.768 ms
+ Execution Time: 0.044 ms
+(9 rows)
+
+                                                                                                                                   QUERY PLAN                                                                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1340.51..1340.59 rows=33 width=768) (actual time=3.275..3.282 rows=69 loops=1)
+   Buffers: shared hit=254 read=4
+   ->  Sort  (cost=1340.51..1340.59 rows=33 width=768) (actual time=3.274..3.278 rows=69 loops=1)
+         Sort Key: journal_sequence
+         Sort Method: quicksort  Memory: 94kB
+         Buffers: shared hit=254 read=4
+         ->  Bitmap Heap Scan on journal_entries  (cost=1037.83..1339.67 rows=33 width=768) (actual time=3.191..3.219 rows=69 loops=1)
+               Recheck Cond: ((entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb) OR ((tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid) AND (record_id = 'order:#1001-34e7-1491-be0820'::text) AND (journal_sequence > 0) AND (journal_sequence <= 276763)))
+               Filter: ((journal_sequence > 0) AND (journal_sequence <= 276763) AND (tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid))
+               Heap Blocks: exact=8
+               Buffers: shared hit=251 read=4
+               ->  BitmapOr  (cost=1037.83..1037.83 rows=77 width=0) (actual time=3.169..3.170 rows=0 loops=1)
+                     Buffers: shared hit=243 read=4
+                     ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1033.21 rows=73 width=0) (actual time=1.965..1.965 rows=69 loops=1)
+                           Index Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+                           Buffers: shared hit=243
+                     ->  Bitmap Index Scan on journal_entries_record_idx  (cost=0.00..4.61 rows=4 width=0) (actual time=1.204..1.204 rows=3 loops=1)
+                           Index Cond: ((tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid) AND (record_id = 'order:#1001-34e7-1491-be0820'::text) AND (journal_sequence > 0) AND (journal_sequence <= 276763))
+                           Buffers: shared read=4
+ Planning:
+   Buffers: shared hit=126
+ Planning Time: 1.075 ms
+ Execution Time: 3.410 ms
+(23 rows)
+
+                                                                     QUERY PLAN                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1320.09..1320.17 rows=29 width=768) (actual time=1.333..1.338 rows=69 loops=1)
+   Buffers: shared hit=251
+   ->  Sort  (cost=1320.09..1320.17 rows=29 width=768) (actual time=1.332..1.335 rows=69 loops=1)
+         Sort Key: journal_sequence
+         Sort Method: quicksort  Memory: 94kB
+         Buffers: shared hit=251
+         ->  Bitmap Heap Scan on journal_entries  (cost=1033.21..1319.39 rows=29 width=768) (actual time=1.285..1.303 rows=69 loops=1)
+               Recheck Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+               Filter: ((journal_sequence > 0) AND (journal_sequence <= 276763) AND (tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid))
+               Heap Blocks: exact=8
+               Buffers: shared hit=251
+               ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1033.21 rows=73 width=0) (actual time=1.280..1.280 rows=69 loops=1)
+                     Index Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+                     Buffers: shared hit=243
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.123 ms
+ Execution Time: 1.386 ms
+(18 rows)
+
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=1319.28..1319.29 rows=1 width=8) (actual time=1.305..1.306 rows=1 loops=1)
+   Buffers: shared hit=251
+   ->  Bitmap Heap Scan on journal_entries  (cost=1033.21..1319.21 rows=29 width=0) (actual time=1.284..1.301 rows=69 loops=1)
+         Recheck Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+         Filter: ((journal_sequence <= 276763) AND (tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid))
+         Heap Blocks: exact=8
+         Buffers: shared hit=251
+         ->  Bitmap Index Scan on journal_entries_entity_idx  (cost=0.00..1033.21 rows=73 width=0) (actual time=1.280..1.280 rows=69 loops=1)
+               Index Cond: (entity_refs @> '{"order": "#1001-34e7-1491-be0820"}'::jsonb)
+               Buffers: shared hit=243
+ Planning:
+   Buffers: shared hit=7
+ Planning Time: 0.111 ms
+ Execution Time: 1.325 ms
+(14 rows)
+
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=72005.48..72012.19 rows=25 width=49) (actual time=65.991..68.038 rows=21 loops=1)
+   Group Key: event_type
+   Buffers: shared hit=5454 read=60538
+   ->  Gather Merge  (cost=72005.48..72011.31 rows=50 width=49) (actual time=65.983..68.022 rows=63 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=5454 read=60538
+         ->  Sort  (cost=71005.46..71005.52 rows=25 width=49) (actual time=63.148..63.150 rows=21 loops=3)
+               Sort Key: event_type
+               Sort Method: quicksort  Memory: 26kB
+               Buffers: shared hit=5454 read=60538
+               Worker 0:  Sort Method: quicksort  Memory: 26kB
+               Worker 1:  Sort Method: quicksort  Memory: 26kB
+               ->  Partial HashAggregate  (cost=71004.62..71004.88 rows=25 width=49) (actual time=63.079..63.083 rows=21 loops=3)
+                     Group Key: event_type
+                     Batches: 1  Memory Usage: 24kB
+                     Buffers: shared hit=5438 read=60538
+                     Worker 0:  Batches: 1  Memory Usage: 24kB
+                     Worker 1:  Batches: 1  Memory Usage: 24kB
+                     ->  Parallel Seq Scan on journal_entries  (cost=0.00..70523.02 rows=38528 width=33) (actual time=0.039..57.813 rows=29330 loops=3)
+                           Filter: ((tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid) AND (track = 'source'::journal_track))
+                           Rows Removed by Filter: 211930
+                           Buffers: shared hit=5438 read=60538
+ Planning:
+   Buffers: shared hit=14
+ Planning Time: 0.117 ms
+ Execution Time: 68.099 ms
+(27 rows)
+
+                                                                                               QUERY PLAN                                                                                               
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ CTE Scan on t  (cost=72.69..74.71 rows=100 width=32) (actual time=0.951..11.912 rows=21 loops=1)
+   Filter: (event_type IS NOT NULL)
+   Rows Removed by Filter: 1
+   Buffers: shared hit=26 read=56
+   CTE t
+     ->  Recursive Union  (cost=0.57..72.69 rows=101 width=32) (actual time=0.947..11.894 rows=22 loops=1)
+           Buffers: shared hit=26 read=56
+           ->  Result  (cost=0.57..0.58 rows=1 width=32) (actual time=0.946..0.947 rows=1 loops=1)
+                 Buffers: shared hit=1 read=3
+                 InitPlan 3 (returns $1)
+                   ->  Limit  (cost=0.42..0.57 rows=1 width=17) (actual time=0.942..0.942 rows=1 loops=1)
+                         Buffers: shared hit=1 read=3
+                         ->  Index Only Scan using journal_entries_event_idx on journal_entries journal_entries_1  (cost=0.42..41882.26 rows=290258 width=17) (actual time=0.940..0.940 rows=1 loops=1)
+                               Index Cond: ((tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid) AND (event_type IS NOT NULL))
+                               Heap Fetches: 0
+                               Buffers: shared hit=1 read=3
+           ->  WorkTable Scan on t t_1  (cost=0.00..7.11 rows=10 width=32) (actual time=0.496..0.496 rows=1 loops=22)
+                 Filter: (event_type IS NOT NULL)
+                 Rows Removed by Filter: 0
+                 Buffers: shared hit=25 read=53
+                 SubPlan 2
+                   ->  Result  (cost=0.68..0.69 rows=1 width=32) (actual time=0.519..0.519 rows=1 loops=21)
+                         Buffers: shared hit=25 read=53
+                         InitPlan 1 (returns $3)
+                           ->  Limit  (cost=0.42..0.68 rows=1 width=17) (actual time=0.518..0.518 rows=1 loops=21)
+                                 Buffers: shared hit=25 read=53
+                                 ->  Index Only Scan using journal_entries_event_idx on journal_entries  (cost=0.42..24765.78 rows=96753 width=17) (actual time=0.517..0.517 rows=1 loops=21)
+                                       Index Cond: ((tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid) AND (event_type IS NOT NULL) AND (event_type > t_1.event_type))
+                                       Heap Fetches: 0
+                                       Buffers: shared hit=25 read=53
+ Planning:
+   Buffers: shared hit=6
+ Planning Time: 0.532 ms
+ Execution Time: 12.132 ms
+(34 rows)
+
+                                                       QUERY PLAN                                                       
+------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.00..0.26 rows=1 width=4) (actual time=0.005..0.005 rows=1 loops=1)
+   Buffers: shared hit=1
+   ->  Seq Scan on journal_entries  (cost=0.00..76888.86 rows=290255 width=4) (actual time=0.005..0.005 rows=1 loops=1)
+         Filter: ((entity_refs <> '{}'::jsonb) AND (tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid))
+         Rows Removed by Filter: 1
+         Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=5
+ Planning Time: 0.079 ms
+ Execution Time: 0.008 ms
+(10 rows)
+
+## (d) 30-day summary — the engine computes /v1/summary and tenant-wide intents from RAM (no journal SQL; only the tenant_sequences point read for the barrier). Reference SQL over journal_entries_occurred_idx for the same window (source track, effect-once by observation key):
+                                                                                                                                       QUERY PLAN                                                                                                                                       
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=70520.62..70769.92 rows=200 width=160) (actual time=1915.652..1920.908 rows=4 loops=1)
+   Group Key: ((src.payload ->> 'currency'::text))
+   Buffers: shared hit=18370 read=917
+   ->  Sort  (cost=70520.62..70531.75 rows=4451 width=203) (actual time=1915.188..1918.336 rows=6647 loops=1)
+         Sort Key: ((src.payload ->> 'currency'::text))
+         Sort Method: quicksort  Memory: 1273kB
+         Buffers: shared hit=18370 read=917
+         ->  Subquery Scan on src  (cost=70173.00..70250.89 rows=4451 width=203) (actual time=1896.380..1911.724 rows=6647 loops=1)
+               Buffers: shared hit=18367 read=917
+               ->  Unique  (cost=70173.00..70195.25 rows=4451 width=211) (actual time=1896.222..1910.432 rows=6647 loops=1)
+                     Buffers: shared hit=18367 read=917
+                     ->  Sort  (cost=70173.00..70184.13 rows=4451 width=211) (actual time=1896.219..1900.886 rows=6647 loops=1)
+                           Sort Key: (COALESCE(NULLIF(journal_entries.correlation_id, ''::text), ((COALESCE((journal_entries.connection_id)::text, '-'::text) || ':'::text) || journal_entries.provider_event_id), (journal_entries.entry_id)::text)), journal_entries.journal_sequence
+                           Sort Method: quicksort  Memory: 1733kB
+                           Buffers: shared hit=18367 read=917
+                           ->  Bitmap Heap Scan on journal_entries  (cost=3232.14..69903.27 rows=4451 width=211) (actual time=1762.691..1854.618 rows=6647 loops=1)
+                                 Recheck Cond: ((tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid) AND (event_type = ANY ('{payment.captured,payment.fee_booked,refund.completed,payout.sent,bank.credit_booked}'::text[])))
+                                 Filter: ((occurred_at >= '2026-09-01 00:00:00+00'::timestamp with time zone) AND (occurred_at < '2026-10-01 00:00:00+00'::timestamp with time zone) AND (track = 'source'::journal_track))
+                                 Rows Removed by Filter: 56825
+                                 Heap Blocks: exact=18360
+                                 Buffers: shared hit=18364 read=917
+                                 ->  Bitmap Index Scan on journal_entries_event_idx  (cost=0.00..3231.03 rows=52488 width=0) (actual time=1754.520..1754.520 rows=63472 loops=1)
+                                       Index Cond: ((tenant_id = '36eaa0ee-a91e-4af1-acf0-a5220cfc2950'::uuid) AND (event_type = ANY ('{payment.captured,payment.fee_booked,refund.completed,payout.sent,bank.credit_booked}'::text[])))
+                                       Buffers: shared hit=4 read=917
+ Planning:
+   Buffers: shared hit=338 read=32
+ Planning Time: 156.306 ms
+ Execution Time: 1921.696 ms
+(28 rows)
+
