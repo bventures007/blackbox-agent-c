@@ -1,0 +1,132 @@
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.41s
+     Running unittests src/lib.rs (target/release/deps/blackbox_domain-cf3178cab1c81241)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/golden.rs (target/release/deps/golden-e9d0395fde8b5c21)
+
+running 14 tests
+test currency_mismatch_is_a_conflict_not_a_sum ... ok
+test derived_before_source_gives_same_state ... ok
+test expectation_model_matches_golden_file ... ok
+test golden_checkpoints_source_only ... ok
+test duplicate_concurrent_deliveries_do_not_change_state ... ok
+test item_view_reports_unknown_without_basis ... ok
+test golden_checkpoints_with_derived_entries ... ok
+test late_payment_failure_does_not_change_capture ... ok
+test missing_bank_keeps_in_transit_and_unknown_bank ... ok
+test missing_credit_source_keeps_refund_known_and_credit_unknown ... ok
+test reorder_independent_entries_same_state ... ok
+test supersedes_replaces_assertion_and_keeps_history ... ok
+test tenant_collision_isolated ... ok
+test mutated_scenarios_hold_all_checkpoints ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/main.rs (target/release/deps/blackbox_engine-40fa3c49f0b699a7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/corpus.rs (target/release/deps/corpus-667017139302112f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/golden_http.rs (target/release/deps/golden_http-956757c473d62648)
+
+running 4 tests
+test golden_checkpoints_over_http_both_shapes_and_tenant_isolation ... ok
+test adversarial_variants_over_http ... ok
+test late_correction_supersedes_with_as_of_and_history_pages ... ok
+test mutated_scenario_over_http_with_other_currency ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.66s
+
+     Running tests/intents_http.rs (target/release/deps/intents_http-60535e0b40802f3e)
+
+running 1 test
+test all_24_intents_positive_and_missing_data ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/ops_http.rs (target/release/deps/ops_http-fd053e4ec6729a80)
+
+running 5 tests
+test eviction_under_tiny_budget_keeps_answers_correct_with_cold_reads ... ok
+test load_sample_hot_state_p95 ... ok
+test restart_with_snapshot_then_corrupt_snapshot_rebuild ... ok
+test unapplied_tail_of_1000_entries_applies_within_30s_with_concurrent_ingestion ... ok
+test projection_behind_and_admission_limits ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.25s
+
+     Running tests/rls_gin_index.rs (target/release/deps/rls_gin_index-e9f6518ce7a6b896)
+
+running 1 test
+test entity_reads_use_the_gin_index_under_rls ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.47s
+
+     Running unittests src/lib.rs (target/release/deps/blackbox_engine_tests-d8e1200a9a03327c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/release/deps/blackbox_projections-d74934448681dcf6)
+
+running 3 tests
+test evict::tests::history_only_eviction_budgets_the_history_part_not_the_retained_undo_logs ... ok
+test snapshot::tests::snapshot_roundtrip_is_lossless_and_rejects_corruption ... ok
+test summaries::tests::exact_cursor_keys_lru_eviction_and_tenant_invalidation ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (target/release/deps/blackbox_query-8fa2ab6775efda36)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/release/deps/blackbox_storage-5649650dd8837ef2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests blackbox_domain
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests blackbox_engine_tests
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests blackbox_projections
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests blackbox_query
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests blackbox_storage
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+cargo exit 0

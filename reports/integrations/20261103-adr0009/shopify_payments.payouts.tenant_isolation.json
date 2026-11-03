@@ -1,0 +1,26 @@
+{
+  "row": "shopify_payments.payouts",
+  "kind": "tenant_isolation",
+  "tested_commit": "466ff09c4d1b67e79a9b46fdbae9cbabab033f14",
+  "recorded_at": "2026-11-03T22:33:48Z",
+  "command": "pnpm test:backend:integration (tests/backend/integration/{journal,sources,export,mcp,auth}.test.ts, two synthetic tenants with identical external ids as roles bb_api/bb_worker/bb_engine) + worker pipeline two-tenant test",
+  "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop 29.9.2 VM 8 vCPU / 9.7 GiB shared with other projects' containers), node v25.9.0, pnpm 11.20.0, cargo 1.83.0; throwaway postgres:16-alpine containers blackbox-agent-c-devpg (19183), blackbox-agent-c-workerpg (19192), blackbox-agent-c-enginepg (19184); host load average about 5 during the suites (2026-11-03 23:31 local)",
+  "case_ids": [
+    "TENANT-01",
+    "TENANT-02",
+    "TENANT-03",
+    "TENANT-04",
+    "MCP-05",
+    "SLICE-01"
+  ],
+  "modes": [
+    "local_standalone"
+  ],
+  "observed": "cross-tenant reads/writes denied, unscoped statements fail closed, composite FK scope enforced, cross-tenant MCP cursor denied, export never includes the other tenant, worker pipeline two-tenant collision isolated; backend integration 8 files / 59 tests and worker 35 tests passed on 466ff09",
+  "result": "passed",
+  "outputs": [
+    "reports/evidence/CI-01-adr0009/test-backend-integration.txt",
+    "reports/evidence/CI-01-adr0009/test-worker.txt"
+  ],
+  "note": "Sanitized summary of the actual suite outputs named in outputs (counts, run ids, timings); no keys, cookies, payloads or personal data. Synthetic provider-shaped fixture, not live provider evidence."
+}

@@ -1,0 +1,23 @@
+{
+  "row": "shopify.allocations",
+  "kind": "recovery",
+  "tested_commit": "466ff09c4d1b67e79a9b46fdbae9cbabab033f14",
+  "recorded_at": "2026-11-03T22:32:26Z",
+  "command": "ENGINE_BINARY=$PWD/target/release/blackbox-engine ENGINE_TEST_PGPORT=19184 cargo test --workspace --release -- --test-threads=2 (crates/domain golden + proptests, apps/engine/tests/{golden_http,intents_http,ops_http}.rs)",
+  "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop 29.9.2 VM 8 vCPU / 9.7 GiB shared with other projects' containers), node v25.9.0, pnpm 11.20.0, cargo 1.83.0; throwaway postgres:16-alpine containers blackbox-agent-c-devpg (19183), blackbox-agent-c-workerpg (19192), blackbox-agent-c-enginepg (19184); host load average about 5 during the suites (2026-11-03 23:31 local)",
+  "case_ids": [
+    "LOCAL-09",
+    "JOURNAL-02",
+    "DOMAIN-01",
+    "SLICE-01"
+  ],
+  "modes": [
+    "local_standalone"
+  ],
+  "observed": "golden checkpoints and adversarial variants (duplicates, late failure, reorder, missing bank/credit source, tenant collision), supersedes correction, snapshot restart, corrupt-snapshot rebuild, 1000-entry unapplied tail, admission limits and load sample all passed on 466ff09 (14 + 4 + 1 + 5 + 1 tests ok)",
+  "result": "passed",
+  "outputs": [
+    "reports/evidence/CI-01-adr0009/cargo-test-release.txt"
+  ],
+  "note": "Sanitized summary of the actual suite outputs named in outputs (counts, run ids, timings); no keys, cookies, payloads or personal data. Synthetic provider-shaped fixture, not live provider evidence."
+}
