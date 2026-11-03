@@ -1,0 +1,1 @@
+{"credential_id": "87ef277e-a810-4ef7-a201-0138f0f99b00", "grant": "workspace.read_business", "notice": "Shown once. Provide it to the MCP bridge through BLACKBOX_AGENT_KEY or a key file; never as a command argument."}

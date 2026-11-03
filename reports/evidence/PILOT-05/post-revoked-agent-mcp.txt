@@ -1,0 +1,15 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{"schema_version":1,"occurred_at":"2026-11-03T19:55:50.766Z","level":"INFO","event_name":"mcp.started","message":"MCP bridge connected over stdio","component":"mcp","service_version":"0.1.0","scope":"installation","action_code":"stdio"}
+{"schema_version":1,"occurred_at":"2026-11-03T19:55:50.962Z","level":"WARN","event_name":"mcp.tool_failed","message":"Tool call failed","component":"mcp","service_version":"0.1.0","scope":"installation","error_code":"unauthenticated","retryable":false}
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"error\":{\"status\":401,\"code\":\"unauthenticated\",\"message\":\"authentication required\",\"retryable\":false}}"
+    }
+  ],
+  "isError": true
+}
+{"error":{"code":"tool_is_error","message":"Tool 'get_readiness' returned isError:true."}}
+mcp exit 5

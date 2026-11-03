@@ -2,6 +2,10 @@
 
 ## Progress log (newest first)
 
+### 2026-11-03 — PILOT-05 lifecycle test with owner approval
+Done: real Mac sleep/wake (3 s) and a 400 s stack freeze across a scheduled poll: one coalesced run, cursors retained, health recovered within 20 s, revoked agent denied on API and MCP, no autostart entry; recorded as passed with limitations. Open: PILOT-09/OPS-05 (performance targets on this host), SLICE-02/SOURCE-01 blocked, no independent review.
+
+
 ### 2026-11-03 — Contract-size performance re-measurement, RLS index containment fix (ADR-0008)
 Done: fresh install of the committed tree with a 552k-entry contract corpus; root cause for slow entity reads under RLS fixed (jsonb_contains LEAKPROOF, GIN fastupdate off, migration 0005); API fixed-arrival success 59.6 % -> 99.7 %; recovery targets hold (tail 2 s, rebuild 12-24 s, restore 107-147 s); Shopify register rows re-recorded. Open: PILOT-09/OPS-05 still failed (15/26 targets, latency and MCP fixed-arrival success on a loaded shared host), PILOT-05 needs the owner's sleep/wake session, SLICE-02/SOURCE-01 blocked, no independent review.
 

@@ -1,0 +1,2 @@
+201
+{"connection":{"connection_id":"6859a42f-0e00-493a-b7ac-2b99b7c56dfc","provider":"shopify","display_name":"PILOT-05 sleep test shop","account_ref":null,"status":"configured","config":{"base_url":"http://host.docker.internal:19182","page_size":7,"shop_domain":"fixture-42.myshopify.com"},"has_secret":true,"created_at":"2026-11-03T19:21:51.891Z","updated_at":"2026-11-03T19:21:51.891Z","disconnected_at":null}}

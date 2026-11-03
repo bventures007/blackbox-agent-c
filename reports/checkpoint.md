@@ -12,9 +12,8 @@ Active acceptance status (83 cases; deferred 37 remain not_started):
 | --- | --- |
 | blocked_external | 2 |
 | failed | 2 |
-| implemented_unverified | 1 |
 | not_applicable | 1 |
-| passed | 77 |
+| passed | 78 |
 
 
 ## Evidence highlights
@@ -35,7 +34,7 @@ Contract-size re-measurement on 2026-11-03 (fresh install of the committed tree,
 Follow-up on 2026-11-03 (same commit lineage): SEC-02 now passes (authorized tenant export with audit, two-tenant isolation test, exercised on the install); PERF-01 now passes (EXPLAIN evidence, indexed-SQL reference agrees with the API for 200 hot and 36 cold orders, a full-journal scan on the readiness hot path was removed, reducers exist only in Rust). The engine's no-snapshot rebuild dropped from 196 s to 45 s and steady memory to about 1.1 GiB on a corpus that grew to roughly 900k entries, but the full smoke protocol still fails on this shared host (9 of 26 targets hold; see reports/performance.json and reports/evidence/PILOT-09-followup). Evidence: reports/evidence/SEC-02, PERF-01, PILOT-09-followup.
 
 - PILOT-09 / OPS-05 failed: 18 of 26 smoke targets missed on the shared developer host (8 vCPU / 9.7 GiB Docker VM shared with ~40 containers of other projects, host load 7–132): worst per-class p95 ≈ 7 s, success 0.8 % at fixed 40 req/s, durable ack p95 32–290 s, projection lag p95 11.4 s, engine steady RSS 1,488 MiB > 1,024, rebuild 196 s > 180. Dataset, restart, restore and peak-memory bounds hold; backpressure and durability behaved (503 with Retry-After, applied = committed after every run, golden verified). The engine RSS and rebuild time are real findings, not only host noise. Full numbers: reports/performance.json.
-- PILOT-05 implemented_unverified: real Mac sleep/wake/reboot and provider-account replacement need the owner's session and an authorized account.
+- PILOT-05 passed on 2026-11-03 with the owner's approval: real sleep/wake (3 s, maintenance DarkWake) plus a 400 s freeze of the whole stack across a scheduled poll — one coalesced run, cursors kept, health recovered in 20 s, revoked agent still denied, no autostart (reports/evidence/PILOT-05).
 - SLICE-02, SOURCE-01 blocked_external: no authorized Shopify store or token. SEC-03 not_applicable (no extraction feature).
 
 ## Environment events
@@ -63,6 +62,5 @@ Open http://127.0.0.1:19180, sign in with the key shown once by setup, run the d
 1. Re-run the performance smoke on a dedicated 4 vCPU / 8 GiB host starting from migration 0005; remaining suspects are API connections held idle-in-transaction while awaiting the engine, engine admission rejections on the MCP fixed-arrival path and the engine's per-entry memory floor.
 2. Reduce the per-entry metadata floor in the engine and the PostgreSQL work per request; re-run the smoke on a quiet host.
 3. Provide an authorized read-only Shopify store token (SLICE-02, SOURCE-01) and an independent reviewer for the register rows.
-4. Owner-session checks for sleep/wake and account replacement (PILOT-05).
 
 Status log: docs/status.md. Comparison with the other agent at identical conditions was not possible on this shared host.
