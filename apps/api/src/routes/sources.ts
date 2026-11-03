@@ -49,7 +49,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
   app.get("/api/sources", { preHandler: [guards.requireRead] }, async (request) => {
     const tenantId = guards.tenantOf(request);
     const list = ctx.connections ? await ctx.connections.list(tenantId) : [];
-    const readiness = await ctx.readiness.compute(tenantId);
+    const readiness = await ctx.readiness.compute(tenantId, { exact: true });
     const providers = (ctx.connections?.knownProviders() ?? []).filter((p) => p.release_scope === "first_release");
     const catalogue = providers.map((p) => {
       const conns = list.filter((c) => c.provider === p.id);
@@ -89,7 +89,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
       withTenant(ctx.pool, tenantId, (c) => ctx.connections!.healthFor(c, id)),
       ctx.importPlans.current(tenantId, id),
       ctx.connections!.listRuns(tenantId, id),
-      ctx.readiness.compute(tenantId),
+      ctx.readiness.compute(tenantId, { exact: true }),
     ]);
     const proposal = await ctx.importPlans.proposal(tenantId);
     return { connection, health, import_plan: plan, import_plan_proposal: proposal, runs, readiness: readiness.questions.filter((q) => q.sources.some((s) => s.connection_id === id)) };
@@ -145,7 +145,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
   });
 
   app.get("/api/sources/readiness", { preHandler: [guards.requireRead] }, async (request) => {
-    const r = await ctx.readiness.compute(guards.tenantOf(request));
+    const r = await ctx.readiness.compute(guards.tenantOf(request), { exact: true });
     return { observed_at: r.observed_at, datasets_present: r.datasets_present, datasets_missing: r.datasets_missing, questions: r.questions };
   });
 

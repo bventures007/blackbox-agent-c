@@ -163,6 +163,7 @@ export async function startTestApp(options: { engineUrl?: string; logLevel?: Api
     evidenceDir: install.evidenceDir,
     logsDir: install.logsDir,
     snapshotDir: install.snapshotDir,
+    pgPoolMax: 8,
     engineUrl: options.engineUrl ?? "stub",
     engineToken: undefined,
     engineTokenFile: undefined,

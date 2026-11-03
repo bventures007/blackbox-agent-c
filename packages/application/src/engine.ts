@@ -29,14 +29,24 @@ export interface EnginePage {
   cursor?: string | null;
 }
 
-export interface EngineStateRequest {
+/**
+ * The verified principal behind a request. It is sent to the engine as the `X-Principal-Id` header (never in the
+ * body) so the engine's per-agent admission limit (8 concurrent queries per principal, engine-rpc.json) applies in
+ * addition to the per-workspace and global limits. Authorization is not derived from it: the tenant comes from the
+ * verified credential and the engine trusts only the shared token.
+ */
+export interface EnginePrincipal {
+  principal_id?: string;
+}
+
+export interface EngineStateRequest extends EnginePrincipal {
   tenant_id: string;
   entity_type: string;
   entity_id: string;
   consistency: ConsistencyRequest;
 }
 
-export interface EngineQueryRequest {
+export interface EngineQueryRequest extends EnginePrincipal {
   tenant_id: string;
   intent: string;
   params: Record<string, unknown>;
@@ -44,7 +54,7 @@ export interface EngineQueryRequest {
   page?: EnginePage;
 }
 
-export interface EngineHistoryRequest {
+export interface EngineHistoryRequest extends EnginePrincipal {
   tenant_id: string;
   entity_type: string;
   entity_id: string;
@@ -52,7 +62,7 @@ export interface EngineHistoryRequest {
   consistency: ConsistencyRequest;
 }
 
-export interface EngineSummaryRequest {
+export interface EngineSummaryRequest extends EnginePrincipal {
   tenant_id: string;
   kind: "thirty_day_summary";
   from: string;
@@ -123,10 +133,14 @@ export class HttpEngineClient implements EngineClient {
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     const started = process.hrtime.bigint();
     try {
+      // The principal travels as a header (engine admission per agent); it is never part of the request body.
+      const { principal_id, ...payload } = (body ?? {}) as EnginePrincipal & Record<string, unknown>;
+      const headers: Record<string, string> = { "content-type": "application/json", "x-engine-token": this.token };
+      if (typeof principal_id === "string" && /^[0-9a-f-]{36}$/i.test(principal_id)) headers["x-principal-id"] = principal_id;
       const res = await fetch(`${this.baseUrl}${path}`, {
         method,
-        headers: { "content-type": "application/json", "x-engine-token": this.token },
-        body: body === undefined ? undefined : JSON.stringify(body),
+        headers,
+        body: body === undefined ? undefined : JSON.stringify(payload),
         signal: controller.signal,
       });
       const text = await res.text();

@@ -52,7 +52,7 @@ export function createContext(options: BuildOptions): AppContext {
   debugGate.reset(); // startup always returns to INFO
   const collector = options.collector ?? new FileCollector({ dir: config.logsDir, capBytes: config.logCapBytes, retentionDays: config.logRetentionDays });
   const logger = options.logger ?? createLogger({ component: "api", serviceVersion: config.serviceVersion, instanceId: config.instanceId, level: config.logLevel, sinks: [collector], debugGate, stream: options.logStream });
-  const pool = options.pool ?? createPool(config.databaseUrl, { applicationName: "blackbox-api" });
+  const pool = options.pool ?? createPool(config.databaseUrl, { applicationName: "blackbox-api", max: config.pgPoolMax });
   const auth = new AuthService({ pool, logger, secretsDir: config.secretsDir });
   const evidence = new EvidenceStore(config.evidenceDir);
   const journal = new JournalService(pool);

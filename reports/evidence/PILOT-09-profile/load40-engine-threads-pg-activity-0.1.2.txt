@@ -1,0 +1,19 @@
+engine threads before: blackbox-engine(x1)=240;tokio-rt-worker(x8)=344814;
+{"in_flight":0,"admitted":89265,"rejected":2866,"sc":[32776,3396],"cc":[5498,13485],"rss":1166}
+--- t+10s
+engine threads: blackbox-engine(x1)=240;tokio-rt-worker(x8)=346369;
+pg_stat_activity (count user|state|wait|query):
+   2 bb_engine|active|-|SELECT entry_id, tenant_id, journal_sequence, track::text AS track, re
+{"in_flight":16,"admitted":90239,"rejected":2866,"sc":[33120,3396],"cc":[5581,13643],"rss":1168}
+--- t+20s
+engine threads: blackbox-engine(x1)=241;tokio-rt-worker(x8)=348467;
+pg_stat_activity (count user|state|wait|query):
+   1 bb_api|active|-|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr
+{"in_flight":18,"admitted":91521,"rejected":2866,"sc":[33560,3396],"cc":[5686,13858],"rss":1170}
+--- t+30s
+engine threads: blackbox-engine(x1)=241;tokio-rt-worker(x8)=350560;
+pg_stat_activity (count user|state|wait|query):
+   1 bb_worker|idle in transaction|-|BEGIN
+   1 bb_api|active|-|SELECT cr.credential_id, cr.principal_id, cr.tenant_id, cr.purpose, cr
+{"in_flight":18,"admitted":92825,"rejected":2866,"sc":[34015,3396],"cc":[5783,14077],"rss":1171}
+engine threads after: blackbox-engine(x1)=241;tokio-rt-worker(x8)=352731;

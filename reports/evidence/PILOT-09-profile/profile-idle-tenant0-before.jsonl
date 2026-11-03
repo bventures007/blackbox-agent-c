@@ -1,0 +1,30 @@
+{"name":"api.hot_state.total_ms","n":40,"p50":37.6,"p95":111.1,"max":391.6,"engine_duration_ms_p50":24,"engine_duration_ms_p95":78,"response_bytes_p50":26031,"response_bytes_max":252986,"missing_inputs":{"history.evicted_use_cold_read":35}}
+{"name":"engine.direct.v1_state.total_ms","n":40,"p50":37.4,"p95":88.1,"max":108.6,"engine_duration_ms_p50":33,"engine_duration_ms_p95":71,"response_bytes_p50":25061,"statuses":["200/current"],"missing_inputs":{"history.evicted_use_cold_read":35}}
+{"name":"api.question.payment_state.total_ms","n":40,"p50":61.2,"p95":168.2,"max":215.5,"response_bytes_p50":7151}
+{"name":"engine.direct.v1_query.total_ms","n":40,"p50":41.9,"p95":58.4,"max":112.7,"engine_duration_ms_p50":40,"response_bytes_p50":6857,"statuses":[200]}
+{"name":"engine.direct.v1_schema_rpc_floor_ms","n":20,"p50":5,"p95":8.2,"max":59.8}
+{"name":"api.health_unauthenticated_ms","n":20,"p50":0.9,"p95":2.5,"max":4.3}
+{"name":"api.questions_search_auth_only_no_engine_ms","n":20,"p50":2.2,"p95":3.7,"max":4.6}
+node:internal/modules/package_json_reader:301
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@modelcontextprotocol/sdk' imported from /private/tmp/claude-501/-Users-benediktsauter-GitHub-blackbox-agent-c/7ee2fabf-2347-4b62-86ca-b5702ba06d2f/scratchpad/profile-hot.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+    at packageResolve (node:internal/modules/esm/resolve:764:81)
+    at moduleResolve (node:internal/modules/esm/resolve:855:18)
+    at defaultResolve (node:internal/modules/esm/resolve:988:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:697:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:714:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:746:52)
+    at #resolve (node:internal/modules/esm/loader:679:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:599:35)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:628:32) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v25.9.0
+{"name":"mcp.bridge_startup_ms","ms":245.8}
+{"name":"mcp.get_business_state.total_ms","n":40,"p50":47.5,"p95":69.7,"max":170.3,"text_bytes_p50":36479}
+{"name":"mcp.answer_question.payment_state.total_ms","n":40,"p50":49.7,"p95":59,"max":62.5}
+{"name":"mcp.describe_business_schema_ms","n":20,"p50":11.5,"p95":15.6,"max":25.3}

@@ -1,0 +1,24 @@
+# after the no-snapshot rebuild with 0.1.2-perf (history resident per ADR-0009), 2026-11-03T20:37:16Z load 14.52 23.30 22.40
+{"name":"api.hot_state.total_ms","n":40,"p50":27.9,"p95":85.4,"max":296.7,"engine_duration_ms_p50":16,"engine_duration_ms_p95":73,"response_bytes_p50":26770,"response_bytes_max":252986,"missing_inputs":{"history.evicted_use_cold_read":28}}
+{"name":"engine.direct.v1_state.total_ms","n":40,"p50":14.3,"p95":21.4,"max":73.8,"engine_duration_ms_p50":9,"engine_duration_ms_p95":14,"response_bytes_p50":25800,"statuses":["200/current"],"missing_inputs":{"history.evicted_use_cold_read":28}}
+{"name":"api.question.payment_state.total_ms","n":40,"p50":7.7,"p95":16.4,"max":24,"response_bytes_p50":7151}
+{"name":"engine.direct.v1_query.total_ms","n":40,"p50":3.4,"p95":14.8,"max":96.1,"engine_duration_ms_p50":0,"response_bytes_p50":6856,"statuses":[200]}
+{"name":"engine.direct.v1_schema_rpc_floor_ms","n":20,"p50":4.4,"p95":8.2,"max":75}
+{"name":"api.health_unauthenticated_ms","n":20,"p50":1.1,"p95":2.5,"max":2.7}
+{"name":"api.questions_search_auth_only_no_engine_ms","n":20,"p50":2.8,"p95":5.3,"max":6.6}
+## tenant 5
+{"name":"api.hot_state.total_ms","n":39,"p50":12.4,"p95":60.4,"max":384.2,"engine_duration_ms_p50":2,"engine_duration_ms_p95":6,"response_bytes_p50":28794,"response_bytes_max":48343,"missing_inputs":{}}
+{"name":"engine.direct.v1_state.total_ms","n":39,"p50":4.3,"p95":7.9,"max":60.7,"engine_duration_ms_p50":1,"engine_duration_ms_p95":2,"response_bytes_p50":27824,"statuses":["200/current"],"missing_inputs":{}}
+{"name":"api.question.payment_state.total_ms","n":39,"p50":6.3,"p95":17.2,"max":18.4,"response_bytes_p50":7212}
+{"name":"engine.direct.v1_query.total_ms","n":39,"p50":1.6,"p95":4.4,"max":45.2,"engine_duration_ms_p50":0,"response_bytes_p50":6918,"statuses":[200]}
+{"name":"engine.direct.v1_schema_rpc_floor_ms","n":20,"p50":4,"p95":6.4,"max":52.5}
+{"name":"api.health_unauthenticated_ms","n":20,"p50":2.2,"p95":5.4,"max":7.5}
+{"name":"api.questions_search_auth_only_no_engine_ms","n":20,"p50":2.7,"p95":5.6,"max":5.9}
+## mcp
+{"name":"mcp.bridge_startup_ms","ms":274}
+{"name":"mcp.get_business_state.total_ms","n":40,"p50":24.2,"p95":66.7,"max":151.5,"text_bytes_p50":37504}
+{"name":"mcp.answer_question.payment_state.total_ms","n":40,"p50":7.8,"p95":17.8,"max":39.3}
+{"name":"mcp.describe_business_schema_ms","n":20,"p50":19.1,"p95":34.9,"max":80.5}
+engine.evicted by kind: {'undo+history': 31}
+['evicted 475 undo logs and 194 history locators (2778520 -> 2165112 bytes)', 'evicted 900 undo logs and 958 history locators (5287918 -> 3182414 bytes)', 'evicted 908 undo logs and 965 history locators (5291120 -> 3212656 bytes)', 'evicted 821 undo logs and 789 history locators (4818010 -> 3003834 bytes)']
+{"rss_mib":1008.7,"approx_mib":471.9,"evictable_mib":209.4,"evictions":31,"rss_evictions":0,"summary_cache":[55,192,55]}

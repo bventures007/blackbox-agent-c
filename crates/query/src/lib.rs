@@ -13,6 +13,7 @@ use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
+use std::collections::HashSet;
 use std::str::FromStr;
 use uuid::Uuid;
 
@@ -237,6 +238,9 @@ pub struct Answer<'a> {
     pub calculation: Vec<Step>,
     pub missing_inputs: Vec<String>,
     pub entities: Vec<RecKey>,
+    /// Membership index of `entities` (touch order is kept in the Vec; the former linear `contains` made a
+    /// tenant-wide intent quadratic in the number of touched records — 5,000 invoices on the smoke corpus).
+    entity_set: HashSet<RecKey>,
     pub coverage_datasets: Vec<&'static str>,
     pub coverage_extra: Map<String, Value>,
     pub items: Vec<Value>,
@@ -254,6 +258,7 @@ impl<'a> Answer<'a> {
             calculation: Vec::new(),
             missing_inputs: Vec::new(),
             entities: Vec::new(),
+            entity_set: HashSet::new(),
             coverage_datasets: datasets.to_vec(),
             coverage_extra: Map::new(),
             items: Vec::new(),
@@ -294,7 +299,7 @@ impl<'a> Answer<'a> {
     }
 
     pub fn touch(&mut self, key: RecKey) {
-        if !self.entities.contains(&key) {
+        if self.entity_set.insert(key) {
             self.entities.push(key);
         }
     }

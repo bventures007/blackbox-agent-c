@@ -15,6 +15,12 @@ export const ORDINARY_ABSOLUTE_MS = 8 * 60 * 60 * 1000;
 export const THROTTLE_WINDOW_MS = 15 * 60 * 1000;
 export const THROTTLE_MAX_FAILURES = 5;
 /**
+ * The idle-deadline extension / last_seen_at write of an owner session is skipped while the previous one is
+ * younger than this (the deadlines are hours/days; one UPDATE per request on the hot path bought nothing). The
+ * session row itself is still re-read on every request: revocation and expiry stay immediate.
+ */
+export const SESSION_TOUCH_MS = 60_000;
+/**
  * Agent-key argon2 verification result (key hash → credential id) is reused at most this long; the credential and
  * principal rows (status, expiry) are re-read from PostgreSQL on every request regardless, so revocation stays
  * immediate. argon2id at 64 MiB / t=3 costs ≈100-200 ms of CPU per verification: with the former 5 s TTL every
@@ -236,11 +242,12 @@ export class AuthService {
         absolute_expires_at: Date;
         idle_expires_at: Date;
         revoked_at: Date | null;
+        last_seen_at: Date | null;
         principal_status: string;
         display_name: string;
         kind: "owner" | "agent";
       }>(
-        `SELECT s.session_hash, s.principal_id, s.tenant_id, s.csrf_token, s.remembered, s.created_at, s.absolute_expires_at, s.idle_expires_at, s.revoked_at,
+        `SELECT s.session_hash, s.principal_id, s.tenant_id, s.csrf_token, s.remembered, s.created_at, s.absolute_expires_at, s.idle_expires_at, s.revoked_at, s.last_seen_at,
                 p.status AS principal_status, p.display_name, p.kind
            FROM sessions s JOIN principals p ON p.principal_id = s.principal_id
           WHERE s.session_hash = $1`,
@@ -249,10 +256,13 @@ export class AuthService {
       const row = r.rows[0];
       if (!row || row.revoked_at || row.principal_status !== "active" || row.kind !== "owner") return null;
       if (row.absolute_expires_at <= now || row.idle_expires_at <= now) return null;
-      // Idle extension (remembered sessions only move the idle deadline; absolute never moves).
+      // Idle extension (remembered sessions only move the idle deadline; absolute never moves). Written at most
+      // once per SESSION_TOUCH_MS per session; in between the stored deadline is reported.
       const newIdle = new Date(Math.min(row.absolute_expires_at.getTime(), now.getTime() + (row.remembered ? REMEMBERED_IDLE_MS : ORDINARY_ABSOLUTE_MS)));
-      await c.query("UPDATE sessions SET last_seen_at = $2, idle_expires_at = $3 WHERE session_hash = $1", [hash, now, newIdle]);
-      const expires = row.absolute_expires_at < newIdle ? row.absolute_expires_at : newIdle;
+      const touch = !row.last_seen_at || now.getTime() - row.last_seen_at.getTime() >= SESSION_TOUCH_MS;
+      if (touch) await c.query("UPDATE sessions SET last_seen_at = $2, idle_expires_at = $3 WHERE session_hash = $1", [hash, now, newIdle]);
+      const idle = touch ? newIdle : row.idle_expires_at;
+      const expires = row.absolute_expires_at < idle ? row.absolute_expires_at : idle;
       return {
         principal: { principal_id: row.principal_id, tenant_id: row.tenant_id, kind: "owner", display_name: row.display_name, credential_id: null },
         session_hash: row.session_hash,

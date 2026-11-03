@@ -138,10 +138,22 @@ tails the files, `getLogRecord` returns a record with its trace siblings.
 - **Readiness** (`ReadinessService`): datasets present = families of committed source entries (+
   `identity` when entries carry entity links, `coverage` when a capability reported a successful
   check); per question `ready`/`partial`/`blocked` with exact missing datasets and the sources used.
-  Attached to every served state/answer, so it is memoized per tenant (committed cursor + 5 s) and
-  its refresh reads the distinct event types through a recursive loose index scan on
-  `journal_entries_event_idx` (`JournalService.presentEventTypesIndexed`) instead of a GROUP BY over
-  the journal (PERF-01 follow-up: the former refresh was a full-table scan on the hot path).
+  Attached to every served state/answer, so it is memoized per tenant for 5 s (time-bounded only; a
+  hit opens no transaction and concurrent misses share one computation — ADR-0009: the former memo
+  compared the committed cursor in its own tenant transaction on every request, four round trips on
+  the hot path and a miss on every request of a tenant under ingestion) and its refresh reads the
+  distinct event types through a recursive loose index scan on `journal_entries_event_idx`
+  (`JournalService.presentEventTypesIndexed`) instead of a GROUP BY over the journal (PERF-01
+  follow-up: the former refresh was a full-table scan on the hot path). The answer's consistency
+  cursor comes from the engine and is never memoized; `observed_at` states when the readiness was
+  computed.
+- **Hot-path round trips** (ADR-0009): an authenticated agent request costs one authenticator
+  transaction (credential/principal rows re-read, argon2 result cached — revocation stays immediate),
+  one engine RPC and no further PostgreSQL work; owner sessions are re-read per request but their
+  idle-extension write happens at most once per minute (`SESSION_TOUCH_MS`). The verified principal
+  id travels to the engine as `X-Principal-Id` (header only, uuid-validated) so the 8-per-agent
+  admission limit of engine-rpc.json applies next to the 16-per-workspace / 32-global limits. The
+  bb_api pool defaults to 16 connections (`API_PG_POOL`).
 - **Import plans** (`resolveImportPlan`): presets resolved once to UTC `[requested_from,
   initial_cutoff)` in the chosen IANA zone (rolling 30×24 h; Jan 1 local; calendar-month subtraction
   with end-of-month clamp; local midnight for custom; strict from-now with explicit opening-state

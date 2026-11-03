@@ -1,0 +1,1 @@
+Performance-test build 0.1.3-perf of the uncommitted ADR-0009 working tree (cycle 2) on top of 78d8100: 0.1.2-perf plus bounded write-copy drop/RSS-eviction cadence, O(1) touch/conflict membership, intents on the blocking pool, bounded cold evidence reads, 25 summaries per track and no RAM merge for cold entities. Not a promotable release.

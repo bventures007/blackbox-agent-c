@@ -206,16 +206,17 @@ export class QuestionService {
     return { built, params: parsed.data as Record<string, unknown> };
   }
 
-  async answer(tenantId: string, intent: string, rawParams: unknown, consistency?: Partial<ConsistencyRequest>, principalKind: "owner" | "agent" = "owner"): Promise<QuestionAnswer> {
+  async answer(tenantId: string, intent: string, rawParams: unknown, consistency?: Partial<ConsistencyRequest>, principalKind: "owner" | "agent" = "owner", principalId?: string): Promise<QuestionAnswer> {
     const { built, params } = this.validate(intent, rawParams);
     const engineParams: Record<string, unknown> = Object.fromEntries(Object.entries(params).filter(([k]) => !API_PARAM_NAMES.has(k)));
     const cons: ConsistencyRequest = { mode: consistency?.mode ?? (params.as_of ? "as_of" : "latest_committed"), cursor: consistency?.cursor ?? null, as_of_recorded: consistency?.as_of_recorded ?? (typeof params.as_of === "string" ? params.as_of : null), as_of_effective: consistency?.as_of_effective ?? (typeof params.as_of === "string" ? params.as_of : null), deadline_ms: Math.min(5000, consistency?.deadline_ms ?? 5000) };
-    const readiness = await this.readiness.forIntent(tenantId, intent);
     const started = process.hrtime.bigint();
-    const base = { intent, question_id: built.question.id, params, readiness };
     try {
-      const res = (await this.engine.query({ tenant_id: tenantId, intent, params: engineParams, consistency: cons, page: { limit: typeof params.limit === "number" ? params.limit : 100, cursor: typeof params.cursor === "string" ? params.cursor : null } })) as Record<string, unknown>;
+      const res = (await this.engine.query({ tenant_id: tenantId, intent, params: engineParams, consistency: cons, principal_id: principalId, page: { limit: typeof params.limit === "number" ? params.limit : 100, cursor: typeof params.cursor === "string" ? params.cursor : null } })) as Record<string, unknown>;
       const consistencyOut = res.consistency as { applied_cursor?: number } | undefined;
+      // Readiness attached to the answer is never older than the answer's cursor (memo at/beyond it: no database work).
+      const readiness = await this.readiness.forIntent(tenantId, intent, { knownCursor: typeof consistencyOut?.applied_cursor === "number" ? consistencyOut.applied_cursor : null });
+      const base = { intent, question_id: built.question.id, params, readiness };
       this.log.info("query.served", "Question served", { tenant_id: tenantId, operation_id: built.question.id, duration_ms: Math.round(Number(process.hrtime.bigint() - started) / 1e6), applied_cursor: consistencyOut?.applied_cursor, action_code: principalKind });
       return {
         ...base,
@@ -234,6 +235,8 @@ export class QuestionService {
       if (err instanceof EngineError) {
         this.log.warn("query.unavailable", "Question could not be evaluated by the engine", { tenant_id: tenantId, operation_id: built.question.id, error_code: err.code, retryable: err.retryable, duration_ms: Math.round(Number(process.hrtime.bigint() - started) / 1e6) });
         if (err.code === "invalid_params" || err.code === "unsupported_intent" || err.code === "too_large") throw new QuestionError(err.code, 422, err.message);
+        const readiness = await this.readiness.forIntent(tenantId, intent);
+        const base = { intent, question_id: built.question.id, params, readiness };
         return {
           ...base,
           status: "unavailable",

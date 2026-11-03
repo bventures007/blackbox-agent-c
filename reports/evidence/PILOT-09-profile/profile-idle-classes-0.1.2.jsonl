@@ -1,0 +1,10 @@
+# idle classes profile, 0.1.2-perf images, 2026-11-03T21:29:51Z load 42.88 55.99 80.34
+{"name":"api.history_100.total_ms (API -> PostgreSQL, full entries)","n":30,"p50":5.9,"p95":34.6,"max":310.2,"response_bytes_p50":71822}
+{"coverage":{"datasets_present":["invoices"],"datasets_missing":["payment_allocations","coverage","identity"],"population":{"records_considered":0,"returned":0},"evidence_truncated":false,"coverage_assertions":[]}}
+{"name":"api.summary.invoices_outstanding.total_ms","n":15,"p50":4.3,"p95":28.3,"max":28.3,"response_bytes_p50":1284,"statuses":{"complete":15}}
+{"name":"engine.direct.invoices_outstanding.total_ms","n":15,"p50":1.6,"p95":28.9,"max":28.9,"engine_duration_ms_p50":0,"engine_duration_ms_max":0}
+## tenant 5
+{"name":"api.history_100.total_ms (API -> PostgreSQL, full entries)","n":30,"p50":9.3,"p95":46.3,"max":311,"response_bytes_p50":73272}
+{"coverage":{"datasets_present":["invoices"],"datasets_missing":["payment_allocations","coverage","identity"],"population":{"records_considered":0,"returned":0},"evidence_truncated":false,"coverage_assertions":[]}}
+{"name":"api.summary.invoices_outstanding.total_ms","n":15,"p50":3.4,"p95":15.5,"max":15.5,"response_bytes_p50":1278,"statuses":{"complete":15}}
+{"name":"engine.direct.invoices_outstanding.total_ms","n":15,"p50":1.5,"p95":34.9,"max":34.9,"engine_duration_ms_p50":0,"engine_duration_ms_max":1}

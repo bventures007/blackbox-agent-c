@@ -7,6 +7,7 @@ pub mod engine;
 pub mod evict;
 pub mod mem;
 pub mod snapshot;
+pub mod summaries;
 
 use arc_swap::ArcSwap;
 use blackbox_domain::TenantState;
@@ -61,6 +62,9 @@ pub struct EngineConfig {
     /// Process RSS target in bytes (ENGINE_RSS_TARGET_MB, default 1024; 0 = disabled). Above it idle
     /// write copies are dropped at once and the next publication evicts to half the structural budget.
     pub rss_target_bytes: usize,
+    /// Bounded LRU of payload-free entry summaries for records with evicted history, keyed by the
+    /// exact applied cursor (ENGINE_SUMMARY_CACHE_MB, default 32; 0 = off).
+    pub summary_cache_bytes: usize,
 }
 
 impl Default for EngineConfig {
@@ -69,7 +73,9 @@ impl Default for EngineConfig {
             hot_budget_bytes: 512 * 1024 * 1024,
             tenant_budget_bytes: 0,
             batch_size: 1000,
-            poll_interval: Duration::from_millis(250),
+            // LISTEN journal_appended wakes the loop on every commit; polling is the recovery path only
+            // (51 tenants at 250 ms were ~400 idle point reads/s on the smoke corpus).
+            poll_interval: Duration::from_millis(1000),
             snapshot_interval: Duration::from_secs(60),
             snapshot_min_entries: 200,
             tenant_discovery_interval: Duration::from_secs(5),
@@ -79,6 +85,7 @@ impl Default for EngineConfig {
             catchup_publish_interval: Duration::from_millis(10_000),
             write_copy_idle: Duration::from_secs(60),
             rss_target_bytes: 1024 * 1024 * 1024,
+            summary_cache_bytes: 32 * 1024 * 1024,
         }
     }
 }
@@ -124,6 +131,9 @@ impl EngineConfig {
         }
         if let Some(b) = std::env::var("ENGINE_RSS_TARGET_MB").ok().and_then(|v| v.parse::<usize>().ok()) {
             c.rss_target_bytes = b * 1024 * 1024;
+        }
+        if let Some(b) = std::env::var("ENGINE_SUMMARY_CACHE_MB").ok().and_then(|v| v.parse::<usize>().ok()) {
+            c.summary_cache_bytes = b * 1024 * 1024;
         }
         c
     }
@@ -237,16 +247,19 @@ pub struct Registry {
     tenants: RwLock<HashMap<Uuid, Arc<TenantSlot>>>,
     pub config: EngineConfig,
     pub cold: cold::ColdCache,
+    pub summaries: summaries::SummaryCache,
     pub started_at: Instant,
 }
 
 impl Registry {
     pub fn new(config: EngineConfig) -> Registry {
         let cold = cold::ColdCache::new(config.cold_cache_bytes);
+        let summaries = summaries::SummaryCache::new(config.summary_cache_bytes);
         Registry {
             tenants: RwLock::new(HashMap::new()),
             config,
             cold,
+            summaries,
             started_at: Instant::now(),
         }
     }
@@ -340,5 +353,6 @@ impl Registry {
             })
             .sum::<usize>()
             + self.cold.bytes()
+            + self.summaries.bytes()
     }
 }

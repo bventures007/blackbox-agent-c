@@ -1,0 +1,23 @@
+# after upgrade to 0.1.2-perf, engine loaded from 0.1.1-perf snapshots (cold_history persisted), 2026-11-03T20:35:09Z load 37.39 29.70 24.21
+## pass 1 (summary cache cold)
+{"name":"api.hot_state.total_ms","n":40,"p50":10,"p95":17.7,"max":267.9,"engine_duration_ms_p50":4,"engine_duration_ms_p95":7,"response_bytes_p50":26030,"response_bytes_max":252985,"missing_inputs":{"history.evicted_use_cold_read":35}}
+{"name":"engine.direct.v1_state.total_ms","n":40,"p50":3.8,"p95":6.8,"max":39.8,"engine_duration_ms_p50":2,"engine_duration_ms_p95":3,"response_bytes_p50":25060,"statuses":["200/current"],"missing_inputs":{"history.evicted_use_cold_read":35}}
+{"name":"api.question.payment_state.total_ms","n":40,"p50":6.7,"p95":13.2,"max":39.4,"response_bytes_p50":7151}
+{"name":"engine.direct.v1_query.total_ms","n":40,"p50":1.8,"p95":4.7,"max":59.5,"engine_duration_ms_p50":0,"response_bytes_p50":6856,"statuses":[200]}
+{"name":"engine.direct.v1_schema_rpc_floor_ms","n":20,"p50":1.4,"p95":4.8,"max":49.4}
+{"name":"api.health_unauthenticated_ms","n":20,"p50":1.1,"p95":4,"max":4.1}
+{"name":"api.questions_search_auth_only_no_engine_ms","n":20,"p50":2.1,"p95":3.1,"max":3.5}
+## pass 2 (same 40 orders; summary cache warm)
+{"name":"api.hot_state.total_ms","n":40,"p50":7.1,"p95":11.5,"max":51.9,"engine_duration_ms_p50":2,"engine_duration_ms_p95":2,"response_bytes_p50":26030,"response_bytes_max":252985,"missing_inputs":{"history.evicted_use_cold_read":35}}
+{"name":"engine.direct.v1_state.total_ms","n":40,"p50":3.3,"p95":5.3,"max":37,"engine_duration_ms_p50":2,"engine_duration_ms_p95":2,"response_bytes_p50":25060,"statuses":["200/current"],"missing_inputs":{"history.evicted_use_cold_read":35}}
+{"name":"api.question.payment_state.total_ms","n":40,"p50":4.8,"p95":6.7,"max":8.8,"response_bytes_p50":7151}
+{"name":"engine.direct.v1_query.total_ms","n":40,"p50":2.1,"p95":5.8,"max":46.1,"engine_duration_ms_p50":0,"response_bytes_p50":6856,"statuses":[200]}
+{"name":"engine.direct.v1_schema_rpc_floor_ms","n":20,"p50":2,"p95":20.5,"max":153}
+{"name":"api.health_unauthenticated_ms","n":20,"p50":1.2,"p95":3.5,"max":5}
+{"name":"api.questions_search_auth_only_no_engine_ms","n":20,"p50":5.5,"p95":10.9,"max":12.6}
+## mcp
+{"name":"mcp.bridge_startup_ms","ms":638.5}
+{"name":"mcp.get_business_state.total_ms","n":40,"p50":10.1,"p95":17.8,"max":64.9,"text_bytes_p50":36478}
+{"name":"mcp.answer_question.payment_state.total_ms","n":40,"p50":6.6,"p95":11.3,"max":13.1}
+{"name":"mcp.describe_business_schema_ms","n":20,"p50":8.3,"p95":11.9,"max":14.1}
+load after 34.79 29.29 24.10

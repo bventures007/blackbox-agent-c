@@ -1,0 +1,1 @@
+Performance-test build 0.1.2-perf of the uncommitted ADR-0009 working tree on top of 78d8100 (hot-path round trips, exact-cursor summary cache, history residency through catch-up, barrier pool, principal header, pool 16). Not a promotable release.

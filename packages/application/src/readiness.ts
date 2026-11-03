@@ -62,23 +62,40 @@ export class ReadinessService {
   }
 
   /**
-   * Per-tenant memo keyed by the committed cursor: readiness is derived from the journal (event families present,
-   * entity links) and the capability health rows. It is attached to every served state/answer, so recomputing it
-   * per request ran a GROUP BY over the whole source track on each hot query (observed on the smoke profile as a
-   * pool-starving full scan). The memo is reused while the committed cursor is unchanged and for at most
-   * READINESS_MEMO_MS (bounds the staleness of the capability-health part to a few seconds; the UI polls at 5 s).
+   * Per-tenant memo. Readiness is derived from the journal (event families present, entity links) and the
+   * capability health rows and is attached to every served state/answer as coverage information; recomputing it
+   * per request ran a GROUP BY over the whole source track on each hot query (smoke profile: a pool-starving full
+   * scan), and the former memo still opened one tenant transaction per request to compare the committed cursor
+   * (four round trips on the hot path). Rules (ADR-0009):
+   * - a memo is reused for at most READINESS_MEMO_MS (5 s; bounds the staleness of the health part, the UI polls
+   *   at that cadence) and records the committed cursor it was computed at;
+   * - hot paths pass the cursor they already hold (`knownCursor`: the engine's applied cursor of the answer being
+   *   served, or an ingestion ack); a memo computed at or beyond that cursor is served without any PostgreSQL work,
+   *   a memo behind it is recomputed — readiness attached to an answer is never older than the answer's cursor;
+   * - listings without a cursor of their own (`exact: true`: schema, question list, readiness view) compare the
+   *   actual committed cursor in one tenant transaction, so an API ingestion is reflected on the next read;
+   * - concurrent misses share one computation; `invalidate()` drops the memo at once after in-process health changes.
    */
   private memo = new Map<string, { cursor: number; at: number; value: WorkspaceReadiness }>();
+  private inFlight = new Map<string, Promise<WorkspaceReadiness>>();
 
-  async compute(tenantId: string): Promise<WorkspaceReadiness> {
-    return withTenant(this.pool, tenantId, async (c) => {
-      const cursor = await this.journal.committedCursor(c, tenantId);
-      const hit = this.memo.get(tenantId);
-      if (hit && hit.cursor === cursor && Date.now() - hit.at <= READINESS_MEMO_MS) return hit.value;
-      const value = await this.computeIn(c, tenantId);
-      this.memo.set(tenantId, { cursor, at: Date.now(), value });
-      return value;
-    });
+  async compute(tenantId: string, opts: { knownCursor?: number | null; exact?: boolean } = {}): Promise<WorkspaceReadiness> {
+    const hit = this.memo.get(tenantId);
+    const fresh = hit !== undefined && Date.now() - hit.at <= READINESS_MEMO_MS;
+    if (hit && fresh && !opts.exact && (opts.knownCursor == null || opts.knownCursor <= hit.cursor)) return hit.value;
+    let pending = this.inFlight.get(tenantId);
+    if (!pending) {
+      pending = withTenant(this.pool, tenantId, async (c) => {
+        const cursor = await this.journal.committedCursor(c, tenantId);
+        const current = this.memo.get(tenantId);
+        if (current && current.cursor === cursor && Date.now() - current.at <= READINESS_MEMO_MS) return current.value;
+        const value = await this.computeIn(c, tenantId);
+        this.memo.set(tenantId, { cursor, at: Date.now(), value });
+        return value;
+      }).finally(() => this.inFlight.delete(tenantId));
+      this.inFlight.set(tenantId, pending);
+    }
+    return pending;
   }
 
   /** Drops the memo (tests, or after an operation that changes health without a journal commit). */
@@ -164,8 +181,8 @@ export class ReadinessService {
     };
   }
 
-  async forIntent(tenantId: string, intent: string): Promise<QuestionReadiness | null> {
-    const all = await this.compute(tenantId);
+  async forIntent(tenantId: string, intent: string, opts: { knownCursor?: number | null; exact?: boolean } = {}): Promise<QuestionReadiness | null> {
+    const all = await this.compute(tenantId, opts);
     return all.questions.find((q) => q.intent === intent) ?? null;
   }
 }

@@ -1,0 +1,92 @@
+# upgrade 0.1.1-perf -> 0.1.2-perf started 2026-11-03T20:32:04Z load 22.53 22.10 20.92
+upgrade: installed 0.1.1-perf → release 0.1.2-perf
+  [preflight] 0.1.1-perf->0.1.2-perf
+  [lease]
+  [fence] pre-upgrade
+ Container blackbox-agent-c-perf-backup-run-85b4557daf1b Creating 
+ Container blackbox-agent-c-perf-backup-run-85b4557daf1b Created 
+2026-11-03T20:32:13Z backup generation blackbox-backup-20261103T203213Z (pre-upgrade) starting
+2026-11-03T20:32:13Z backup dumping database
+2026-11-03T20:32:44Z backup archiving evidence
+2026-11-03T20:33:12Z backup archiving snapshots
+2026-11-03T20:33:12Z backup archiving installation key material
+2026-11-03T20:33:12Z backup sealing generation
+2026-11-03T20:33:16Z backup generation finalized: /backup-dest/blackbox-backup-20261103T203213Z.tar.age (224106088 bytes, sha256 1b6fdc1620d6a7be4f1111639cbdec58870a8e57b2ffb5c1450e7249989f4415)
+2026-11-03T20:33:16Z backup retention: kept 4 of 4 finalized generation(s) (daily=7 weekly=4)
+  [done]
+backup finalized: /backup-dest/blackbox-backup-20261103T203213Z.tar.age
+  [writers-paused]
+  [files-staged]
+resuming upgrade 0.1.1-perf → 0.1.2-perf from phase 'images'
+  [images-load]
+  loading api.tar
+  loading backup.tar
+  loading engine.tar
+  loading postgres.tar
+  loading worker.tar
+ Container blackbox-agent-c-perf-postgres Recreate 
+ Container blackbox-agent-c-perf-postgres Recreated 
+ Container blackbox-agent-c-perf-postgres Starting 
+ Container blackbox-agent-c-perf-postgres Started 
+  postgres ready (4s)
+  [db-roles]
+  [db-migrate]
+ Container blackbox-agent-c-perf-api-run-21b71527cc7e Creating 
+ Container blackbox-agent-c-perf-api-run-21b71527cc7e Created 
+{"applied":[],"skipped":["0001_journal.sql","0002_identity.sql","0003_operations.sql","0004_scoped_references.sql","0005_gin_fastupdate.sql","0100_worker.sql","0101_maintenance_lease.sql"]}
+ Container blackbox-agent-c-perf-postgres Running 
+ Container blackbox-agent-c-perf-backup-scheduler Recreate 
+ Container blackbox-agent-c-perf-engine Recreate 
+ Container blackbox-agent-c-perf-backup-scheduler Recreated 
+ Container blackbox-agent-c-perf-engine Recreated 
+ Container blackbox-agent-c-perf-api Recreate 
+ Container blackbox-agent-c-perf-worker Recreate 
+ Container blackbox-agent-c-perf-worker Recreated 
+ Container blackbox-agent-c-perf-api Recreated 
+ Container blackbox-agent-c-perf-postgres Waiting 
+ Container blackbox-agent-c-perf-postgres Waiting 
+ Container blackbox-agent-c-perf-postgres Healthy 
+ Container blackbox-agent-c-perf-engine Starting 
+ Container blackbox-agent-c-perf-postgres Healthy 
+ Container blackbox-agent-c-perf-backup-scheduler Starting 
+ Container blackbox-agent-c-perf-engine Started 
+ Container blackbox-agent-c-perf-postgres Waiting 
+ Container blackbox-agent-c-perf-postgres Waiting 
+ Container blackbox-agent-c-perf-postgres Healthy 
+ Container blackbox-agent-c-perf-worker Starting 
+ Container blackbox-agent-c-perf-postgres Healthy 
+ Container blackbox-agent-c-perf-api Starting 
+ Container blackbox-agent-c-perf-backup-scheduler Started 
+ Container blackbox-agent-c-perf-worker Started 
+ Container blackbox-agent-c-perf-api Started 
+  api ready (4s)
+blackbox verify
+  [OK] api health: {"status":"ok","version":"0.1.2-perf"}
+  [OK] migrations current (/Users/benediktsauter/blackbox-pilot-perf/migrations)
+  [OK] engine running
+  [OK] worker running
+{"level":"INFO","tenant_id":"8335708e-40f0-4ba7-81e6-9c6f7b530320","operation_id":"verify:order","applied_cursor":100610,"schema_version":1,"record_id":"c5b88d05-0bea-4ca2-8a50-20893454b3cf","occurred_at":"2026-11-03T20:34:32.795Z","observed_at":"2026-11-03T20:34:32.795Z","event_name":"query.served","component":"api","service_version":"0.1.2-perf","instance_id":"63b3ad70-dbbf-4b2c-b819-6caa00492a3f","scope":"workspace","message":"Golden verify served"}
+physical_stock         observed="112" expected=112
+available_stock        observed="112" expected=112
+captured_minor         observed=11900 expected=11900
+fees_minor             observed=350 expected=350
+refunded_minor         observed=2380 expected=2380
+bank_confirmed_minor   observed=9170 expected=9170
+consistency: {"applied_cursor":100610,"required_cursor":100610,"reducer_version":1,"status":"current","recorded_cutoff":"2026-11-03T19:21:59.397Z","effective_cutoff":null,"mode":"latest_committed"}
+verify: passed (golden order state matches)
+  [OK] golden demo answer check (api cli verify)
+verify: exit 0
+  [done] 0.1.1-perf->0.1.2-perf
+upgrade complete: 0.1.1-perf → 0.1.2-perf. Previous release files kept in /Users/benediktsauter/blackbox-pilot-perf/data/state/previous-release/0.1.1-perf; previous image tags remain in Docker.
+Rollback policy: see docs/operations.md — reverting images never reverts a database migration; use the pre-upgrade backup generation for an isolated restore.
+upgrade exit 0 after 154 s
+project: blackbox-agent-c-perf   version: installed=0.1.2-perf release=0.1.2-perf   url: http://127.0.0.1:19180/
+NAME                                     IMAGE                                                                                          COMMAND                  SERVICE            CREATED          STATUS                    PORTS
+blackbox-agent-c-perf-api                blackbox/api:0.1.2-perf                                                                        "/usr/local/bin/blac…"   api                26 seconds ago   Up 18 seconds (healthy)   127.0.0.1:19180->19180/tcp
+blackbox-agent-c-perf-backup-scheduler   blackbox/backup:0.1.2-perf                                                                     "/bin/bash /scripts/…"   backup-scheduler   37 seconds ago   Up 23 seconds             5432/tcp
+blackbox-agent-c-perf-engine             blackbox/engine:0.1.2-perf                                                                     "/usr/local/bin/blac…"   engine             38 seconds ago   Up 24 seconds (healthy)   7070/tcp
+blackbox-agent-c-perf-postgres           postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef   "docker-entrypoint.s…"   postgres           56 seconds ago   Up 53 seconds (healthy)   5432/tcp
+blackbox-agent-c-perf-worker             blackbox/worker:0.1.2-perf                                                                     "node /app/apps/work…"   worker             27 seconds ago   Up 20 seconds             
+api health: {"status":"ok","version":"0.1.2-perf"}
+backups: {  "status": "scheduled",  "configured": true,  "destination_label": "perf",  "same_device": true,  "last_completed_at": "2026-11-03T20:33:16Z",  "next_due_at": "2026-11-04T20:32:13Z",  "retention": {    "daily": 7,    "weekly": 4  },  "last_attempt_at": "2026-11-03T20:32:13Z",  "last_attempt_kind":
+# finished 2026-11-03T20:34:39Z load 51.24 31.13 24.50

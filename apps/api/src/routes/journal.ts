@@ -70,9 +70,10 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
     const consistency: ConsistencyRequest = { mode: q.data.mode ?? (q.data.as_of_recorded || q.data.as_of_effective ? "as_of" : "latest_committed"), cursor: q.data.cursor ?? null, as_of_recorded: q.data.as_of_recorded ?? null, as_of_effective: q.data.as_of_effective ?? null, deadline_ms: 5000 };
     const started = process.hrtime.bigint();
     try {
-      const state = await ctx.engine.state({ tenant_id: tenantId, entity_type: type, entity_id: id, consistency });
-      const readiness = await ctx.readiness.compute(tenantId);
+      const state = await ctx.engine.state({ tenant_id: tenantId, entity_type: type, entity_id: id, consistency, principal_id: guards.principalOf(request).id });
       const cons = state.consistency as { applied_cursor?: number } | undefined;
+      // Readiness is never older than the answer's cursor; a memo at or beyond it costs no database work.
+      const readiness = await ctx.readiness.compute(tenantId, { knownCursor: typeof cons?.applied_cursor === "number" ? cons.applied_cursor : null });
       ctx.logger.info("query.served", "Entity state served", { tenant_id: tenantId, operation_id: `state:${type}`, duration_ms: Math.round(Number(process.hrtime.bigint() - started) / 1e6), applied_cursor: cons?.applied_cursor });
       return { ...state, readiness: { datasets_present: readiness.datasets_present, datasets_missing: readiness.datasets_missing, sources: Object.values(readiness.dataset_sources).flat() } };
     } catch (err) {
@@ -161,7 +162,7 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
 
   app.get("/api/schema", { preHandler: [guards.requireRead] }, async (request) => {
     const tenantId = guards.tenantOf(request);
-    const readiness = await ctx.readiness.compute(tenantId);
+    const readiness = await ctx.readiness.compute(tenantId, { exact: true });
     let engineSchema: Record<string, unknown>;
     try {
       engineSchema = await ctx.engine.schema();
@@ -173,7 +174,7 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
 
   // ----- questions -----
   app.get("/api/questions", { preHandler: [guards.requireRead] }, async (request) => {
-    const readiness = await ctx.readiness.compute(guards.tenantOf(request));
+    const readiness = await ctx.readiness.compute(guards.tenantOf(request), { exact: true });
     const byIntent = new Map(readiness.questions.map((q) => [q.intent, q]));
     return { questions: ctx.questions.templates().map((t) => ({ ...t, readiness: byIntent.get(t.intent) ?? null })) };
   });
@@ -190,7 +191,7 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
     if (!body.success) throw validation("body must be {params?, consistency?}", body.error.issues);
     const principal = guards.principalOf(request);
     try {
-      return await ctx.questions.answer(guards.tenantOf(request), intent, body.data.params, body.data.consistency as Partial<ConsistencyRequest> | undefined, principal.kind);
+      return await ctx.questions.answer(guards.tenantOf(request), intent, body.data.params, body.data.consistency as Partial<ConsistencyRequest> | undefined, principal.kind, principal.id);
     } catch (err) {
       engineErr(err);
     }

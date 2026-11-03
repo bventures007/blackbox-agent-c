@@ -14,6 +14,7 @@ use axum::routing::{get, post};
 use axum::{Json, Router};
 use blackbox_domain::{Kind, TenantState, REDUCER_VERSION};
 use blackbox_projections::cold::ColdKey;
+use blackbox_projections::summaries::SummaryKey;
 use blackbox_projections::engine::{replay_entity, replay_tenant};
 use blackbox_projections::{EngineConfig, Registry, TenantSlot, PHASE_CATCHING_UP, PHASE_LOADING, PHASE_READY, PHASE_REBUILDING};
 use blackbox_query::state::{entity_state, summary};
@@ -392,6 +393,28 @@ async fn replay_whole_tenant(app: &App, tenant: Uuid, cut: &Cutoff) -> Result<Ar
     Ok(arc)
 }
 
+/// Payload-free entry summaries of a record whose history locators were evicted, read at the exact
+/// published cursor `upto` and cached by that key (`Registry::summaries`). The cache is a pure
+/// function of (tenant, entity, cursor): a newer publication is a different key and a rebuild drops the
+/// tenant, so a hit never serves rows from another cursor.
+async fn evicted_summaries(app: &App, tenant: Uuid, entity_type: &str, entity_id: &str, upto: i64, limit: i64) -> Result<Arc<Vec<blackbox_storage::EntrySummaryRow>>, ApiError> {
+    let key = SummaryKey {
+        tenant,
+        entity_type: entity_type.to_string(),
+        entity_id: entity_id.to_string(),
+        upto_sequence: upto,
+    };
+    // One bound for every caller (the larger of the state bound and the evidence bound), so a cached
+    // read serves both paths identically; callers truncate.
+    let bound = (blackbox_query::MAX_EVIDENCE as i64).max(500).max(limit);
+    if let Some(rows) = app.registry.summaries.get(&key) {
+        return Ok(rows);
+    }
+    let rows = Arc::new(app.store.entity_entry_summaries(tenant, entity_type, entity_id, upto, bound).await.map_err(ApiError::db)?);
+    app.registry.summaries.insert(key, rows.clone());
+    Ok(rows)
+}
+
 // ------------------------------------------------------------------ request plumbing
 
 fn check_token(app: &App, headers: &HeaderMap) -> Result<(), ApiError> {
@@ -509,21 +532,24 @@ async fn state_handler(State(app): State<App>, headers: HeaderMap, body: Bytes) 
                 }
             }
         };
-        // Evicted history: serve track summaries from PostgreSQL (indexed cold read).
+        // Evicted history: serve track summaries from the payload-free indexed PostgreSQL read, cached
+        // per exact applied cursor (a later publication changes the key; never a stale cursor).
         if resp.missing_inputs.iter().any(|m| m == "history.evicted_use_cold_read") {
-            let entries = app
-                .store
-                .entity_entries(tenant, kind.as_str(), &req.entity_id, 0, st.applied_sequence, None, 500)
-                .await
-                .map_err(ApiError::db)?;
+            let all = evicted_summaries(&app, tenant, kind.as_str(), &req.entity_id, st.applied_sequence, 500).await?;
+            let entries: &[blackbox_storage::EntrySummaryRow] = &all[..all.len().min(500)];
             let mut tracks: Map<String, Value> = Map::new();
             for t in blackbox_domain::Track::ALL {
-                let list: Vec<Value> = entries
+                // Same bound as the RAM path: the latest TRACK_SUMMARIES_PER_TRACK per track, with the total.
+                let of_track: Vec<&blackbox_storage::EntrySummaryRow> = entries.iter().filter(|e| e.track == t).collect();
+                let total = of_track.len();
+                let list: Vec<Value> = of_track
                     .iter()
-                    .filter(|e| e.track == t)
+                    .rev()
+                    .take(blackbox_query::state::TRACK_SUMMARIES_PER_TRACK)
+                    .rev()
                     .map(|e| json!({"entry_id": e.entry_id, "journal_sequence": e.journal_sequence, "track": e.track, "record_id": e.record_id, "event_type": e.event_type, "occurred_at": e.occurred_at, "recorded_at": e.recorded_at, "supersedes_entry_id": e.supersedes_entry_id, "superseded_by": null, "effect": "cold_read"}))
                     .collect();
-                tracks.insert(t.as_str().into(), json!({"entries": list, "total": list.len(), "truncated": entries.len() >= 500, "source": "postgresql"}));
+                tracks.insert(t.as_str().into(), json!({"entries": list, "total": total, "truncated": total > list.len() || all.len() >= 500, "source": "postgresql"}));
             }
             resp.tracks = tracks;
             resp.entry_ids = entries.iter().map(|e| e.entry_id).collect();
@@ -583,22 +609,36 @@ async fn query_handler(State(app): State<App>, headers: HeaderMap, body: Bytes) 
             let (st, c) = resolve_current(&app, &slot, &req.consistency, started + deadline).await?;
             (Resolved::Published(st), c)
         };
-        let st = resolved.state();
-        let env = blackbox_query::run(st, tenant, &req.intent, &req.params, &req.page, now, consistency.applied_cursor)?;
-        let applied_sequence = st.applied_sequence;
+        // Intents are synchronous reducer-state walks (a tenant-wide intent over the smoke corpus takes tens of
+        // milliseconds): run them on the blocking pool so they never stall the async workers serving hot lookups.
+        let state_arc = match &resolved {
+            Resolved::Published(s) | Resolved::Scratch(s) => s.clone(),
+        };
+        let applied_sequence = state_arc.applied_sequence;
+        let intent = req.intent.clone();
+        let params = req.params.clone();
+        let page = req.page.clone();
+        let applied_cursor = consistency.applied_cursor;
+        let env = tokio::task::spawn_blocking(move || blackbox_query::run(&state_arc, tenant, &intent, &params, &page, now, applied_cursor))
+            .await
+            .map_err(|e| ApiError::db(format!("intent task failed: {e}")))??;
         let mut out = serde_json::to_value(&env).unwrap_or(Value::Null);
         // Evicted history on a touched entity: cite the entries from the indexed cold path (PostgreSQL), bounded
-        // like the hot path, instead of returning an answer without evidence.
+        // like the hot path, instead of returning an answer without evidence. The citation is capped at
+        // MAX_EVIDENCE locators: cold records are read in touch order only until the cap is reached (a
+        // tenant-wide intent on the smoke corpus touched thousands of evicted invoices, i.e. thousands of reads
+        // per answer for a citation that is truncated to 500 anyway); `evidence_truncated` says so.
         if !env.cold_entities.is_empty() {
             let mut seen = std::collections::HashSet::new();
             let mut locs: Vec<(i64, Uuid)> = Vec::new();
+            let mut unread_cold = 0usize;
             for (kind, id) in &env.cold_entities {
-                let entries = app
-                    .store
-                    .entity_entries(tenant, kind, id, 0, applied_sequence, None, blackbox_query::MAX_EVIDENCE as i64)
-                    .await
-                    .map_err(ApiError::db)?;
-                for e in entries {
+                if locs.len() >= blackbox_query::MAX_EVIDENCE {
+                    unread_cold += 1;
+                    continue;
+                }
+                let entries = evicted_summaries(&app, tenant, kind, id, applied_sequence, blackbox_query::MAX_EVIDENCE as i64).await?;
+                for e in entries.iter().take(blackbox_query::MAX_EVIDENCE) {
                     if seen.insert(e.entry_id) {
                         locs.push((e.journal_sequence, e.entry_id));
                     }
@@ -610,7 +650,7 @@ async fn query_handler(State(app): State<App>, headers: HeaderMap, body: Bytes) 
                 }
             }
             locs.sort_unstable();
-            let truncated = locs.len() > blackbox_query::MAX_EVIDENCE;
+            let truncated = locs.len() > blackbox_query::MAX_EVIDENCE || unread_cold > 0;
             locs.truncate(blackbox_query::MAX_EVIDENCE);
             out["entry_ids"] = json!(locs.iter().map(|(_, id)| *id).collect::<Vec<Uuid>>());
             out["evidence_refs"] = json!(locs.iter().map(|(_, id)| format!("journal:{id}")).collect::<Vec<String>>());
@@ -743,7 +783,13 @@ async fn summary_handler(State(app): State<App>, headers: HeaderMap, body: Bytes
             let (st, c) = resolve_current(&app, &slot, &req.consistency, started + deadline).await?;
             (Resolved::Published(st), c)
         };
-        let s = summary(resolved.state(), from, to, req.currency.as_deref());
+        let state_arc = match &resolved {
+            Resolved::Published(s) | Resolved::Scratch(s) => s.clone(),
+        };
+        let currency = req.currency.clone();
+        let s = tokio::task::spawn_blocking(move || summary(&state_arc, from, to, currency.as_deref()))
+            .await
+            .map_err(|e| ApiError::db(format!("summary task failed: {e}")))?;
         let mut out = serde_json::to_value(&s).unwrap_or(Value::Null);
         out["consistency"] = serde_json::to_value(&consistency).unwrap_or(Value::Null);
         out["duration_ms"] = json!(started.elapsed().as_millis() as u64);
@@ -868,6 +914,11 @@ fn health_json(app: &App, db_ok: bool) -> (Value, bool) {
             "cold_cache_entries": app.registry.cold.len(),
             "cold_cache_hits": app.registry.cold.hits.load(Ordering::Relaxed),
             "cold_cache_misses": app.registry.cold.misses.load(Ordering::Relaxed),
+            "summary_cache_bytes": app.registry.summaries.bytes(),
+            "summary_cache_budget_bytes": app.registry.summaries.budget(),
+            "summary_cache_entries": app.registry.summaries.len(),
+            "summary_cache_hits": app.registry.summaries.hits.load(Ordering::Relaxed),
+            "summary_cache_misses": app.registry.summaries.misses.load(Ordering::Relaxed),
         },
         "admission": {
             "in_flight": app.admission.in_flight_global(),

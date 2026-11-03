@@ -1,0 +1,1 @@
+{"rss_mib":820,"approx_mib":442.7,"evictable_mib":182.9,"cold_hits":0,"cold_misses":0,"admission":{"in_flight":0,"admitted":242,"rejected":0,"limits":{"global":32,"per_workspace":16,"per_agent":8}}}

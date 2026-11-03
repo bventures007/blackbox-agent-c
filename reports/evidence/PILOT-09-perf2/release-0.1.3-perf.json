@@ -1,0 +1,39 @@
+{
+  "schema_version": "1",
+  "version": "0.1.3-perf",
+  "date": "2026-11-03T21:37:52Z",
+  "tested_commit": "78d81005dd56444735c7f708aaa3bec201ae9249",
+  "platform": "macOS Apple Silicon (arm64)",
+  "wrapper_version": "1",
+  "api_version": "0.1.3-perf",
+  "worker_version": "0.1.3-perf",
+  "engine_version": "0.1.3-perf",
+  "engine_rpc_version": 1,
+  "mcp_version": 1,
+  "journal_schema_version": 1,
+  "event_schema_version": 1,
+  "reducer_version": 1,
+  "projection_version": 1,
+  "snapshot_version": 1,
+  "backup_format_version": 1,
+  "log_record_schema_version": 1,
+  "postgres_major": 16,
+  "postgres_image": "postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef",
+  "images": {
+    "api": "sha256:41b0fc440568b99537c84d143c91f72d0fb75848395e9702c4923e65d9bebbe2",
+    "worker": "sha256:84be17cdd101e15e3a2583d2eac321faeb2daddca4e7d26d8813ba65b0cdddbe",
+    "engine": "sha256:0d286aff76ef7eef86279bc639aa2e4a4dbb87710152ddd34538b61a49c7b93d",
+    "backup": "sha256:828ef3c59772bfb43e5e4b8f0bec05e1fe25084c82fe2775158804c528e94be8",
+    "postgres": "sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef"
+  },
+  "compatibility": {
+    "upgrade_from": ["0.0.0"],
+    "binary_rollback_safe_to": [],
+    "rollback_note": "No binary rollback is declared safe for this version; recover through an isolated restore of the pre-upgrade backup generation (shows its cutoff) or a forward fix.",
+    "runtime_protocols": {
+      "engine_rpc": 1,
+      "mcp": 1,
+      "api": 1
+    }
+  }
+}

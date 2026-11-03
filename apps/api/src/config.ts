@@ -19,6 +19,8 @@ export interface ApiConfig {
   evidenceDir: string;
   logsDir: string;
   snapshotDir: string;
+  /** bb_api pool size (API_PG_POOL, default 16; 2..64). */
+  pgPoolMax: number;
   engineUrl: string;
   engineToken: string | undefined;
   engineTokenFile: string | undefined;
@@ -115,6 +117,10 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): ApiConfig {
   if (!logsDir) throw new ConfigError("LOGS_DIR is required");
   const engineUrl = env.ENGINE_URL ?? "http://engine:7070";
   if (engineUrl !== "stub" && !/^https?:\/\//.test(engineUrl)) throw new ConfigError("ENGINE_URL must be an http(s) URL or 'stub'");
+  // 20 query clients plus ingestion share this pool; with 8 connections the smoke profile reported
+  // `database_busy` (acquire timeouts) while PostgreSQL itself was idle (max_connections is 80).
+  const pgPoolMax = Number(env.API_PG_POOL ?? "16");
+  if (!Number.isInteger(pgPoolMax) || pgPoolMax < 2 || pgPoolMax > 64) throw new ConfigError("API_PG_POOL must be an integer between 2 and 64");
   const logLevel = (env.LOG_LEVEL ?? "INFO").toUpperCase();
   if (!["DEBUG", "INFO", "WARN", "ERROR"].includes(logLevel)) throw new ConfigError("LOG_LEVEL must be DEBUG|INFO|WARN|ERROR");
   const logCapBytes = Number(env.LOG_CAP_BYTES ?? String(100 * 1024 * 1024));
@@ -134,6 +140,7 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): ApiConfig {
     evidenceDir,
     logsDir,
     snapshotDir: env.SNAPSHOT_DIR ?? path.join(evidenceDir, "..", "snapshots"),
+    pgPoolMax,
     engineUrl,
     engineToken: env.ENGINE_TOKEN,
     engineTokenFile: env.ENGINE_TOKEN_FILE,

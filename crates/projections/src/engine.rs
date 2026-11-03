@@ -2,7 +2,7 @@
 //! batches, apply through the reducers into the write copy, commit the checkpoint, publish
 //! atomically (ArcSwap), then bring the second copy up to date (left-right double buffer).
 
-use crate::evict::{evict_history_to_budget, evict_to_budget};
+use crate::evict::{evict_history_to_budget, evict_to_budget, history_over_budget};
 use crate::snapshot::{self, SNAPSHOT_FORMAT_VERSION};
 use crate::{Registry, TenantSlot, PHASE_CATCHING_UP, PHASE_LOADING, PHASE_READY, PHASE_REBUILDING};
 use blackbox_domain::reducer::Outcome;
@@ -14,6 +14,11 @@ use std::time::{Duration, Instant};
 use tokio::sync::watch;
 use tracing::{error, info, warn};
 use uuid::Uuid;
+
+/// Grace period before an actively ingesting tenant's write copy is dropped under RSS pressure.
+const RSS_DROP_GRACE: Duration = Duration::from_secs(10);
+/// Minimum interval between RSS-pressure eviction passes of one tenant.
+const RSS_EVICTION_INTERVAL: Duration = Duration::from_secs(10);
 
 /// Spawns tenant discovery, the LISTEN wake task and one apply loop per tenant.
 pub async fn start(store: Store, registry: Arc<Registry>, shutdown: watch::Receiver<bool>) {
@@ -237,6 +242,7 @@ pub async fn tenant_loop(
     let mut batches_since_evict: u64 = 0;
     let mut publish_started = Instant::now();
     let mut last_batch: Option<Vec<Entry>> = None;
+    let mut last_rss_eviction: Option<Instant> = None;
 
     loop {
         if *shutdown.borrow() {
@@ -248,6 +254,7 @@ pub async fn tenant_loop(
             let _ = store.delete_snapshot(tenant).await;
             let _ = store.delete_checkpoint(tenant).await;
             registry.cold.invalidate_tenant(tenant);
+            registry.summaries.invalidate_tenant(tenant);
             // Drop unpublished progress and the private copy: the rebuild replaces both.
             write = None;
             slot.write_copy_resident.store(false, Ordering::Relaxed);
@@ -281,11 +288,16 @@ pub async fn tenant_loop(
                 batches += 1;
                 if batches % 8 == 0 {
                     // Bound memory during the rebuild without touching undo logs (pending corrections).
+                    // History locators go only under measured memory pressure: the structural budget is
+                    // a proxy, and evicting the history of every record read so far made each later hot
+                    // lookup a PostgreSQL read for the lifetime of the snapshot.
                     slot.approx_bytes.store(st.approx_bytes(), Ordering::Relaxed);
                     slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
                     let budget = registry.tenant_budget_for(&slot);
-                    if st.evictable_bytes() > budget {
-                        evict_history_to_budget(st, budget);
+                    if crate::mem::over_target(cfg.rss_target_bytes) && history_over_budget(st, budget) {
+                        let r = evict_history_to_budget(st, budget);
+                        slot.rss_evictions.fetch_add(1, Ordering::Relaxed);
+                        info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("rebuild eviction under rss pressure: {} history locators ({} -> {} bytes)", r.history_records_dropped, r.bytes_before, r.bytes_after));
                     }
                 }
                 if after >= target {
@@ -347,6 +359,9 @@ pub async fn tenant_loop(
 
         // Publish when the tail is exhausted (caught up / steady state) or the catch-up cadence is due.
         let full = batch.len() as i64 >= batch_size;
+        // A tail read that returned fewer rows than requested applied every committed entry (and so
+        // every journal correction) up to that read, which makes the undo logs evictable below.
+        let tail_exhausted = !full;
         if !batch.is_empty() {
             last_batch_at = Instant::now();
             if unpublished_batches == 0 {
@@ -377,10 +392,13 @@ pub async fn tenant_loop(
                     slot.approx_bytes.store(st.approx_bytes(), Ordering::Relaxed);
                     slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
                     let budget = registry.tenant_budget_for(&slot);
-                    if st.evictable_bytes() > budget {
+                    // History locators are evicted mid catch-up only under measured memory pressure
+                    // (see the rebuild path); the undo logs stay until the tail is exhausted.
+                    if crate::mem::over_target(cfg.rss_target_bytes) && history_over_budget(st, budget) {
                         let r = evict_history_to_budget(st, budget);
                         slot.evictions.fetch_add(1, Ordering::Relaxed);
-                        info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("catch-up eviction: {} undo logs and {} history locators ({} -> {} bytes)", r.undo_logs_dropped, r.history_records_dropped, r.bytes_before, r.bytes_after));
+                        slot.rss_evictions.fetch_add(1, Ordering::Relaxed);
+                        info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("catch-up eviction under rss pressure: {} undo logs and {} history locators ({} -> {} bytes)", r.undo_logs_dropped, r.history_records_dropped, r.bytes_before, r.bytes_after));
                     }
                 }
                 last_batch = None;
@@ -412,10 +430,14 @@ pub async fn tenant_loop(
                 last_snapshot = Instant::now();
                 entries_since_snapshot = 0;
             }
-            // Idle tenants hold one copy: drop the private write copy after the idle interval, or at
-            // once while the process RSS exceeds its target.
+            // Idle tenants hold one copy: drop the private write copy after the idle interval, or after
+            // a short grace period while the process RSS exceeds its target. A tenant under continuous
+            // ingestion keeps its copy even over target: dropping it after every batch and re-cloning the
+            // whole state one second later (observed: 156 clones / 150 drops of a 94 MiB state in one
+            // 600 s smoke run) costs far more CPU and heap churn than the second copy saves.
             if write.is_some()
-                && (last_batch_at.elapsed() >= cfg.write_copy_idle || crate::mem::over_target(cfg.rss_target_bytes))
+                && (last_batch_at.elapsed() >= cfg.write_copy_idle
+                    || (crate::mem::over_target(cfg.rss_target_bytes) && last_batch_at.elapsed() >= RSS_DROP_GRACE))
             {
                 write = None;
                 last_batch = None;
@@ -432,18 +454,26 @@ pub async fn tenant_loop(
         let w = write.as_mut().expect("unpublished progress implies a write copy");
         let st = Arc::get_mut(w).expect("write copy is unique");
         let mut budget = registry.tenant_budget_for(&slot);
-        let rss_over = crate::mem::over_target(cfg.rss_target_bytes);
+        // Measured RSS above target: tighten the structural budget for this publication — at most once per
+        // RSS_EVICTION_INTERVAL per tenant (an eviction pass walks every entry and sorts every history key;
+        // under steady ingestion a publication happens every second).
+        let rss_over = crate::mem::over_target(cfg.rss_target_bytes)
+            && last_rss_eviction.map(|t| t.elapsed() >= RSS_EVICTION_INTERVAL).unwrap_or(true);
         if rss_over {
-            // Measured RSS above target: tighten the structural budget for this publication.
             budget /= 2;
+            last_rss_eviction = Some(Instant::now());
             slot.rss_evictions.fetch_add(1, Ordering::Relaxed);
         }
         slot.budget_bytes.store(budget, Ordering::Relaxed);
         let mut evicted = false;
-        if st.evictable_bytes() > budget {
-            // Undo logs are only evicted once the tenant is caught up (every correction behind the
-            // committed cursor has been applied); while catching up only history locators go.
-            let r = if caught_up { evict_to_budget(st, budget) } else { evict_history_to_budget(st, budget) };
+        // Undo logs are only evicted once every correction behind the committed cursor has been applied:
+        // when the tenant is caught up, or when this publication follows a tail read that returned fewer
+        // rows than requested (the whole committed tail is applied). A cadence publication mid catch-up
+        // (full batch) evicts history locators only.
+        let fully_applied = caught_up || tail_exhausted;
+        let over = if fully_applied { st.evictable_bytes() > budget } else { history_over_budget(st, budget) };
+        if over {
+            let r = if fully_applied { evict_to_budget(st, budget) } else { evict_history_to_budget(st, budget) };
             evicted = true;
             batches_since_evict = 0;
             slot.evictions.fetch_add(1, Ordering::Relaxed);
@@ -509,7 +539,7 @@ pub async fn tenant_loop(
                 let st2 = Arc::get_mut(&mut retired).expect("unique after reclaim");
                 apply_batch(st2, &batch);
                 if evicted {
-                    if caught_up { evict_to_budget(st2, budget); } else { evict_history_to_budget(st2, budget); }
+                    if fully_applied { evict_to_budget(st2, budget); } else { evict_history_to_budget(st2, budget); }
                 }
                 let published = slot.published.load_full();
                 if st2.state_hash != published.state_hash || eviction_fingerprint(st2) != fingerprint {

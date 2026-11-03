@@ -249,26 +249,55 @@ async fn eviction_under_tiny_budget_keeps_answers_correct_with_cold_reads() -> R
     let db = TestDb::create("evict").await?;
     let t = db.create_tenant("evict").await?;
     let (last, orders) = seed_orders(&db, t, 40, true, 20).await?;
-    // 1 MiB hot budget forces eviction of undo logs and history locators.
-    let engine = Engine::spawn(&db, &[("ENGINE_HOT_BUDGET_MB", "1"), ("ENGINE_COLD_CACHE_MB", "4")]).await?;
+    // Phase A — 1 MiB hot budget, no memory pressure: the tail-exhausted publication evicts undo logs of
+    // the oldest half first; the history locators stay resident (ADR-0009), so every track view is RAM-served.
+    let mut engine = Engine::spawn(&db, &[("ENGINE_HOT_BUDGET_MB", "1"), ("ENGINE_COLD_CACHE_MB", "4")]).await?;
     engine.wait_applied(t, last, Duration::from_secs(60)).await?;
     let h = engine.health().await?;
     assert!(h["tenants"][t.to_string()]["evictions"].as_u64().unwrap() >= 1, "{h}");
     assert!(engine.log().contains("engine.evicted"));
-    // Business values are intact for every order; history for evicted records comes from PostgreSQL.
-    let mut cold_reads = 0;
-    for o in &orders {
-        let v = engine.order_state(t, o).await?;
+    let check = |v: &Value, o: &str| {
         assert_eq!(v["state"]["open_receivable_minor"], 0, "{o}");
         assert_eq!(v["state"]["in_transit_minor"], 0, "{o}");
         let n = |k: &str| v["state"][k].as_i64().unwrap();
         assert_eq!(n("captured_minor") - n("fees_minor") - n("refunded_minor"), n("bank_confirmed_minor"));
+    };
+    let mut resident = Vec::new();
+    for o in &orders {
+        let v = engine.order_state(t, o).await?;
+        check(&v, o);
+        assert_ne!(v["tracks"]["source"]["source"], "postgresql", "history resident without memory pressure: {o}");
+        assert_eq!(v["tracks"]["source"]["total"], 19);
+        resident.push(v["tracks"].clone());
+    }
+    let h = engine.health().await?;
+    assert_eq!(h["memory"]["summary_cache_entries"], 0, "{h}");
+    engine.kill();
+
+    // Phase B — the same journal rebuilt under forced memory pressure (RSS target 1 MiB, tenant budget 1 MiB):
+    // history locators are evicted; answers stay correct and the track views come from the payload-free
+    // indexed read, cached per exact applied cursor (second lookup of the same order is a cache hit).
+    let engine = Engine::spawn(&db, &[("ENGINE_HOT_BUDGET_MB", "1"), ("ENGINE_TENANT_BUDGET_MB", "1"), ("ENGINE_RSS_TARGET_MB", "1"), ("ENGINE_COLD_CACHE_MB", "4")]).await?;
+    engine.wait_applied(t, last, Duration::from_secs(60)).await?;
+    let mut cold_reads = 0;
+    for (i, o) in orders.iter().enumerate() {
+        let v = engine.order_state(t, o).await?;
+        check(&v, o);
         if v["tracks"]["source"]["source"] == "postgresql" {
             cold_reads += 1;
             assert_eq!(v["tracks"]["source"]["total"], 19);
+            // Same entries, same order, same ids as the resident view (summaries only differ in the effect label).
+            let ids = |tr: &Value| tr["source"]["entries"].as_array().unwrap().iter().map(|e| e["entry_id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+            assert_eq!(ids(&v["tracks"]), ids(&resident[i]), "{o}");
+            let again = engine.order_state(t, o).await?;
+            assert_eq!(again["tracks"], v["tracks"]);
         }
     }
     assert!(cold_reads > 0, "some histories were served from the indexed cold path");
+    let h = engine.health().await?;
+    assert!(h["memory"]["summary_cache_entries"].as_u64().unwrap() >= 1, "{h}");
+    assert!(h["memory"]["summary_cache_hits"].as_u64().unwrap() >= 1, "{h}");
+    assert!(h["memory"]["summary_cache_bytes"].as_u64().unwrap() <= h["memory"]["summary_cache_budget_bytes"].as_u64().unwrap());
     // as_of still works (replay through the cold LRU).
     let (st, v) = engine.state(t, "order", &orders[0], json!({"mode": "as_of", "as_of_recorded": chrono::Utc::now().to_rfc3339()})).await?;
     assert_eq!(st, 200, "{v}");

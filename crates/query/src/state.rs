@@ -10,7 +10,11 @@ use serde_json::{json, Map, Value};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
-pub const TRACK_SUMMARIES_PER_TRACK: usize = 100;
+/// Latest summaries per track in a `/v1/state` answer. Each track view reports `total` and `truncated`; the complete
+/// history is one `/v1/history` page away. 100 per track made a hot order of the largest smoke tenant (shared items,
+/// customer: 500–700 merged locators) a 200 KB answer serialized twice in the engine, parsed and re-serialized by
+/// the API and pretty-printed by the MCP bridge — the dominant per-request CPU of all three (ADR-0009).
+pub const TRACK_SUMMARIES_PER_TRACK: usize = 25;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StateResponse {
@@ -63,15 +67,21 @@ pub fn entity_state(st: &TenantState, kind: Kind, id: &str) -> Option<StateRespo
     } else {
         (record_view(st, rec), vec![RecKey::new(kind, sym)], "complete".to_string(), Vec::new())
     };
-    let tracks = track_views(st, &entities, TRACK_SUMMARIES_PER_TRACK);
-    let hist = merged_history(st, &entities);
-    let entry_ids: Vec<Uuid> = hist.iter().map(|l| l.entry_id).collect();
+    let cold = entities.iter().any(|k| st.cold_history.contains(k));
+    // Evicted history: the HTTP layer replaces tracks/entry_ids/evidence with the indexed PostgreSQL read, so the
+    // RAM merge of the remaining (shared) entities' locators is not built at all.
+    let (tracks, entry_ids) = if cold {
+        (Map::new(), Vec::new())
+    } else {
+        let hist = merged_history(st, &entities);
+        (track_views(st, &entities, TRACK_SUMMARIES_PER_TRACK), hist.iter().map(|l| l.entry_id).collect::<Vec<Uuid>>())
+    };
     let evidence_refs: Vec<String> = entry_ids.iter().map(|e| format!("journal:{e}")).collect();
     let conflicts = conflicts_for(st, &entities);
     if !conflicts.is_empty() && status == "complete" {
         status = "conflict".into();
     }
-    if entities.iter().any(|k| st.cold_history.contains(k)) {
+    if cold {
         missing.push("history.evicted_use_cold_read".into());
     }
     Some(StateResponse {

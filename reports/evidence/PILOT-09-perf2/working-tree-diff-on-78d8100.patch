@@ -1,0 +1,1804 @@
+diff --git a/apps/api/src/app.ts b/apps/api/src/app.ts
+index f23ef23..24a1ead 100644
+--- a/apps/api/src/app.ts
++++ b/apps/api/src/app.ts
+@@ -52,7 +52,7 @@ export function createContext(options: BuildOptions): AppContext {
+   debugGate.reset(); // startup always returns to INFO
+   const collector = options.collector ?? new FileCollector({ dir: config.logsDir, capBytes: config.logCapBytes, retentionDays: config.logRetentionDays });
+   const logger = options.logger ?? createLogger({ component: "api", serviceVersion: config.serviceVersion, instanceId: config.instanceId, level: config.logLevel, sinks: [collector], debugGate, stream: options.logStream });
+-  const pool = options.pool ?? createPool(config.databaseUrl, { applicationName: "blackbox-api" });
++  const pool = options.pool ?? createPool(config.databaseUrl, { applicationName: "blackbox-api", max: config.pgPoolMax });
+   const auth = new AuthService({ pool, logger, secretsDir: config.secretsDir });
+   const evidence = new EvidenceStore(config.evidenceDir);
+   const journal = new JournalService(pool);
+diff --git a/apps/api/src/config.ts b/apps/api/src/config.ts
+index b64a726..8936a5d 100644
+--- a/apps/api/src/config.ts
++++ b/apps/api/src/config.ts
+@@ -19,6 +19,8 @@ export interface ApiConfig {
+   evidenceDir: string;
+   logsDir: string;
+   snapshotDir: string;
++  /** bb_api pool size (API_PG_POOL, default 16; 2..64). */
++  pgPoolMax: number;
+   engineUrl: string;
+   engineToken: string | undefined;
+   engineTokenFile: string | undefined;
+@@ -115,6 +117,10 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): ApiConfig {
+   if (!logsDir) throw new ConfigError("LOGS_DIR is required");
+   const engineUrl = env.ENGINE_URL ?? "http://engine:7070";
+   if (engineUrl !== "stub" && !/^https?:\/\//.test(engineUrl)) throw new ConfigError("ENGINE_URL must be an http(s) URL or 'stub'");
++  // 20 query clients plus ingestion share this pool; with 8 connections the smoke profile reported
++  // `database_busy` (acquire timeouts) while PostgreSQL itself was idle (max_connections is 80).
++  const pgPoolMax = Number(env.API_PG_POOL ?? "16");
++  if (!Number.isInteger(pgPoolMax) || pgPoolMax < 2 || pgPoolMax > 64) throw new ConfigError("API_PG_POOL must be an integer between 2 and 64");
+   const logLevel = (env.LOG_LEVEL ?? "INFO").toUpperCase();
+   if (!["DEBUG", "INFO", "WARN", "ERROR"].includes(logLevel)) throw new ConfigError("LOG_LEVEL must be DEBUG|INFO|WARN|ERROR");
+   const logCapBytes = Number(env.LOG_CAP_BYTES ?? String(100 * 1024 * 1024));
+@@ -134,6 +140,7 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): ApiConfig {
+     evidenceDir,
+     logsDir,
+     snapshotDir: env.SNAPSHOT_DIR ?? path.join(evidenceDir, "..", "snapshots"),
++    pgPoolMax,
+     engineUrl,
+     engineToken: env.ENGINE_TOKEN,
+     engineTokenFile: env.ENGINE_TOKEN_FILE,
+diff --git a/apps/api/src/routes/journal.ts b/apps/api/src/routes/journal.ts
+index e01958c..628d80c 100644
+--- a/apps/api/src/routes/journal.ts
++++ b/apps/api/src/routes/journal.ts
+@@ -70,9 +70,10 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
+     const consistency: ConsistencyRequest = { mode: q.data.mode ?? (q.data.as_of_recorded || q.data.as_of_effective ? "as_of" : "latest_committed"), cursor: q.data.cursor ?? null, as_of_recorded: q.data.as_of_recorded ?? null, as_of_effective: q.data.as_of_effective ?? null, deadline_ms: 5000 };
+     const started = process.hrtime.bigint();
+     try {
+-      const state = await ctx.engine.state({ tenant_id: tenantId, entity_type: type, entity_id: id, consistency });
+-      const readiness = await ctx.readiness.compute(tenantId);
++      const state = await ctx.engine.state({ tenant_id: tenantId, entity_type: type, entity_id: id, consistency, principal_id: guards.principalOf(request).id });
+       const cons = state.consistency as { applied_cursor?: number } | undefined;
++      // Readiness is never older than the answer's cursor; a memo at or beyond it costs no database work.
++      const readiness = await ctx.readiness.compute(tenantId, { knownCursor: typeof cons?.applied_cursor === "number" ? cons.applied_cursor : null });
+       ctx.logger.info("query.served", "Entity state served", { tenant_id: tenantId, operation_id: `state:${type}`, duration_ms: Math.round(Number(process.hrtime.bigint() - started) / 1e6), applied_cursor: cons?.applied_cursor });
+       return { ...state, readiness: { datasets_present: readiness.datasets_present, datasets_missing: readiness.datasets_missing, sources: Object.values(readiness.dataset_sources).flat() } };
+     } catch (err) {
+@@ -161,7 +162,7 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
+ 
+   app.get("/api/schema", { preHandler: [guards.requireRead] }, async (request) => {
+     const tenantId = guards.tenantOf(request);
+-    const readiness = await ctx.readiness.compute(tenantId);
++    const readiness = await ctx.readiness.compute(tenantId, { exact: true });
+     let engineSchema: Record<string, unknown>;
+     try {
+       engineSchema = await ctx.engine.schema();
+@@ -173,7 +174,7 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
+ 
+   // ----- questions -----
+   app.get("/api/questions", { preHandler: [guards.requireRead] }, async (request) => {
+-    const readiness = await ctx.readiness.compute(guards.tenantOf(request));
++    const readiness = await ctx.readiness.compute(guards.tenantOf(request), { exact: true });
+     const byIntent = new Map(readiness.questions.map((q) => [q.intent, q]));
+     return { questions: ctx.questions.templates().map((t) => ({ ...t, readiness: byIntent.get(t.intent) ?? null })) };
+   });
+@@ -190,7 +191,7 @@ export function registerJournalRoutes(app: FastifyInstance, ctx: AppContext, gua
+     if (!body.success) throw validation("body must be {params?, consistency?}", body.error.issues);
+     const principal = guards.principalOf(request);
+     try {
+-      return await ctx.questions.answer(guards.tenantOf(request), intent, body.data.params, body.data.consistency as Partial<ConsistencyRequest> | undefined, principal.kind);
++      return await ctx.questions.answer(guards.tenantOf(request), intent, body.data.params, body.data.consistency as Partial<ConsistencyRequest> | undefined, principal.kind, principal.id);
+     } catch (err) {
+       engineErr(err);
+     }
+diff --git a/apps/api/src/routes/sources.ts b/apps/api/src/routes/sources.ts
+index 4038242..a7dcf96 100644
+--- a/apps/api/src/routes/sources.ts
++++ b/apps/api/src/routes/sources.ts
+@@ -49,7 +49,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
+   app.get("/api/sources", { preHandler: [guards.requireRead] }, async (request) => {
+     const tenantId = guards.tenantOf(request);
+     const list = ctx.connections ? await ctx.connections.list(tenantId) : [];
+-    const readiness = await ctx.readiness.compute(tenantId);
++    const readiness = await ctx.readiness.compute(tenantId, { exact: true });
+     const providers = (ctx.connections?.knownProviders() ?? []).filter((p) => p.release_scope === "first_release");
+     const catalogue = providers.map((p) => {
+       const conns = list.filter((c) => c.provider === p.id);
+@@ -89,7 +89,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
+       withTenant(ctx.pool, tenantId, (c) => ctx.connections!.healthFor(c, id)),
+       ctx.importPlans.current(tenantId, id),
+       ctx.connections!.listRuns(tenantId, id),
+-      ctx.readiness.compute(tenantId),
++      ctx.readiness.compute(tenantId, { exact: true }),
+     ]);
+     const proposal = await ctx.importPlans.proposal(tenantId);
+     return { connection, health, import_plan: plan, import_plan_proposal: proposal, runs, readiness: readiness.questions.filter((q) => q.sources.some((s) => s.connection_id === id)) };
+@@ -145,7 +145,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext, guar
+   });
+ 
+   app.get("/api/sources/readiness", { preHandler: [guards.requireRead] }, async (request) => {
+-    const r = await ctx.readiness.compute(guards.tenantOf(request));
++    const r = await ctx.readiness.compute(guards.tenantOf(request), { exact: true });
+     return { observed_at: r.observed_at, datasets_present: r.datasets_present, datasets_missing: r.datasets_missing, questions: r.questions };
+   });
+ 
+diff --git a/apps/engine/src/main.rs b/apps/engine/src/main.rs
+index 78f23f9..d9c055e 100644
+--- a/apps/engine/src/main.rs
++++ b/apps/engine/src/main.rs
+@@ -14,6 +14,7 @@ use axum::routing::{get, post};
+ use axum::{Json, Router};
+ use blackbox_domain::{Kind, TenantState, REDUCER_VERSION};
+ use blackbox_projections::cold::ColdKey;
++use blackbox_projections::summaries::SummaryKey;
+ use blackbox_projections::engine::{replay_entity, replay_tenant};
+ use blackbox_projections::{EngineConfig, Registry, TenantSlot, PHASE_CATCHING_UP, PHASE_LOADING, PHASE_READY, PHASE_REBUILDING};
+ use blackbox_query::state::{entity_state, summary};
+@@ -392,6 +393,28 @@ async fn replay_whole_tenant(app: &App, tenant: Uuid, cut: &Cutoff) -> Result<Ar
+     Ok(arc)
+ }
+ 
++/// Payload-free entry summaries of a record whose history locators were evicted, read at the exact
++/// published cursor `upto` and cached by that key (`Registry::summaries`). The cache is a pure
++/// function of (tenant, entity, cursor): a newer publication is a different key and a rebuild drops the
++/// tenant, so a hit never serves rows from another cursor.
++async fn evicted_summaries(app: &App, tenant: Uuid, entity_type: &str, entity_id: &str, upto: i64, limit: i64) -> Result<Arc<Vec<blackbox_storage::EntrySummaryRow>>, ApiError> {
++    let key = SummaryKey {
++        tenant,
++        entity_type: entity_type.to_string(),
++        entity_id: entity_id.to_string(),
++        upto_sequence: upto,
++    };
++    // One bound for every caller (the larger of the state bound and the evidence bound), so a cached
++    // read serves both paths identically; callers truncate.
++    let bound = (blackbox_query::MAX_EVIDENCE as i64).max(500).max(limit);
++    if let Some(rows) = app.registry.summaries.get(&key) {
++        return Ok(rows);
++    }
++    let rows = Arc::new(app.store.entity_entry_summaries(tenant, entity_type, entity_id, upto, bound).await.map_err(ApiError::db)?);
++    app.registry.summaries.insert(key, rows.clone());
++    Ok(rows)
++}
++
+ // ------------------------------------------------------------------ request plumbing
+ 
+ fn check_token(app: &App, headers: &HeaderMap) -> Result<(), ApiError> {
+@@ -509,21 +532,24 @@ async fn state_handler(State(app): State<App>, headers: HeaderMap, body: Bytes)
+                 }
+             }
+         };
+-        // Evicted history: serve track summaries from PostgreSQL (indexed cold read).
++        // Evicted history: serve track summaries from the payload-free indexed PostgreSQL read, cached
++        // per exact applied cursor (a later publication changes the key; never a stale cursor).
+         if resp.missing_inputs.iter().any(|m| m == "history.evicted_use_cold_read") {
+-            let entries = app
+-                .store
+-                .entity_entries(tenant, kind.as_str(), &req.entity_id, 0, st.applied_sequence, None, 500)
+-                .await
+-                .map_err(ApiError::db)?;
++            let all = evicted_summaries(&app, tenant, kind.as_str(), &req.entity_id, st.applied_sequence, 500).await?;
++            let entries: &[blackbox_storage::EntrySummaryRow] = &all[..all.len().min(500)];
+             let mut tracks: Map<String, Value> = Map::new();
+             for t in blackbox_domain::Track::ALL {
+-                let list: Vec<Value> = entries
++                // Same bound as the RAM path: the latest TRACK_SUMMARIES_PER_TRACK per track, with the total.
++                let of_track: Vec<&blackbox_storage::EntrySummaryRow> = entries.iter().filter(|e| e.track == t).collect();
++                let total = of_track.len();
++                let list: Vec<Value> = of_track
+                     .iter()
+-                    .filter(|e| e.track == t)
++                    .rev()
++                    .take(blackbox_query::state::TRACK_SUMMARIES_PER_TRACK)
++                    .rev()
+                     .map(|e| json!({"entry_id": e.entry_id, "journal_sequence": e.journal_sequence, "track": e.track, "record_id": e.record_id, "event_type": e.event_type, "occurred_at": e.occurred_at, "recorded_at": e.recorded_at, "supersedes_entry_id": e.supersedes_entry_id, "superseded_by": null, "effect": "cold_read"}))
+                     .collect();
+-                tracks.insert(t.as_str().into(), json!({"entries": list, "total": list.len(), "truncated": entries.len() >= 500, "source": "postgresql"}));
++                tracks.insert(t.as_str().into(), json!({"entries": list, "total": total, "truncated": total > list.len() || all.len() >= 500, "source": "postgresql"}));
+             }
+             resp.tracks = tracks;
+             resp.entry_ids = entries.iter().map(|e| e.entry_id).collect();
+@@ -583,22 +609,36 @@ async fn query_handler(State(app): State<App>, headers: HeaderMap, body: Bytes)
+             let (st, c) = resolve_current(&app, &slot, &req.consistency, started + deadline).await?;
+             (Resolved::Published(st), c)
+         };
+-        let st = resolved.state();
+-        let env = blackbox_query::run(st, tenant, &req.intent, &req.params, &req.page, now, consistency.applied_cursor)?;
+-        let applied_sequence = st.applied_sequence;
++        // Intents are synchronous reducer-state walks (a tenant-wide intent over the smoke corpus takes tens of
++        // milliseconds): run them on the blocking pool so they never stall the async workers serving hot lookups.
++        let state_arc = match &resolved {
++            Resolved::Published(s) | Resolved::Scratch(s) => s.clone(),
++        };
++        let applied_sequence = state_arc.applied_sequence;
++        let intent = req.intent.clone();
++        let params = req.params.clone();
++        let page = req.page.clone();
++        let applied_cursor = consistency.applied_cursor;
++        let env = tokio::task::spawn_blocking(move || blackbox_query::run(&state_arc, tenant, &intent, &params, &page, now, applied_cursor))
++            .await
++            .map_err(|e| ApiError::db(format!("intent task failed: {e}")))??;
+         let mut out = serde_json::to_value(&env).unwrap_or(Value::Null);
+         // Evicted history on a touched entity: cite the entries from the indexed cold path (PostgreSQL), bounded
+-        // like the hot path, instead of returning an answer without evidence.
++        // like the hot path, instead of returning an answer without evidence. The citation is capped at
++        // MAX_EVIDENCE locators: cold records are read in touch order only until the cap is reached (a
++        // tenant-wide intent on the smoke corpus touched thousands of evicted invoices, i.e. thousands of reads
++        // per answer for a citation that is truncated to 500 anyway); `evidence_truncated` says so.
+         if !env.cold_entities.is_empty() {
+             let mut seen = std::collections::HashSet::new();
+             let mut locs: Vec<(i64, Uuid)> = Vec::new();
++            let mut unread_cold = 0usize;
+             for (kind, id) in &env.cold_entities {
+-                let entries = app
+-                    .store
+-                    .entity_entries(tenant, kind, id, 0, applied_sequence, None, blackbox_query::MAX_EVIDENCE as i64)
+-                    .await
+-                    .map_err(ApiError::db)?;
+-                for e in entries {
++                if locs.len() >= blackbox_query::MAX_EVIDENCE {
++                    unread_cold += 1;
++                    continue;
++                }
++                let entries = evicted_summaries(&app, tenant, kind, id, applied_sequence, blackbox_query::MAX_EVIDENCE as i64).await?;
++                for e in entries.iter().take(blackbox_query::MAX_EVIDENCE) {
+                     if seen.insert(e.entry_id) {
+                         locs.push((e.journal_sequence, e.entry_id));
+                     }
+@@ -610,7 +650,7 @@ async fn query_handler(State(app): State<App>, headers: HeaderMap, body: Bytes)
+                 }
+             }
+             locs.sort_unstable();
+-            let truncated = locs.len() > blackbox_query::MAX_EVIDENCE;
++            let truncated = locs.len() > blackbox_query::MAX_EVIDENCE || unread_cold > 0;
+             locs.truncate(blackbox_query::MAX_EVIDENCE);
+             out["entry_ids"] = json!(locs.iter().map(|(_, id)| *id).collect::<Vec<Uuid>>());
+             out["evidence_refs"] = json!(locs.iter().map(|(_, id)| format!("journal:{id}")).collect::<Vec<String>>());
+@@ -743,7 +783,13 @@ async fn summary_handler(State(app): State<App>, headers: HeaderMap, body: Bytes
+             let (st, c) = resolve_current(&app, &slot, &req.consistency, started + deadline).await?;
+             (Resolved::Published(st), c)
+         };
+-        let s = summary(resolved.state(), from, to, req.currency.as_deref());
++        let state_arc = match &resolved {
++            Resolved::Published(s) | Resolved::Scratch(s) => s.clone(),
++        };
++        let currency = req.currency.clone();
++        let s = tokio::task::spawn_blocking(move || summary(&state_arc, from, to, currency.as_deref()))
++            .await
++            .map_err(|e| ApiError::db(format!("summary task failed: {e}")))?;
+         let mut out = serde_json::to_value(&s).unwrap_or(Value::Null);
+         out["consistency"] = serde_json::to_value(&consistency).unwrap_or(Value::Null);
+         out["duration_ms"] = json!(started.elapsed().as_millis() as u64);
+@@ -868,6 +914,11 @@ fn health_json(app: &App, db_ok: bool) -> (Value, bool) {
+             "cold_cache_entries": app.registry.cold.len(),
+             "cold_cache_hits": app.registry.cold.hits.load(Ordering::Relaxed),
+             "cold_cache_misses": app.registry.cold.misses.load(Ordering::Relaxed),
++            "summary_cache_bytes": app.registry.summaries.bytes(),
++            "summary_cache_budget_bytes": app.registry.summaries.budget(),
++            "summary_cache_entries": app.registry.summaries.len(),
++            "summary_cache_hits": app.registry.summaries.hits.load(Ordering::Relaxed),
++            "summary_cache_misses": app.registry.summaries.misses.load(Ordering::Relaxed),
+         },
+         "admission": {
+             "in_flight": app.admission.in_flight_global(),
+diff --git a/apps/engine/tests/ops_http.rs b/apps/engine/tests/ops_http.rs
+index d18f98c..9a30f86 100644
+--- a/apps/engine/tests/ops_http.rs
++++ b/apps/engine/tests/ops_http.rs
+@@ -249,26 +249,55 @@ async fn eviction_under_tiny_budget_keeps_answers_correct_with_cold_reads() -> R
+     let db = TestDb::create("evict").await?;
+     let t = db.create_tenant("evict").await?;
+     let (last, orders) = seed_orders(&db, t, 40, true, 20).await?;
+-    // 1 MiB hot budget forces eviction of undo logs and history locators.
+-    let engine = Engine::spawn(&db, &[("ENGINE_HOT_BUDGET_MB", "1"), ("ENGINE_COLD_CACHE_MB", "4")]).await?;
++    // Phase A — 1 MiB hot budget, no memory pressure: the tail-exhausted publication evicts undo logs of
++    // the oldest half first; the history locators stay resident (ADR-0009), so every track view is RAM-served.
++    let mut engine = Engine::spawn(&db, &[("ENGINE_HOT_BUDGET_MB", "1"), ("ENGINE_COLD_CACHE_MB", "4")]).await?;
+     engine.wait_applied(t, last, Duration::from_secs(60)).await?;
+     let h = engine.health().await?;
+     assert!(h["tenants"][t.to_string()]["evictions"].as_u64().unwrap() >= 1, "{h}");
+     assert!(engine.log().contains("engine.evicted"));
+-    // Business values are intact for every order; history for evicted records comes from PostgreSQL.
+-    let mut cold_reads = 0;
+-    for o in &orders {
+-        let v = engine.order_state(t, o).await?;
++    let check = |v: &Value, o: &str| {
+         assert_eq!(v["state"]["open_receivable_minor"], 0, "{o}");
+         assert_eq!(v["state"]["in_transit_minor"], 0, "{o}");
+         let n = |k: &str| v["state"][k].as_i64().unwrap();
+         assert_eq!(n("captured_minor") - n("fees_minor") - n("refunded_minor"), n("bank_confirmed_minor"));
++    };
++    let mut resident = Vec::new();
++    for o in &orders {
++        let v = engine.order_state(t, o).await?;
++        check(&v, o);
++        assert_ne!(v["tracks"]["source"]["source"], "postgresql", "history resident without memory pressure: {o}");
++        assert_eq!(v["tracks"]["source"]["total"], 19);
++        resident.push(v["tracks"].clone());
++    }
++    let h = engine.health().await?;
++    assert_eq!(h["memory"]["summary_cache_entries"], 0, "{h}");
++    engine.kill();
++
++    // Phase B — the same journal rebuilt under forced memory pressure (RSS target 1 MiB, tenant budget 1 MiB):
++    // history locators are evicted; answers stay correct and the track views come from the payload-free
++    // indexed read, cached per exact applied cursor (second lookup of the same order is a cache hit).
++    let engine = Engine::spawn(&db, &[("ENGINE_HOT_BUDGET_MB", "1"), ("ENGINE_TENANT_BUDGET_MB", "1"), ("ENGINE_RSS_TARGET_MB", "1"), ("ENGINE_COLD_CACHE_MB", "4")]).await?;
++    engine.wait_applied(t, last, Duration::from_secs(60)).await?;
++    let mut cold_reads = 0;
++    for (i, o) in orders.iter().enumerate() {
++        let v = engine.order_state(t, o).await?;
++        check(&v, o);
+         if v["tracks"]["source"]["source"] == "postgresql" {
+             cold_reads += 1;
+             assert_eq!(v["tracks"]["source"]["total"], 19);
++            // Same entries, same order, same ids as the resident view (summaries only differ in the effect label).
++            let ids = |tr: &Value| tr["source"]["entries"].as_array().unwrap().iter().map(|e| e["entry_id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
++            assert_eq!(ids(&v["tracks"]), ids(&resident[i]), "{o}");
++            let again = engine.order_state(t, o).await?;
++            assert_eq!(again["tracks"], v["tracks"]);
+         }
+     }
+     assert!(cold_reads > 0, "some histories were served from the indexed cold path");
++    let h = engine.health().await?;
++    assert!(h["memory"]["summary_cache_entries"].as_u64().unwrap() >= 1, "{h}");
++    assert!(h["memory"]["summary_cache_hits"].as_u64().unwrap() >= 1, "{h}");
++    assert!(h["memory"]["summary_cache_bytes"].as_u64().unwrap() <= h["memory"]["summary_cache_budget_bytes"].as_u64().unwrap());
+     // as_of still works (replay through the cold LRU).
+     let (st, v) = engine.state(t, "order", &orders[0], json!({"mode": "as_of", "as_of_recorded": chrono::Utc::now().to_rfc3339()})).await?;
+     assert_eq!(st, 200, "{v}");
+diff --git a/crates/domain/src/views.rs b/crates/domain/src/views.rs
+index 5dd4e5c..a0b8036 100644
+--- a/crates/domain/src/views.rs
++++ b/crates/domain/src/views.rs
+@@ -325,9 +325,11 @@ pub fn coverage_for(st: &TenantState, datasets: &[&str]) -> Coverage {
+ }
+ 
+ pub fn conflicts_for(st: &TenantState, entities: &[RecKey]) -> Vec<ConflictView> {
++    // Membership through a set: conflicts × touched entities was quadratic for tenant-wide intents.
++    let set: std::collections::HashSet<RecKey> = entities.iter().copied().collect();
+     st.conflicts
+         .iter()
+-        .filter(|c| c.entities.iter().any(|(k, i)| entities.contains(&RecKey::new(*k, *i))))
++        .filter(|c| c.entities.iter().any(|(k, i)| set.contains(&RecKey::new(*k, *i))))
+         .map(|c| ConflictView {
+             case_id: c.case_id.clone(),
+             reason: c.reason.clone(),
+diff --git a/crates/projections/src/engine.rs b/crates/projections/src/engine.rs
+index c9d905b..9186275 100644
+--- a/crates/projections/src/engine.rs
++++ b/crates/projections/src/engine.rs
+@@ -2,7 +2,7 @@
+ //! batches, apply through the reducers into the write copy, commit the checkpoint, publish
+ //! atomically (ArcSwap), then bring the second copy up to date (left-right double buffer).
+ 
+-use crate::evict::{evict_history_to_budget, evict_to_budget};
++use crate::evict::{evict_history_to_budget, evict_to_budget, history_over_budget};
+ use crate::snapshot::{self, SNAPSHOT_FORMAT_VERSION};
+ use crate::{Registry, TenantSlot, PHASE_CATCHING_UP, PHASE_LOADING, PHASE_READY, PHASE_REBUILDING};
+ use blackbox_domain::reducer::Outcome;
+@@ -15,6 +15,11 @@ use tokio::sync::watch;
+ use tracing::{error, info, warn};
+ use uuid::Uuid;
+ 
++/// Grace period before an actively ingesting tenant's write copy is dropped under RSS pressure.
++const RSS_DROP_GRACE: Duration = Duration::from_secs(10);
++/// Minimum interval between RSS-pressure eviction passes of one tenant.
++const RSS_EVICTION_INTERVAL: Duration = Duration::from_secs(10);
++
+ /// Spawns tenant discovery, the LISTEN wake task and one apply loop per tenant.
+ pub async fn start(store: Store, registry: Arc<Registry>, shutdown: watch::Receiver<bool>) {
+     let r = registry.clone();
+@@ -237,6 +242,7 @@ pub async fn tenant_loop(
+     let mut batches_since_evict: u64 = 0;
+     let mut publish_started = Instant::now();
+     let mut last_batch: Option<Vec<Entry>> = None;
++    let mut last_rss_eviction: Option<Instant> = None;
+ 
+     loop {
+         if *shutdown.borrow() {
+@@ -248,6 +254,7 @@ pub async fn tenant_loop(
+             let _ = store.delete_snapshot(tenant).await;
+             let _ = store.delete_checkpoint(tenant).await;
+             registry.cold.invalidate_tenant(tenant);
++            registry.summaries.invalidate_tenant(tenant);
+             // Drop unpublished progress and the private copy: the rebuild replaces both.
+             write = None;
+             slot.write_copy_resident.store(false, Ordering::Relaxed);
+@@ -281,11 +288,16 @@ pub async fn tenant_loop(
+                 batches += 1;
+                 if batches % 8 == 0 {
+                     // Bound memory during the rebuild without touching undo logs (pending corrections).
++                    // History locators go only under measured memory pressure: the structural budget is
++                    // a proxy, and evicting the history of every record read so far made each later hot
++                    // lookup a PostgreSQL read for the lifetime of the snapshot.
+                     slot.approx_bytes.store(st.approx_bytes(), Ordering::Relaxed);
+                     slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
+                     let budget = registry.tenant_budget_for(&slot);
+-                    if st.evictable_bytes() > budget {
+-                        evict_history_to_budget(st, budget);
++                    if crate::mem::over_target(cfg.rss_target_bytes) && history_over_budget(st, budget) {
++                        let r = evict_history_to_budget(st, budget);
++                        slot.rss_evictions.fetch_add(1, Ordering::Relaxed);
++                        info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("rebuild eviction under rss pressure: {} history locators ({} -> {} bytes)", r.history_records_dropped, r.bytes_before, r.bytes_after));
+                     }
+                 }
+                 if after >= target {
+@@ -347,6 +359,9 @@ pub async fn tenant_loop(
+ 
+         // Publish when the tail is exhausted (caught up / steady state) or the catch-up cadence is due.
+         let full = batch.len() as i64 >= batch_size;
++        // A tail read that returned fewer rows than requested applied every committed entry (and so
++        // every journal correction) up to that read, which makes the undo logs evictable below.
++        let tail_exhausted = !full;
+         if !batch.is_empty() {
+             last_batch_at = Instant::now();
+             if unpublished_batches == 0 {
+@@ -377,10 +392,13 @@ pub async fn tenant_loop(
+                     slot.approx_bytes.store(st.approx_bytes(), Ordering::Relaxed);
+                     slot.evictable_bytes.store(st.evictable_bytes(), Ordering::Relaxed);
+                     let budget = registry.tenant_budget_for(&slot);
+-                    if st.evictable_bytes() > budget {
++                    // History locators are evicted mid catch-up only under measured memory pressure
++                    // (see the rebuild path); the undo logs stay until the tail is exhausted.
++                    if crate::mem::over_target(cfg.rss_target_bytes) && history_over_budget(st, budget) {
+                         let r = evict_history_to_budget(st, budget);
+                         slot.evictions.fetch_add(1, Ordering::Relaxed);
+-                        info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("catch-up eviction: {} undo logs and {} history locators ({} -> {} bytes)", r.undo_logs_dropped, r.history_records_dropped, r.bytes_before, r.bytes_after));
++                        slot.rss_evictions.fetch_add(1, Ordering::Relaxed);
++                        info!(event_name = "engine.evicted", tenant_id = %tenant, record_count = r.history_records_dropped as i64, message = format!("catch-up eviction under rss pressure: {} undo logs and {} history locators ({} -> {} bytes)", r.undo_logs_dropped, r.history_records_dropped, r.bytes_before, r.bytes_after));
+                     }
+                 }
+                 last_batch = None;
+@@ -412,10 +430,14 @@ pub async fn tenant_loop(
+                 last_snapshot = Instant::now();
+                 entries_since_snapshot = 0;
+             }
+-            // Idle tenants hold one copy: drop the private write copy after the idle interval, or at
+-            // once while the process RSS exceeds its target.
++            // Idle tenants hold one copy: drop the private write copy after the idle interval, or after
++            // a short grace period while the process RSS exceeds its target. A tenant under continuous
++            // ingestion keeps its copy even over target: dropping it after every batch and re-cloning the
++            // whole state one second later (observed: 156 clones / 150 drops of a 94 MiB state in one
++            // 600 s smoke run) costs far more CPU and heap churn than the second copy saves.
+             if write.is_some()
+-                && (last_batch_at.elapsed() >= cfg.write_copy_idle || crate::mem::over_target(cfg.rss_target_bytes))
++                && (last_batch_at.elapsed() >= cfg.write_copy_idle
++                    || (crate::mem::over_target(cfg.rss_target_bytes) && last_batch_at.elapsed() >= RSS_DROP_GRACE))
+             {
+                 write = None;
+                 last_batch = None;
+@@ -432,18 +454,26 @@ pub async fn tenant_loop(
+         let w = write.as_mut().expect("unpublished progress implies a write copy");
+         let st = Arc::get_mut(w).expect("write copy is unique");
+         let mut budget = registry.tenant_budget_for(&slot);
+-        let rss_over = crate::mem::over_target(cfg.rss_target_bytes);
++        // Measured RSS above target: tighten the structural budget for this publication — at most once per
++        // RSS_EVICTION_INTERVAL per tenant (an eviction pass walks every entry and sorts every history key;
++        // under steady ingestion a publication happens every second).
++        let rss_over = crate::mem::over_target(cfg.rss_target_bytes)
++            && last_rss_eviction.map(|t| t.elapsed() >= RSS_EVICTION_INTERVAL).unwrap_or(true);
+         if rss_over {
+-            // Measured RSS above target: tighten the structural budget for this publication.
+             budget /= 2;
++            last_rss_eviction = Some(Instant::now());
+             slot.rss_evictions.fetch_add(1, Ordering::Relaxed);
+         }
+         slot.budget_bytes.store(budget, Ordering::Relaxed);
+         let mut evicted = false;
+-        if st.evictable_bytes() > budget {
+-            // Undo logs are only evicted once the tenant is caught up (every correction behind the
+-            // committed cursor has been applied); while catching up only history locators go.
+-            let r = if caught_up { evict_to_budget(st, budget) } else { evict_history_to_budget(st, budget) };
++        // Undo logs are only evicted once every correction behind the committed cursor has been applied:
++        // when the tenant is caught up, or when this publication follows a tail read that returned fewer
++        // rows than requested (the whole committed tail is applied). A cadence publication mid catch-up
++        // (full batch) evicts history locators only.
++        let fully_applied = caught_up || tail_exhausted;
++        let over = if fully_applied { st.evictable_bytes() > budget } else { history_over_budget(st, budget) };
++        if over {
++            let r = if fully_applied { evict_to_budget(st, budget) } else { evict_history_to_budget(st, budget) };
+             evicted = true;
+             batches_since_evict = 0;
+             slot.evictions.fetch_add(1, Ordering::Relaxed);
+@@ -509,7 +539,7 @@ pub async fn tenant_loop(
+                 let st2 = Arc::get_mut(&mut retired).expect("unique after reclaim");
+                 apply_batch(st2, &batch);
+                 if evicted {
+-                    if caught_up { evict_to_budget(st2, budget); } else { evict_history_to_budget(st2, budget); }
++                    if fully_applied { evict_to_budget(st2, budget); } else { evict_history_to_budget(st2, budget); }
+                 }
+                 let published = slot.published.load_full();
+                 if st2.state_hash != published.state_hash || eviction_fingerprint(st2) != fingerprint {
+diff --git a/crates/projections/src/evict.rs b/crates/projections/src/evict.rs
+index 4f8c824..86a3e49 100644
+--- a/crates/projections/src/evict.rs
++++ b/crates/projections/src/evict.rs
+@@ -13,6 +13,21 @@ pub struct EvictionReport {
+     pub bytes_after: usize,
+ }
+ 
++/// Structural bytes of the history locators alone (the part evicted in history-only mode).
++pub fn history_bytes(state: &TenantState) -> usize {
++    state
++        .history
++        .values()
++        .map(|v| v.capacity() * std::mem::size_of::<blackbox_domain::state::EntryLoc>() + 32)
++        .sum()
++}
++
++/// True when a history-only pass would evict anything for this budget (same hysteresis as `evict`).
++pub fn history_over_budget(state: &TenantState, target_bytes: usize) -> bool {
++    let hysteresis = (target_bytes / 8).min(4 * 1024 * 1024);
++    history_bytes(state) > target_bytes.saturating_add(hysteresis)
++}
++
+ /// Evicts until the structural estimate is at or below `target_bytes` (best effort).
+ pub fn evict_to_budget(state: &mut TenantState, target_bytes: usize) -> EvictionReport {
+     evict(state, target_bytes, false)
+@@ -34,7 +49,14 @@ pub fn evict_history_to_budget(state: &mut TenantState, target_bytes: usize) ->
+ /// corpus: every hot lookup became a PostgreSQL entity read). Process memory is bounded separately by
+ /// the measured-RSS target.
+ fn evict(state: &mut TenantState, target_bytes: usize, keep_undo: bool) -> EvictionReport {
+-    let floor = state.approx_bytes().saturating_sub(state.evictable_bytes());
++    let evictable = state.evictable_bytes();
++    // History-only mode (catching up / rebuilding): the retained undo logs are a deliberate floor of
++    // that phase, so the budget applies to the history locators alone. Comparing history + undo with
++    // the budget made the target unreachable for any large tenant and dropped every history locator
++    // (observed on the smoke corpus: 29k records of the largest tenant and nearly all records of the
++    // small tenants went cold during the initial catch-up and stayed cold through every snapshot).
++    let in_scope = if keep_undo { history_bytes(state) } else { evictable };
++    let floor = state.approx_bytes().saturating_sub(in_scope);
+     let mut report = EvictionReport {
+         bytes_before: state.approx_bytes(),
+         ..Default::default()
+@@ -43,7 +65,7 @@ fn evict(state: &mut TenantState, target_bytes: usize, keep_undo: bool) -> Evict
+     // Hysteresis: an eviction pass walks every entry and sorts every history key; do not pay that for
+     // an excess below 4 MiB (the publication loop would otherwise evict a few locators per batch).
+     let hysteresis = (target_bytes / 8).min(4 * 1024 * 1024);
+-    if state.evictable_bytes() <= target_bytes.saturating_add(hysteresis) {
++    if in_scope <= target_bytes.saturating_add(hysteresis) {
+         return report;
+     }
+     let target_bytes = target_bytes.saturating_add(floor); // absolute estimate to reach
+@@ -93,3 +115,56 @@ fn evict(state: &mut TenantState, target_bytes: usize, keep_undo: bool) -> Evict
+     report.bytes_after = state.approx_bytes();
+     report
+ }
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use blackbox_domain::fixture::{connection_uuid, derived_entries, source_entry, GoldenScenario};
++    use blackbox_domain::apply;
++
++    fn golden_state() -> TenantState {
++        let g = GoldenScenario::load_from_repo().unwrap();
++        let tenant = uuid::Uuid::new_v4();
++        let mut st = TenantState::new(tenant);
++        let mut seq = 0;
++        for ev in &g.events {
++            seq += 1;
++            let src = source_entry(tenant, seq, ev, connection_uuid(tenant, &ev.connection), chrono::Utc::now());
++            apply(&mut st, &src);
++            for d in derived_entries(&src, seq + 1) {
++                seq += 1;
++                apply(&mut st, &d);
++            }
++        }
++        st
++    }
++
++    #[test]
++    fn history_only_eviction_budgets_the_history_part_not_the_retained_undo_logs() {
++        let st = golden_state();
++        let hist = history_bytes(&st);
++        let undo = st.evictable_bytes() - hist;
++        assert!(hist > 0 && undo > 0, "fixture has history and undo logs");
++        // Budget above the history bytes but below history + undo: nothing may be evicted while the
++        // undo logs are deliberately retained (catch-up), even though the total exceeds the budget.
++        let budget = hist + undo / 2;
++        assert!(st.evictable_bytes() > budget);
++        let mut a = st.clone();
++        let r = evict_history_to_budget(&mut a, budget);
++        assert_eq!(r.history_records_dropped, 0);
++        assert_eq!(r.undo_logs_dropped, 0);
++        assert!(a.cold_history.is_empty());
++        assert!(!history_over_budget(&st, budget));
++        // A budget below the history bytes (minus hysteresis) does evict locators, never undo logs.
++        let mut b = st.clone();
++        let r = evict_history_to_budget(&mut b, 0);
++        assert!(r.history_records_dropped > 0);
++        assert_eq!(r.undo_logs_dropped, 0);
++        assert_eq!(b.cold_history.len(), r.history_records_dropped);
++        assert!(history_over_budget(&st, 0));
++        // Full mode drops undo logs of the oldest half first.
++        let mut c = st.clone();
++        let r = evict_to_budget(&mut c, 0);
++        assert!(r.undo_logs_dropped > 0);
++    }
++}
+diff --git a/crates/projections/src/lib.rs b/crates/projections/src/lib.rs
+index 97bc992..23337c4 100644
+--- a/crates/projections/src/lib.rs
++++ b/crates/projections/src/lib.rs
+@@ -7,6 +7,7 @@ pub mod engine;
+ pub mod evict;
+ pub mod mem;
+ pub mod snapshot;
++pub mod summaries;
+ 
+ use arc_swap::ArcSwap;
+ use blackbox_domain::TenantState;
+@@ -61,6 +62,9 @@ pub struct EngineConfig {
+     /// Process RSS target in bytes (ENGINE_RSS_TARGET_MB, default 1024; 0 = disabled). Above it idle
+     /// write copies are dropped at once and the next publication evicts to half the structural budget.
+     pub rss_target_bytes: usize,
++    /// Bounded LRU of payload-free entry summaries for records with evicted history, keyed by the
++    /// exact applied cursor (ENGINE_SUMMARY_CACHE_MB, default 32; 0 = off).
++    pub summary_cache_bytes: usize,
+ }
+ 
+ impl Default for EngineConfig {
+@@ -69,7 +73,9 @@ impl Default for EngineConfig {
+             hot_budget_bytes: 512 * 1024 * 1024,
+             tenant_budget_bytes: 0,
+             batch_size: 1000,
+-            poll_interval: Duration::from_millis(250),
++            // LISTEN journal_appended wakes the loop on every commit; polling is the recovery path only
++            // (51 tenants at 250 ms were ~400 idle point reads/s on the smoke corpus).
++            poll_interval: Duration::from_millis(1000),
+             snapshot_interval: Duration::from_secs(60),
+             snapshot_min_entries: 200,
+             tenant_discovery_interval: Duration::from_secs(5),
+@@ -79,6 +85,7 @@ impl Default for EngineConfig {
+             catchup_publish_interval: Duration::from_millis(10_000),
+             write_copy_idle: Duration::from_secs(60),
+             rss_target_bytes: 1024 * 1024 * 1024,
++            summary_cache_bytes: 32 * 1024 * 1024,
+         }
+     }
+ }
+@@ -125,6 +132,9 @@ impl EngineConfig {
+         if let Some(b) = std::env::var("ENGINE_RSS_TARGET_MB").ok().and_then(|v| v.parse::<usize>().ok()) {
+             c.rss_target_bytes = b * 1024 * 1024;
+         }
++        if let Some(b) = std::env::var("ENGINE_SUMMARY_CACHE_MB").ok().and_then(|v| v.parse::<usize>().ok()) {
++            c.summary_cache_bytes = b * 1024 * 1024;
++        }
+         c
+     }
+ }
+@@ -237,16 +247,19 @@ pub struct Registry {
+     tenants: RwLock<HashMap<Uuid, Arc<TenantSlot>>>,
+     pub config: EngineConfig,
+     pub cold: cold::ColdCache,
++    pub summaries: summaries::SummaryCache,
+     pub started_at: Instant,
+ }
+ 
+ impl Registry {
+     pub fn new(config: EngineConfig) -> Registry {
+         let cold = cold::ColdCache::new(config.cold_cache_bytes);
++        let summaries = summaries::SummaryCache::new(config.summary_cache_bytes);
+         Registry {
+             tenants: RwLock::new(HashMap::new()),
+             config,
+             cold,
++            summaries,
+             started_at: Instant::now(),
+         }
+     }
+@@ -340,5 +353,6 @@ impl Registry {
+             })
+             .sum::<usize>()
+             + self.cold.bytes()
++            + self.summaries.bytes()
+     }
+ }
+diff --git a/crates/query/src/lib.rs b/crates/query/src/lib.rs
+index 85a50f7..f1e77f3 100644
+--- a/crates/query/src/lib.rs
++++ b/crates/query/src/lib.rs
+@@ -13,6 +13,7 @@ use chrono::{DateTime, Utc};
+ use rust_decimal::Decimal;
+ use serde::{Deserialize, Serialize};
+ use serde_json::{json, Map, Value};
++use std::collections::HashSet;
+ use std::str::FromStr;
+ use uuid::Uuid;
+ 
+@@ -237,6 +238,9 @@ pub struct Answer<'a> {
+     pub calculation: Vec<Step>,
+     pub missing_inputs: Vec<String>,
+     pub entities: Vec<RecKey>,
++    /// Membership index of `entities` (touch order is kept in the Vec; the former linear `contains` made a
++    /// tenant-wide intent quadratic in the number of touched records — 5,000 invoices on the smoke corpus).
++    entity_set: HashSet<RecKey>,
+     pub coverage_datasets: Vec<&'static str>,
+     pub coverage_extra: Map<String, Value>,
+     pub items: Vec<Value>,
+@@ -254,6 +258,7 @@ impl<'a> Answer<'a> {
+             calculation: Vec::new(),
+             missing_inputs: Vec::new(),
+             entities: Vec::new(),
++            entity_set: HashSet::new(),
+             coverage_datasets: datasets.to_vec(),
+             coverage_extra: Map::new(),
+             items: Vec::new(),
+@@ -294,7 +299,7 @@ impl<'a> Answer<'a> {
+     }
+ 
+     pub fn touch(&mut self, key: RecKey) {
+-        if !self.entities.contains(&key) {
++        if self.entity_set.insert(key) {
+             self.entities.push(key);
+         }
+     }
+diff --git a/crates/query/src/state.rs b/crates/query/src/state.rs
+index 90b37ba..553de82 100644
+--- a/crates/query/src/state.rs
++++ b/crates/query/src/state.rs
+@@ -10,7 +10,11 @@ use serde_json::{json, Map, Value};
+ use std::collections::BTreeMap;
+ use uuid::Uuid;
+ 
+-pub const TRACK_SUMMARIES_PER_TRACK: usize = 100;
++/// Latest summaries per track in a `/v1/state` answer. Each track view reports `total` and `truncated`; the complete
++/// history is one `/v1/history` page away. 100 per track made a hot order of the largest smoke tenant (shared items,
++/// customer: 500–700 merged locators) a 200 KB answer serialized twice in the engine, parsed and re-serialized by
++/// the API and pretty-printed by the MCP bridge — the dominant per-request CPU of all three (ADR-0009).
++pub const TRACK_SUMMARIES_PER_TRACK: usize = 25;
+ 
+ #[derive(Debug, Clone, Serialize, Deserialize)]
+ pub struct StateResponse {
+@@ -63,15 +67,21 @@ pub fn entity_state(st: &TenantState, kind: Kind, id: &str) -> Option<StateRespo
+     } else {
+         (record_view(st, rec), vec![RecKey::new(kind, sym)], "complete".to_string(), Vec::new())
+     };
+-    let tracks = track_views(st, &entities, TRACK_SUMMARIES_PER_TRACK);
+-    let hist = merged_history(st, &entities);
+-    let entry_ids: Vec<Uuid> = hist.iter().map(|l| l.entry_id).collect();
++    let cold = entities.iter().any(|k| st.cold_history.contains(k));
++    // Evicted history: the HTTP layer replaces tracks/entry_ids/evidence with the indexed PostgreSQL read, so the
++    // RAM merge of the remaining (shared) entities' locators is not built at all.
++    let (tracks, entry_ids) = if cold {
++        (Map::new(), Vec::new())
++    } else {
++        let hist = merged_history(st, &entities);
++        (track_views(st, &entities, TRACK_SUMMARIES_PER_TRACK), hist.iter().map(|l| l.entry_id).collect::<Vec<Uuid>>())
++    };
+     let evidence_refs: Vec<String> = entry_ids.iter().map(|e| format!("journal:{e}")).collect();
+     let conflicts = conflicts_for(st, &entities);
+     if !conflicts.is_empty() && status == "complete" {
+         status = "conflict".into();
+     }
+-    if entities.iter().any(|k| st.cold_history.contains(k)) {
++    if cold {
+         missing.push("history.evicted_use_cold_read".into());
+     }
+     Some(StateResponse {
+diff --git a/crates/storage/src/lib.rs b/crates/storage/src/lib.rs
+index 7e9aa35..6c8c8b6 100644
+--- a/crates/storage/src/lib.rs
++++ b/crates/storage/src/lib.rs
+@@ -27,6 +27,9 @@ pub struct StoreConfig {
+     pub user: String,
+     pub password: String,
+     pub max_connections: u32,
++    /// Size of the dedicated barrier pool (`ENGINE_PG_BARRIER_POOL`, default 2): the per-request
++    /// `latest_committed` point read of `tenant_sequences` never queues behind cold entity reads.
++    pub barrier_connections: u32,
+     pub application_name: String,
+ }
+ 
+@@ -51,6 +54,10 @@ impl StoreConfig {
+             .ok()
+             .and_then(|p| p.parse().ok())
+             .unwrap_or(8);
++        let barrier_connections = std::env::var("ENGINE_PG_BARRIER_POOL")
++            .ok()
++            .and_then(|p| p.parse().ok())
++            .unwrap_or(2);
+         Ok(StoreConfig {
+             host,
+             port,
+@@ -58,6 +65,7 @@ impl StoreConfig {
+             user,
+             password,
+             max_connections,
++            barrier_connections,
+             application_name: "blackbox-engine".into(),
+         })
+     }
+@@ -76,9 +84,35 @@ impl StoreConfig {
+ #[derive(Clone)]
+ pub struct Store {
+     pool: PgPool,
++    /// Small dedicated pool for the consistency-barrier point read (`committed_cursor`), with a
++    /// server-side statement timeout: the hot path's only PostgreSQL round trip must not wait for a
++    /// connection held by a cold replay or an evicted-history read on the main pool.
++    barrier_pool: PgPool,
+     options: PgConnectOptions,
+ }
+ 
++/// Payload-free projection of a journal entry for track summaries / evidence citations of records
++/// whose history locators were evicted from RAM (the full `payload` jsonb is not read).
++#[derive(Debug, Clone)]
++pub struct EntrySummaryRow {
++    pub entry_id: Uuid,
++    pub journal_sequence: i64,
++    pub track: Track,
++    pub record_id: String,
++    pub event_type: String,
++    pub occurred_at: DateTime<Utc>,
++    pub recorded_at: DateTime<Utc>,
++    pub supersedes_entry_id: Option<Uuid>,
++    pub evidence_refs: Vec<String>,
++}
++
++impl EntrySummaryRow {
++    /// Approximate resident bytes (struct + owned strings), for the bounded summary cache.
++    pub fn approx_bytes(&self) -> usize {
++        std::mem::size_of::<EntrySummaryRow>() + self.record_id.len() + self.event_type.len() + self.evidence_refs.iter().map(|e| e.len() + 24).sum::<usize>()
++    }
++}
++
+ #[derive(Debug, Clone)]
+ pub struct CheckpointRow {
+     pub applied_sequence: i64,
+@@ -162,7 +196,13 @@ impl Store {
+             .acquire_timeout(Duration::from_secs(10))
+             .connect_with(options.clone())
+             .await?;
+-        Ok(Store { pool, options })
++        let barrier_options = options.clone().options([("statement_timeout", "2000")]);
++        let barrier_pool = PgPoolOptions::new()
++            .max_connections(cfg.barrier_connections.max(1))
++            .acquire_timeout(Duration::from_secs(5))
++            .connect_with(barrier_options)
++            .await?;
++        Ok(Store { pool, barrier_pool, options })
+     }
+ 
+     pub fn pool(&self) -> &PgPool {
+@@ -195,11 +235,12 @@ impl Store {
+         Ok(row.is_some())
+     }
+ 
+-    /// Committed high-water mark (`tenant_sequences.last_sequence`).
++    /// Committed high-water mark (`tenant_sequences.last_sequence`), read on the dedicated barrier
++    /// pool (statement timeout 2 s) so the hot path never queues behind cold reads.
+     pub async fn committed_cursor(&self, tenant: Uuid) -> Result<i64> {
+         let row = sqlx::query("SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1")
+             .bind(tenant)
+-            .fetch_optional(&self.pool)
++            .fetch_optional(&self.barrier_pool)
+             .await?;
+         Ok(row.map(|r| r.get::<i64, _>("last_sequence")).unwrap_or(0))
+     }
+@@ -290,6 +331,43 @@ impl Store {
+         Ok(row.get::<i64, _>("n"))
+     }
+ 
++    /// Payload-free entity read for evicted-history track summaries: the same GIN predicate as
++    /// `entity_entries` but only the summary columns (no `payload`), keyset-bounded by `upto`.
++    pub async fn entity_entry_summaries(&self, tenant: Uuid, entity_type: &str, entity_id: &str, upto: i64, limit: i64) -> Result<Vec<EntrySummaryRow>> {
++        let filter = serde_json::json!({ entity_type: entity_id });
++        let rows = sqlx::query(
++            "SELECT entry_id, journal_sequence, track::text AS track, record_id, event_type, occurred_at, recorded_at, supersedes_entry_id, evidence_refs FROM journal_entries WHERE tenant_id = $1 AND entity_refs @> $2::jsonb AND journal_sequence <= $3 ORDER BY journal_sequence LIMIT $4",
++        )
++        .bind(tenant)
++        .bind(filter)
++        .bind(upto)
++        .bind(limit)
++        .fetch_all(&self.pool)
++        .await?;
++        rows.iter()
++            .map(|row| {
++                let track_s: String = row.try_get("track")?;
++                let track = Track::parse(&track_s).ok_or_else(|| StorageError::Decode(format!("unknown track {track_s}")))?;
++                let evidence_v: serde_json::Value = row.try_get("evidence_refs")?;
++                let evidence_refs = match evidence_v {
++                    serde_json::Value::Array(a) => a.into_iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect(),
++                    _ => Vec::new(),
++                };
++                Ok(EntrySummaryRow {
++                    entry_id: row.try_get("entry_id")?,
++                    journal_sequence: row.try_get("journal_sequence")?,
++                    track,
++                    record_id: row.try_get("record_id")?,
++                    event_type: row.try_get("event_type")?,
++                    occurred_at: row.try_get("occurred_at")?,
++                    recorded_at: row.try_get("recorded_at")?,
++                    supersedes_entry_id: row.try_get("supersedes_entry_id")?,
++                    evidence_refs,
++                })
++            })
++            .collect()
++    }
++
+     /// Entries of a tenant up to a recorded-time cutoff (bounded; for as_of replays of
+     /// tenant-wide intents).
+     pub async fn tenant_entries_until(
+diff --git a/docs/architecture.md b/docs/architecture.md
+index d62f612..ca86df3 100644
+--- a/docs/architecture.md
++++ b/docs/architecture.md
+@@ -138,10 +138,22 @@ tails the files, `getLogRecord` returns a record with its trace siblings.
+ - **Readiness** (`ReadinessService`): datasets present = families of committed source entries (+
+   `identity` when entries carry entity links, `coverage` when a capability reported a successful
+   check); per question `ready`/`partial`/`blocked` with exact missing datasets and the sources used.
+-  Attached to every served state/answer, so it is memoized per tenant (committed cursor + 5 s) and
+-  its refresh reads the distinct event types through a recursive loose index scan on
+-  `journal_entries_event_idx` (`JournalService.presentEventTypesIndexed`) instead of a GROUP BY over
+-  the journal (PERF-01 follow-up: the former refresh was a full-table scan on the hot path).
++  Attached to every served state/answer, so it is memoized per tenant for 5 s (time-bounded only; a
++  hit opens no transaction and concurrent misses share one computation — ADR-0009: the former memo
++  compared the committed cursor in its own tenant transaction on every request, four round trips on
++  the hot path and a miss on every request of a tenant under ingestion) and its refresh reads the
++  distinct event types through a recursive loose index scan on `journal_entries_event_idx`
++  (`JournalService.presentEventTypesIndexed`) instead of a GROUP BY over the journal (PERF-01
++  follow-up: the former refresh was a full-table scan on the hot path). The answer's consistency
++  cursor comes from the engine and is never memoized; `observed_at` states when the readiness was
++  computed.
++- **Hot-path round trips** (ADR-0009): an authenticated agent request costs one authenticator
++  transaction (credential/principal rows re-read, argon2 result cached — revocation stays immediate),
++  one engine RPC and no further PostgreSQL work; owner sessions are re-read per request but their
++  idle-extension write happens at most once per minute (`SESSION_TOUCH_MS`). The verified principal
++  id travels to the engine as `X-Principal-Id` (header only, uuid-validated) so the 8-per-agent
++  admission limit of engine-rpc.json applies next to the 16-per-workspace / 32-global limits. The
++  bb_api pool defaults to 16 connections (`API_PG_POOL`).
+ - **Import plans** (`resolveImportPlan`): presets resolved once to UTC `[requested_from,
+   initial_cutoff)` in the chosen IANA zone (rolling 30×24 h; Jan 1 local; calendar-month subtraction
+   with end-of-month clamp; local midnight for custom; strict from-now with explicit opening-state
+diff --git a/docs/engine.md b/docs/engine.md
+index 747003f..dbf0ee6 100644
+--- a/docs/engine.md
++++ b/docs/engine.md
+@@ -60,13 +60,13 @@ Every answer carries `consistency = {applied_cursor, required_cursor, reducer_ve
+ 
+ ## Admission control
+ 
+-Non-queuing semaphores: 32 in flight per process, 16 per workspace (tenant), 8 per agent (`X-Principal-Id`). Exceeding any limit returns `429 overloaded` with `retry_after_ms`; permits are released when the request completes or its deadline cancels it. Request bodies are capped at 256 KiB (`413 too_large`). All endpoints, including `/health`, require `X-Engine-Token` (401 otherwise; constant-time comparison).
++Non-queuing semaphores: 32 in flight per process, 16 per workspace (tenant), 8 per agent (`X-Principal-Id`; the API sends the verified principal id in this header since ADR-0009 — before, only the workspace and global limits were effective). Exceeding any limit returns `429 overloaded` with `retry_after_ms`; permits are released when the request completes or its deadline cancels it. Request bodies are capped at 256 KiB (`413 too_large`). All endpoints, including `/health`, require `X-Engine-Token` (401 otherwise; constant-time comparison).
+ 
+ ## Publication, checkpoints and the tail loop
+ 
+ One task per tenant (`crates/projections/src/engine.rs`):
+ 
+-1. `read_tail`: `journal_entries WHERE tenant_id = $1 AND journal_sequence > applied ORDER BY tenant_id, journal_sequence LIMIT 1000` (uses `journal_entries_tenant_sequence_key`). A `LISTEN journal_appended` task is only a wake hint; polling (`ENGINE_POLL_MS`, default 250 ms) is the recovery mechanism.
++1. `read_tail`: `journal_entries WHERE tenant_id = $1 AND journal_sequence > applied ORDER BY tenant_id, journal_sequence LIMIT 1000` (uses `journal_entries_tenant_sequence_key`). A `LISTEN journal_appended` task wakes the loop on every commit (the journal trigger notifies after the append); polling (`ENGINE_POLL_MS`, default 1000 ms since ADR-0009 — 51 tenants at 250 ms were ≈400 idle point reads/s) is the recovery mechanism.
+ 2. Apply the batch into the private write copy; evict if over budget.
+ 3. Commit `engine_checkpoints(applied_sequence, reducer_version, state_hash)` (chain hash over applied entry ids/effects).
+ 4. Publish the write copy atomically (`ArcSwap::swap`); only then advance the applied cursor and wake waiters. Readers hold the old or the new consistent state, never a cursor ahead of the balances.
+@@ -83,16 +83,18 @@ At start each tenant loads its snapshot when the checkpoint has the same reducer
+ 
+ ## Memory accounting
+ 
+-Budgets are structural estimates (`TenantState::approx_bytes`: records, links, history locators, entry metadata, undo logs, interner), not allocator truth; `/health` reports the estimate next to process RSS (`rss_bytes`: `/proc/self/statm` on Linux, `proc_pidinfo` on macOS). The measured RSS is also an input: when it exceeds `ENGINE_RSS_TARGET_MB` (default 1024, 0 = off; `/health` `memory.rss_target_bytes`/`rss_over_target`) idle write copies are dropped at once and the next publication of any tenant evicts to half its structural budget (`rss_evictions` per tenant). The structural floor of a tenant is its per-entry metadata (idempotency/observation keys, effect-once set, interner), which is never evicted; on the 50-tenant smoke corpus that floor is about 430 bytes per journal entry and copy. `ENGINE_HOT_BUDGET_MB` (default 512) is the budget for the *evictable* part of the states (history locators + undo logs, `TenantState::evictable_bytes`); it is shared among tenants in proportion to their resident size (never below 1 MiB per tenant), divided by two while a tenant's private copy is resident, and capped by `ENGINE_TENANT_BUDGET_MB`. The evictable total is additionally bounded by what the RSS target leaves after the unevictable floor of all tenants (`ENGINE_RSS_TARGET_MB` × 5/8 − Σ floor, never below 32 MiB; RSS runs ≈1.6× the structural estimate), so a corpus whose floors already fill the target does not keep its history and thrash at the cgroup limit; an eviction pass runs only when the excess is above a hysteresis of target/8 (≤ 4 MiB). Comparing the whole estimate against an equal share, as before, evicted every history locator of a large tenant as soon as its unevictable floor exceeded the share (on the smoke corpus every hot lookup then became a PostgreSQL entity read). When a copy's evictable bytes exceed its share the engine evicts deterministically (both copies decide identically): first undo logs of the oldest half of resident entries (a later correction of such an entry triggers a rebuild; while a tenant is still catching up only history locators are evicted), then history locators of the least recently touched records. Business values are never evicted. Records with evicted history are marked cold: `/v1/state` serves their track summaries from the indexed PostgreSQL entity read (`journal_entries_entity_idx` GIN on `entity_refs`) and reports `history.evicted_use_cold_read`. Cold/as-of replays are cached in a bounded LRU (`ENGINE_COLD_CACHE_MB`, default 64) keyed by entity and cutoff. Historical growth therefore grows PostgreSQL, not RAM beyond the record set; the smoke corpus (≈1,000 orders/tenant) stays far below the default budget.
++Budgets are structural estimates (`TenantState::approx_bytes`: records, links, history locators, entry metadata, undo logs, interner), not allocator truth; `/health` reports the estimate next to process RSS (`rss_bytes`: `/proc/self/statm` on Linux, `proc_pidinfo` on macOS). The measured RSS is also an input: when it exceeds `ENGINE_RSS_TARGET_MB` (default 1024, 0 = off; `/health` `memory.rss_target_bytes`/`rss_over_target`) write copies of tenants without a batch for 10 s are dropped (idle tenants: after `ENGINE_WRITE_COPY_IDLE_SECONDS` regardless) and a publication evicts to half the structural budget at most every 10 s per tenant (`rss_evictions`; ADR-0009: dropping and re-cloning the write copy of the tenant under ingestion after every batch, plus an eviction pass per second, cost the engine two cores in the smoke profile). The structural floor of a tenant is its per-entry metadata (idempotency/observation keys, effect-once set, interner), which is never evicted; on the 50-tenant smoke corpus that floor is about 430 bytes per journal entry and copy. `ENGINE_HOT_BUDGET_MB` (default 512) is the budget for the *evictable* part of the states (history locators + undo logs, `TenantState::evictable_bytes`); it is shared among tenants in proportion to their resident size (never below 1 MiB per tenant), divided by two while a tenant's private copy is resident, and capped by `ENGINE_TENANT_BUDGET_MB`. The evictable total is additionally bounded by what the RSS target leaves after the unevictable floor of all tenants (`ENGINE_RSS_TARGET_MB` × 5/8 − Σ floor, never below 32 MiB; RSS runs ≈1.6× the structural estimate), so a corpus whose floors already fill the target does not keep its history and thrash at the cgroup limit; an eviction pass runs only when the excess is above a hysteresis of target/8 (≤ 4 MiB). Comparing the whole estimate against an equal share, as before, evicted every history locator of a large tenant as soon as its unevictable floor exceeded the share (on the smoke corpus every hot lookup then became a PostgreSQL entity read). When a copy's evictable bytes exceed its share the engine evicts deterministically (both copies decide identically): first undo logs of the oldest half of resident entries (a later correction of such an entry triggers a rebuild), then history locators of the least recently touched records. While a tenant is still catching up or rebuilding, undo logs are retained (every correction behind the committed cursor must be applied first) and the history-only pass budgets the history locators alone — the retained undo logs are the floor of that phase (ADR-0009; before, history + undo were compared with the budget, the target was unreachable for any large tenant and every locator of the smoke corpus went cold during the initial catch-up, persisted by every snapshot) — and runs mid catch-up only when the measured RSS exceeds `ENGINE_RSS_TARGET_MB`. A publication whose last tail read returned fewer rows than requested has applied the whole committed tail and uses the full policy. Business values are never evicted. Records with evicted history are marked cold: `/v1/state` serves their track summaries from the payload-free indexed PostgreSQL read (`entity_entry_summaries`, `journal_entries_entity_idx` GIN on `entity_refs`, no `payload` column) and reports `history.evicted_use_cold_read`; those rows are cached in a bounded LRU keyed by (tenant, entity, applied cursor) — `ENGINE_SUMMARY_CACHE_MB`, default 32, `/health` `memory.summary_cache_*` — so a hit can never serve rows of another cursor (a publication changes the key, a rebuild drops the tenant). Cold/as-of replays are cached in a bounded LRU (`ENGINE_COLD_CACHE_MB`, default 64) keyed by entity and cutoff. Historical growth therefore grows PostgreSQL, not RAM beyond the record set; the smoke corpus (≈1,000 orders/tenant) stays far below the default budget.
+ 
+ ## HTTP endpoints
+ 
+ `GET /health`, `POST /v1/state`, `POST /v1/query`, `POST /v1/history`, `POST /v1/summary`, `POST /v1/admin/rebuild`, `POST /v1/admin/snapshot` (testing/operations hook), `GET /v1/schema`. Errors use `{error: {code, message, retryable, retry_after_ms, ...}}` with codes `unauthorized`, `tenant_unknown`, `projection_behind`, `deadline_exceeded`, `unsupported_intent`, `invalid_params`, `too_large`, `overloaded`.
+ 
+-`/v1/state` for an order returns exactly the 23 keys of the contract (`physical_stock ... bank_confirmed_minor, shipment_status, currency, unit`), stock values as decimal strings or `null` when no basis exists, plus `tracks` (five track views, latest 100 summaries per track with totals), `evidence_refs`/`entry_ids`, `coverage {datasets_present, datasets_missing}`, `conflicts [{case_id, reason, entry_id, related_entry_id}]`, `status` and `missing_inputs`. Other entity types return their typed record view.
++`/v1/state` for an order returns exactly the 23 keys of the contract (`physical_stock ... bank_confirmed_minor, shipment_status, currency, unit`), stock values as decimal strings or `null` when no basis exists, plus `tracks` (five track views, latest 25 summaries per track with `total`/`truncated`; the complete history is one `/v1/history` page away — 100 per track made a hot order of the largest smoke tenant a 200 KB answer, ADR-0009), `evidence_refs`/`entry_ids`, `coverage {datasets_present, datasets_missing}`, `conflicts [{case_id, reason, entry_id, related_entry_id}]`, `status` and `missing_inputs`. Other entity types return their typed record view.
+ 
+ `/v1/query` returns the common result envelope: `status complete|partial|unknown|conflict|unsupported`, `intent`, `result` (typed; integer minor amounts, decimal quantity strings, `null` for unknown values), `calculation` (steps with formulas and numbers), `rule_version`, `evidence_refs` (`journal:<entry_id>`), `entry_ids`, `missing_inputs` (dataset/capability ids such as `stock.basis`, `policy.priority_method`, `bank`), `conflicts`, `coverage` (datasets present/missing, population, coverage assertions), `effective_at`, `page`, `consistency`. Unknown parameters and wrong types are rejected (`invalid_params`); each intent's parameters are listed by `/v1/schema`.
+ 
++Intents (`/v1/query`) and summaries run on tokio's blocking pool (`spawn_blocking`) so a tenant-wide walk never stalls the async workers serving hot lookups; the request deadline still bounds the response. `Answer::touch`/`conflicts_for` keep set-based membership (a tenant-wide intent touches thousands of records). An answer whose touched records have evicted history cites cold summaries in touch order only until the 500-locator cap (`coverage.evidence_truncated`).
++
+ ## Query intents and payload conventions
+ 
+ Intents are the 24 ids of specs/question-data-contracts.json (`crates/query/src/intents.rs`). Required inputs come from the datasets present in the tenant's journal; absent datasets yield `unknown`/`partial` with explicit `missing_inputs` (for example no `holds` dataset → `held` is an unknown component, never zero; no `bank` dataset → bank arrival unknown; no `entitlements` → refund due unknown while the credit stays listed as "credit without entitlement"). Policies (`business.rule_recorded`: `priority_method`, `invoicing_trigger`, `reminder_policy`, `attention_rule`, `stale_scan_seconds`, `risk_hours`) and coverage assertions (`coverage.observed`: `capability`, `backfill_complete`, `complete_through`) are read from the journal; some intents accept explicit overrides (`priority`, `rule`, `stale_after_seconds`, `risk_hours`, `now`).
+@@ -110,15 +112,17 @@ Payload field names follow the golden examples in `packages/contracts/events.jso
+ | `ENGINE_HOT_BUDGET_MB` | 512 | Total structural hot budget (two copies per tenant share it) |
+ | `ENGINE_TENANT_BUDGET_MB` | 0 (derived) | Per-tenant cap |
+ | `ENGINE_COLD_CACHE_MB` | 64 | LRU for cold/as-of replays |
++| `ENGINE_SUMMARY_CACHE_MB` | 32 | LRU of payload-free entry summaries for evicted-history records, keyed by exact applied cursor (0 = off) |
+ | `ENGINE_REPLAY_MAX_ENTRIES` | 200000 | Bound for one as_of/cold replay |
+ | `ENGINE_BATCH_SIZE` | 1000 | Tail batch (steady state) |
+ | `ENGINE_CATCHUP_BATCH_SIZE` | 5000 | Tail batch while catching up / rebuilding |
+ | `ENGINE_CATCHUP_PUBLISH_MS` | 10000 | Publication cadence during catch-up (one checkpoint + copy per publication) |
+ | `ENGINE_WRITE_COPY_IDLE_SECONDS` | 60 | Idle time after which a tenant's private write copy is released |
+ | `ENGINE_RSS_TARGET_MB` | 1024 | Measured-RSS target that triggers copy drops and tighter eviction (0 = off); Compose sets `MALLOC_ARENA_MAX=2` alongside |
+-| `ENGINE_POLL_MS` | 250 | Tail poll interval (LISTEN is a hint) |
++| `ENGINE_POLL_MS` | 1000 | Tail poll fallback interval (LISTEN wakes the loop on every commit) |
+ | `ENGINE_SNAPSHOT_SECONDS`, `ENGINE_SNAPSHOT_MIN_ENTRIES` | 60, 200 | Snapshot cadence |
+-| `ENGINE_PG_POOL` | 8 | Pool size |
++| `ENGINE_PG_POOL` | 8 | Main pool size (tail reads, cold replays, evicted-history reads, snapshots) |
++| `ENGINE_PG_BARRIER_POOL` | 2 | Dedicated pool for the `latest_committed` barrier point read of `tenant_sequences` (`statement_timeout` 2 s); never queues behind cold reads |
+ | `LOG_LEVEL` / `RUST_LOG` | info | Log level |
+ | `BLACKBOX_VERSION` | crate version | Reported `service_version` |
+ | `LOG_DIR` | – | When set (Compose: `/data/logs`), every log record is also appended to `records-YYYYMMDD-HH-engine.jsonl` there, so `./blackbox logs --component engine` and the diagnostics view correlate engine records with api/worker records |
+diff --git a/packages/application/src/engine.ts b/packages/application/src/engine.ts
+index a7e05a0..660066c 100644
+--- a/packages/application/src/engine.ts
++++ b/packages/application/src/engine.ts
+@@ -29,14 +29,24 @@ export interface EnginePage {
+   cursor?: string | null;
+ }
+ 
+-export interface EngineStateRequest {
++/**
++ * The verified principal behind a request. It is sent to the engine as the `X-Principal-Id` header (never in the
++ * body) so the engine's per-agent admission limit (8 concurrent queries per principal, engine-rpc.json) applies in
++ * addition to the per-workspace and global limits. Authorization is not derived from it: the tenant comes from the
++ * verified credential and the engine trusts only the shared token.
++ */
++export interface EnginePrincipal {
++  principal_id?: string;
++}
++
++export interface EngineStateRequest extends EnginePrincipal {
+   tenant_id: string;
+   entity_type: string;
+   entity_id: string;
+   consistency: ConsistencyRequest;
+ }
+ 
+-export interface EngineQueryRequest {
++export interface EngineQueryRequest extends EnginePrincipal {
+   tenant_id: string;
+   intent: string;
+   params: Record<string, unknown>;
+@@ -44,7 +54,7 @@ export interface EngineQueryRequest {
+   page?: EnginePage;
+ }
+ 
+-export interface EngineHistoryRequest {
++export interface EngineHistoryRequest extends EnginePrincipal {
+   tenant_id: string;
+   entity_type: string;
+   entity_id: string;
+@@ -52,7 +62,7 @@ export interface EngineHistoryRequest {
+   consistency: ConsistencyRequest;
+ }
+ 
+-export interface EngineSummaryRequest {
++export interface EngineSummaryRequest extends EnginePrincipal {
+   tenant_id: string;
+   kind: "thirty_day_summary";
+   from: string;
+@@ -123,10 +133,14 @@ export class HttpEngineClient implements EngineClient {
+     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+     const started = process.hrtime.bigint();
+     try {
++      // The principal travels as a header (engine admission per agent); it is never part of the request body.
++      const { principal_id, ...payload } = (body ?? {}) as EnginePrincipal & Record<string, unknown>;
++      const headers: Record<string, string> = { "content-type": "application/json", "x-engine-token": this.token };
++      if (typeof principal_id === "string" && /^[0-9a-f-]{36}$/i.test(principal_id)) headers["x-principal-id"] = principal_id;
+       const res = await fetch(`${this.baseUrl}${path}`, {
+         method,
+-        headers: { "content-type": "application/json", "x-engine-token": this.token },
+-        body: body === undefined ? undefined : JSON.stringify(body),
++        headers,
++        body: body === undefined ? undefined : JSON.stringify(payload),
+         signal: controller.signal,
+       });
+       const text = await res.text();
+diff --git a/packages/application/src/questions.ts b/packages/application/src/questions.ts
+index 2143c0f..b87e25d 100644
+--- a/packages/application/src/questions.ts
++++ b/packages/application/src/questions.ts
+@@ -206,16 +206,17 @@ export class QuestionService {
+     return { built, params: parsed.data as Record<string, unknown> };
+   }
+ 
+-  async answer(tenantId: string, intent: string, rawParams: unknown, consistency?: Partial<ConsistencyRequest>, principalKind: "owner" | "agent" = "owner"): Promise<QuestionAnswer> {
++  async answer(tenantId: string, intent: string, rawParams: unknown, consistency?: Partial<ConsistencyRequest>, principalKind: "owner" | "agent" = "owner", principalId?: string): Promise<QuestionAnswer> {
+     const { built, params } = this.validate(intent, rawParams);
+     const engineParams: Record<string, unknown> = Object.fromEntries(Object.entries(params).filter(([k]) => !API_PARAM_NAMES.has(k)));
+     const cons: ConsistencyRequest = { mode: consistency?.mode ?? (params.as_of ? "as_of" : "latest_committed"), cursor: consistency?.cursor ?? null, as_of_recorded: consistency?.as_of_recorded ?? (typeof params.as_of === "string" ? params.as_of : null), as_of_effective: consistency?.as_of_effective ?? (typeof params.as_of === "string" ? params.as_of : null), deadline_ms: Math.min(5000, consistency?.deadline_ms ?? 5000) };
+-    const readiness = await this.readiness.forIntent(tenantId, intent);
+     const started = process.hrtime.bigint();
+-    const base = { intent, question_id: built.question.id, params, readiness };
+     try {
+-      const res = (await this.engine.query({ tenant_id: tenantId, intent, params: engineParams, consistency: cons, page: { limit: typeof params.limit === "number" ? params.limit : 100, cursor: typeof params.cursor === "string" ? params.cursor : null } })) as Record<string, unknown>;
++      const res = (await this.engine.query({ tenant_id: tenantId, intent, params: engineParams, consistency: cons, principal_id: principalId, page: { limit: typeof params.limit === "number" ? params.limit : 100, cursor: typeof params.cursor === "string" ? params.cursor : null } })) as Record<string, unknown>;
+       const consistencyOut = res.consistency as { applied_cursor?: number } | undefined;
++      // Readiness attached to the answer is never older than the answer's cursor (memo at/beyond it: no database work).
++      const readiness = await this.readiness.forIntent(tenantId, intent, { knownCursor: typeof consistencyOut?.applied_cursor === "number" ? consistencyOut.applied_cursor : null });
++      const base = { intent, question_id: built.question.id, params, readiness };
+       this.log.info("query.served", "Question served", { tenant_id: tenantId, operation_id: built.question.id, duration_ms: Math.round(Number(process.hrtime.bigint() - started) / 1e6), applied_cursor: consistencyOut?.applied_cursor, action_code: principalKind });
+       return {
+         ...base,
+@@ -234,6 +235,8 @@ export class QuestionService {
+       if (err instanceof EngineError) {
+         this.log.warn("query.unavailable", "Question could not be evaluated by the engine", { tenant_id: tenantId, operation_id: built.question.id, error_code: err.code, retryable: err.retryable, duration_ms: Math.round(Number(process.hrtime.bigint() - started) / 1e6) });
+         if (err.code === "invalid_params" || err.code === "unsupported_intent" || err.code === "too_large") throw new QuestionError(err.code, 422, err.message);
++        const readiness = await this.readiness.forIntent(tenantId, intent);
++        const base = { intent, question_id: built.question.id, params, readiness };
+         return {
+           ...base,
+           status: "unavailable",
+diff --git a/packages/application/src/readiness.ts b/packages/application/src/readiness.ts
+index e9329ed..399b525 100644
+--- a/packages/application/src/readiness.ts
++++ b/packages/application/src/readiness.ts
+@@ -62,23 +62,40 @@ export class ReadinessService {
+   }
+ 
+   /**
+-   * Per-tenant memo keyed by the committed cursor: readiness is derived from the journal (event families present,
+-   * entity links) and the capability health rows. It is attached to every served state/answer, so recomputing it
+-   * per request ran a GROUP BY over the whole source track on each hot query (observed on the smoke profile as a
+-   * pool-starving full scan). The memo is reused while the committed cursor is unchanged and for at most
+-   * READINESS_MEMO_MS (bounds the staleness of the capability-health part to a few seconds; the UI polls at 5 s).
++   * Per-tenant memo. Readiness is derived from the journal (event families present, entity links) and the
++   * capability health rows and is attached to every served state/answer as coverage information; recomputing it
++   * per request ran a GROUP BY over the whole source track on each hot query (smoke profile: a pool-starving full
++   * scan), and the former memo still opened one tenant transaction per request to compare the committed cursor
++   * (four round trips on the hot path). Rules (ADR-0009):
++   * - a memo is reused for at most READINESS_MEMO_MS (5 s; bounds the staleness of the health part, the UI polls
++   *   at that cadence) and records the committed cursor it was computed at;
++   * - hot paths pass the cursor they already hold (`knownCursor`: the engine's applied cursor of the answer being
++   *   served, or an ingestion ack); a memo computed at or beyond that cursor is served without any PostgreSQL work,
++   *   a memo behind it is recomputed — readiness attached to an answer is never older than the answer's cursor;
++   * - listings without a cursor of their own (`exact: true`: schema, question list, readiness view) compare the
++   *   actual committed cursor in one tenant transaction, so an API ingestion is reflected on the next read;
++   * - concurrent misses share one computation; `invalidate()` drops the memo at once after in-process health changes.
+    */
+   private memo = new Map<string, { cursor: number; at: number; value: WorkspaceReadiness }>();
++  private inFlight = new Map<string, Promise<WorkspaceReadiness>>();
+ 
+-  async compute(tenantId: string): Promise<WorkspaceReadiness> {
+-    return withTenant(this.pool, tenantId, async (c) => {
+-      const cursor = await this.journal.committedCursor(c, tenantId);
+-      const hit = this.memo.get(tenantId);
+-      if (hit && hit.cursor === cursor && Date.now() - hit.at <= READINESS_MEMO_MS) return hit.value;
+-      const value = await this.computeIn(c, tenantId);
+-      this.memo.set(tenantId, { cursor, at: Date.now(), value });
+-      return value;
+-    });
++  async compute(tenantId: string, opts: { knownCursor?: number | null; exact?: boolean } = {}): Promise<WorkspaceReadiness> {
++    const hit = this.memo.get(tenantId);
++    const fresh = hit !== undefined && Date.now() - hit.at <= READINESS_MEMO_MS;
++    if (hit && fresh && !opts.exact && (opts.knownCursor == null || opts.knownCursor <= hit.cursor)) return hit.value;
++    let pending = this.inFlight.get(tenantId);
++    if (!pending) {
++      pending = withTenant(this.pool, tenantId, async (c) => {
++        const cursor = await this.journal.committedCursor(c, tenantId);
++        const current = this.memo.get(tenantId);
++        if (current && current.cursor === cursor && Date.now() - current.at <= READINESS_MEMO_MS) return current.value;
++        const value = await this.computeIn(c, tenantId);
++        this.memo.set(tenantId, { cursor, at: Date.now(), value });
++        return value;
++      }).finally(() => this.inFlight.delete(tenantId));
++      this.inFlight.set(tenantId, pending);
++    }
++    return pending;
+   }
+ 
+   /** Drops the memo (tests, or after an operation that changes health without a journal commit). */
+@@ -164,8 +181,8 @@ export class ReadinessService {
+     };
+   }
+ 
+-  async forIntent(tenantId: string, intent: string): Promise<QuestionReadiness | null> {
+-    const all = await this.compute(tenantId);
++  async forIntent(tenantId: string, intent: string, opts: { knownCursor?: number | null; exact?: boolean } = {}): Promise<QuestionReadiness | null> {
++    const all = await this.compute(tenantId, opts);
+     return all.questions.find((q) => q.intent === intent) ?? null;
+   }
+ }
+diff --git a/packages/auth/src/service.ts b/packages/auth/src/service.ts
+index 8300475..5c228ea 100644
+--- a/packages/auth/src/service.ts
++++ b/packages/auth/src/service.ts
+@@ -14,6 +14,12 @@ export const REMEMBERED_IDLE_MS = 7 * 24 * 60 * 60 * 1000;
+ export const ORDINARY_ABSOLUTE_MS = 8 * 60 * 60 * 1000;
+ export const THROTTLE_WINDOW_MS = 15 * 60 * 1000;
+ export const THROTTLE_MAX_FAILURES = 5;
++/**
++ * The idle-deadline extension / last_seen_at write of an owner session is skipped while the previous one is
++ * younger than this (the deadlines are hours/days; one UPDATE per request on the hot path bought nothing). The
++ * session row itself is still re-read on every request: revocation and expiry stay immediate.
++ */
++export const SESSION_TOUCH_MS = 60_000;
+ /**
+  * Agent-key argon2 verification result (key hash → credential id) is reused at most this long; the credential and
+  * principal rows (status, expiry) are re-read from PostgreSQL on every request regardless, so revocation stays
+@@ -236,11 +242,12 @@ export class AuthService {
+         absolute_expires_at: Date;
+         idle_expires_at: Date;
+         revoked_at: Date | null;
++        last_seen_at: Date | null;
+         principal_status: string;
+         display_name: string;
+         kind: "owner" | "agent";
+       }>(
+-        `SELECT s.session_hash, s.principal_id, s.tenant_id, s.csrf_token, s.remembered, s.created_at, s.absolute_expires_at, s.idle_expires_at, s.revoked_at,
++        `SELECT s.session_hash, s.principal_id, s.tenant_id, s.csrf_token, s.remembered, s.created_at, s.absolute_expires_at, s.idle_expires_at, s.revoked_at, s.last_seen_at,
+                 p.status AS principal_status, p.display_name, p.kind
+            FROM sessions s JOIN principals p ON p.principal_id = s.principal_id
+           WHERE s.session_hash = $1`,
+@@ -249,10 +256,13 @@ export class AuthService {
+       const row = r.rows[0];
+       if (!row || row.revoked_at || row.principal_status !== "active" || row.kind !== "owner") return null;
+       if (row.absolute_expires_at <= now || row.idle_expires_at <= now) return null;
+-      // Idle extension (remembered sessions only move the idle deadline; absolute never moves).
++      // Idle extension (remembered sessions only move the idle deadline; absolute never moves). Written at most
++      // once per SESSION_TOUCH_MS per session; in between the stored deadline is reported.
+       const newIdle = new Date(Math.min(row.absolute_expires_at.getTime(), now.getTime() + (row.remembered ? REMEMBERED_IDLE_MS : ORDINARY_ABSOLUTE_MS)));
+-      await c.query("UPDATE sessions SET last_seen_at = $2, idle_expires_at = $3 WHERE session_hash = $1", [hash, now, newIdle]);
+-      const expires = row.absolute_expires_at < newIdle ? row.absolute_expires_at : newIdle;
++      const touch = !row.last_seen_at || now.getTime() - row.last_seen_at.getTime() >= SESSION_TOUCH_MS;
++      if (touch) await c.query("UPDATE sessions SET last_seen_at = $2, idle_expires_at = $3 WHERE session_hash = $1", [hash, now, newIdle]);
++      const idle = touch ? newIdle : row.idle_expires_at;
++      const expires = row.absolute_expires_at < idle ? row.absolute_expires_at : idle;
+       return {
+         principal: { principal_id: row.principal_id, tenant_id: row.tenant_id, kind: "owner", display_name: row.display_name, credential_id: null },
+         session_hash: row.session_hash,
+diff --git a/packages/testing/src/index.ts b/packages/testing/src/index.ts
+index 91e2d8a..a5e2441 100644
+--- a/packages/testing/src/index.ts
++++ b/packages/testing/src/index.ts
+@@ -163,6 +163,7 @@ export async function startTestApp(options: { engineUrl?: string; logLevel?: Api
+     evidenceDir: install.evidenceDir,
+     logsDir: install.logsDir,
+     snapshotDir: install.snapshotDir,
++    pgPoolMax: 8,
+     engineUrl: options.engineUrl ?? "stub",
+     engineToken: undefined,
+     engineTokenFile: undefined,
+diff --git a/crates/projections/src/summaries.rs b/crates/projections/src/summaries.rs
+new file mode 100644
+index 0000000..7f1abe8
+--- /dev/null
++++ b/crates/projections/src/summaries.rs
+@@ -0,0 +1,177 @@
++//! Bounded LRU of payload-free entry summaries for records whose history locators were evicted
++//! from RAM. Keyed by (tenant, entity type, entity id, applied cursor): the key names the exact
++//! published cursor the rows were read at, so a hit can never serve rows for a different cursor
++//! (a later publication of the tenant changes the key; a rebuild invalidates the tenant).
++
++use blackbox_storage::EntrySummaryRow;
++use std::collections::HashMap;
++use std::sync::atomic::{AtomicU64, Ordering};
++use std::sync::{Arc, Mutex};
++use uuid::Uuid;
++
++#[derive(Clone, Debug, PartialEq, Eq, Hash)]
++pub struct SummaryKey {
++    pub tenant: Uuid,
++    pub entity_type: String,
++    pub entity_id: String,
++    pub upto_sequence: i64,
++}
++
++struct Slot {
++    rows: Arc<Vec<EntrySummaryRow>>,
++    bytes: usize,
++    tick: u64,
++}
++
++pub struct SummaryCache {
++    inner: Mutex<Inner>,
++    budget: usize,
++    tick: AtomicU64,
++    pub hits: AtomicU64,
++    pub misses: AtomicU64,
++    pub evictions: AtomicU64,
++}
++
++struct Inner {
++    map: HashMap<SummaryKey, Slot>,
++    bytes: usize,
++}
++
++fn rows_bytes(rows: &[EntrySummaryRow]) -> usize {
++    rows.iter().map(|r| r.approx_bytes()).sum::<usize>() + 128
++}
++
++impl SummaryCache {
++    pub fn new(budget: usize) -> SummaryCache {
++        SummaryCache {
++            inner: Mutex::new(Inner { map: HashMap::new(), bytes: 0 }),
++            budget,
++            tick: AtomicU64::new(0),
++            hits: AtomicU64::new(0),
++            misses: AtomicU64::new(0),
++            evictions: AtomicU64::new(0),
++        }
++    }
++
++    pub fn get(&self, key: &SummaryKey) -> Option<Arc<Vec<EntrySummaryRow>>> {
++        let mut g = self.inner.lock().unwrap();
++        let tick = self.tick.fetch_add(1, Ordering::Relaxed);
++        match g.map.get_mut(key) {
++            Some(s) => {
++                s.tick = tick;
++                self.hits.fetch_add(1, Ordering::Relaxed);
++                Some(s.rows.clone())
++            }
++            None => {
++                self.misses.fetch_add(1, Ordering::Relaxed);
++                None
++            }
++        }
++    }
++
++    /// Inserts (or replaces) the rows for a key; evicts least recently used keys to stay within budget.
++    pub fn insert(&self, key: SummaryKey, rows: Arc<Vec<EntrySummaryRow>>) {
++        let bytes = rows_bytes(&rows);
++        if bytes > self.budget || self.budget == 0 {
++            return;
++        }
++        let mut g = self.inner.lock().unwrap();
++        let tick = self.tick.fetch_add(1, Ordering::Relaxed);
++        if let Some(old) = g.map.remove(&key) {
++            g.bytes -= old.bytes;
++        }
++        while g.bytes + bytes > self.budget && !g.map.is_empty() {
++            let victim = g.map.iter().min_by_key(|(_, s)| s.tick).map(|(k, _)| k.clone()).expect("non-empty");
++            if let Some(s) = g.map.remove(&victim) {
++                g.bytes -= s.bytes;
++                self.evictions.fetch_add(1, Ordering::Relaxed);
++            }
++        }
++        g.bytes += bytes;
++        g.map.insert(key, Slot { rows, bytes, tick });
++    }
++
++    /// Drops every cached summary of a tenant (rebuild).
++    pub fn invalidate_tenant(&self, tenant: Uuid) {
++        let mut g = self.inner.lock().unwrap();
++        let keys: Vec<SummaryKey> = g.map.keys().filter(|k| k.tenant == tenant).cloned().collect();
++        for k in keys {
++            if let Some(s) = g.map.remove(&k) {
++                g.bytes -= s.bytes;
++            }
++        }
++    }
++
++    pub fn bytes(&self) -> usize {
++        self.inner.lock().unwrap().bytes
++    }
++
++    pub fn len(&self) -> usize {
++        self.inner.lock().unwrap().map.len()
++    }
++
++    pub fn is_empty(&self) -> bool {
++        self.len() == 0
++    }
++
++    pub fn budget(&self) -> usize {
++        self.budget
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use blackbox_domain::entry::Track;
++    use chrono::Utc;
++
++    fn row(seq: i64) -> EntrySummaryRow {
++        EntrySummaryRow {
++            entry_id: Uuid::new_v4(),
++            journal_sequence: seq,
++            track: Track::Source,
++            record_id: format!("order:#{seq}"),
++            event_type: "order.accepted".into(),
++            occurred_at: Utc::now(),
++            recorded_at: Utc::now(),
++            supersedes_entry_id: None,
++            evidence_refs: vec!["journal:x".into()],
++        }
++    }
++
++    fn key(tenant: Uuid, id: &str, upto: i64) -> SummaryKey {
++        SummaryKey { tenant, entity_type: "order".into(), entity_id: id.into(), upto_sequence: upto }
++    }
++
++    #[test]
++    fn exact_cursor_keys_lru_eviction_and_tenant_invalidation() {
++        let t = Uuid::new_v4();
++        let rows = Arc::new(vec![row(1), row(2)]);
++        let per = rows_bytes(&rows);
++        let cache = SummaryCache::new(per * 3 + 10);
++        cache.insert(key(t, "a", 10), rows.clone());
++        assert!(cache.get(&key(t, "a", 10)).is_some());
++        // A different applied cursor is a different key: never served from the old rows.
++        assert!(cache.get(&key(t, "a", 11)).is_none());
++        cache.insert(key(t, "b", 10), rows.clone());
++        cache.insert(key(t, "c", 10), rows.clone());
++        assert_eq!(cache.len(), 3);
++        // Touch "a" so "b" is the least recently used, then overflow by one.
++        assert!(cache.get(&key(t, "a", 10)).is_some());
++        cache.insert(key(t, "d", 10), rows.clone());
++        assert_eq!(cache.len(), 3);
++        assert!(cache.get(&key(t, "b", 10)).is_none(), "LRU victim evicted");
++        assert!(cache.get(&key(t, "a", 10)).is_some());
++        assert!(cache.bytes() <= cache.budget());
++        assert_eq!(cache.evictions.load(Ordering::Relaxed), 1);
++        // Rows above budget are never cached; a rebuild drops the tenant.
++        let huge = Arc::new((0..10_000).map(row).collect::<Vec<_>>());
++        cache.insert(key(t, "huge", 10), huge);
++        assert!(cache.get(&key(t, "huge", 10)).is_none());
++        let other = Uuid::new_v4();
++        cache.insert(key(other, "z", 1), rows.clone());
++        cache.invalidate_tenant(t);
++        assert_eq!(cache.len(), 1);
++        assert!(cache.get(&key(other, "z", 1)).is_some());
++    }
++}
+diff --git a/docs/decisions/ADR-0009-hot-path-round-trips-and-history-residency.md b/docs/decisions/ADR-0009-hot-path-round-trips-and-history-residency.md
+new file mode 100644
+index 0000000..7692805
+--- /dev/null
++++ b/docs/decisions/ADR-0009-hot-path-round-trips-and-history-residency.md
+@@ -0,0 +1,86 @@
++# ADR-0009 Hot-path round trips, exact-cursor summary cache and history residency through catch-up
++
++Status: accepted (P4, PILOT-09 profile cycle on the perf install of commit 78d8100 + this change set)
++
++## Context
++
++After ADR-0008 the smoke protocol still missed every per-class latency target (reports/performance.json run 2:
++hot API p95 1,147–1,645 ms vs 200; MCP fixed-arrival success 0.759 from engine `overloaded`). A profile of one
++hot `GET /api/entities/order/<id>/state` and one `POST /api/questions/orders.payment_state` on the **idle** install
++(reports/evidence/PILOT-09-profile/) located the cost:
++
++- The engine answered a hot order state in 24–33 ms (p50) of its 37 ms end-to-end; the API added ≈4 ms, the
++  MCP bridge ≈10 ms, the engine RPC floor was 5 ms and an authenticated API request without an engine call 2 ms.
++- 35 of 40 hot orders of the largest tenant (and, per the engine log, 29k records of that tenant plus nearly all
++  records of the 45 small tenants) carried `history.evicted_use_cold_read`: their history locators had been
++  evicted during the **initial catch-up** of the corpus and the eviction is persisted in every snapshot. Each hot
++  lookup therefore read the full entries (payload jsonb included) through the GIN index and rebuilt five track
++  summaries from them — the same statement that dominated `pg_stat_activity` under load.
++- The catch-up eviction compared history + undo bytes with the per-copy budget but was only allowed to drop
++  history locators (undo logs are retained until every correction behind the committed cursor is applied), so the
++  target was unreachable for any large tenant and *every* locator went. The 1 MiB per-tenant floor had the same
++  effect on 10k-entry tenants whose history alone is 2–3 MiB.
++- The API opened one tenant transaction per request only to compare the committed cursor for the readiness memo
++  (four round trips on the hot path), re-wrote `sessions.last_seen_at` on every owner request, never forwarded the
++  principal to the engine (the per-agent admission limit was unused; only the 16/32 limits applied) and ran a
++  bb_api pool of 8 for 20 clients plus ingestion (`database_busy` while PostgreSQL itself was far from
++  `max_connections = 80`).
++- The engine's `latest_committed` barrier read (`tenant_sequences`) shared the main pool with cold replays and
++  evicted-history reads; 51 tenants polled the tail every 250 ms (≈400 idle point reads/s) although every commit
++  already wakes the loop through `LISTEN journal_appended`.
++
++## Decision
++
++1. **History residency through catch-up/rebuild.** History-only eviction (`evict_history_to_budget`) budgets
++   the history locators alone; the retained undo logs are the floor of that phase. Mid catch-up and mid rebuild
++   the periodic pass runs only under measured memory pressure (`ENGINE_RSS_TARGET_MB` exceeded). A publication
++   whose last tail read returned fewer rows than requested has applied every committed correction, so it uses the
++   full policy (undo logs of the oldest half first, then least recently touched history). Business values are
++   still never evicted; both state copies still decide identically (fingerprint check unchanged).
++2. **Exact-cursor summary cache.** Records whose history *is* evicted are served from a payload-free indexed read
++   (`entity_entry_summaries`: no `payload` column) cached in a bounded LRU keyed by (tenant, entity, **applied
++   cursor**), `ENGINE_SUMMARY_CACHE_MB` (32). A later publication is a different key and a rebuild drops the
++   tenant, so a hit can never serve rows of another cursor; the state's `consistency` block is untouched.
++3. **Barrier pool.** `committed_cursor` runs on a dedicated 2-connection pool with `statement_timeout = 2000`
++   (`ENGINE_PG_BARRIER_POOL`); the point read itself is unchanged (`latest_committed` still reads the committed
++   cursor at request time). The tail poll fallback is 1 s (`ENGINE_POLL_MS`); LISTEN remains the wake path.
++4. **API hot path.** The readiness memo is time-bounded only (≤ 5 s, `observed_at` states its computation time,
++   concurrent misses share one computation, `invalidate()` unchanged) and opens no transaction on a hit; the
++   owner session row is still re-read on every request but its idle-extension write happens at most once per
++   minute (`SESSION_TOUCH_MS`); the verified principal id is sent to the engine as `X-Principal-Id` (header only,
++   uuid-validated) so the contract's 8-per-agent limit applies; the bb_api pool defaults to 16 (`API_PG_POOL`).
++
++5. **Second cycle (after the first protocol run on 0.1.2-perf).** The engine log of that run showed 1,820
++   churn events of the single tenant under ingestion: with RSS over target the loop dropped that tenant's ≈94 MiB
++   write copy as soon as a batch was published and re-cloned it one second later (763 drops, 7 fingerprint
++   divergences → full clones), ran an eviction pass at every publication (1,097) and the engine burned 170–240 %
++   CPU while the smoke profile ran. Bounded rules now: under RSS pressure a write copy is dropped only after a
++   10 s grace period without batches (`RSS_DROP_GRACE`; an idle tenant still drops at once after
++   `ENGINE_WRITE_COPY_IDLE_SECONDS`), and an RSS-pressure eviction pass of one tenant runs at most every 10 s
++   (`RSS_EVICTION_INTERVAL`). Independently: `Answer::touch` and `conflicts_for` used linear membership (quadratic
++   for a tenant-wide intent touching 5,000 invoices — `invoices.outstanding` cost 117–385 ms of engine time on
++   tenant 0), intents and summaries now run on the blocking pool (`spawn_blocking`, never stalling the async
++   workers that serve hot lookups; the deadline still cancels the response, the CPU work of one intent is bounded
++   by its own cost), and the evidence citation of an answer with evicted-history records reads cold summaries in
++   touch order only until the 500-locator cap is reached (`evidence_truncated` is set when records stay unread —
++   before, thousands of PostgreSQL reads were spent on a citation truncated to 500 anyway).
++
++6. **Answer size (second cycle).** Idle profiling of resident tenant-0 orders showed 500–700 merged history
++   locators (shared items and the customer) and 200 KB state answers — serialized twice in the engine, parsed and
++   re-serialized by the API, pretty-printed by the bridge — and for evicted orders the engine still built that RAM
++   merge before the HTTP layer replaced it. `TRACK_SUMMARIES_PER_TRACK` is 25 (each track view keeps `total` and
++   `truncated`; the complete history is one `/v1/history` page away; `entry_ids`/`evidence_refs` stay complete) and
++   `entity_state` skips the merge/track build entirely when any entity is cold. The PostgreSQL path applies the same
++   per-track bound.
++
++## Consequences
++
++- Revocation semantics are unchanged: credentials and sessions are re-read per request (IDENTITY §43 "new
++  requests after acknowledgment must fail"); a session-row cache was deliberately not introduced.
++- Readiness/coverage attached to answers may lag a new event family or a health change by up to 5 s (the UI's
++  own polling cadence); the answer's consistency cursor never does.
++- Memory: a tenant now keeps its history locators resident unless the measured RSS exceeds the target; the
++  structural budgets and the RSS-target eviction at publication still bound steady state. Existing snapshots
++  keep their evicted `cold_history` until the tenant is rebuilt (the smoke protocol's no-snapshot rebuild).
++- Tests: `crates/projections` (eviction semantics, summary cache), `tests/backend/unit/hot-path.test.ts`
++  (memo, principal header, pool size), existing engine/API suites.
+diff --git a/scripts/verify/perf-compare-table.py b/scripts/verify/perf-compare-table.py
+new file mode 100644
+index 0000000..9fe57c2
+--- /dev/null
++++ b/scripts/verify/perf-compare-table.py
+@@ -0,0 +1,26 @@
++#!/usr/bin/env python3
++"""Markdown table of smoke runs (tests/perf/smoke.mjs outputs) for the PILOT-09 evidence READMEs.
++Usage: perf-compare-table.py <label>=<dir> [<label>=<dir> ...]   (dir holds run-{api,mcp}-{closed,fixed}.json)"""
++import json, sys, os, statistics
++def load(d, k):
++    p = os.path.join(d, f"run-{k}.json")
++    return json.load(open(p)) if os.path.exists(p) else None
++def sampler(d, k):
++    p = os.path.join(d, f"samples-{k}.jsonl")
++    if not os.path.exists(p): return ""
++    rows = [json.loads(l) for l in open(p) if l.strip()]
++    pg = [float(c['cpu'].rstrip('%') or 0) for r in rows for c in r['containers'] if c['name'].endswith('-postgres')]
++    loads = [float(r['load'].split()[0]) for r in rows]
++    rss = [r['engine_vmrss_bytes']/1048576 for r in rows if r.get('engine_vmrss_bytes')]
++    med = lambda a: statistics.median(a) if a else float('nan')
++    return f"{med(pg):.0f} % / {max(pg):.0f} % | {min(loads):.0f} / {med(loads):.0f} / {max(loads):.0f} | {med(rss):.0f} / {max(rss):.0f}"
++print("| run | req/s | success | hot p50 / p95 / p99 ms | cold p95 | history p95 | summary p95 | ingestion eps / ack p95 / lag p95 | engine cgroup median / peak MiB | stack peak | PostgreSQL CPU median / max | host 1-min load min / median / max | engine VmRSS median / max |")
++print("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
++for arg in sys.argv[1:]:
++    label, d = arg.split("=", 1)
++    for k, name in [("api-closed", "API closed 20 clients"), ("api-fixed", "API fixed 40 req/s"), ("mcp-closed", "MCP closed 20 clients"), ("mcp-fixed", "MCP fixed 40 req/s")]:
++        r = load(d, k)
++        if not r: continue
++        c = r['classes']; i = r['ingestion']; m = r['memory']
++        f = lambda x: "–" if x is None else f"{x:,.0f}"
++        print(f"| {label} {name} | {r['achieved_rps']} | {r['success_fraction']:.4f} | {f(c['hot']['p50_ms'])} / {f(c['hot']['p95_ms'])} / {f(c['hot']['p99_ms'])} | {f(c['cold']['p95_ms'])} | {f(c['history']['p95_ms'])} | {f(c['summary']['p95_ms'])} | {i['entries_per_second']} / {f(i['durable_ack_p95_ms'])} / {f(i['lag_p95_ms'])} | {f(m['engine_mib_steady_median'])} / {f(m['engine_mib_peak'])} | {f(m['total_stack_mib_peak'])} | {sampler(d, k)} |")
+diff --git a/scripts/verify/perf-profile-classes.mjs b/scripts/verify/perf-profile-classes.mjs
+new file mode 100644
+index 0000000..69d84a8
+--- /dev/null
++++ b/scripts/verify/perf-profile-classes.mjs
+@@ -0,0 +1,26 @@
++// PILOT-09 profile: idle timing of the history (API → PostgreSQL) and summary (invoices.outstanding, engine) classes.
++//   node scripts/verify/perf-profile-classes.mjs [N=30] [tenant_index=0]
++import { readFileSync } from "node:fs";
++import { execFileSync } from "node:child_process";
++const POOLS = JSON.parse(readFileSync(process.env.HOME + "/blackbox-perf-keys-perf/pools.json", "utf8"));
++const P = process.env.P ?? "blackbox-agent-c-perf";
++const N = Number(process.argv[2] ?? 30); const tenantIdx = Number(process.argv[3] ?? 0);
++const client = POOLS.clients.find((c) => c.tenant_index === tenantIdx);
++const key = readFileSync(client.key_file, "utf8").trim();
++const pool = POOLS.pools[client.tenant_id]; const orders = pool.hot.slice(0, N);
++const pct = (a, p) => { const s = [...a].sort((x, y) => x - y); return Number(s[Math.min(s.length - 1, Math.ceil(s.length * p) - 1)].toFixed(1)); };
++const summ = (name, arr, extra = {}) => console.log(JSON.stringify({ name, n: arr.length, p50: pct(arr, 0.5), p95: pct(arr, 0.95), max: pct(arr, 1), ...extra }));
++async function timed(fn) { const t0 = performance.now(); const r = await fn(); return [performance.now() - t0, r]; }
++{
++  const ms = [], bytes = [];
++  for (const o of orders) { const [t, r] = await timed(async () => { const res = await fetch(`${POOLS.api}/api/entities/order/${encodeURIComponent(o)}/history?limit=100`, { headers: { authorization: `Bearer ${key}` } }); const text = await res.text(); return { status: res.status, len: text.length, n: JSON.parse(text).entries?.length }; }); ms.push(t); bytes.push(r.len); }
++  summ("api.history_100.total_ms (API -> PostgreSQL, full entries)", ms, { response_bytes_p50: pct(bytes, 0.5) });
++}
++{
++  const ms = [], bytes = [], st = {};
++  for (let i = 0; i < Math.min(N, 15); i++) { const [t, r] = await timed(async () => { const res = await fetch(`${POOLS.api}/api/questions/invoices.outstanding`, { method: "POST", headers: { authorization: `Bearer ${key}`, "content-type": "application/json" }, body: JSON.stringify({ params: { now: POOLS.summary_window.to, due_before: POOLS.summary_window.to } }) }); const text = await res.text(); const j = JSON.parse(text); return { len: text.length, status: j.status, cov: j.coverage }; }); ms.push(t); bytes.push(r.len); st[r.status] = (st[r.status] ?? 0) + 1; if (i === 0) console.log(JSON.stringify({ coverage: r.cov })); }
++  summ("api.summary.invoices_outstanding.total_ms", ms, { response_bytes_p50: pct(bytes, 0.5), statuses: st });
++  const script = `const fs=require('fs');const tok=fs.readFileSync('/run/secrets/engine_token','utf8').trim();const tenant=${JSON.stringify(client.tenant_id)};(async()=>{const out=[];for(let i=0;i<${Math.min(N, 15)};i++){const t0=process.hrtime.bigint();const r=await fetch('http://engine:7070/v1/query',{method:'POST',headers:{'content-type':'application/json','x-engine-token':tok},body:JSON.stringify({tenant_id:tenant,intent:'invoices.outstanding',params:{now:${JSON.stringify(POOLS.summary_window.to)},due_before:${JSON.stringify(POOLS.summary_window.to)}},consistency:{mode:'latest_committed',deadline_ms:5000},page:{limit:100}})});const text=await r.text();const j=JSON.parse(text);out.push({ms:Number(process.hrtime.bigint()-t0)/1e6,eng:j.duration_ms,len:text.length})}console.log(JSON.stringify(out))})()`;
++  const out = JSON.parse(execFileSync("docker", ["exec", `${P}-api`, "node", "-e", script], { encoding: "utf8" }));
++  summ("engine.direct.invoices_outstanding.total_ms", out.map((x) => x.ms), { engine_duration_ms_p50: pct(out.map((x) => x.eng), 0.5), engine_duration_ms_max: pct(out.map((x) => x.eng), 1) });
++}
+diff --git a/scripts/verify/perf-profile-hot.mjs b/scripts/verify/perf-profile-hot.mjs
+new file mode 100644
+index 0000000..11ffd1c
+--- /dev/null
++++ b/scripts/verify/perf-profile-hot.mjs
+@@ -0,0 +1,67 @@
++// PILOT-09 profile (ADR-0009): idle-install timing of one hot order-state request and one question through the API and
++// engine-direct (from inside the api container with the engine token), plus RPC/auth floors.
++//   node scripts/verify/perf-profile-hot.mjs [N=40] [tenant_index=0]   (env P = compose project)
++import { readFileSync } from "node:fs";
++import { execFileSync } from "node:child_process";
++import path from "node:path";
++const POOLS = JSON.parse(readFileSync(process.env.HOME + "/blackbox-perf-keys-perf/pools.json", "utf8"));
++const P = process.env.P ?? "blackbox-agent-c-perf";
++const API = POOLS.api;
++const N = Number(process.argv[2] ?? 40);
++const tenantIdx = Number(process.argv[3] ?? 0);
++const client = POOLS.clients.find((c) => c.tenant_index === tenantIdx);
++const key = readFileSync(client.key_file, "utf8").trim();
++const pool = POOLS.pools[client.tenant_id];
++const orders = pool.hot.slice(0, N);
++const pct = (a, p) => { const s = [...a].sort((x, y) => x - y); return Number(s[Math.min(s.length - 1, Math.ceil(s.length * p) - 1)].toFixed(1)); };
++const summ = (name, arr, extra = {}) => console.log(JSON.stringify({ name, n: arr.length, p50: pct(arr, 0.5), p95: pct(arr, 0.95), max: pct(arr, 1), ...extra }));
++
++async function timed(fn) { const t0 = performance.now(); const r = await fn(); return [performance.now() - t0, r]; }
++
++// 1. API hot state
++{
++  const ms = [], eng = [], bytes = [], missing = {};
++  for (const o of orders) {
++    const [t, r] = await timed(async () => { const res = await fetch(`${API}/api/entities/order/${encodeURIComponent(o)}/state`, { headers: { authorization: `Bearer ${key}` } }); const text = await res.text(); return { status: res.status, json: JSON.parse(text), len: text.length }; });
++    ms.push(t); eng.push(r.json.duration_ms ?? -1); bytes.push(r.len);
++    for (const m of r.json.missing_inputs ?? []) missing[m] = (missing[m] ?? 0) + 1;
++    if (r.status !== 200 || r.json.consistency?.status !== "current") console.log("unexpected", r.status, r.json.consistency?.status);
++  }
++  summ("api.hot_state.total_ms", ms, { engine_duration_ms_p50: pct(eng, 0.5), engine_duration_ms_p95: pct(eng, 0.95), response_bytes_p50: pct(bytes, 0.5), response_bytes_max: pct(bytes, 1), missing_inputs: missing });
++}
++// 2. engine direct (from inside the api container)
++{
++  const script = `const fs=require('fs');const tok=fs.readFileSync('/run/secrets/engine_token','utf8').trim();const orders=${JSON.stringify(orders)};const tenant=${JSON.stringify(client.tenant_id)};(async()=>{const out=[];for(const o of orders){const t0=process.hrtime.bigint();const r=await fetch('http://engine:7070/v1/state',{method:'POST',headers:{'content-type':'application/json','x-engine-token':tok},body:JSON.stringify({tenant_id:tenant,entity_type:'order',entity_id:o,consistency:{mode:'latest_committed',deadline_ms:5000}})});const text=await r.text();const j=JSON.parse(text);out.push({ms:Number(process.hrtime.bigint()-t0)/1e6,eng:j.duration_ms,len:text.length,status:r.status,cons:j.consistency&&j.consistency.status,missing:j.missing_inputs})}console.log(JSON.stringify(out))})()`;
++  const out = JSON.parse(execFileSync("docker", ["exec", `${P}-api`, "node", "-e", script], { encoding: "utf8" }));
++  const missing = {}; for (const x of out) for (const m of x.missing ?? []) missing[m] = (missing[m] ?? 0) + 1;
++  summ("engine.direct.v1_state.total_ms", out.map((x) => x.ms), { engine_duration_ms_p50: pct(out.map((x) => x.eng), 0.5), engine_duration_ms_p95: pct(out.map((x) => x.eng), 0.95), response_bytes_p50: pct(out.map((x) => x.len), 0.5), statuses: [...new Set(out.map((x) => x.status + "/" + x.cons))], missing_inputs: missing });
++}
++// 3. API question orders.payment_state
++{
++  const ms = [], eng = [], bytes = [];
++  for (const o of orders) {
++    const [t, r] = await timed(async () => { const res = await fetch(`${API}/api/questions/orders.payment_state`, { method: "POST", headers: { authorization: `Bearer ${key}`, "content-type": "application/json" }, body: JSON.stringify({ params: { order_id: o } }) }); const text = await res.text(); return { status: res.status, json: JSON.parse(text), len: text.length }; });
++    ms.push(t); bytes.push(r.len);
++    if (r.status !== 200) console.log("unexpected", r.status, JSON.stringify(r.json).slice(0, 200));
++  }
++  summ("api.question.payment_state.total_ms", ms, { response_bytes_p50: pct(bytes, 0.5) });
++}
++// 4. engine direct /v1/query
++{
++  const script = `const fs=require('fs');const tok=fs.readFileSync('/run/secrets/engine_token','utf8').trim();const orders=${JSON.stringify(orders)};const tenant=${JSON.stringify(client.tenant_id)};(async()=>{const out=[];for(const o of orders){const t0=process.hrtime.bigint();const r=await fetch('http://engine:7070/v1/query',{method:'POST',headers:{'content-type':'application/json','x-engine-token':tok},body:JSON.stringify({tenant_id:tenant,intent:'orders.payment_state',params:{order_id:o},consistency:{mode:'latest_committed',deadline_ms:5000},page:{limit:100}})});const text=await r.text();const j=JSON.parse(text);out.push({ms:Number(process.hrtime.bigint()-t0)/1e6,eng:j.duration_ms,len:text.length,status:r.status})}console.log(JSON.stringify(out))})()`;
++  const out = JSON.parse(execFileSync("docker", ["exec", `${P}-api`, "node", "-e", script], { encoding: "utf8" }));
++  summ("engine.direct.v1_query.total_ms", out.map((x) => x.ms), { engine_duration_ms_p50: pct(out.map((x) => x.eng), 0.5), response_bytes_p50: pct(out.map((x) => x.len), 0.5), statuses: [...new Set(out.map((x) => x.status))] });
++}
++// 5. engine /health timing (token check + db ping + json) as RPC floor, and api /api/health
++{
++  const script = `const fs=require('fs');const tok=fs.readFileSync('/run/secrets/engine_token','utf8').trim();(async()=>{const out=[];for(let i=0;i<20;i++){const t0=process.hrtime.bigint();const r=await fetch('http://engine:7070/v1/schema',{headers:{'x-engine-token':tok}});await r.text();out.push(Number(process.hrtime.bigint()-t0)/1e6)}console.log(JSON.stringify(out))})()`;
++  const out = JSON.parse(execFileSync("docker", ["exec", `${P}-api`, "node", "-e", script], { encoding: "utf8" }));
++  summ("engine.direct.v1_schema_rpc_floor_ms", out);
++  const ms = [];
++  for (let i = 0; i < 20; i++) { const [t] = await timed(async () => (await fetch(`${API}/api/health`)).text()); ms.push(t); }
++  summ("api.health_unauthenticated_ms", ms);
++  const ms2 = [];
++  for (let i = 0; i < 20; i++) { const [t] = await timed(async () => (await fetch(`${API}/api/questions/search?q=payment`, { headers: { authorization: `Bearer ${key}` } })).text()); ms2.push(t); }
++  summ("api.questions_search_auth_only_no_engine_ms", ms2);
++}
++// MCP bridge: scripts/verify/perf-profile-mcp.mjs (official SDK client over the stdio bridge).
+diff --git a/scripts/verify/perf-profile-mcp.mjs b/scripts/verify/perf-profile-mcp.mjs
+new file mode 100644
+index 0000000..eaa7a1a
+--- /dev/null
++++ b/scripts/verify/perf-profile-mcp.mjs
+@@ -0,0 +1,29 @@
++import { readFileSync } from "node:fs";
++import path from "node:path";
++import { createRequire } from "node:module";
++const req = createRequire(path.resolve("package.json"));
++const { Client } = await import(req.resolve("@modelcontextprotocol/sdk/client/index.js"));
++const { StdioClientTransport } = await import(req.resolve("@modelcontextprotocol/sdk/client/stdio.js"));
++const POOLS = JSON.parse(readFileSync(process.env.HOME + "/blackbox-perf-keys-perf/pools.json", "utf8"));
++const N = Number(process.argv[2] ?? 40); const tenantIdx = Number(process.argv[3] ?? 0);
++const client = POOLS.clients.find((c) => c.tenant_index === tenantIdx);
++const orders = POOLS.pools[client.tenant_id].hot.slice(0, N);
++const pct = (a, p) => { const s = [...a].sort((x, y) => x - y); return Number(s[Math.min(s.length - 1, Math.ceil(s.length * p) - 1)].toFixed(1)); };
++const summ = (name, arr, extra = {}) => console.log(JSON.stringify({ name, n: arr.length, p50: pct(arr, 0.5), p95: pct(arr, 0.95), max: pct(arr, 1), ...extra }));
++async function timed(fn) { const t0 = performance.now(); const r = await fn(); return [performance.now() - t0, r]; }
++const t0 = performance.now();
++const transport = new StdioClientTransport({ command: process.execPath, args: [path.resolve("packages/mcp/dist/server.js")], env: { ...process.env, BLACKBOX_API_URL: POOLS.api, BLACKBOX_AGENT_KEY_FILE: client.key_file }, stderr: "pipe" });
++transport.stderr?.on("data", () => {});
++const mcp = new Client({ name: "profile", version: "1.0.0" });
++await mcp.connect(transport);
++console.log(JSON.stringify({ name: "mcp.bridge_startup_ms", ms: Number((performance.now() - t0).toFixed(1)) }));
++const ms = [], bytes = [];
++for (const o of orders) { const [t, r] = await timed(() => mcp.callTool({ name: "get_business_state", arguments: { entity_type: "order", entity_id: o } })); ms.push(t); bytes.push(r.content?.[0]?.text?.length ?? 0); }
++summ("mcp.get_business_state.total_ms", ms, { text_bytes_p50: pct(bytes, 0.5) });
++const ms2 = [];
++for (const o of orders) { const [t] = await timed(() => mcp.callTool({ name: "answer_question", arguments: { intent: "orders.payment_state", params: { order_id: o } } })); ms2.push(t); }
++summ("mcp.answer_question.payment_state.total_ms", ms2);
++const ms3 = [];
++for (let i = 0; i < 20; i++) { const [t] = await timed(() => mcp.callTool({ name: "describe_business_schema", arguments: {} })); ms3.push(t); }
++summ("mcp.describe_business_schema_ms", ms3);
++await mcp.close();
+diff --git a/tests/backend/unit/hot-path.test.ts b/tests/backend/unit/hot-path.test.ts
+new file mode 100644
+index 0000000..b9e388a
+--- /dev/null
++++ b/tests/backend/unit/hot-path.test.ts
+@@ -0,0 +1,110 @@
++/**
++ * Unit tests for the PILOT-09 hot-path changes (ADR-0009): the readiness memo is time-bounded and opens no
++ * transaction on a hit (concurrent misses share one computation); the engine client sends the verified principal
++ * as `X-Principal-Id` only (never in the body) so the engine's per-agent admission applies; API_PG_POOL parsing.
++ */
++import { createServer } from "node:http";
++import { describe, expect, it } from "vitest";
++import { HttpEngineClient, READINESS_MEMO_MS, ReadinessService } from "@blackbox/application";
++import { createLogger } from "@blackbox/logging";
++import { loadConfig } from "../../../apps/api/src/config.js";
++
++function fakePool() {
++  const counters = { connects: 0, queries: [] as string[], cursor: 0 };
++  const client = {
++    async query(sql: string) {
++      counters.queries.push(sql);
++      if (/tenant_sequences/.test(sql)) return { rows: [{ last_sequence: String(counters.cursor) }], rowCount: 1 };
++      return { rows: [], rowCount: 0 };
++    },
++    release() {},
++  };
++  const pool = { async connect() { counters.connects += 1; return client; } };
++  return { pool: pool as unknown as import("@blackbox/database").Pool, counters };
++}
++
++describe("readiness memo (hot path)", () => {
++  const tenant = "11111111-1111-4111-8111-111111111111";
++  it("serves a memo at or beyond the known cursor without any database work, recomputes behind it, shares concurrent misses", async () => {
++    const { pool, counters } = fakePool();
++    counters.cursor = 100;
++    const svc = new ReadinessService(pool);
++    const [a, b, c] = await Promise.all([svc.compute(tenant, { knownCursor: 90 }), svc.compute(tenant, { knownCursor: 90 }), svc.compute(tenant)]);
++    expect(a).toBe(b);
++    expect(b).toBe(c);
++    expect(counters.connects).toBe(1); // one shared computation
++    const selects = counters.queries.filter((q) => /^\s*(WITH|SELECT 1 FROM journal_entries|SELECT h\.)/.test(q));
++    expect(selects).toHaveLength(3); // event families, entity links, capability health
++    // Hits: an answer at cursor 100 or below, or no cursor at all → no connection.
++    expect(await svc.compute(tenant, { knownCursor: 100 })).toBe(a);
++    expect(await svc.compute(tenant, { knownCursor: 42 })).toBe(a);
++    expect(await svc.compute(tenant)).toBe(a);
++    expect(counters.connects).toBe(1);
++    // A hot answer beyond the memo's cursor recomputes (readiness is never older than the answer's cursor).
++    counters.cursor = 101;
++    const d = await svc.compute(tenant, { knownCursor: 101 });
++    expect(d).not.toBe(a);
++    expect(counters.connects).toBe(2);
++    // exact: compares the actual committed cursor in one transaction; unchanged cursor → memo, changed → recompute.
++    expect(await svc.compute(tenant, { exact: true })).toBe(d);
++    expect(counters.connects).toBe(3);
++    expect(counters.queries.filter((q) => /tenant_sequences/.test(q))).toHaveLength(3);
++    counters.cursor = 102;
++    const e = await svc.compute(tenant, { exact: true });
++    expect(e).not.toBe(d);
++    expect(counters.connects).toBe(4);
++    expect(e.datasets_missing.length).toBeGreaterThan(0);
++    expect(new Date(e.observed_at).getTime()).toBeLessThanOrEqual(Date.now());
++    // A different tenant is a different memo; invalidation forces a recomputation.
++    await svc.compute("22222222-2222-4222-8222-222222222222");
++    expect(counters.connects).toBe(5);
++    svc.invalidate(tenant);
++    await svc.compute(tenant);
++    expect(counters.connects).toBe(6);
++    expect(READINESS_MEMO_MS).toBe(5000);
++  });
++});
++
++describe("engine client principal header", () => {
++  it("sends X-Principal-Id for a uuid principal, strips it from the body and omits it otherwise", async () => {
++    const seen: Array<{ headers: Record<string, string | string[] | undefined>; body: unknown }> = [];
++    const server = createServer((req, res) => {
++      let data = "";
++      req.on("data", (c) => (data += c));
++      req.on("end", () => {
++        seen.push({ headers: req.headers, body: data ? JSON.parse(data) : null });
++        res.setHeader("content-type", "application/json");
++        res.end(JSON.stringify({ ok: true, consistency: { status: "current" } }));
++      });
++    });
++    await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
++    const port = (server.address() as { port: number }).port;
++    const client = new HttpEngineClient(`http://127.0.0.1:${port}`, "t0ken", createLogger({ component: "test", serviceVersion: "test", instanceId: "test", level: "ERROR" }));
++    try {
++      const principal = "9f2a0b1c-3d4e-4f60-8a7b-1c2d3e4f5a6b";
++      await client.state({ tenant_id: "11111111-1111-4111-8111-111111111111", entity_type: "order", entity_id: "#1", consistency: { mode: "latest_committed" }, principal_id: principal });
++      await client.query({ tenant_id: "11111111-1111-4111-8111-111111111111", intent: "orders.payment_state", params: {}, consistency: { mode: "latest_committed" } });
++      await client.state({ tenant_id: "11111111-1111-4111-8111-111111111111", entity_type: "order", entity_id: "#1", consistency: { mode: "latest_committed" }, principal_id: "not a uuid; header injection attempt\r\nx: y" });
++    } finally {
++      server.close();
++    }
++    expect(seen).toHaveLength(3);
++    expect(seen[0].headers["x-principal-id"]).toBe("9f2a0b1c-3d4e-4f60-8a7b-1c2d3e4f5a6b");
++    expect(seen[0].headers["x-engine-token"]).toBe("t0ken");
++    expect(seen[0].body).not.toHaveProperty("principal_id");
++    expect(seen[0].body).toMatchObject({ entity_id: "#1", consistency: { mode: "latest_committed" } });
++    expect(seen[1].headers["x-principal-id"]).toBeUndefined();
++    expect(seen[2].headers["x-principal-id"]).toBeUndefined();
++    expect(seen[2].body).not.toHaveProperty("principal_id");
++  });
++});
++
++describe("API_PG_POOL", () => {
++  const base = { DATABASE_URL: "postgres://bb_api:x@db:5432/blackbox", SECRETS_DIR: "/tmp/s", EVIDENCE_DIR: "/tmp/e", LOGS_DIR: "/tmp/l", ENGINE_URL: "stub" };
++  it("defaults to 16 and rejects values outside 2..64", () => {
++    expect(loadConfig({ ...base }).pgPoolMax).toBe(16);
++    expect(loadConfig({ ...base, API_PG_POOL: "8" }).pgPoolMax).toBe(8);
++    expect(() => loadConfig({ ...base, API_PG_POOL: "1" })).toThrow(/API_PG_POOL/);
++    expect(() => loadConfig({ ...base, API_PG_POOL: "65" })).toThrow(/API_PG_POOL/);
++  });
++});

@@ -325,9 +325,11 @@ pub fn coverage_for(st: &TenantState, datasets: &[&str]) -> Coverage {
 }
 
 pub fn conflicts_for(st: &TenantState, entities: &[RecKey]) -> Vec<ConflictView> {
+    // Membership through a set: conflicts × touched entities was quadratic for tenant-wide intents.
+    let set: std::collections::HashSet<RecKey> = entities.iter().copied().collect();
     st.conflicts
         .iter()
-        .filter(|c| c.entities.iter().any(|(k, i)| entities.contains(&RecKey::new(*k, *i))))
+        .filter(|c| c.entities.iter().any(|(k, i)| set.contains(&RecKey::new(*k, *i))))
         .map(|c| ConflictView {
             case_id: c.case_id.clone(),
             reason: c.reason.clone(),

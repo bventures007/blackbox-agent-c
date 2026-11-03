@@ -27,6 +27,9 @@ pub struct StoreConfig {
     pub user: String,
     pub password: String,
     pub max_connections: u32,
+    /// Size of the dedicated barrier pool (`ENGINE_PG_BARRIER_POOL`, default 2): the per-request
+    /// `latest_committed` point read of `tenant_sequences` never queues behind cold entity reads.
+    pub barrier_connections: u32,
     pub application_name: String,
 }
 
@@ -51,6 +54,10 @@ impl StoreConfig {
             .ok()
             .and_then(|p| p.parse().ok())
             .unwrap_or(8);
+        let barrier_connections = std::env::var("ENGINE_PG_BARRIER_POOL")
+            .ok()
+            .and_then(|p| p.parse().ok())
+            .unwrap_or(2);
         Ok(StoreConfig {
             host,
             port,
@@ -58,6 +65,7 @@ impl StoreConfig {
             user,
             password,
             max_connections,
+            barrier_connections,
             application_name: "blackbox-engine".into(),
         })
     }
@@ -76,7 +84,33 @@ impl StoreConfig {
 #[derive(Clone)]
 pub struct Store {
     pool: PgPool,
+    /// Small dedicated pool for the consistency-barrier point read (`committed_cursor`), with a
+    /// server-side statement timeout: the hot path's only PostgreSQL round trip must not wait for a
+    /// connection held by a cold replay or an evicted-history read on the main pool.
+    barrier_pool: PgPool,
     options: PgConnectOptions,
+}
+
+/// Payload-free projection of a journal entry for track summaries / evidence citations of records
+/// whose history locators were evicted from RAM (the full `payload` jsonb is not read).
+#[derive(Debug, Clone)]
+pub struct EntrySummaryRow {
+    pub entry_id: Uuid,
+    pub journal_sequence: i64,
+    pub track: Track,
+    pub record_id: String,
+    pub event_type: String,
+    pub occurred_at: DateTime<Utc>,
+    pub recorded_at: DateTime<Utc>,
+    pub supersedes_entry_id: Option<Uuid>,
+    pub evidence_refs: Vec<String>,
+}
+
+impl EntrySummaryRow {
+    /// Approximate resident bytes (struct + owned strings), for the bounded summary cache.
+    pub fn approx_bytes(&self) -> usize {
+        std::mem::size_of::<EntrySummaryRow>() + self.record_id.len() + self.event_type.len() + self.evidence_refs.iter().map(|e| e.len() + 24).sum::<usize>()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -162,7 +196,13 @@ impl Store {
             .acquire_timeout(Duration::from_secs(10))
             .connect_with(options.clone())
             .await?;
-        Ok(Store { pool, options })
+        let barrier_options = options.clone().options([("statement_timeout", "2000")]);
+        let barrier_pool = PgPoolOptions::new()
+            .max_connections(cfg.barrier_connections.max(1))
+            .acquire_timeout(Duration::from_secs(5))
+            .connect_with(barrier_options)
+            .await?;
+        Ok(Store { pool, barrier_pool, options })
     }
 
     pub fn pool(&self) -> &PgPool {
@@ -195,11 +235,12 @@ impl Store {
         Ok(row.is_some())
     }
 
-    /// Committed high-water mark (`tenant_sequences.last_sequence`).
+    /// Committed high-water mark (`tenant_sequences.last_sequence`), read on the dedicated barrier
+    /// pool (statement timeout 2 s) so the hot path never queues behind cold reads.
     pub async fn committed_cursor(&self, tenant: Uuid) -> Result<i64> {
         let row = sqlx::query("SELECT last_sequence FROM tenant_sequences WHERE tenant_id = $1")
             .bind(tenant)
-            .fetch_optional(&self.pool)
+            .fetch_optional(&self.barrier_pool)
             .await?;
         Ok(row.map(|r| r.get::<i64, _>("last_sequence")).unwrap_or(0))
     }
@@ -288,6 +329,43 @@ impl Store {
         .fetch_one(&self.pool)
         .await?;
         Ok(row.get::<i64, _>("n"))
+    }
+
+    /// Payload-free entity read for evicted-history track summaries: the same GIN predicate as
+    /// `entity_entries` but only the summary columns (no `payload`), keyset-bounded by `upto`.
+    pub async fn entity_entry_summaries(&self, tenant: Uuid, entity_type: &str, entity_id: &str, upto: i64, limit: i64) -> Result<Vec<EntrySummaryRow>> {
+        let filter = serde_json::json!({ entity_type: entity_id });
+        let rows = sqlx::query(
+            "SELECT entry_id, journal_sequence, track::text AS track, record_id, event_type, occurred_at, recorded_at, supersedes_entry_id, evidence_refs FROM journal_entries WHERE tenant_id = $1 AND entity_refs @> $2::jsonb AND journal_sequence <= $3 ORDER BY journal_sequence LIMIT $4",
+        )
+        .bind(tenant)
+        .bind(filter)
+        .bind(upto)
+        .bind(limit)
+        .fetch_all(&self.pool)
+        .await?;
+        rows.iter()
+            .map(|row| {
+                let track_s: String = row.try_get("track")?;
+                let track = Track::parse(&track_s).ok_or_else(|| StorageError::Decode(format!("unknown track {track_s}")))?;
+                let evidence_v: serde_json::Value = row.try_get("evidence_refs")?;
+                let evidence_refs = match evidence_v {
+                    serde_json::Value::Array(a) => a.into_iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect(),
+                    _ => Vec::new(),
+                };
+                Ok(EntrySummaryRow {
+                    entry_id: row.try_get("entry_id")?,
+                    journal_sequence: row.try_get("journal_sequence")?,
+                    track,
+                    record_id: row.try_get("record_id")?,
+                    event_type: row.try_get("event_type")?,
+                    occurred_at: row.try_get("occurred_at")?,
+                    recorded_at: row.try_get("recorded_at")?,
+                    supersedes_entry_id: row.try_get("supersedes_entry_id")?,
+                    evidence_refs,
+                })
+            })
+            .collect()
     }
 
     /// Entries of a tenant up to a recorded-time cutoff (bounded; for as_of replays of
