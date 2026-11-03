@@ -44,8 +44,7 @@
       "reports/evidence/PILOT-09-perf2/smoke-protocol.txt",
       "reports/evidence/PILOT-09-perf2/upgrade-0.1.3-perf.txt",
       "reports/evidence/PILOT-09-perf2/upgrade.txt",
-      "reports/evidence/PILOT-09-perf2/verdict-cycle1.json",
-      "reports/evidence/PILOT-09-perf2/verdict-cycle2.err"
+      "reports/evidence/PILOT-09-perf2/verdict-cycle1.json"
     ],
     "blocker": null
   },
