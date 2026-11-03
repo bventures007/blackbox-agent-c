@@ -1,0 +1,27 @@
+{
+  "row": "shopify.orders",
+  "kind": "contract",
+  "tested_commit": "c915e41b6c1c6784e4b33965820fea408ab62b65",
+  "recorded_at": "2026-11-03T15:32:55Z",
+  "command": "WORKER_TEST_SUPERUSER_URL=postgres://postgres:workerpg@127.0.0.1:19192/postgres pnpm test:worker (tests/worker/adapter.contract.test.ts) + python3 integrations/mappings/validate-mappings.py",
+  "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop 29.9.2 VM 8 vCPU / 9.7 GiB shared with other projects' containers), node v25.9.0, pnpm 11.20.0, cargo 1.83.0; throwaway postgres:16-alpine containers blackbox-agent-c-devpg (19183), blackbox-agent-c-workerpg (19192), blackbox-agent-c-enginepg (19184); host load average 12-15 during the suites (2026-11-03 16:31-16:32 local)",
+  "case_ids": [
+    "LOCAL-07",
+    "INGEST-02",
+    "INGEST-04",
+    "INGEST-05",
+    "SOURCE-01"
+  ],
+  "modes": [
+    "local_standalone",
+    "local_gateway",
+    "public_server"
+  ],
+  "observed": "adapter contract against the local Shopify-shaped fixture for shopify.orders: pagination, duplicate and reordered pages, 429 Retry-After, expired cursor, poison rejection, explicit test flag, mode declarations (gateway/public unsupported and refused); worker suite 5 files / 35 tests passed on c915e41; 14 mapping artifacts valid",
+  "result": "passed",
+  "outputs": [
+    "reports/evidence/CI-01-followup/test-worker.txt",
+    "reports/evidence/CI-01-followup/validate-mappings.txt"
+  ],
+  "note": "Sanitized summary of the actual suite outputs named in outputs (counts, run ids, timings); no keys, cookies, payloads or personal data. Synthetic provider-shaped fixture, not live provider evidence."
+}

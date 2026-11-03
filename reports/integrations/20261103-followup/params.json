@@ -1,0 +1,88 @@
+{
+  "implementation_note": "Re-records the implementation of row {row} on the committed revision {commit} after the 2026-11-03 follow-up invalidation (crates/domain/src/state.rs gained evictable_bytes accounting; crates/projections eviction/catch-up changes; no change to adapters, mappings, reducers' business rules or query services). Synthetic provider-shaped fixture only; live access remains a separate blocked event.",
+  "environment": "macOS 27.2 Apple Silicon (8 cores, 24 GiB host; Docker Desktop 29.9.2 VM 8 vCPU / 9.7 GiB shared with other projects' containers), node v25.9.0, pnpm 11.20.0, cargo 1.83.0; throwaway postgres:16-alpine containers blackbox-agent-c-devpg (19183), blackbox-agent-c-workerpg (19192), blackbox-agent-c-enginepg (19184); host load average 12-15 during the suites (2026-11-03 16:31-16:32 local)",
+  "tests": {
+    "contract": {
+      "result": "passed",
+      "command": "WORKER_TEST_SUPERUSER_URL=postgres://postgres:workerpg@127.0.0.1:19192/postgres pnpm test:worker (tests/worker/adapter.contract.test.ts) + python3 integrations/mappings/validate-mappings.py",
+      "case_ids": [
+        "LOCAL-07",
+        "INGEST-02",
+        "INGEST-04",
+        "INGEST-05",
+        "SOURCE-01"
+      ],
+      "modes": [
+        "local_standalone",
+        "local_gateway",
+        "public_server"
+      ],
+      "observed": "adapter contract against the local Shopify-shaped fixture for {row}: pagination, duplicate and reordered pages, 429 Retry-After, expired cursor, poison rejection, explicit test flag, mode declarations (gateway/public unsupported and refused); worker suite 5 files / 35 tests passed on c915e41; 14 mapping artifacts valid",
+      "outputs": [
+        "reports/evidence/CI-01-followup/test-worker.txt",
+        "reports/evidence/CI-01-followup/validate-mappings.txt"
+      ],
+      "note": "Synthetic contract test on the committed revision; not live provider evidence."
+    },
+    "pipeline": {
+      "result": "passed",
+      "command": "WORKER_TEST_SUPERUSER_URL=... pnpm test:worker (tests/worker/pipeline.test.ts: fixture -> bb_worker -> append_journal_entries -> deliveries/dead letters/capability_health)",
+      "case_ids": [
+        "SLICE-01",
+        "INGEST-02",
+        "INGEST-03",
+        "JOURNAL-02",
+        "HEALTH-01",
+        "IMPORT-02",
+        "QUERY-01"
+      ],
+      "modes": [
+        "local_standalone"
+      ],
+      "observed": "adapter -> PostgreSQL (bb_worker, RLS, append_journal_entries) pipeline for {row}: backfill appends once, rerun all duplicates, conflicting content preserves the original and opens a conflict, interrupted run resumes from checkpoint, late correction appended, last successful check distinct from last new event; worker suite 5 files / 35 tests passed on c915e41. Engine/API/MCP agreement on an installed stack was last proven by SLICE-01 on build 0.1.0 (reports/evidence/SLICE-01-rerun-b) before this revision and is not re-claimed here.",
+      "outputs": [
+        "reports/evidence/CI-01-followup/test-worker.txt"
+      ],
+      "note": "Persisted pipeline test on the committed revision; synthetic fixture, not live."
+    },
+    "recovery": {
+      "result": "passed",
+      "command": "ENGINE_BINARY=$PWD/target/release/blackbox-engine ENGINE_TEST_PGPORT=19184 cargo test --workspace --release -- --test-threads=2 (crates/domain golden + proptests, apps/engine/tests/{golden_http,intents_http,ops_http}.rs)",
+      "case_ids": [
+        "LOCAL-09",
+        "JOURNAL-02",
+        "DOMAIN-01",
+        "SLICE-01"
+      ],
+      "modes": [
+        "local_standalone"
+      ],
+      "observed": "golden checkpoints and adversarial variants (duplicates, late failure, reorder, missing bank/credit source, tenant collision), supersedes correction, snapshot restart, corrupt-snapshot rebuild, 1000-entry unapplied tail, admission limits and load sample all passed on c915e41 (14 + 4 + 1 + 5 + 1 tests ok)",
+      "outputs": [
+        "reports/evidence/CI-01-followup/cargo-test-release.txt"
+      ],
+      "note": "Engine recovery semantics for the journal shapes this adapter produces; synthetic corpus."
+    },
+    "tenant_isolation": {
+      "result": "passed",
+      "command": "pnpm test:backend:integration (tests/backend/integration/{journal,sources,export,mcp,auth}.test.ts, two synthetic tenants with identical external ids as roles bb_api/bb_worker/bb_engine) + worker pipeline two-tenant test",
+      "case_ids": [
+        "TENANT-01",
+        "TENANT-02",
+        "TENANT-03",
+        "TENANT-04",
+        "MCP-05",
+        "SLICE-01"
+      ],
+      "modes": [
+        "local_standalone"
+      ],
+      "observed": "cross-tenant reads/writes denied, unscoped statements fail closed, composite FK scope enforced, cross-tenant MCP cursor denied, export never includes the other tenant, worker pipeline two-tenant collision isolated; backend integration 7 files / 57 tests and worker 35 tests passed on c915e41",
+      "outputs": [
+        "reports/evidence/CI-01-followup/test-backend-integration.txt",
+        "reports/evidence/CI-01-followup/test-worker.txt"
+      ],
+      "note": "Database roles and RLS as deployed; synthetic tenants."
+    }
+  }
+}
