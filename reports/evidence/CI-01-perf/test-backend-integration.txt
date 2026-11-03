@@ -1,0 +1,11 @@
+$ vitest run --config tests/backend/vitest.integration.config.ts
+
+ RUN  v4.1.12 /Users/benediktsauter/GitHub/blackbox-agent-c
+
+
+ Test Files  8 passed (8)
+      Tests  59 passed (59)
+   Start at  19:57:37
+   Duration  29.18s (transform 1.99s, setup 0ms, import 12.25s, tests 69.81s, environment 1ms)
+
+integration exit 0

@@ -2,6 +2,10 @@
 
 ## Progress log (newest first)
 
+### 2026-11-03 — Contract-size performance re-measurement, RLS index containment fix (ADR-0008)
+Done: fresh install of the committed tree with a 552k-entry contract corpus; root cause for slow entity reads under RLS fixed (jsonb_contains LEAKPROOF, GIN fastupdate off, migration 0005); API fixed-arrival success 59.6 % -> 99.7 %; recovery targets hold (tail 2 s, rebuild 12-24 s, restore 107-147 s); Shopify register rows re-recorded. Open: PILOT-09/OPS-05 still failed (15/26 targets, latency and MCP fixed-arrival success on a loaded shared host), PILOT-05 needs the owner's sleep/wake session, SLICE-02/SOURCE-01 blocked, no independent review.
+
+
 ### 2026-11-03 — Follow-up on the three open P4 findings (SEC-02, PERF-01, PILOT-09): export flow built, hot-path scans removed, engine rebuild/memory fixed, smoke protocol still failing
 
 - SEC-02 passed: owner-only `POST /api/settings/export` (journal JSON lines, evidence metadata with ledger status, settings/retention; 64 MiB cap; audited `workspace.exported`; agents 403), EN/DE Settings control, docs, two-tenant integration test, exercised on the final install (`reports/evidence/SEC-02/`).

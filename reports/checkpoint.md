@@ -26,9 +26,11 @@ Active acceptance status (83 cases; deferred 37 remain not_started):
 - SLICE-01 52/52 on both installs; MCP-03 with an independent client (MCP Inspector CLI 2.13.0, SDK 1.32.2, stdio) using a UI-created agent key; LOCAL-06 runtime key rotation; HEALTH/DIAG gates incl. CLI with every container down and a 23.7 KB sanitized export with 0 canary hits; PILOT-10 no external egress during local questions.
 - Ops install (ports 19185): backup + isolated restore with the recovery key, interrupted and resumed populated upgrades (0.1.0→0.1.3→0.1.4), storage thresholds, data-key rotation, evidence restriction, restart with 3,000-entry tail ready in 5 s, no-snapshot rebuild 196 s.
 - Question coverage (reports/question-coverage.json): positive 24/24, missing-data 24/24, API/MCP parity 24/24 on the installed stack.
-- Register: the 14 Shopify rows were invalidated on 2026-11-03 because a bound Rust artifact changed in the follow-up; implementation and the four test kinds must be re-recorded on the new commit; live tests blocked; no independent review (self-approval is not permitted).
+- Register: the 14 Shopify rows are recorded on the current revision (implementation plus contract, pipeline, recovery and tenant_isolation evidence from fresh suite runs); live tests blocked; no independent review (self-approval is not permitted). Security-relevant decision to review: ADR-0008 (LEAKPROOF marking of jsonb_contains).
 
 ## Not passed, with reasons
+
+Contract-size re-measurement on 2026-11-03 (fresh install of the committed tree, 552,798 entries / 50 tenants / 10,000 orders, images 0.1.1-perf): a real root cause was found and fixed — under row-level security PostgreSQL treats `jsonb_contains` as not leakproof, so the API and engine roles could never use the journal entity GIN index and every entity history read scanned the tenant journal (470 ms); ADR-0008 marks the function LEAKPROOF at bootstrap and migration 0005 disables the GIN pending list (10 ms after). API fixed-arrival success rose from 59.6 % to 99.7 %, closed-loop success 99.96 %, tail restart 2 s, no-snapshot rebuild 12–24 s, restore 107–147 s. Per-class latency targets (hot p95 1.1–1.6 s vs 200/350 ms), MCP fixed-arrival success 75.9 % (engine admission rejections), durable ack p95 4.9–8.5 s and engine steady memory still fail: 15 of 26 targets. Host load during the runs was 17–240, never idle. Evidence: reports/evidence/PILOT-09-perf, reports/performance.json.
 
 Follow-up on 2026-11-03 (same commit lineage): SEC-02 now passes (authorized tenant export with audit, two-tenant isolation test, exercised on the install); PERF-01 now passes (EXPLAIN evidence, indexed-SQL reference agrees with the API for 200 hot and 36 cold orders, a full-journal scan on the readiness hot path was removed, reducers exist only in Rust). The engine's no-snapshot rebuild dropped from 196 s to 45 s and steady memory to about 1.1 GiB on a corpus that grew to roughly 900k entries, but the full smoke protocol still fails on this shared host (9 of 26 targets hold; see reports/performance.json and reports/evidence/PILOT-09-followup). Evidence: reports/evidence/SEC-02, PERF-01, PILOT-09-followup.
 
@@ -58,7 +60,7 @@ Open http://127.0.0.1:19180, sign in with the key shown once by setup, run the d
 
 ## Remaining blockers and next steps
 
-1. Re-run the performance smoke on an idle or dedicated 4 vCPU / 8 GiB host and address engine RSS and rebuild time.
+1. Re-run the performance smoke on a dedicated 4 vCPU / 8 GiB host starting from migration 0005; remaining suspects are API connections held idle-in-transaction while awaiting the engine, engine admission rejections on the MCP fixed-arrival path and the engine's per-entry memory floor.
 2. Reduce the per-entry metadata floor in the engine and the PostgreSQL work per request; re-run the smoke on a quiet host.
 3. Provide an authorized read-only Shopify store token (SLICE-02, SOURCE-01) and an independent reviewer for the register rows.
 4. Owner-session checks for sleep/wake and account replacement (PILOT-05).
