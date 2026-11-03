@@ -128,3 +128,10 @@ Clipped essential controls: the geometry check (every visible button/link/input 
 
 Totals: intentional deviation: 10, match: 26, match with additions: 2, match with deviations: 24, not reproducible: 2, not reproducible with demo data: 3 (of 67 reference captures)
 
+
+## Orchestrator spot-check (2026-11-03)
+
+Independently of the verifier's per-capture table, the orchestrating agent compared four pairs image-to-image (reference capture vs. real-browser screenshot of the build-#9 install): 08-recorder, 22-answer-inventory, 46-agents and 02-landing-hero/01-landing.
+
+- Matches: green/cream palette, dark sidebar with workspace card and the same navigation order, five-track recorder with per-track entry chips and counts, four stat cards, two-panel lower section (question shortcuts, recent activity), agents page with connection panel, copyable configuration block and tool list, landing hero with headline pair, two actions and the recorder preview.
+- Deviations (all already listed above as intentional or documented): English default with locale switch; readiness badges instead of demo-assistant chips; the 24-question catalogue lives on Questions & Answers instead of below the agents page; the answer is rendered as the typed engine envelope (calculation steps, result fields, evidence, data status) inside the group card rather than the prototype's single headline sentence with three large numbers; the landing adds the release metadata card and installation guide required by the download contract; the header badge shows the measured health state ("Degraded" when backups are unconfigured) instead of the prototype's static "System ready".
