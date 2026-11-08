@@ -6,37 +6,46 @@ A local commerce flight recorder: source evidence becomes linked facts, commitme
 
 ## Architecture
 
-Everything runs locally on the Mac as Docker Compose services on a private network. Only the API is published, on `127.0.0.1:19180`; PostgreSQL and the engine are not reachable from the host.
+Everything runs locally on the Mac as Docker Compose services on a private network (dashed frame). Only the API is published, on `127.0.0.1:19180`; PostgreSQL and the engine are not reachable from the host.
 
 ```text
-┌──────────────────────────────┐        ┌────────────────────────────────┐
-│ Browser on the Mac           │        │ External AI (Claude, Cursor …) │
-│ http://127.0.0.1:19180       │        │ via MCP bridge (packages/mcp)  │
-└──────────────┬───────────────┘        └──────────────┬─────────────────┘
-               │ HTTP                                  │ HTTP + read-only agent key
-               ▼                                       ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ API  (apps/api – TypeScript / Fastify)                                 │
-│ • Login: owner key, sessions, agent keys (argon2id)                    │
-│ • Routing, Zod validation, tenant scope                                │
-│ • Serves the web UI (apps/web – React)                                 │
-└──────────────┬───────────────────────────────────────┬─────────────────┘
-               │ SQL                                   │ HTTP RPC (port 7070)
-               ▼                                       ▼
-┌──────────────────────────────┐        ┌──────────────────────────────┐
-│ PostgreSQL 16                │◄───────│ Engine  (apps/engine – Rust) │
-│ • Append-only journal        │ reads  │ • In-memory state            │
-│ • Row-level security         │        │ • Exact money & stock        │
-│ • Outbox & audit log         │        │ • 24 business questions      │
-└──────────────────────────────┘        └──────────────────────────────┘
-               ▲
-               │ writes new entries
-┌──────────────┴───────────────────────┐    ┌────────────────────────┐
-│ Worker  (apps/worker – TypeScript)   │    │ Backup                 │
-│ • Background jobs                    │    │ • Encrypted backups    │
-│ • Import: Shopify, Shopify Payments, │    │ • Restore              │
-│   bank CSV                           │    └────────────────────────┘
-└──────────────────────────────────────┘
+  ┌──────────────────────────────┐        ┌────────────────────────────────┐
+  │ Browser on the Mac           │        │ External AI (Claude, Cursor …) │
+  │ http://127.0.0.1:19180       │        │ via MCP bridge (packages/mcp)  │
+  └──────────────┬───────────────┘        └──────────────┬─────────────────┘
+                 │ HTTP                                  │ HTTP + read-only agent key
+┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+╎                ▼                                       ▼                     ╎
+╎ ┌────────────────────────────────────────────────────────────────────────┐   ╎
+╎ │ API  (apps/api – TypeScript / Fastify)                                 │   ╎
+╎ │ • Only service reachable from the Mac (127.0.0.1)                      │   ╎
+╎ │ • Login: owner key, sessions, agent keys (argon2id)                    │   ╎
+╎ │ • Routing, Zod validation, tenant scope                                │   ╎
+╎ │ • Serves the web UI (apps/web – React)                                 │   ╎
+╎ └──────────────┬───────────────────────────────────────┬─────────────────┘   ╎
+╎                │ SQL                                   │ HTTP RPC (port 7070) ╎
+╎                ▼                                       ▼                     ╎
+╎ ┌──────────────────────────────┐        ┌──────────────────────────────┐     ╎
+╎ │ PostgreSQL 16                │◄───────│ Engine  (apps/engine – Rust) │     ╎
+╎ │ • Append-only journal        │ reads  │ • In-memory state            │     ╎
+╎ │ • Row-level security         │        │ • Exact money & stock        │     ╎
+╎ │ • Outbox & audit log         │        │ • 24 business questions      │     ╎
+╎ └──────────────────────────────┘        └──────────────────────────────┘     ╎
+╎                ▲                                                             ╎
+╎                │ writes new entries                                          ╎
+╎ ┌──────────────┴───────────────────────┐    ┌────────────────────────┐       ╎
+╎ │ Worker  (apps/worker – TypeScript)   │    │ Backup                 │       ╎
+╎ │ • Background jobs                    │    │ • Encrypted backups    │       ╎
+╎ │ • Import: Shopify, Shopify Payments, │    │ • Restore              │       ╎
+╎ │   bank CSV                           │    └────────────────────────┘       ╎
+╎ └──────────────┬───────────────────────┘                                     ╎
+└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ Docker on the Mac · private network ╌╌╌╌┘
+                 │ fetches data (outbound only)
+                 ▼
+  ┌──────────────────────────────┐
+  │ Shopify · Shopify Payments   │
+  │ (online provider APIs)       │
+  └──────────────────────────────┘
 
 Host: ./blackbox CLI – setup, up, down, status, backup, restore, upgrade
 ```
