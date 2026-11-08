@@ -4,6 +4,60 @@ A local commerce flight recorder: source evidence becomes linked facts, commitme
 
 **Status: prepared build assignment. Product implementation has not started.** The static prototype is the design reference, with simulated data. The current assignment is a **local pilot P0–P4, then handover and stop for feedback**. The previous automatic SaaS/server/native/gateway roadmap is deferred.
 
+## Architecture
+
+Everything runs locally on the Mac as Docker Compose services on a private network. Only the API is published, on `127.0.0.1:19180`; PostgreSQL and the engine are not reachable from the host.
+
+```text
+   Browser (web UI)                       External AI client (Claude, Cursor …)
+   http://127.0.0.1:19180                          │ stdio (MCP)
+          │                                        ▼
+          │                          ┌──────────────────────────────┐
+          │                          │ MCP bridge   packages/mcp    │
+          │                          │ TypeScript, runs on the host │
+          │                          │ named read-only agent key    │
+          │                          └──────────────┬───────────────┘
+          │ HTTP                                    │ HTTP + bearer key
+          ▼                                         ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ API                                    apps/api  TypeScript, Fastify │
+│ owner key / sessions (argon2id) · agent keys · Host/Origin checks    │
+│ tenant-scoped requests · serves the web UI (React, apps/web)         │
+└───────────┬───────────────────────────────────────┬─────────────────┘
+            │ SQL (bb_api role, RLS)                │ HTTP RPC :7070 (internal token)
+            ▼                                       ▼
+┌──────────────────────────────┐      ┌──────────────────────────────┐
+│ PostgreSQL 16                │      │ Engine         apps/engine + │
+│ append-only five-track       │◄─────│ crates/*       Rust (axum)   │
+│ journal · RLS per tenant ·   │ tail │ in-memory tenant state ·     │
+│ outbox · security audit      │ read │ exact money/stock reducers · │
+└──────────────▲───────────────┘      │ the 24 business questions    │
+               │                      └──────────────────────────────┘
+               │ append_journal_entries (bb_worker role)
+┌──────────────┴───────────────┐      ┌──────────────────────────────┐
+│ Worker        apps/worker    │      │ Backup / backup-scheduler    │
+│ TypeScript, pg-boss jobs     │      │ scheduled encrypted backups  │
+│ Shopify, Shopify Payments,   │      │ (age), restore               │
+│ bank CSV · polling, backfill,│      └──────────────────────────────┘
+│ reconciliation               │
+└──────────────────────────────┘
+   Host: ./blackbox CLI (doctor, setup, up, down, backup, restore, upgrade, reset-access)
+```
+
+| Component | Path | Language / stack | Purpose |
+| --- | --- | --- | --- |
+| PostgreSQL | `packages/database` (migrations) | PostgreSQL 16, SQL | Durable source of truth: append-only journal with evidence, row-level security per tenant, outbox, security audit. Non-owner runtime roles `bb_api`, `bb_worker`, `bb_engine`. |
+| Engine | `apps/engine`, `crates/*` | Rust, axum, sqlx, rust_decimal | Tails the journal, keeps per-tenant state in memory with snapshots, computes money and stock exactly and answers the 24 questions. Read-only towards PostgreSQL. |
+| API | `apps/api` | TypeScript, Node.js, Fastify, Zod | The only published service: authentication, sessions, agent keys, tenant scoping, routing to the engine, serving the web UI. |
+| Worker | `apps/worker`, `packages/connectors` | TypeScript, pg-boss | Background jobs: provider polling, backfill and reconciliation, outbox dispatch, backups, retention. Writes only through `append_journal_entries`. |
+| Web UI | `apps/web`, `packages/ui`, `packages/i18n` | TypeScript, React 18, Vite | Browser application, English default with German. |
+| Landing page | `apps/landing` | TypeScript, Vite | Standalone download page for the versioned Mac archive with checksum and guide. |
+| MCP bridge | `packages/mcp` | TypeScript, MCP SDK | Lets external AI clients ask questions over stdio with a named read-only agent key; calls the API. |
+| Backup | `infra/docker/backup.Dockerfile` | shell, age, pg_dump | Scheduled encrypted backups and restore. |
+| Host CLI | `scripts/blackbox` | Bash, Docker Compose | Install, start/stop, status, backup/restore, upgrade, access reset. |
+
+Shared TypeScript packages: `application` (API use cases), `auth`, `database`, `logging` (sanitized structured logs), `testing`. Engine crates: `domain` (pure reducers, no I/O), `projections` (in-memory state, snapshots, eviction), `query` (the 24 intents), `storage` (PostgreSQL reads). Details: [docs/architecture.md](docs/architecture.md), [docs/engine.md](docs/engine.md).
+
 ## Start the build
 
 Give each coding agent its assigned repository and paste:
