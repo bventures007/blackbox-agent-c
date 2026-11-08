@@ -62,6 +62,8 @@ Host: ./blackbox CLI – setup, up, down, status, backup, restore, upgrade
 | Backup | `infra/docker/backup.Dockerfile` | shell, age, pg_dump | Scheduled encrypted backups and restore. |
 | Host CLI | `scripts/blackbox` | Bash, Docker Compose | Install, start/stop, status, backup/restore, upgrade, access reset. |
 
+Without Docker, the same services also run as a native desktop app for macOS and Windows: [apps/desktop](apps/desktop/README.md) starts PostgreSQL, the engine, API and worker as local processes and shows the web UI in its own window.
+
 Shared TypeScript packages: `application` (API use cases), `auth`, `database`, `logging` (sanitized structured logs), `testing`. Engine crates: `domain` (pure reducers, no I/O), `projections` (in-memory state, snapshots, eviction), `query` (the 24 intents), `storage` (PostgreSQL reads). Details: [docs/architecture.md](docs/architecture.md), [docs/engine.md](docs/engine.md).
 
 ## Start the build

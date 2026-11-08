@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import pg from "pg";
 import { MIGRATIONS_DIR } from "./migrate.js";
 
@@ -88,7 +89,9 @@ export function passwordsFromEnv(env: NodeJS.ProcessEnv = process.env): Bootstra
   return { migrate: get("BB_MIGRATE_PASSWORD"), api: get("BB_API_PASSWORD"), worker: get("BB_WORKER_PASSWORD"), engine: get("BB_ENGINE_PASSWORD") };
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+// Entry-point check. The file name is compared too: when this module is bundled into another program
+// (e.g. the desktop app's API CLI bundle), import.meta.url is that program's file and would match argv[1].
+const isMain = !!process.argv[1] && /^bootstrap\.[cm]?js$/.test(path.basename(process.argv[1])) && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const superuserUrl = process.env.BB_SUPERUSER_URL;
   if (!superuserUrl) {

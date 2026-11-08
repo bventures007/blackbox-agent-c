@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "IPC for the bundled status page only. The Blackbox web UI served by the local API (http://127.0.0.1) is a remote origin and gets no IPC access.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

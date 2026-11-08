@@ -1,0 +1,38 @@
+[package]
+name = "blackbox-desktop"
+version = "0.1.0"
+description = "Blackbox desktop app: supervises the local PostgreSQL, engine, API and worker without Docker"
+edition = "2021"
+rust-version = "1.85"
+publish = false
+
+# Separate Cargo workspace: the desktop shell has its own (larger) dependency tree and toolchain
+# and must not slow down or change the lockfile of the engine workspace at the repository root.
+[workspace]
+
+[lib]
+name = "blackbox_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rand = "0.8"
+anyhow = "1"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+signal-hook = "=0.4.5"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true
+
+# Build scripts and proc-macros are host dylibs; stripping them on macOS makes rustc unable to load them.
+[profile.release.build-override]
+strip = false

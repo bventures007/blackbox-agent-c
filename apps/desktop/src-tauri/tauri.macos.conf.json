@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "targets": ["app", "dmg"],
+    "resources": {
+      "../runtime/darwin-arm64/": "runtime/"
+    },
+    "macOS": {
+      "minimumSystemVersion": "12.0"
+    }
+  }
+}

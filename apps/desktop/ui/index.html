@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blackbox</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="card" aria-live="polite">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3" /><path d="M8 15l3-3 2 2 3-4" /></svg>
+        </span>
+        Blackbox<span class="brand-dot">.</span>
+      </div>
+
+      <section id="progress">
+        <ol class="steps" id="steps"></ol>
+        <p class="message" id="message"></p>
+      </section>
+
+      <section id="owner" hidden>
+        <h1 data-t="ownerTitle"></h1>
+        <p data-t="ownerBody"></p>
+        <div class="key-row">
+          <code id="key"></code>
+          <button class="btn secondary" id="copy" type="button" data-t="copy"></button>
+        </div>
+        <label class="check"><input type="checkbox" id="saved" /> <span data-t="savedCheck"></span></label>
+        <button class="btn primary" id="continue" type="button" disabled data-t="continue"></button>
+      </section>
+
+      <section id="missing" hidden>
+        <h1 data-t="missingTitle"></h1>
+        <p data-t="missingBody"></p>
+        <div class="actions">
+          <button class="btn primary" id="newKey" type="button" data-t="newKey"></button>
+          <button class="btn secondary" id="haveKey" type="button" data-t="haveKey"></button>
+        </div>
+      </section>
+
+      <section id="error" hidden>
+        <h1 data-t="errorTitle"></h1>
+        <pre id="errorText"></pre>
+        <div class="actions">
+          <button class="btn primary" id="retry" type="button" data-t="retry"></button>
+          <button class="btn secondary" id="logs" type="button" data-t="logs"></button>
+        </div>
+      </section>
+
+      <footer class="meta" id="meta"></footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

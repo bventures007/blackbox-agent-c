@@ -3,6 +3,7 @@
  * Blackbox worker entry point. Binds no listener. PostgreSQL via DATABASE_URL_WORKER (role bb_worker).
  * pg-boss queues: source.run (per-connection/poll-group singleton), outbox.dispatch, backups.due, retention.cleanup.
  */
+import { pathToFileURL } from 'node:url';
 import { PgBoss } from 'pg-boss';
 import { createWorkerPool, FileEvidenceStore, loadKeyring, withInstallation } from '@blackbox/connectors';
 import { loadConfig } from './config.js';
@@ -99,5 +100,6 @@ export async function main(): Promise<void> {
   process.on('SIGTERM', () => void shutdown('SIGTERM'));
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+// pathToFileURL handles Windows drive letters and spaces; a plain `file://${path}` URL does not.
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) main().catch((err) => { process.stderr.write(JSON.stringify({ schema_version: 1, level: 'ERROR', event_name: 'worker.fatal', message: String((err as Error).message).slice(0, 512), component: 'worker' }) + '\n'); process.exit(1); });

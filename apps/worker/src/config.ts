@@ -2,6 +2,7 @@
 import { hostname } from 'node:os';
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { delimiter } from 'node:path';
 
 export interface WorkerConfig {
   database_url: string;
@@ -62,7 +63,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
     lease_seconds: num('LEASE_SECONDS', 300, 30, 3600),
     max_pages_per_job: num('MAX_PAGES_PER_JOB', 200, 1, 100_000),
     evidence_dir: env.EVIDENCE_DIR ?? './data/evidence',
-    storage_paths: (env.STORAGE_PATHS ?? env.EVIDENCE_DIR ?? './data').split(':').filter(Boolean),
+    // Separated like PATH: ':' on macOS/Linux, ';' on Windows (drive letters contain ':').
+    storage_paths: (env.STORAGE_PATHS ?? env.EVIDENCE_DIR ?? './data').split(delimiter).filter(Boolean),
     storage_check_ms: num('STORAGE_CHECK_MS', 30_000, 1000, 3_600_000),
     backup_command: env.BACKUP_COMMAND || null,
     backup_cron: env.BACKUP_CRON ?? '0 3 * * *',
